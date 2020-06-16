@@ -5,14 +5,29 @@ import FormPage from '../pages/form.vue';
 import CatalogPage from '../pages/catalog.vue';
 import ProductPage from '../pages/product.vue';
 import SettingsPage from '../pages/settings.vue';
+import Login from '../pages/login.vue';
+import Clientes from '../pages/clientes.vue';
+import nuevoCliente from '../pages/nuevoCliente.vue';
 
 import DynamicRoutePage from '../pages/dynamic-route.vue';
 import RequestAndLoad from '../pages/request-and-load.vue';
 import NotFoundPage from '../pages/404.vue';
 
 var routes = [
-  {
+   {
     path: '/',
+    component: Login,
+  },
+  {
+    path: '/cliente_nuevo',
+    component: nuevoCliente,
+  },
+  {
+    path: '/clientes',
+    component: Clientes,
+  },
+  {
+    path: '/home',
     component: HomePage,
   },
   {

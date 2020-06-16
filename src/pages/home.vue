@@ -11,13 +11,10 @@
       </f7-nav-right>
       <f7-nav-title-large>app_prestamos</f7-nav-title-large>
     </f7-navbar>
-
+    
     <!-- Page content-->
     <f7-block strong>
-      <div v-for="(usuario,index) in usuarios"  :key=index>
-        {{usuario.usuario}}
-      </div>
-     
+    
       <p>This is an example of tabs-layout application. The main point of such tabbed layout is that each tab contains independent view with its own routing and navigation.</p>
 
       <p>Each tab/view may have different layout, different navbar type (dynamic, fixed or static) or without navbar like this tab.</p>
@@ -70,22 +67,13 @@
 </template>
 
 <script>
-import axios from 'axios';
+
 export default {
   data() {
     return {
-      firstor:'',
-      usuarios:[]
+      firstor:''
+     
     }
-  },
-  mounted(){
-  axios.get('https://us-central1-manifest-life-279516.cloudfunctions.net/getDataDocumentUsuarios')
-  .then( (response) =>  {
-    this.usuarios=response.data;
-    console.log(response);
-  }).catch(error => {
-    console.log(error);
-  }); 
-}
+  }
 }
 </script>
