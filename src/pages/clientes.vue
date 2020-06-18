@@ -1,10 +1,18 @@
 <template>
- <f7-page name="catalog">
-    <f7-navbar title="Clientes" back-link="Atras">
-         <!-- <f7-nav-right>
+ <f7-page name="Clientes">
+    <f7-navbar large :sliding="false">
+      <f7-nav-left>
+        <f7-link icon-ios="f7:menu" icon-aurora="f7:menu" icon-md="material:menu" panel-open="left"></f7-link>
+      </f7-nav-left>
+      <f7-nav-title sliding>Clientes</f7-nav-title>
+      <f7-nav-title-large>Clientes</f7-nav-title-large>
+    </f7-navbar>
+    <!-- <f7-navbar title="Clientes" back-link="Atras">
+      
+    </f7-navbar> -->
+       <!-- <f7-nav-right>
        
       </f7-nav-right> -->
-    </f7-navbar>
     <f7-block>
 
   <f7-row>
@@ -22,14 +30,14 @@
         </f7-list>
       </div>
       <div v-else>
-       <f7-row>
+       <f7-row no-gap>
     
-    <f7-col>
+    <f7-col width="10">
     </f7-col> 
-        <f7-col sm>
+        <f7-col width="10">
             <f7-preloader></f7-preloader>
     </f7-col> 
-        <f7-col>
+        <f7-col width="10">
     </f7-col> 
        </f7-row>  
       
@@ -63,10 +71,10 @@ export default {
       }
     },
     beforeCreate(){
-    axios.get('https://us-central1-manifest-life-279516.cloudfunctions.net/Clientes?doc=todos')
+    axios.get('https://us-central1-manifest-life-279516.cloudfunctions.net/Cobradores?doc=7ZPZBoPtG9q0Zn1GF84a&sub=Clientes')
     .then( (response) =>  {
         this.clientes=response.data;
-        console.log(response);
+        console.log("datossss...",response);
         this.isLoadUsers= true;
     }).catch(error => {
         console.log(error);

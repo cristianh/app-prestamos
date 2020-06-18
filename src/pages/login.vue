@@ -21,22 +21,25 @@
         <a-alert v-if="error" :message="error" type="error" />
       </f7-block>
     </f7-list>
-    <f7-list>
+    <f7-list >
+       <f7-block>
+         <f7-list >
+               <f7-list-item
+              checkbox
+              :checked=recordarme
+              name="my-checkbox"
+              value="Books"
+              title="Recordarme."
+              @change="getCheck"
+            ></f7-list-item>
+             </f7-list>
+     </f7-block>
+     
       <f7-list-button @click="signIn">Ingresar</f7-list-button>
        <!-- <f7-list-button href="/registro/">Registrame</f7-list-button> -->
       <!-- <f7-block-footer>Some text about login information.<br>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</f7-block-footer> -->
     </f7-list>
-    <f7-block>
-      
-  <!-- <f7-row>
-    <f7-col>
-      <f7-button @click="signInGoogle" fill color="red">GOOGLE</f7-button>
-    </f7-col>
-    <f7-col>
-      <f7-button @click="signInFacebook" fill color="blue">FACEBOOK</f7-button>
-    </f7-col>
-    </f7-row> -->
-     </f7-block>
+   {{recordarme}}
  
      <div style="dislay:inlin-block">
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320">
@@ -53,6 +56,7 @@ import firebase from 'firebase'
   export default {
     data() {
       return {
+        recordarme:false,
         username: '',
         password: '',
         userGooglename:'Invitado',
@@ -64,9 +68,9 @@ import firebase from 'firebase'
       };
     },
     created(){
-       axios.get('https://app-prestamo.herokuapp.com/Todo2').then((response)=>{
-                console.log("hroku",response);
-            })
+      //  axios.get('https://app-prestamo.herokuapp.com/Todo2').then((response)=>{
+      //           console.log("hroku",response);
+      //       })
 
          
     },
@@ -120,13 +124,6 @@ import firebase from 'firebase'
         //   router.back();
         // });
       },
-      beforeRouteEnter (to, from, next) {
-        
-      },
-      beforeCreate() {
-        const userCurrent=firebase.auth().currentUser;
-        console.log(userCurrent);
-      },
       signIn() {
         // const self = this;
         // const app = self.$f7;
@@ -156,10 +153,22 @@ import firebase from 'firebase'
             
             });
       },
+      getCheck($event){
+       console.log($event);
+       this.recordarme=!this.recordarme;
+       if(this.recordarme){
+         // Guardar datos al almacenamiento local actual
+          localStorage.setItem("username", this.username);
+          localStorage.setItem("password", this.password);
+
+          
+       }
+       
+      },
       GuardarUsuario(){
-        axios.post('https://app-prestamo.herokuapp.com/Todo2',this.info).then((response)=>{
-                console.log(response);
-            })
+        // axios.post('https://app-prestamo.herokuapp.com/Todo2',this.info).then((response)=>{
+        //         console.log(response);
+        //     })
       }
     },
   };

@@ -2,41 +2,40 @@
   <f7-app :params="f7params" >
 
   <!-- Left panel with cover effect-->
-  <f7-panel left cover theme-dark>
+  <f7-panel left cover >
     <f7-view>
       <f7-page>
-        <f7-navbar title="Left Panel"></f7-navbar>
-        <f7-block>Left panel content goes here</f7-block>
+        <f7-navbar title="Menu"></f7-navbar>
+        <f7-block>
+<f7-list simple-list>
+  <f7-list-item title="Pendiente"></f7-list-item>
+  <f7-list-item title="Modificar Abono"></f7-list-item>
+  <f7-list-item title="Eliminar Abono"></f7-list-item>
+  <f7-list-item title="Resumen del dia"></f7-list-item>
+  <f7-list-item title="Terminar ruta"></f7-list-item>
+</f7-list>
+</f7-block>
       </f7-page>
     </f7-view>
   </f7-panel>
-
-
-  <!-- Right panel with reveal effect-->
-  <f7-panel right reveal theme-dark>
-    <f7-view>
-      <f7-page>
-        <f7-navbar title="Right Panel"></f7-navbar>
-        <f7-block>Right panel content goes here</f7-block>
-      </f7-page>
-    </f7-view>
-  </f7-panel>
-
 
   <!-- Views/Tabs container -->
   <f7-views tabs class="safe-areas">
     <!-- Tabbar for switching views-tabs -->
     <f7-toolbar tabbar labels bottom>
-      <f7-link tab-link="#view-ruta" tab-link-active icon-ios="f7:house_fill" icon-aurora="f7:house_fill" icon-md="material:home" text="Ruta"></f7-link>
+      <f7-link tab-link="#view-inicio" tab-link-active icon-ios="f7:home" icon-aurora="f7:home" icon-md="material:home" text="Inicio"></f7-link>
+      <f7-link tab-link="#view-ruta"  icon-ios="f7:swap_calls" icon-aurora="f7:swap_calls" icon-md="material:swap_calls" text="Ruta"></f7-link>
       <f7-link tab-link="#view-cliente" icon-ios="f7:square_list_fill" icon-aurora="f7:square_list_fill" icon-md="material:view_list" text="Clientes"></f7-link>
-      <f7-link tab-link="#view-nuevocobro" icon-ios="f7:gear" icon-aurora="f7:gear" icon-md="material:settings" text="Abonos"></f7-link>
+      <f7-link tab-link="#view-nuevocobro" icon-ios="f7:local_atm" icon-aurora="f7:local_atm" icon-md="material:local_atm" text="Abonos"></f7-link>
     </f7-toolbar>
 
     <!-- Your main view/tab, should have "view-main" class. It also has "tab-active" class -->
-    <f7-view id="view-ruta" main tab tab-active url="/"></f7-view>
+    <f7-view id="view-inicio"  name="inicio" main tab  url="/"></f7-view>
+
+    <f7-view id="view-ruta"  name="ruta" main tab  url="/rutas"></f7-view>
 
     <!-- Catalog View -->
-    <f7-view id="view-cliente" name="clientes" tab url="/clientes/"></f7-view>
+    <f7-view id="view-cliente"  name="clientes" tab url="/clientes/"></f7-view>
 
     <!-- Settings View -->
     <f7-view id="view-nuevocobro" name="settings" tab url="/settings/"></f7-view>

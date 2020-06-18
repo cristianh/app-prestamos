@@ -9,9 +9,65 @@ admin.initializeApp(functions.config().firebase);
 
 const db = admin.firestore();
 
+exports.CobradoresGuardarClientes =  functions.https.onRequest( async (request, response, body) => {
+ await db.collection('cobradores').doc(request.query.doc).collection(request.query.sub).add({
+                                          Nombre:request.body.nombre,
+                                          Apellido:request.body.apellido,
+                                          Direccion1:request.body.direccion1,
+                                          Direccion2:request.body.direccion2,
+                                          Identificacion:request.body.identificacion,
+                                          Oficio:request.body.oficio}).then(() =>{ 
+                                                    return response.send('Cliente registrado.');
+                                                }).catch((error)=>{
+                                                    return response.status(500).send(error);
+                                                });
+});
 
 
+exports.CobradoresGuardarCobros =  functions.https.onRequest( async (request, response, body) => {
+ await db.collection('cobradores').doc(request.query.doc).collection(request.query.sub).add({
+                                          Cliente:request.body.cliente,
+                                          Valor_cobro:request.body.valor_cobro,
+                                          fecha_creacion:request.body.fecha_creacion}).then(() =>{ 
+                                                    return response.send('Cobro registrado.');
+                                                }).catch((error)=>{
+                                                    return response.status(500).send(error);
+                                                });
+});
 
+exports.CobradoresGuardarPrestamos =  functions.https.onRequest( async (request, response, body) => {
+ await db.collection('cobradores').doc(request.query.doc).collection(request.query.sub).add({
+                                          Cliente:request.body.cliente,
+                                          Valor_prestado:request.body.valor_prestado,
+                                          fecha_creacion:request.body.fecha_creacion}).then(() =>{ 
+                                                    return response.send('Prestamo registrado.');
+                                                }).catch((error)=>{
+                                                    return response.status(500).send(error);
+                                                });
+});
+
+exports.CobradoresGuardarRutas =  functions.https.onRequest( async (request, response, body) => {
+ await db.collection('cobradores').doc(request.query.doc).collection(request.query.sub).add({
+                                          Nombre:request.body.nombre,
+                                          Descripcion:request.body.descripcion,
+                                          fecha_creacion:request.body.fecha_creacion}).then(() =>{ 
+                                                    return response.send('Ruta registrada.');
+                                                }).catch((error)=>{
+                                                    return response.status(500).send(error);
+                                                });
+});
+
+
+exports.CobradoresGuardarGastos =  functions.https.onRequest( async (request, response, body) => {
+ await db.collection('cobradores').doc(request.query.doc).collection(request.query.sub).add({
+                                          Descripcion:request.body.descripcion,
+                                          Valor_gasto:request.body.valor_gasto,
+                                          fecha_creacion:request.body.fecha_creacion}).then(() =>{ 
+                                                    return response.send('Ruta registrada.');
+                                                }).catch((error)=>{
+                                                    return response.status(500).send(error);
+                                                });
+});
 /**
  * @function Funcion que se encarga de manajar los end-point de Empresas.
  * @param request
@@ -20,6 +76,12 @@ const db = admin.firestore();
  */
 exports.Cobradores =  functions.https.onRequest( async (request, response, body) => {
  //response.send("Hello from Firebase!");
+ response.set('Access-Control-Allow-Origin', '*');
+    response.set('Access-Control-Allow-Credentials', 'true'); // vital
+    response.set('Access-Control-Allow-Methods', 'GET,POST','PUT','DELETE','OPTIONS');
+    response.set('Access-Control-Allow-Headers', 'Content-Type');
+    response.set('Access-Control-Allow-Headers', 'Content-Length,Content-Range');
+    response.set('Access-Control-Allow-Headers', 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization');
 try {
   const snapshot =  await db.collection('cobradores').get();
   //return  await response.send(request.query.all);
@@ -44,6 +106,28 @@ try {
               return response.status(200).send(JSON.stringify(cobradores));
               }
           }else{
+            if(request.query.sub){
+            let datasubcolltion=[];
+            const docRef =  await db.collection('cobradores').doc(request.query.doc).collection(request.query.sub).get()
+              .then(snapshot => {
+                 snapshot.forEach(doc => {
+                  let id = doc.id;
+                  let datadocument = doc.data();
+                  //cobradores.push(id,datadocument);
+                  datasubcolltion.push({
+                          id: doc.id,
+                          data: doc.data()
+                      });
+               
+                
+                 });
+                 return response.status(200).send(JSON.stringify(datasubcolltion));
+              })
+              .catch(err => {
+                return response.send('Error getting document', err).end();
+              });
+          }else{
+            
             const docRef =  await db.collection('cobradores').doc(request.query.doc).get()
               .then(doc => {
                 if (!doc.exists) {
@@ -57,17 +141,20 @@ try {
                 return response.send('Error getting document', err).end();
               });
           }
+          //}
+          }
           
           break;
     case 'POST':
           //response.status(200).send(request.body);
-    
       await db.collection('cobradores').add({
-                                          Direccion:request.body.direccion,
                                           Nombre:request.body.nombre,
-                                          Balance:request.body.balance,
-                                          Pais:request.body.pais}).then(() =>{ 
-                                                    return response.send('Empresas registrada');
+                                          Apellido:request.body.apellido,
+                                          Direccion1:request.body.direccion1,
+                                          Direccion2:request.body.direccion2,
+                                          Identificacion:request.body.identificacion}).then((ref) =>{ 
+                                                    // db.collection('cobradores').doc(ref.id).collection("Clientes").set({'hola':'fg'});
+                                                    return response.send('Cobrador registrada'+ ref.id);
                                                 }).catch((error)=>{
                                                     return response.status(500).send(error);
                                                 });
@@ -192,6 +279,95 @@ try {
               }
       return response.status(200).send('ok').end();
 });
+
+/**
+ * @function Funcion que se encarga de manajar los end-point de Clientes.
+ * @param request
+ * @param response
+ * @param body
+ * @description Metodos GET,POST,PUT,ELETE.
+ */
+exports.Rutas =  functions.https.onRequest( async (request, response, body) => {
+ //response.send("Hello from Firebase!");
+response.set('Access-Control-Allow-Origin', '*');
+response.set('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS'); 
+response.set('Access-Control-Allow-Credentials', 'true'); // vital
+response.set('Access-Control-Allow-Headers','Origin, X-Requested-With, Content-Type, Accept');
+try {
+  const snapshot =  await db.collection('rutas').get();
+  //return  await response.send(request.query.all);
+    
+      switch (request.method) {
+        case 'GET':
+          if(request.query.doc === 'todos'){
+          let rutas=[];
+             
+                if (snapshot.empty) {
+                return response.send('Not Found');
+              }else{
+                snapshot.forEach(doc => {
+                  let id = doc.id;
+                  let datadocument = doc.data();
+                  //clientes.push(id,{id},data:{datadocument});
+                  rutas.push({
+                          id: doc.id,
+                          data: doc.data()
+                      });
+              });
+              return response.status(200).send(JSON.stringify(rutas));
+              }
+          }else{
+            const docRef =  await db.collection('rutas').doc(request.query.doc).get()
+              .then(doc => {
+                if (!doc.exists) {
+                  
+                  return response.send('Not Found')
+                } 
+                  
+                  return response.status(200).send(JSON.stringify(doc.data())).end();
+              })
+              .catch(err => {
+                return response.send('Error getting document', err).end();
+              });
+          }
+          
+          break;
+    case 'POST':
+ 
+      await db.collection('rutas').add({
+                                          Nombre:request.body.nombre,
+                                          fecha_creacion:request.body.fecha
+                                        }).then(() =>{ 
+                                                    return response.send('Ruta registrada');
+                                                }).catch((error)=>{
+                                                    return response.status(500).send(error);
+                                                });
+
+            break;
+    case 'PUT':
+    await db.collection('rutas').doc(request.query.doc).set(request.body,{merge:true})
+    .then(()=> response.json(request.query.doc))
+    .catch((error)=> response.status(500).send(error))
+    break;
+    case 'DELETE':
+           
+    await db.collection('rutas').doc(request.query.doc).delete()
+          .then(()=>res.status(204).send("Document successfully deleted!"))
+          .catch((error) => {
+                 return  response.status(500).send(error);
+          });
+                return response.send(request.method);
+        default:
+          
+          break;
+      }
+        } catch (err) {
+                  return response.send('Error getting document', err);
+                
+              }
+      return response.status(200).send('ok').end();
+});
+
 
 /**
  * @function Funcion que se encarga de manajar los end-point de Clientes.

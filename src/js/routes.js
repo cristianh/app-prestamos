@@ -7,28 +7,44 @@ import ProductPage from '../pages/product.vue';
 import SettingsPage from '../pages/settings.vue';
 import Login from '../pages/login.vue';
 import Clientes from '../pages/clientes.vue';
+import Rutas from '../pages/rutas.vue';
 import nuevoCliente from '../pages/nuevoCliente.vue';
 
 import DynamicRoutePage from '../pages/dynamic-route.vue';
 import RequestAndLoad from '../pages/request-and-load.vue';
 import NotFoundPage from '../pages/404.vue';
 
+
 var routes = [
    {
     path: '/',
-    component: Login,
+    async(routeTo, routeFrom, resolve, reject) {
+        if (localStorage.getItem("username")) {
+          resolve({
+            component: HomePage,
+          });
+        } else {
+          resolve({
+            component: Login
+          });
+        }
+    }
   },
   {
-    path: '/cliente_nuevo',
-    component: nuevoCliente,
+    path: '/rutas',
+    component: Rutas,
   },
   {
     path: '/clientes',
     component: Clientes,
   },
   {
+    path: '/cliente_nuevo',
+    component: nuevoCliente,
+  },
+  {
     path: '/home',
-    component: HomePage,
+    component: HomePage
   },
   {
     path: '/about/',
