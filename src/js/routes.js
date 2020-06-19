@@ -6,10 +6,10 @@ import CatalogPage from '../pages/catalog.vue';
 import ProductPage from '../pages/product.vue';
 import SettingsPage from '../pages/settings.vue';
 import Login from '../pages/login.vue';
-import Clientes from '../pages/clientes.vue';
-import Rutas from '../pages/rutas.vue';
-import nuevoCliente from '../pages/nuevoCliente.vue';
-
+import ClientesPage from '../pages/clientes.vue';
+import RutasPage from '../pages/rutas.vue';
+import nuevoClientePage from '../pages/nuevoCliente.vue';
+import clienteDetallesPage from '../pages/clienteDetalles.vue';
 import DynamicRoutePage from '../pages/dynamic-route.vue';
 import RequestAndLoad from '../pages/request-and-load.vue';
 import NotFoundPage from '../pages/404.vue';
@@ -18,6 +18,7 @@ import NotFoundPage from '../pages/404.vue';
 var routes = [
    {
     path: '/',
+    //component: Login,
     async(routeTo, routeFrom, resolve, reject) {
         if (localStorage.getItem("username")) {
           resolve({
@@ -32,15 +33,19 @@ var routes = [
   },
   {
     path: '/rutas',
-    component: Rutas,
+    component: RutasPage,
   },
   {
     path: '/clientes',
-    component: Clientes,
+    component: ClientesPage,
   },
   {
     path: '/cliente_nuevo',
-    component: nuevoCliente,
+    component: nuevoClientePage,
+  },
+  {
+    path: '/cliente_detalles/:id/',
+    component: clienteDetallesPage
   },
   {
     path: '/home',

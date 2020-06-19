@@ -39,7 +39,7 @@
        <!-- <f7-list-button href="/registro/">Registrame</f7-list-button> -->
       <!-- <f7-block-footer>Some text about login information.<br>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</f7-block-footer> -->
     </f7-list>
-   {{recordarme}}
+  
  
      <div style="dislay:inlin-block">
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320">

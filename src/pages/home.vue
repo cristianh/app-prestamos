@@ -8,19 +8,24 @@
       <f7-nav-title sliding>Sucomercio</f7-nav-title>
       <f7-nav-title-large>Sucomercio</f7-nav-title-large>
     </f7-navbar>
+  
+<f7-card
+  outline
+  title="Bienvenido."
+  content="Card with header and footer. Card headers are used to display card titles and footers for additional information or just for custom actions."
+  footer="Ultima conexion: 06/18/2020"
+></f7-card>
+
     
-     
     <f7-list  inset>
-  <f7-list-item title="Saldo actual" after="2.000.0000"><img slot="media" src="https://cdn.framework7.io/placeholder/fashion-88x88-4.jpg" width="44" /><f7-icon ios="f7:local_atm" aurora="f7:local_atm" md="material:local_atm"></f7-icon>
-    <f7-icon slot="media" icon="local_atm"></f7-icon>
+   <f7-list-item title="Saldo General" after="2.000.0000"><f7-icon ios="f7:local_atm" aurora="f7:local_atm" md="material:local_atm"></f7-icon>
+    
+  </f7-list-item>
+   <f7-list-item title="Saldo Base" after="1.000.0000"><f7-icon ios="f7:local_atm" aurora="f7:local_atm" md="material:local_atm"></f7-icon>
+    
   </f7-list-item>
     </f7-list>
-    
-  
-    <!-- Page content-->
-  <f7-card
-  content="This is a simple card with plain text, but cards can also contain their own header, footer, list view, image, or any other element."
-></f7-card>
+
     <!-- <f7-block-title>Navigation</f7-block-title>
     <f7-list>
       <f7-list-item link="/about/" title="About"></f7-list-item>

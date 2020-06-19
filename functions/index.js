@@ -10,17 +10,61 @@ admin.initializeApp(functions.config().firebase);
 const db = admin.firestore();
 
 exports.CobradoresGuardarClientes =  functions.https.onRequest( async (request, response, body) => {
- await db.collection('cobradores').doc(request.query.doc).collection(request.query.sub).add({
-                                          Nombre:request.body.nombre,
-                                          Apellido:request.body.apellido,
-                                          Direccion1:request.body.direccion1,
-                                          Direccion2:request.body.direccion2,
-                                          Identificacion:request.body.identificacion,
-                                          Oficio:request.body.oficio}).then(() =>{ 
+    response.set('Access-Control-Allow-Origin', '*');
+    response.set('Access-Control-Allow-Credentials', 'true'); // vital
+    response.set('Access-Control-Allow-Methods', 'GET,POST','PUT','DELETE','OPTIONS');
+    response.set('Access-Control-Allow-Headers', 'Content-Type');
+    response.set('Access-Control-Allow-Headers', 'Content-Length,Content-Range');
+    response.set('Access-Control-Allow-Headers', 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization');
+
+ await db.collection('cobradores').doc(request.query.doc).collection(request.query.sub).add(request.body).then(() =>{ 
                                                     return response.send('Cliente registrado.');
                                                 }).catch((error)=>{
                                                     return response.status(500).send(error);
                                                 });
+});
+
+exports.CobradoresClientesBuscar =  functions.https.onRequest( async (request, response, body) => {
+    response.set('Access-Control-Allow-Origin', '*');
+    response.set('Access-Control-Allow-Credentials', 'true'); // vital
+    response.set('Access-Control-Allow-Methods', 'GET,POST','PUT','DELETE','OPTIONS');
+    response.set('Access-Control-Allow-Headers', 'Content-Type');
+    response.set('Access-Control-Allow-Headers', 'Content-Length,Content-Range');
+    response.set('Access-Control-Allow-Headers', 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization');
+   let datasubcolltion=[];
+   const docRef = await db.collection('cobradores').doc(request.query.doc).collection(request.query.sub).doc(request.query.subdoc).get().then(doc => {
+                  if (!doc.exists) {
+                  
+                  return response.send('Not Found')
+                } 
+                  
+                  return response.status(200).send(JSON.stringify(doc.data())).end();
+              })
+              .catch(err => {
+                return response.send('Error getting document', err).end();
+              });
+    //return response.status(200).send(docRef);
+
+            //let datasubcolltion=[];
+            // const docRef =  await db.collection('cobradores').doc(request.query.doc).collection(request.query.sub).doc(request.query.subdoc).get()
+            //   .then(snapshot => {
+            //      snapshot.forEach(doc => {
+            //       let id = doc.id;
+            //       let datadocument = doc.data();
+            //       //cobradores.push(id,datadocument);
+            //       datasubcolltion.push({
+            //               id: doc.id,
+            //               data: doc.data()
+            //           });
+               
+                
+            //      });
+            //      return response.status(200).send(JSON.stringify(datasubcolltion));
+            //   })
+            //   .catch(err => {
+            //     return response.send('Error getting document', err).end();
+            //   });
+
 });
 
 
@@ -47,6 +91,12 @@ exports.CobradoresGuardarPrestamos =  functions.https.onRequest( async (request,
 });
 
 exports.CobradoresGuardarRutas =  functions.https.onRequest( async (request, response, body) => {
+   response.set('Access-Control-Allow-Origin', '*');
+    response.set('Access-Control-Allow-Credentials', 'true'); // vital
+    response.set('Access-Control-Allow-Methods', 'GET,POST','PUT','DELETE','OPTIONS');
+    response.set('Access-Control-Allow-Headers', 'Content-Type');
+    response.set('Access-Control-Allow-Headers', 'Content-Length,Content-Range');
+    response.set('Access-Control-Allow-Headers', 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization');
  await db.collection('cobradores').doc(request.query.doc).collection(request.query.sub).add({
                                           Nombre:request.body.nombre,
                                           Descripcion:request.body.descripcion,
@@ -76,7 +126,7 @@ exports.CobradoresGuardarGastos =  functions.https.onRequest( async (request, re
  */
 exports.Cobradores =  functions.https.onRequest( async (request, response, body) => {
  //response.send("Hello from Firebase!");
- response.set('Access-Control-Allow-Origin', '*');
+    response.set('Access-Control-Allow-Origin', '*');
     response.set('Access-Control-Allow-Credentials', 'true'); // vital
     response.set('Access-Control-Allow-Methods', 'GET,POST','PUT','DELETE','OPTIONS');
     response.set('Access-Control-Allow-Headers', 'Content-Type');

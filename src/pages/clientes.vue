@@ -26,7 +26,7 @@
 </f7-block>
 <div v-if="isLoadUsers">
         <f7-list sortable @sortable:sort="onSort">
-        <f7-list-item  v-for="(cliente,index,key) in clientes"  :id=cliente.id :key=cliente.id :title="key" link="#">{{cliente.data.Nombre}}</f7-list-item>
+        <f7-list-item  v-for="(cliente,index,key) in clientes"  :id=cliente.id :key=cliente.id :title="key"  :link="`/cliente_detalles/${cliente.id}/`">{{cliente.data.usuario.nombre}}</f7-list-item>
         </f7-list>
       </div>
       <div v-else>
@@ -47,7 +47,7 @@
     
     <f7-col>
       
-        <f7-button  sortable-toggle=".sortable" fill large small color="green">ORDENAR</f7-button>
+        <f7-button  sortable-toggle=".sortable" fill large small color="blue" @click="txt_ordenar=!txt_ordenar" :text="txt_ordenar?'LISTO':'ORDENAR'"></f7-button>
     </f7-col>
   
   </f7-row>
@@ -61,7 +61,8 @@ export default {
     data() {
         return {
              clientes:[],
-            isLoadUsers:false
+            isLoadUsers:false,
+            txt_ordenar:false
         }
     },
     methods: {

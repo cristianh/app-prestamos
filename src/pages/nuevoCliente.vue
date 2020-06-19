@@ -21,7 +21,7 @@
         label="Identificacion"
         type="text"
         placeholder="Identificacion"
-        @input="form.identificacion=$event.target.value"
+        @input="form.usuario.identificacion=$event.target.value"
       ></f7-list-input>
 
       <f7-list-input
@@ -30,7 +30,7 @@
         label="Nombre"
         type="text"
         placeholder="Nombre"
-        @input="form.nombre=$event.target.value"
+        @input="form.usuario.nombre=$event.target.value"
       ></f7-list-input>
 
       <f7-list-input
@@ -39,7 +39,7 @@
         label="Apellido"
         type="text"
         placeholder="Apellido"
-        @input="form.apellido=$event.target.value"
+        @input="form.usuario.apellido=$event.target.value"
       ></f7-list-input>
 
       <f7-list-input
@@ -48,7 +48,7 @@
         label="Direccion 1"
         type="text"
         placeholder="Direccion 1"
-        @input="form.direccion1=$event.target.value"
+        @input="form.usuario.direccion1=$event.target.value"
       ></f7-list-input>
 
       <f7-list-input
@@ -57,7 +57,7 @@
         label="Direccion 2"
         type="text"
         placeholder="Direccion 2"
-        @input="form.direccion2=$event.target.value"
+        @input="form.usuario.direccion2=$event.target.value"
       ></f7-list-input>
 
        <f7-list-input
@@ -66,7 +66,7 @@
         label="Oficio"
         type="text"
         placeholder="Oficio"
-        @input="form.oficio=$event.target.value"
+        @input="form.usuario.oficio=$event.target.value"
       ></f7-list-input>
 
      
@@ -84,7 +84,7 @@
         label="Nombre negocio"
         type="text"
         placeholder="Nombre Negocio"
-        @input="form.identificacion=$event.target.value"
+        @input="form.negocio.nombre_negocio=$event.target.value"
       ></f7-list-input>
 
       <f7-list-input
@@ -93,7 +93,7 @@
         label="Direccion"
         type="text"
         placeholder="Direccion"
-        @input="form.nombre=$event.target.value"
+        @input="form.negocio.direccion=$event.target.value"
       ></f7-list-input>
 
       <f7-list-input
@@ -102,7 +102,7 @@
         label="Telefono"
         type="text"
         placeholder="Telefono"
-        @input="form.apellido=$event.target.value"
+        @input="form.negocio.telefono=$event.target.value"
       ></f7-list-input>
 
       <f7-list-input
@@ -111,14 +111,68 @@
         label="Ciudad"
         type="text"
         placeholder="Ciudad"
-        @input="form.direccion1=$event.target.value"
+        @input="form.negocio.ciudad=$event.target.value"
       ></f7-list-input>     
     </f7-list>
     </f7-tab>
-    <f7-tab id="Codeudor" class="page-content">
-      <f7-block>
-        <p>Donec iaculis posuere massa sed dignissim. Praesent id nibh nec massa mollis egestas. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas...</p>
-      </f7-block>
+    <f7-tab id="Codeudor" >
+       <f7-block-title>Codeudor</f7-block-title>
+      <f7-list no-hairlines-md inset>
+        
+        <f7-list-input
+        outline
+        floating-label
+        label="Nombre Codeudor"
+        type="text"
+        placeholder="Nombre Codeudor"
+        @input="form.codeudor.nombre_codeudor=$event.target.value"
+      ></f7-list-input>
+
+      <f7-list-input
+        outline
+        floating-label
+        label="Documento Codeudor"
+        type="text"
+        placeholder="Documento Codeudor"
+        @input="form.codeudor.documento_codeudor=$event.target.value"
+      ></f7-list-input>
+
+      <f7-list-input
+        outline
+        floating-label
+        label="Telefono Codeudor 1"
+        type="text"
+        placeholder="Telefono Codeudor 1"
+        @input="form.codeudor.telefeno1=$event.target.value"
+      ></f7-list-input>
+
+      <f7-list-input
+        outline
+        floating-label
+        label="Telefono Codeudor 2"
+        type="text"
+        placeholder="Telefono Codeudor 2"
+        @input="form.codeudor.telefeno2=$event.target.value"
+      ></f7-list-input> 
+
+      <f7-list-input
+        outline
+        floating-label
+        label="Telefono Codeudor 3 (opcional)"
+        type="text"
+        placeholder="Telefono Codeudor 3"
+        @input="form.codeudor.telefeno3=$event.target.value"
+      ></f7-list-input> 
+
+      <f7-list-input
+        outline
+        floating-label
+        label="Ciudad"
+        type="text"
+        placeholder="Ciudad"
+        @input="form.codeudor.ciudad=$event.target.value"
+      ></f7-list-input>  
+    </f7-list>
     </f7-tab>
   </f7-tabs>
   
@@ -144,12 +198,28 @@ export default {
     data() {
         return {
             form:{
-                identificacion:'',
-                nombre:'',
-                apellido:'',
-                direccion1:'',
-                direccion2:'',
-                oficio:''
+                usuario:{
+                  identificacion:'',
+                  nombre:'',
+                  apellido:'',
+                  direccion1:'',
+                  direccion2:'',
+                  oficio:''
+                },
+                negocio:{
+                  nombre_negocio:'',
+                  direccion:'',
+                  telefeno:'',
+                  ciudad:''
+                },
+                codeudor:{
+                  nombre_codeudor:'',
+                  documento_codeudor:'',
+                  telefeno1:'',
+                  telefeno2:'',
+                  telefeno3:'',
+                  ciudad:''
+                }
             }
         }
     },
@@ -162,7 +232,7 @@ export default {
      const self = this;
         self.$f7.dialog.preloader('Guardando...');
        
-                axios.post('https://us-central1-manifest-life-279516.cloudfunctions.net/Clientes',this.form,config)
+                axios.post('https://us-central1-manifest-life-279516.cloudfunctions.net/CobradoresGuardarClientes?doc=7ZPZBoPtG9q0Zn1GF84a&sub=Clientes',this.form,config)
     .then( (response) =>  {
        self.$f7.dialog.close();
        this.form={

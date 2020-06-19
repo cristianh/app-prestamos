@@ -30,7 +30,7 @@
     </f7-toolbar>
 
     <!-- Your main view/tab, should have "view-main" class. It also has "tab-active" class -->
-    <f7-view id="view-inicio"  name="inicio" main tab  url="/"></f7-view>
+    <f7-view id="view-inicio" main tab tab-active  url="/"></f7-view>
 
     <f7-view id="view-ruta"  name="ruta" main tab  url="/rutas"></f7-view>
 

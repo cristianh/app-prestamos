@@ -4,6 +4,11 @@
       <f7-nav-left>
         <f7-link icon-ios="f7:menu" icon-aurora="f7:menu" icon-md="material:menu" panel-open="left"></f7-link>
       </f7-nav-left>
+           <f7-searchbar
+        inline
+        custom-search
+        :disable-button="false"
+      ></f7-searchbar>
       <f7-nav-title sliding>Rutas</f7-nav-title>
       <f7-nav-title-large>Rutas</f7-nav-title-large>
     </f7-navbar>
