@@ -11,7 +11,7 @@
   
 <f7-card
   outline
-  title="Bienvenido."
+  :title="profile_name"
   content="Card with header and footer. Card headers are used to display card titles and footers for additional information or just for custom actions."
   footer="Ultima conexion: 06/18/2020"
 ></f7-card>
@@ -78,12 +78,14 @@
 export default {
   data() {
     return {
-      firstor:''
+      firstor:'',
+      profile_name:''
      
     }
   },
   created() {
     // Acceder a datos almacenados
+    this.profile_name = 'Bienvenido '+localStorage.getItem("name")+'.';
     console.log( "username = " + localStorage.getItem("username")+ "nombredeusuario = " + localStorage.getItem("password"));
   }
 }

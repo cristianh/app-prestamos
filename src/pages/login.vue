@@ -134,6 +134,10 @@ import firebase from 'firebase'
             firebase.auth().signInWithEmailAndPassword(this.username, this.password).then((response)=> {
             console.log(response);
             const username = response.user;
+            const id= response.user.displayName.split("-");
+            localStorage.setItem("uid", id[1]);
+            localStorage.setItem("email", response.user.email);
+             localStorage.setItem("name", id[0]);
             const self = this;
             const app = self.$f7;
             const router = self.$f7router;
@@ -160,8 +164,6 @@ import firebase from 'firebase'
          // Guardar datos al almacenamiento local actual
           localStorage.setItem("username", this.username);
           localStorage.setItem("password", this.password);
-
-          
        }
        
       },

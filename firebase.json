@@ -13,7 +13,8 @@
     "source": "functions"
   },
   "hosting": {
-    "public": "y",
+    "site": "adminprestamosdashboard",
+    "public": "y/dist",
     "ignore": [
       "firebase.json",
       "**/.*",

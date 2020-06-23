@@ -1,121 +1,156 @@
-Introduction
-============
+# CoreUI Free Vue Bootstrap Admin Template
 
-[![npm version](https://img.shields.io/npm/v/admin-lte/latest.svg)](https://www.npmjs.com/package/admin-lte)
-[![Packagist](https://img.shields.io/packagist/v/almasaeed2010/adminlte.svg)](https://packagist.org/packages/almasaeed2010/adminlte)
-[![CDNJS](https://img.shields.io/cdnjs/v/admin-lte.svg)](https://cdnjs.com/libraries/admin-lte)
+[![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/intent/tweet?text=CoreUI%20-%20Free%20Vue%20Admin%20Template%20&url=http://coreui.io/vue/&hashtags=bootstrap,admin,template,dashboard,panel,free,angular,react,vue)
+[![NPM][npm-coreui-vue-badge-latest]][npm-coreui-vue]
+[![Downloads](https://img.shields.io/npm/dm/@coreui/vue.svg?style=flat-square)][coreui]
+[![Vue](https://img.shields.io/badge/Vue-^2.6.11-brightgreen.svg?style=flat-square)][coreui]
 
-**AdminLTE** is a fully responsive administration template. Based on **[Bootstrap 4.4](https://getbootstrap.com)** framework and also the JS/jQuery plugin.
-Highly customizable and easy to use. Fits many screen resolutions from small mobile devices to large desktops.
+[npm-coreui-vue]: https://www.npmjs.com/package/@coreui/vue
+[npm-coreui-vue-badge-latest]: https://img.shields.io/npm/v/@coreui/vue/latest?style=flat-square&color=brightgreen  
+[coreui]: https://coreui.io/vue
 
-**Preview on [AdminLTE.io](https://adminlte.io/themes/v3)**
+![Template](https://coreui.io/images/github/vue-free-template-3.gif)
 
-Looking for Premium Templates?
-------------------------------
-AdminLTE.io just opened a new premium templates page. Hand picked to ensure the best quality and the most affordable
-prices. Visit https://adminlte.io/premium for more information.
+## Description
 
-!["AdminLTE Presentation"](https://adminlte.io/AdminLTE3.png "AdminLTE Presentation")
+Why we decided to create CoreUI? Please read this article: [Jack of all trades, master of none. Why Boostrap Admin Templates suck.](https://medium.com/@lukaszholeczek/jack-of-all-trades-master-of-none-5ea53ef8a1f#.7eqx1bcd8)
 
-**AdminLTE** has been carefully coded with clear comments in all of its JS, SCSS and HTML files.
-SCSS has been used to increase code customizability.
+**This is not just another Admin Template.** It goes way beyond hitherto admin templates thanks to:
 
-Installation
-------------
-There are multiple ways to install AdminLTE.
+- Wonderful styling delivered by bootstrap compatible css library [CoreUI](https://coreui.io/docs/3.0-beta/),
+- Dedicated [component library](https://coreui.io/vue/docs/),
+- Dedicated vue tooling libraries ([coreui-vue-chartjs](https://coreui.io/vue/docs/components/charts), [coreui-icons-vue](https://github.com/coreui/coreui-icons-vue)),
+- Over 500 [free svg icons](https://coreui.io/icons) consistent with our styling,
+- Transparent code and file structure
+- Possibility of extension to [pro version](https://coreui.io/vue) which offers even more!
 
-#### Download:
+CoreUI is meant to be the UX game changer. Pure & transparent code is devoid of redundant components, so the app is light enough to offer ultimate user experience. This means mobile devices also, where the navigation is just as easy and intuitive as on a desktop or laptop. The CoreUI Layout API lets you customize your project for almost any device – be it Mobile, Web or WebApp – CoreUI covers them all!
 
-Download from [Github releases](https://github.com/ColorlibHQ/AdminLTE/releases).
+**NOTE:** Please remember to star this project to get new versions updates of this template.
 
-#### Using The Command Line:
+### Demo
 
-_**Important Note**: To install it via NPM/Yarn, you need at least Node.js 10 or higher._
+A fully functional demo is available at [CoreUI](http://coreui.io/vue/)
 
-__Via NPM__
-```bash
-npm install admin-lte@^3.0 --save
+### Table of Contents
+
+- [Installation](#installation)
+- [Usage](#usage)
+- [Documentation](#documentation)
+- [Contributing](#contributing)
+- [Versioning](#versioning)
+- [Our other products](#our-other-products)
+- [Community](#community)
+- [Community Projects](#community-projects)
+- [License](#copyright-and-license)
+- [Support CoreUI Development](#support-coreui-development)
+
+### Installation
+
+#### Clone repo
+
+``` bash
+# clone the repo
+$ git clone https://github.com/coreui/coreui-free-vue-admin-template.git CoreUI-Vue
+
+# go into app's directory
+$ cd CoreUI-Vue
+
+# install app's dependencies
+$ npm install
 ```
 
-__Via Yarn__
-```bash
-yarn add admin-lte@^3.0
+#### Usage
+
+``` bash
+# serve with hot reload at localhost:8080
+npm run serve
+
+# build for production with minification
+npm run build
+
+# run linter
+npm run lint
+
+# run unit tests
+npm run test:unit
+
+# run e2e tests
+npm run test:e2e
+
 ```
 
-__Via Composer__
-```bash
-composer require "almasaeed2010/adminlte=~3.0"
-```
+For a detailed explanation on how things work, check out the [Vue CLI Guide](https://cli.vuejs.org/guide/).
 
-__Via Git__
-- Clone to your machine
-```
-git clone https://github.com/ColorlibHQ/AdminLTE.git
-```
+### Documentation
 
-Documentation
--------------
-Visit the [online documentation](https://adminlte.io/docs/3.0/) for the most
-updated guide. Information will be added on a weekly basis.
+CoreUI tools documentation:
 
-Browser Support
----------------
-- IE 10+
-- Firefox (latest)
-- Chrome (latest)
-- Safari (latest)
-- Opera (latest)
-- Microsoft Edge (latest)
+- Components documentation: [CoreUI Vue library](https://coreui.io/vue/docs)
+- Styles documentation: [CoreUI styles](https://coreui.io/docs/3.0-beta/)
+- Icons documentation: [CoreUI Icons](http://coreui.io/icons)
 
-Contribution
-------------
-Contribution are always **welcome and recommended**! Here is how:
+### Bugs and feature requests
 
-- Fork the repository ([here is the guide](https://help.github.com/articles/fork-a-repo/)).
-- Clone to your machine ```git clone https://github.com/YOUR_USERNAME/AdminLTE.git```
-- Create a new branch
-- Make your changes
-- Create a pull request
+Have a bug or a feature request? [Please open a new issue](https://github.com/coreui/coreui-free-vue-admin-template/issues).
 
-#### Compile dist files
-To compile the dist files you need nodejs/npm, clone/download the repo then:
+### Contributing
 
-1. `npm install` (install npm deps)
-2. _Optional:_ `npm run dev` (developer mode, autocompile with browsersync support for live demo)
-3. `npm run production` (compile css/js files)
+Please read through our [contributing guidelines](https://github.com/coreui/coreui-free-vue-admin-template/blob/master/.github/CONTRIBUTING.md). Included are directions for opening issues, coding standards, and notes on development.
 
-#### Contribution Requirements:
-- When you contribute, you agree to give a non-exclusive license to AdminLTE.io to use that contribution in any context as we (AdminLTE.io) see appropriate.
-- If you use content provided by another party, it must be appropriately licensed using an [open source](http://opensource.org/licenses) license.
-- Contributions are only accepted through Github pull requests.
-- Finally, contributed code must work in all supported browsers (see above for browser support).
+### Versioning
 
-License
--------
-AdminLTE is an open source project by [AdminLTE.io](https://adminlte.io) that is licensed under [MIT](http://opensource.org/licenses/MIT). AdminLTE.io
-reserves the right to change the license of future releases.
+For transparency into our release cycle and in striving to maintain backward compatibility,CoreUI Free Admin Template is maintained under [the Semantic Versioning guidelines](http://semver.org/).
 
-Latest Release
----------------
-- [AdminLTE 3](https://github.com/ColorlibHQ/AdminLTE/releases/latest)
+See [the Releases section of our project](https://github.com/coreui/coreui-free-vue-admin-template/releases) for changelogs for each release version.
 
-Legacy Releases
----------------
-- [AdminLTE 2](https://github.com/ColorlibHQ/AdminLTE/releases/tag/v2.4.18)
-- [AdminLTE 1](https://github.com/ColorlibHQ/AdminLTE/releases/tag/1.3.1)
+### Our other products
 
-Change log
-----------
-Visit the [releases](https://github.com/ColorlibHQ/AdminLTE/releases) page to view the changelog
+CoreUI is built on top of Bootstrap 4 and supports popular frameworks.
 
-Image Credits
--------------
-[Pixeden](http://www.pixeden.com/psd-web-elements/flat-responsive-showcase-psd)
+#### Free version products
 
-[Graphicsfuel](http://www.graphicsfuel.com/2013/02/13-high-resolution-blur-backgrounds/)
+* [CoreUI Free Bootstrap Admin Template](https://github.com/coreui/coreui-free-bootstrap-admin-template)
+* [CoreUI Free Angular Admin Template](https://github.com/coreui/coreui-free-angular-admin-template)
+* [CoreUI Free Laravel Admin Template](https://github.com/coreui/coreui-free-laravel-admin-template)
+* [CoreUI Free React.js Admin Template](https://github.com/coreui/coreui-free-react-admin-template)
+* [CoreUI Free Vue.js Admin Template](https://github.com/coreui/coreui-free-vue-admin-template)
+* [CoreUI Free Vue.js + Laravel Admin Template](https://github.com/coreui/coreui-free-vue-laravel-admin-template)
 
-[Pickaface](http://pickaface.net/)
+#### Pro version products
 
-[Unsplash](https://unsplash.com/)
+* 💪  [CoreUI Pro Bootstrap Admin Template](https://coreui.io/pro/)
+* 💪  [CoreUI Pro Angular Admin Template](https://coreui.io/pro/angular)
+* 💪  [CoreUI Pro Laravel Admin Template](https://coreui.io/pro/laravel)
+* 💪  [CoreUI Pro React Admin Template](https://coreui.io/pro/react)
+* 💪  [CoreUI Pro Vue Admin Template](https://coreui.io/pro/vue)
+* 💪  [CoreUI Pro Vue + Laravel Admin Template](https://coreui.io/pro/vue-laravel)
 
-[Uifaces](http://uifaces.com/)
+## CoreUI PRO Vue.js Admin Templates
+
+| Default Theme | Legacy Theme | Dark Layout |
+| --- | --- | --- |
+| [![CoreUI Pro Bootstrap Admin Template](https://coreui.io/images/mockups/mockup_3_1_default.png)](https://coreui.io/pro/vue/) | [![CoreUI Pro Bootstrap Admin Template](https://coreui.io/images/mockups/mockup_3_1_legacy.png)](https://coreui.io/pro/vue/)| [![CoreUI Pro Bootstrap Admin Template](https://coreui.io/images/mockups/mockup_3_1_dark.png)](https://coreui.io/pro/vue/)
+
+## Community
+
+Get updates on CoreUI's development and chat with the project maintainers and community members.
+
+- Follow [@core_ui on Twitter](https://twitter.com/core_ui).
+- Read and subscribe to [CoreUI Blog](https://coreui.ui/blog/).
+
+### Community Projects
+
+Some of projects created by community but not maintained by CoreUI team.
+
+- [NuxtJS + Vue CoreUI](https://github.com/muhibbudins/nuxt-coreui)
+- [Colmena](https://github.com/colmena/colmena)
+
+## Copyright and license
+
+Copyright 2020 creativeLabs Łukasz Holeczek. Code released under [the MIT license](https://github.com/coreui/coreui-free-vue-admin-template/blob/master/LICENSE).
+There is only one limitation - you cannot re-distribute the `CoreUI` as stock nor if you modify the `CoreUI`. In the past we faced some problems with persons who tried to sell `CoreUI` based templates.
+
+## Support CoreUI Development
+
+CoreUI is an MIT licensed open source project and completely free to use. However, the amount of effort needed to maintain and develop new features for the project is not sustainable without proper financial backing. You can support development by buying [PRO version](https://coreui.io/pro/).
