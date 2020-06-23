@@ -9,7 +9,14 @@ import firebase from 'firebase'
 import axios from 'axios';
 import PickList from 'primevue/picklist';
 
-Vue.component('Dialog', PickList);
+
+import 'primevue/resources/themes/saga-blue/theme.css';       //theme
+//import 'primevue/resources/primevue.min.css';    
+import 'primevue/resources/primevue.min.css'                 //core css
+import 'primeicons/primeicons.css'                 //core css
+
+Vue.component('PickList', PickList);
+
 
 const firebaseConfig = {
   apiKey: "AIzaSyA8t8KjQDFQhJ62OHZoaKc7eJ3QrvEYFXA",
@@ -23,6 +30,10 @@ const firebaseConfig = {
 };
 
 firebase.initializeApp(firebaseConfig);
+
+axios.defaults.baseURL = 'https://us-central1-manifest-life-279516.cloudfunctions.net/';
+
+
 
 Vue.use({axios});
 Vue.use({firebase});

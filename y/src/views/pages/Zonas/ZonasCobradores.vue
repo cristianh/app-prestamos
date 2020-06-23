@@ -1,17 +1,34 @@
 <template>
     <div>
-        <PickList v-model="cars" dataKey="vin">
+        {{selectionItem}}
+        <PickList v-model="cobradores" :dataKey="cobradores.id"  @move-to-target="getItems"  @move-to-source="setItems" :selection.sync="selection">
+            <template #sourceHeader>
+        Cobradores
+    </template>
+    <template #targetHeader>
+        Seleccionados
+    </template>
     <template #item="slotProps">
         <div class="p-caritem">
-            <img :src="'demo/images/car/' + slotProps.item.brand + '.png'">
+            <!-- <img :src="'demo/images/car/' + slotProps.item.brand + '.png'"> -->
             <div>
-                <span class="p-caritem-vin">{{slotProps.item.vin}}</span>
-                <span>{{slotProps.item.year}} - {{slotProps.item.color}}</span>
+                <!-- <span class="p-caritem-vin">Id:{{slotProps.item.id}}</span> -->
+                <!-- {{slotProps.item}} -->
+               
+                 <span><b>Identificacion:</b> {{slotProps.item.Identificacion}}</span>
+                  <span><b>Nombre:</b> {{slotProps.item.Nombre}} {{slotProps.item.Apellido}}</span>
+                 <span><b>Telefono:</b> {{slotProps.item.Telefono}}</span>
+                 <span><b>Direccion:</b> {{slotProps.item.Direccion1}}</span>
+                <!-- <span>Nombre:{{slotProps.item}}</span>
+                <span>Apellido:{{slotProps.item}}</span>
+                 <span>Identificacion:{{slotProps.item.Identificacion}}</span> -->
             </div>
         </div>
     </template>
 </PickList>
-        <CCard>
+{{selection}}
+
+        <!-- <CCard>
          <CCardHeader>
         <strong>Zona:</strong>
         <div class="card-header-actions">
@@ -52,13 +69,13 @@
                 v-model.lazy="zonas_form.fecha"
               />
       </CCol>
-      <CCol sm="12">
-      <CSelect
+      <CCol sm="12"> -->
+      <!-- <CSelect
                   label="Empresas"
                   :options="empresas"
                   :value.sync="zonas_form.empresa"
-                />
-      </CCol>
+                /> -->
+      <!-- </CCol>
     </CRow>
     
     </CCardBody>
@@ -69,20 +86,15 @@
           </CCol>
     </CRow>
     </CCardFooter>
-     </CCard>
-     {{$data.zonas_form}}
+     </CCard> -->
     </div>
 </template>
 
 <script>
 import ZonaService from './Services/ZonaService.js';
+import CobradoresService from '../Cobradores/Services/CobradoresService.js';
+
 export default {
-    props:{
-            nombre:String,
-            balance:Number,
-            fecha:String,
-            empresa:String
-    },
     data() {
         return {
         zonas_form:{
@@ -91,46 +103,54 @@ export default {
           fecha:'',
           empresa:''
         },
-        empresas:[]
+        zonas_empresas:[],
+        cobradores:[],
+        zonaService:null,
+        cobradoresService:null,
+        selection:[],
+        selectionItem:[]
         
         }
     },
+     created() {
+        this.zonaService = new ZonaService();
+        this.cobradoresService = new CobradoresService();
+    },
     beforeMount() {
-                  axios.get('https://us-central1-manifest-life-279516.cloudfunctions.net/Empresas?doc=todos')
-    .then( (response) =>  {
-        let tamporal = response.data;
-        
+   
+        let cobradores = this.cobradoresService.getAllCobradores();
+         cobradores.then((response)=>{
+            //
+            this.cobradores= [response.data.slice(0,5),[]]
+            console.log(this.cobradores);
+       
+             
+         });
 
-        for (const key in tamporal) {
-            if (tamporal.hasOwnProperty(key)) {
-                 let element={ value: tamporal[key].id, label: tamporal[key].Nombre };
-                 this.empresas.push(element);
-                
-            }
-        }
-        //this.empresas=Object.values(response.data[0].Nombre);
 
-        console.table(Object.values(response.data[0].Nombre));
-        
-    }).catch(error => {
-        console.log(error);
-    });
+
+
+       let datos=this.zonaService.getAllZonasEmpresa('C5WpImx3HINVzZ2fPJyd','zonas');
+       let tamporal=[];
+        datos.then((response)=>{
+            tamporal=response;
+            //console.log(response.datadocument);
+          
+            
+        });
     },
     methods:{
         guardar(){
-        // const config = {
-        //     headers: {
-        //       'Content-Type': 'application/x-www-form-urlencoded'
-        //     }
-        //   }
-        axios.post('https://us-central1-manifest-life-279516.cloudfunctions.net/EmpresasGuardarZonas?doc='+this.zonas_form.empresa+'&sub=zonas',this.zonas_form).then( (response) =>  {
-        
-        console.log(response);
-       
-    }).catch(error => {
-        console.log(error);
-    }); 
-    }
+      
+        },
+        getItems(event){
+            this.selectionItem.unshift(event.items);
+            console.log(event.items);
+        },
+        setItems(event){
+            this.selectionItem.pop(event.items);
+            console.log(event.items);
+        }
     }
 }
 </script>

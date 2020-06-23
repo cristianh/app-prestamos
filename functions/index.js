@@ -25,11 +25,11 @@ exports.EmpresasZonas = functions.https.onRequest(async (request, response, body
                 snapshot.forEach(doc => {
                   let id = doc.id;
                   let datadocument = doc.data();
-                  //cobradores.push(id,datadocument);
-                  datasubcolltion.push({
-                    id: doc.id,
-                    data: doc.data()
-                  });
+                  datasubcolltion.push({id,datadocument});
+                  // datasubcolltion.push({
+                  //   id: doc.id,
+                  //   data: doc.data()
+                  // });
 
 
                 });
@@ -229,8 +229,9 @@ exports.Cobradores = functions.https.onRequest(async (request, response, body) =
             snapshot.forEach(doc => {
               let id = doc.id;
               let datadocument = doc.data();
-              cobradores.push(id, datadocument);
-              // users.push({
+              datadocument.id=id;
+              cobradores.push(datadocument);
+              // cobradores.push({
               //         id: doc.id,
               //         data: doc.data()
               //     });

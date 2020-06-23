@@ -38,6 +38,7 @@
     "@coreui/vue-chartjs": "^1.0.5",
     "axios": "^0.19.2",
     "firebase": "^7.15.2",
+    "primeicons": "^4.0.0",
     "primevue": "^2.0.0-rc.1",
     "vue": "~2.6.11",
     "vue-router": "~3.3.2",

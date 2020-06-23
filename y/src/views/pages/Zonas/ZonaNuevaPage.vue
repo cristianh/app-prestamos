@@ -65,6 +65,7 @@
 
 <script>
 import ZonaService from './Services/ZonaService.js';
+import EmpresaService from '../Empresa/Services/EmpresasService.js';
 export default {
     props:{
             nombre:String,
@@ -80,34 +81,40 @@ export default {
           fecha:'',
           empresa:''
         },
-        empresas:[],
-        zonaService:null
+        empresas:[{ value: 'Seleccione', label: 'Seleccione' }],
+        zonaService:null,
+        empresaService:null
         }
         
     },
     created() {
         this.zonaService = new ZonaService();
+        this.empresaService= new EmpresaService();
     },
     beforeMount() {
-                  axios.get('https://us-central1-manifest-life-279516.cloudfunctions.net/Empresas?doc=todos')
-    .then( (response) =>  {
-        let tamporal = response.data;
-        
 
-        for (const key in tamporal) {
+      let tamporal=[];
+      let empresas= this.empresaService.getAllEmpresas();
+        empresas.then((result)=>{
+        
+        tamporal=result.data;
+          for (const key in tamporal) {
             if (tamporal.hasOwnProperty(key)) {
                  let element={ value: tamporal[key].id, label: tamporal[key].Nombre };
+                 console.log(element);
                  this.empresas.push(element);
+                 
                 
             }
-        }
-        //this.empresas=Object.values(response.data[0].Nombre);
-
-        console.table(Object.values(response.data[0].Nombre));
+         }
         
-    }).catch(error => {
-        console.log(error);
-    });
+        });
+      
+        
+
+      
+
+   
     },
     methods:{
         guardar(){
