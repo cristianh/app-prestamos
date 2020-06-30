@@ -39,7 +39,7 @@
     </CRow>
     <CRow>
        <CCol col="4" sm="4" md="2" xl class="mb-3 mb-xl-0">
-            <CButton color="success"  @click="guardar" >GUARDAR</CButton>
+            <CButton color="success"  @click="onGuardarEmpresa" >GUARDAR</CButton>
           </CCol>
     </CRow>
     </CCardBody>
@@ -128,6 +128,7 @@
       </CCardFooter>
     </CCard>
     <WidgetsBrand/>
+     <Toast  autoZIndex position="bottomright" />
     </div>
 </template>
 
@@ -135,6 +136,7 @@
 import MainChartExample from '@/views/charts/MainChartExample'
 import WidgetsDropdown from '@/views/widgets/WidgetsDropdown'
 import WidgetsBrand from '@/views/widgets/WidgetsBrand'
+import EmpresaService from '../Empresa/Services/EmpresasService.js';
 
 export default {
   name: 'Dashboard',
@@ -149,6 +151,7 @@ export default {
           nombre:'',
           balance:''
       },
+      empresaService:null,
       selected: 'Month',
       tableItems: [
         {
@@ -210,16 +213,19 @@ export default {
       ]
     }
   },
+  created() {
+        this.empresaService= new EmpresaService();
+  },
   methods: {
-    guardar(){
-        axios.post('https://us-central1-manifest-life-279516.cloudfunctions.net/Empresas',this.empresa_form)
-    .then( (response) =>  {
-        this.clientes=response.data;
-        
-        this.isLoadUsers= true;
-    }).catch(error => {
-        console.log(error);
-    }); 
+    onGuardarEmpresa(){
+      this.empresaService.guardarEmpresa(this.empresa_form).then(rsp=>{
+        this.$toast.add({severity:'success', summary: 'Correcto.', detail:'Empresa Creada', life: 3000});  
+      }).catch((error) => {
+        //return response.status(500).send(error);
+        this.$toast.add({severity:'warn', summary: 'Error.', detail:error, life: 3000});  
+      });
+      //axios.post('https://us-central1-manifest-life-279516.cloudfunctions.net/EmpresasGuardarZonas?doc=GO7yltXDczsVav0oln4a&sub=zonas',{data:'hola'}).then( response => {response.data}).catch(error => {return error}); 
+   
     },
     color (value) {
       let $color

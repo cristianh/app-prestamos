@@ -8,6 +8,10 @@ import store from './store'
 import firebase from 'firebase'
 import axios from 'axios';
 import PickList from 'primevue/picklist';
+import Button from 'primevue/button';
+import ToastService from 'primevue/toastservice';
+import Toast from 'primevue/toast';
+
 
 
 import 'primevue/resources/themes/saga-blue/theme.css';       //theme
@@ -16,6 +20,9 @@ import 'primevue/resources/primevue.min.css'                 //core css
 import 'primeicons/primeicons.css'                 //core css
 
 Vue.component('PickList', PickList);
+Vue.component('Toast', Toast);
+Vue.component('Button', Button);
+
 
 
 const firebaseConfig = {
@@ -32,11 +39,16 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 
 axios.defaults.baseURL = 'https://us-central1-manifest-life-279516.cloudfunctions.net/';
+axios.defaults.headers.post['Content-Type'] = 'multipart/form-data';
+// axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded';
+axios.defaults.headers.post['Accept'] = 'application/json';
+
 
 
 
 Vue.use({axios});
 Vue.use({firebase});
+Vue.use(ToastService);
 
 //Use the window object to make it available globally.
 window.axios = axios;

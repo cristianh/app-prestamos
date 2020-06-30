@@ -11,6 +11,44 @@ admin.initializeApp(functions.config().firebase);
 const db = admin.firestore();
 
 
+exports.myFunctionName  = functions.firestore
+  .document('users/{userId}')
+  .onWrite((change, context) => { db.collection('cities').doc('SF').update({
+    capital: true
+})
+ });
+
+
+
+
+/**
+ * @function Funcion que devuelve todas las sonas de la empresa.
+ */
+exports.getEmpresaZonaDoc = functions.https.onRequest(async (request, response, body) => {
+  response.set('Access-Control-Allow-Origin', '*');
+  response.set('Access-Control-Allow-Credentials', 'true'); // vital
+  response.set('Access-Control-Allow-Methods', 'GET', 'POST', 'PUT', 'DELETE', 'OPTIONS');
+  response.set('Access-Control-Allow-Headers', 'Content-Type');
+  response.set('Access-Control-Allow-Headers', 'Content-Length,Content-Range');
+  response.set('Access-Control-Allow-Headers', 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization');
+  
+  let datasubcolltion = [];
+            await db.collection('empresas').doc(request.query.doc).collection('Zonas').doc(request.query.subdoc).get().then(doc => {
+                if (!doc.exists) {
+
+                  return response.send('Not Found')
+                }
+
+                return response.status(200).send(JSON.stringify(doc.data())).end();
+              })
+              .catch(err => {
+                return response.send('Error getting document', err).end();
+              });
+});
+
+/**
+ * @function Funcion que devuelve todas las sonas de la empresa.
+ */
 exports.EmpresasZonas = functions.https.onRequest(async (request, response, body) => {
   response.set('Access-Control-Allow-Origin', '*');
   response.set('Access-Control-Allow-Credentials', 'true'); // vital
@@ -25,7 +63,8 @@ exports.EmpresasZonas = functions.https.onRequest(async (request, response, body
                 snapshot.forEach(doc => {
                   let id = doc.id;
                   let datadocument = doc.data();
-                  datasubcolltion.push({id,datadocument});
+                  datadocument.id=id;
+                  datasubcolltion.push(datadocument);
                   // datasubcolltion.push({
                   //   id: doc.id,
                   //   data: doc.data()
@@ -40,53 +79,38 @@ exports.EmpresasZonas = functions.https.onRequest(async (request, response, body
               });
 });
 
-
-
-
-exports.EmpresasGuardarZonas = functions.https.onRequest(async (request, response, body) => {
+/**
+ * @function Funcion para guardar las zonas en la empresa.
+ */
+exports.EmpresasZonasGuardar = functions.https.onRequest(async (request, response, body) => {
   response.set('Access-Control-Allow-Origin', '*');
   response.set('Access-Control-Allow-Credentials', 'true'); // vital
   response.set('Access-Control-Allow-Methods', 'GET', 'POST', 'PUT', 'DELETE', 'OPTIONS');
   response.set('Access-Control-Allow-Headers', 'Content-Type');
   response.set('Access-Control-Allow-Headers', 'Content-Length,Content-Range');
   response.set('Access-Control-Allow-Headers', 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization');
-
 try {
-  await db.collection('empresas').doc(request.query.doc).collection(request.query.sub).add(request.body)
-  return response.status(200).send('ok').end();
+  const snapshot = await db.collection('empresas').doc(request.query.doc).get();
+
+        if (!snapshot.exists) {
+            return response.status(200).send(JSON.stringify({mensaje:'Empresa no econtrada.'})).end();
+          } else {
+             
+           await db.collection('empresas').doc(request.query.doc).collection(request.query.sub).add(request.body).then(() => {
+                return response.status(200).send(JSON.stringify({mensaje:'Zona Guardada.'})).end();
+              }).catch((error) => {
+                return response.status(500).send(error);
+              });
+          }
 } catch (error) {
-  return response.status(500).send(err).end();
+  return response.send('Error getting document', error).end();
 }
-
-//   let cityRef = db.collection('empresas').doc(request.query.doc);
-
-
-//   let transaction = db.runTransaction(t => {
-//    return cors(req, res, () => {
-//   // ...
-//   return t.get(cityRef)
-//       .then(doc => {
-//         if (doc.get('Balance') > 0) {
-//           // db.collection('empresas').doc(request.query.doc).collection(request.query.sub).add(request.body);
-//           t.update(cityRef, { Balance: nb }); //actualizamos la infomacion.
-//           return res.status(200).send('ok').end();
-//         }
-//         else {
-//           return res.status(200).send('0').end();
-//         }
-
-
-//       });
-//   }).then(result => {
-//     return res.status(200).send('ok').end();
-//   }).catch(err => {
-//     return res.status(500).send(err).end();
-//   });
-// });
-    
 
 });
 
+/**
+ * @function Funcion para guardar los clientes de los cobradores.
+ */
 exports.CobradoresGuardarClientes = functions.https.onRequest(async (request, response, body) => {
   response.set('Access-Control-Allow-Origin', '*');
   response.set('Access-Control-Allow-Credentials', 'true'); // vital
@@ -95,13 +119,16 @@ exports.CobradoresGuardarClientes = functions.https.onRequest(async (request, re
   response.set('Access-Control-Allow-Headers', 'Content-Length,Content-Range');
   response.set('Access-Control-Allow-Headers', 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization');
 
-  await db.collection('cobradores').doc(request.query.doc).collection(request.query.sub).add(request.body).then(() => {
-    return response.send('Cliente registrado.');
+  await db.collection('cobradores').doc(request.query.doc).collection(request.query.sub).add(request.body).then(idCliente => {
+    return response.send(idCliente.id);
   }).catch((error) => {
     return response.status(500).send(error);
   });
 });
 
+/**
+ * @function Funcion para buscar el cliente del cobrador.
+ */
 exports.CobradoresClientesBuscar = functions.https.onRequest(async (request, response, body) => {
   response.set('Access-Control-Allow-Origin', '*');
   response.set('Access-Control-Allow-Credentials', 'true'); // vital
@@ -144,32 +171,59 @@ exports.CobradoresClientesBuscar = functions.https.onRequest(async (request, res
   //   });
 
 });
-
-
+/**
+ * @function Funcion para guardar las zonas de los cobradores.
+ */
+exports.ZonasGuardarCobradores = functions.https.onRequest(async (request, response, body) => {
+  response.set('Access-Control-Allow-Origin', '*');
+  response.set('Access-Control-Allow-Credentials', 'true'); // vital
+  response.set('Access-Control-Allow-Methods', 'GET', 'POST', 'PUT', 'DELETE', 'OPTIONS');
+  response.set('Access-Control-Allow-Headers', 'Content-Type');
+  response.set('Access-Control-Allow-Headers', 'Content-Length,Content-Range');
+  response.set('Access-Control-Allow-Headers', 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization');
+  await db.collection('empresas').doc(request.query.doc).collection('Zonas').doc(request.query.subdoc).collection('Cobradores').add(request.body).then(() => {
+    return response.send(JSON.stringify({mensaje:'Cobrador Guardado en la zona.'}));
+  }).catch((error) => {
+    return response.status(500).send(error);
+  });
+});
+/**
+ * @function Funcion para guardar los cobros de los cobradores.
+ */
 exports.CobradoresGuardarCobros = functions.https.onRequest(async (request, response, body) => {
-  await db.collection('cobradores').doc(request.query.doc).collection(request.query.sub).add({
-    Cliente: request.body.cliente,
-    Valor_cobro: request.body.valor_cobro,
-    fecha_creacion: request.body.fecha_creacion
-  }).then(() => {
+  response.set('Access-Control-Allow-Origin', '*');
+  response.set('Access-Control-Allow-Credentials', 'true'); // vital
+  response.set('Access-Control-Allow-Methods', 'GET', 'POST', 'PUT', 'DELETE', 'OPTIONS');
+  response.set('Access-Control-Allow-Headers', 'Content-Type');
+  response.set('Access-Control-Allow-Headers', 'Content-Length,Content-Range');
+  response.set('Access-Control-Allow-Headers', 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization');
+
+  await db.collection('cobradores').doc(request.query.doc).collection('Clientes').doc(request.query.subid).collection(request.query.sub).add(request.body).then(() => {
     return response.send('Cobro registrado.');
   }).catch((error) => {
     return response.status(500).send(error);
   });
 });
-
+/**
+ * @function Funcion para guardar los prestamos de los cobradores.
+ */
 exports.CobradoresGuardarPrestamos = functions.https.onRequest(async (request, response, body) => {
-  await db.collection('cobradores').doc(request.query.doc).collection(request.query.sub).add({
-    Cliente: request.body.cliente,
-    Valor_prestado: request.body.valor_prestado,
-    fecha_creacion: request.body.fecha_creacion
-  }).then(() => {
+  response.set('Access-Control-Allow-Origin', '*');
+  response.set('Access-Control-Allow-Credentials', 'true'); // vital
+  response.set('Access-Control-Allow-Methods', 'GET', 'POST', 'PUT', 'DELETE', 'OPTIONS');
+  response.set('Access-Control-Allow-Headers', 'Content-Type');
+  response.set('Access-Control-Allow-Headers', 'Content-Length,Content-Range');
+  response.set('Access-Control-Allow-Headers', 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization');
+  await db.collection('cobradores').doc(request.query.doc).collection('Clientes').doc(request.query.subid).collection(request.query.sub).add(request.body).then(() => {
     return response.send('Prestamo registrado.');
   }).catch((error) => {
     return response.status(500).send(error);
   });
 });
 
+/**
+ * @function Funcion para guardar los rutas de los cobradores.
+ */
 exports.CobradoresGuardarRutas = functions.https.onRequest(async (request, response, body) => {
   response.set('Access-Control-Allow-Origin', '*');
   response.set('Access-Control-Allow-Credentials', 'true'); // vital
@@ -188,7 +242,9 @@ exports.CobradoresGuardarRutas = functions.https.onRequest(async (request, respo
   });
 });
 
-
+/**
+ * @function Funcion para guardar los gastos de los cobradores.
+ */
 exports.CobradoresGuardarGastos = functions.https.onRequest(async (request, response, body) => {
   await db.collection('cobradores').doc(request.query.doc).collection(request.query.sub).add({
     Descripcion: request.body.descripcion,
@@ -286,7 +342,9 @@ exports.Cobradores = functions.https.onRequest(async (request, response, body) =
           Direccion1: request.body.direccion1,
           Direccion2: request.body.direccion2,
           Identificacion: request.body.identificacion,
-          Telefono: request.body.telefono
+          Telefono: request.body.telefono,
+          Zona:request.body.zona,
+          Empresa:request.body.empresa
         }).then((ref) => {
           // db.collection('cobradores').doc(ref.id).collection("Clientes").set({'hola':'fg'});
           return response.send(ref.id);
@@ -503,8 +561,6 @@ exports.Rutas = functions.https.onRequest(async (request, response, body) => {
   }
   return response.status(200).send('ok').end();
 });
-
-
 /**
  * @function Funcion que se encarga de manajar los end-point de Clientes.
  * @param request
@@ -596,9 +652,6 @@ exports.Clientes = functions.https.onRequest(async (request, response, body) => 
   }
   return response.status(200).send('ok').end();
 });
-
-
-
 /**
  * @function Funcion que se encarga de manajar los end-point de Usuarios.
  * @param request

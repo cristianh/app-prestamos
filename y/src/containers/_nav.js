@@ -38,6 +38,10 @@ export default [
           }
         ]
       },
+       {
+        _name: 'CSidebarNavTitle',
+        _children: ['Zonas']
+      },
       {
         _name: 'CSidebarNavDropdown',
         name: 'Zonas',
@@ -58,6 +62,10 @@ export default [
           //   to: '/borrar',
           // }
         ]
+      },
+       {
+        _name: 'CSidebarNavTitle',
+        _children: ['Cobradores']
       },
       {
         _name: 'CSidebarNavDropdown',
@@ -98,6 +106,10 @@ export default [
       //   to: '/pages/borrar',
       //   icon: 'cil-drop'
       // },
+       {
+        _name: 'CSidebarNavTitle',
+        _children: ['Clientes']
+      },
       {
         _name: 'CSidebarNavTitle',
         _children: ['Theme']

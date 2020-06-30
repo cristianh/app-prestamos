@@ -1,10 +1,12 @@
-import axios from 'axios'
-
 export default class ZonaService {
 
 
-    guardarZonaEmpresa(id,data) {
-        return axios.post('EmpresasGuardarZonas?doc='+id +'&sub=zonas',data).then( response => response.data).catch(error => {return error}); 
+    guardarZonaEmpresa(id,info) {
+        return axios.post(`EmpresasZonasGuardar?doc=${id}&sub=Zonas`,info).then( response => response.data); 
+	}
+
+	guardarCobradoresZona(id_doc,sub_doc,info) {
+        return axios.post('ZonasGuardarCobradores?doc='+id_doc+'&subdoc='+sub_doc,info).then( response => response.data).catch(error => {return error}); 
 	}
 
 	getAllZonasEmpresa(id_empresa,subdocu) {

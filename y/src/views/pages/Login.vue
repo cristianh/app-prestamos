@@ -26,7 +26,7 @@
                   </CInput>
                   <CRow>
                     <CCol col="6" class="text-left">
-                      <CButton color="primary" class="px-4" @click="signIn">INGRSAR</CButton>
+                      <CButton color="primary" class="px-4" @click="signIn">INGRESAR</CButton>
                     </CCol>
                     <CCol col="6" class="text-right">
                       <CButton color="link" class="px-0">Forgot password?</CButton>
@@ -59,6 +59,7 @@
         </CCol>
       </CRow>
     </CContainer>
+     <Toast  autoZIndex position="bottomright" />
   </div>
 </template>
 
@@ -87,6 +88,7 @@ export default {
                     var errorMessage = error.message;
                     this.error=errorMessage;
                     console.log(errorMessage);
+                     this.$toast.add({severity:'error', summary: 'Error', detail:this.error, life: 3000});  
                     
                     });
               }

@@ -137,11 +137,11 @@ import firebase from 'firebase'
             const id= response.user.displayName.split("-");
             localStorage.setItem("uid", id[1]);
             localStorage.setItem("email", response.user.email);
-             localStorage.setItem("name", id[0]);
+            localStorage.setItem("name", id[0]);
             const self = this;
             const app = self.$f7;
             const router = self.$f7router;
-             this.$f7router.navigate('/home/', {
+            this.$f7router.navigate('/home/', {
             props: {
                 usuario: username.displayName
             }

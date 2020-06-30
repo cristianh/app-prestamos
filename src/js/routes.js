@@ -4,7 +4,7 @@ import AboutPage from '../pages/about.vue';
 import FormPage from '../pages/form.vue';
 import CatalogPage from '../pages/catalog.vue';
 import ProductPage from '../pages/product.vue';
-import SettingsPage from '../pages/settings.vue';
+import AbonosPage from '../pages/abonos.vue';
 import Login from '../pages/login.vue';
 import ClientesPage from '../pages/clientes.vue';
 import RutasPage from '../pages/rutas.vue';
@@ -68,8 +68,8 @@ var routes = [
     component: ProductPage,
   },
   {
-    path: '/settings/',
-    component: SettingsPage,
+    path: '/abonos/',
+    component: AbonosPage,
   },
 
   {

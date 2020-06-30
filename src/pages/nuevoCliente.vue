@@ -118,7 +118,6 @@
     <f7-tab id="Codeudor" >
        <f7-block-title>Codeudor</f7-block-title>
       <f7-list no-hairlines-md inset>
-        
         <f7-list-input
         outline
         floating-label
@@ -225,24 +224,60 @@ export default {
     },
     methods:{
         onGuardarCliente(){
+  
+
                      let config = {
-                headers: {"Content-Type": "application/json"}, 
+                     headers: { 'content-type': 'application/json; utf-8' },
+                  method: 'POST'
   
     };
+
      const self = this;
         self.$f7.dialog.preloader('Guardando...');
-       
-                axios.post('https://us-central1-manifest-life-279516.cloudfunctions.net/CobradoresGuardarClientes?doc=7ZPZBoPtG9q0Zn1GF84a&sub=Clientes',this.form,config)
+     let ui_cobrador=localStorage.getItem("uid");
+
+//  await db.collection('cobradores').doc(ui_cobrador).collection('Clientes').add(this.form).then(() => {
+//     return response.send('Cliente registrado.');
+//   }).catch((error) => {
+//     return response.status(500).send(error);
+//   });
+
+     axios.post(`https://us-central1-manifest-life-279516.cloudfunctions.net/CobradoresGuardarClientes?doc=${ui_cobrador}&sub=Clientes`,this.form)
     .then( (response) =>  {
+      console.log("................id",response);
        self.$f7.dialog.close();
+       let data={
+         'id':response.data,
+         'data':this.form
+       }
+       this.$store.commit('addNewClientes',data);
+      // this.$store.state.clientes.push(this.form);
+       //this.$store.clientes.push(this.$store.getters.getClientes);
        this.form={
-                identificacion:'',
-                nombre:'',
-                apellido:'',
-                direccion1:'',
-                direccion2:'',
-                oficio:''
-        }
+                usuario:{
+                  identificacion:'',
+                  nombre:'',
+                  apellido:'',
+                  direccion1:'',
+                  direccion2:'',
+                  oficio:''
+                },
+                negocio:{
+                  nombre_negocio:'',
+                  direccion:'',
+                  telefeno:'',
+                  ciudad:''
+                },
+                codeudor:{
+                  nombre_codeudor:'',
+                  documento_codeudor:'',
+                  telefeno1:'',
+                  telefeno2:'',
+                  telefeno3:'',
+                  ciudad:''
+                }
+            }
+        this.$f7router.back()
         console.log(response);
     }).catch(error => {
         console.log(error);

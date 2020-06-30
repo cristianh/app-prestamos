@@ -38,7 +38,7 @@
     <f7-view id="view-cliente"  name="clientes" tab url="/clientes/"></f7-view>
 
     <!-- Settings View -->
-    <f7-view id="view-nuevocobro" name="settings" tab url="/settings/"></f7-view>
+    <f7-view id="view-nuevocobro" name="settings" tab url="/abonos/"></f7-view>
 
   </f7-views>
 

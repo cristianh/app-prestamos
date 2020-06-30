@@ -1,16 +1,20 @@
 <template>
  <f7-page name="Rutas">
-    <f7-navbar large :sliding="false">
+    <f7-navbar :sliding="false">
+      <f7-subnavbar :inner="false">
+      <f7-searchbar
+        search-container=".search-list"
+        search-in=".item-title"
+        :disable-button="!$theme.aurora"
+         placeholder="Buscar..."
+      ></f7-searchbar>
+    </f7-subnavbar>
       <f7-nav-left>
+     
         <f7-link icon-ios="f7:menu" icon-aurora="f7:menu" icon-md="material:menu" panel-open="left"></f7-link>
       </f7-nav-left>
-           <f7-searchbar
-        inline
-        custom-search
-        :disable-button="false"
-      ></f7-searchbar>
-      <f7-nav-title sliding>Rutas</f7-nav-title>
-      <f7-nav-title-large>Rutas</f7-nav-title-large>
+       <f7-nav-title sliding>Rutas</f7-nav-title>
+      <!-- <f7-nav-title-large>Rutas</f7-nav-title-large> -->
     </f7-navbar>
     <!-- <f7-navbar title="Clientes" back-link="Atras">
       
@@ -66,14 +70,14 @@ export default {
       }
     },
       beforeCreate(){
-    axios.get('https://us-central1-manifest-life-279516.cloudfunctions.net/Cobradores?doc=7ZPZBoPtG9q0Zn1GF84a&sub=Rutas')
-    .then( (response) =>  {
-        this.rutas=response.data;
-        console.log(response);
-        this.isLoadRutas= true;
-    }).catch(error => {
-        console.log(error);
-    }); 
+    // axios.get('https://us-central1-manifest-life-279516.cloudfunctions.net/Cobradores?doc=7ZPZBoPtG9q0Zn1GF84a&sub=Rutas')
+    // .then( (response) =>  {
+    //     this.rutas=response.data;
+    //     console.log(response);
+    //     this.isLoadRutas= true;
+    // }).catch(error => {
+    //     console.log(error);
+    // }); 
 }
 }
 </script>

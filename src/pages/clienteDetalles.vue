@@ -2,6 +2,8 @@
   <f7-page name="ClientesDetalles">
     <f7-navbar title="Usuario" back-link="Back"></f7-navbar>
     <f7-block-title>Usuario id: {{id}}</f7-block-title>
+    <f7-card>
+    </f7-card>
     <f7-block strong>
       <f7-block-title >Usuario</f7-block-title>
       <f7-list>
@@ -44,7 +46,8 @@
   }
   },
     beforeCreate(){
-          axios.get('https://us-central1-manifest-life-279516.cloudfunctions.net/CobradoresClientesBuscar?doc=7ZPZBoPtG9q0Zn1GF84a&sub=Clientes&subdoc='+this.$f7route.params.id)
+          let ui_cobrador=localStorage.getItem("uid"); 
+          axios.get(`https://us-central1-manifest-life-279516.cloudfunctions.net/CobradoresClientesBuscar?doc=${ui_cobrador}&sub=Clientes&subdoc=${this.$f7route.params.id}`)
           .then( (response) =>  {
               this.clientes_info=response.data;
               console.log("datossss...",response);

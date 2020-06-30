@@ -1,5 +1,6 @@
 <template>
     <div>
+      <CForm @submit.prevent="onGuardarZona" method="post" novalidate>
         <CCard>
          <CCardHeader>
         <strong>Zona:</strong>
@@ -15,12 +16,12 @@
         </div>
       </CCardHeader>
          <CCardBody>
-    <CRow form class="form-group" alignHorizontal="start">
+    <CRow>
       <CCol sm="12">
         <CInput
           label="Nombre"
           placeholder="Ingresa el nombre de la empresa"
-          v-model.lazy="zonas_form.nombre"
+          v-model="zonas_form.nombre"
         />
       </CCol>
     </CRow>
@@ -31,14 +32,14 @@
                   append=".000"
                   description="Ingresa del balance inicial"
                   prepend="$"
-                  v-model.number="zonas_form.balance"
+                  v-model="zonas_form.balance"
          />
       </CCol>
       <CCol sm="12">
              <CInput
-                label="Date"
+                label="Fecha"
                 type="date"
-                v-model.lazy="zonas_form.fecha"
+                v-model="zonas_form.fecha"
               />
       </CCol>
       <CCol sm="12">
@@ -46,6 +47,7 @@
                   label="Empresas"
                   :options="empresas"
                   :value.sync="zonas_form.empresa"
+                  
                 />
       </CCol>
     </CRow>
@@ -54,12 +56,14 @@
     <CCardFooter>
       <CRow>
        <CCol col="4" sm="4" md="2" xl class="mb-3 mb-xl-0">
-            <CButton color="success"  @click="guardar" >GUARDAR</CButton>
+            <CButton type="submit" size="sm" color="success" >GUARDAR</CButton>
           </CCol>
     </CRow>
     </CCardFooter>
      </CCard>
-     {{$data.zonas_form}}
+      </CForm>
+     <Toast  autoZIndex position="bottomright" />
+     {{zonas_form}}
     </div>
 </template>
 
@@ -67,12 +71,6 @@
 import ZonaService from './Services/ZonaService.js';
 import EmpresaService from '../Empresa/Services/EmpresasService.js';
 export default {
-    props:{
-            nombre:String,
-            balance:Number,
-            fecha:String,
-            empresa:String
-    },
     data() {
         return {
         zonas_form:{
@@ -101,7 +99,6 @@ export default {
           for (const key in tamporal) {
             if (tamporal.hasOwnProperty(key)) {
                  let element={ value: tamporal[key].id, label: tamporal[key].Nombre };
-                 console.log(element);
                  this.empresas.push(element);
                  
                 
@@ -109,16 +106,24 @@ export default {
          }
         
         });
-      
-        
-
-      
 
    
     },
     methods:{
-        guardar(){
-          this.zonaService.guardarZonaEmpresa(this.zonas_form.empresa,this.zonas_form);      
+        onGuardarZona(){
+//           const params = new URLSearchParams();
+// params.append('param1', 'value1');
+// params.append('param2', 'value2');
+          this.zonaService.guardarZonaEmpresa(this.zonas_form.empresa,this.zonas_form).then(response=>{
+            let mensaje=response.mensaje;
+            console.log(response);
+            if(mensaje){
+              this.$toast.add({severity:'success', summary: 'Correcto', detail:mensaje, life: 3000});    
+            }
+                 
+          }).catch((error) => {
+            this.$toast.add({severity:'error', summary: 'Error', detail:error, life: 3000});
+          });   
      }
     }
 }

@@ -1,6 +1,31 @@
 <template>
     <div>
-      <CForm @submit.prevent="guardar_cobrador" novalidate>
+      <CRow>
+        <CCol md="6">
+        <CCard>
+         <CCardBody>
+              <CSelect
+                  label="Empresas"
+                  :options="empresas"
+                  :value.sync="usuario.empresa"
+                  @change="onSelectdEmpresa"
+                />
+         </CCardBody>
+        </CCard>
+      </CCol>
+      <CCol md="6">
+         <CCard>
+         <CCardBody>
+            <CSelect
+                  label="Zona"
+                  :options="zonas"
+                  :value.sync="usuario.zona"
+                  :disabled=isEnabled
+                />
+         </CCardBody>
+        </CCard>
+      </CCol>
+      </CRow>
      <CRow>
       <CCol md="6">
         <CCard>
@@ -102,6 +127,7 @@
               type="submit" 
               size="sm" 
               color="success"
+              @click="guardar_cobrador"
               >
               <CIcon 
               name="cil-check-circle"/> Registrar</CButton>
@@ -110,13 +136,15 @@
       </CCard>
       </CCol>
       </CRow>
-     </CForm>
+      <Toast  autoZIndex position="bottomright" />
      {{$data.usuario}}
      {{$data.register}}
     </div>
 </template>
 
 <script>
+import ZonaService from '../Zonas/Services/ZonaService.js';
+import EmpresaService from '../Empresa/Services/EmpresasService.js';
 export default {
     data() {
         return {
@@ -130,15 +158,64 @@ export default {
           apellido:'',
           direccion1:'',
           direccion2:'',
-          telefono:''
+          telefono:'',
+          zona:'',
+          empresa:''
        },
-        empresas:[]
+      isEnabled:true,
+      empresas:[{ value: 'Seleccione', label: 'Seleccione' }],
+      zonas:[{ value: 'Seleccione', label: 'Seleccione' }]
+       
         
         }
     },
-
+     created() {
+        this.zonaService = new ZonaService();
+        this.empresaService= new EmpresaService();
+    },
+    beforeMount(){
+      let tamporal_empresas=[];
+      this.empresaService.getAllEmpresas().then((result)=>{
+        
+        tamporal_empresas=result.data;
+        console.log(tamporal_empresas);
+          for (const key in tamporal_empresas) {
+            if (tamporal_empresas.hasOwnProperty(key)) {
+                 let element={ value: tamporal_empresas[key].id, label: tamporal_empresas[key].Nombre };
+                 
+                 this.empresas.push(element);
+                 
+                
+            }
+         }
+        
+        });
+    },
+    
     methods:{
+      onSelectdEmpresa(){
+            this.isEnabled=false;
+            this.zonas=[{ value: 'Seleccione', label: 'Seleccione' }];
+            let tamporal_Zonas=[];
+            
+            this.zonaService.getAllZonasEmpresa(this.usuario.empresa,'Zonas').then((response)=>{
+            //console.log(response);
+            tamporal_Zonas=response;
+            for (const key in tamporal_Zonas) {
+            if (tamporal_Zonas.hasOwnProperty(key)) {
+                
+                  let element={ value: tamporal_Zonas[key].id, label: tamporal_Zonas[key].nombre };
+                  this.zonas.push(element);
+                  // console.log(this.zonas);
+            }
+        }   
+             
+        });
+
+            
+      },
         guardar_cobrador(){
+
         let telefono=this.usuario.telefono;
 
         firebase.auth().createUserWithEmailAndPassword(this.register.email, this.register.password).then((response)=>{
@@ -153,12 +230,13 @@ export default {
                       photoURL: "hola"
                     }).then(function() {
                       return "actualizado";
+                      
                     
                     }).catch(function(error) {
                       // An error happened.
                       return "error";
                     });   
-                
+                this.$toast.add({severity:'success', summary: 'Correcto', detail:'Usuario Guardado.', life: 3000});  
               }).catch(error => {
                   console.log(error);
               });
