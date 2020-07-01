@@ -17,10 +17,10 @@
 <f7-block>
    <div v-if="isLoadBalnces" > 
   <f7-list  inset>
-   <f7-list-item title="Saldo General" :after="balance_empresa"><f7-icon ios="f7:local_atm" aurora="f7:local_atm" md="material:local_atm"></f7-icon>
+   <f7-list-item title="Saldo Empresa" :after="balance_empresa"><f7-icon ios="f7:local_atm" aurora="f7:local_atm" md="material:local_atm"></f7-icon>
     
   </f7-list-item>
-   <f7-list-item title="Saldo zona" :after="balance_zona"><f7-icon ios="f7:local_atm" aurora="f7:local_atm" md="material:local_atm"></f7-icon>
+   <f7-list-item title="Saldo Zona" :after="balance_zona"><f7-icon ios="f7:local_atm" aurora="f7:local_atm" md="material:local_atm"></f7-icon>
     
   </f7-list-item>
   </f7-list>
@@ -127,14 +127,34 @@ export default {
             const element = cl[key];
             //this.clientes.push(element);
             this.$store.state.clientes.unshift(element);
-            console.log(this.$store.state.clientes);
+           
             ///this.clientes_nombres.push(element.data.usuario.nombre);
             
           }
         }
         //this.$store.state.clientes.push(response.data);
        
-       self.$f7.dialog.close();
+      
+    }).catch(error => {
+        console.log(error);
+    }); 
+
+    axios.get(`https://us-central1-manifest-life-279516.cloudfunctions.net/Cobradores?doc=${this.uid}&sub=Rutas`)
+    .then( (response) =>  {
+
+      let zona = response.data;
+        for (const key in zona) {
+          if (zona.hasOwnProperty(key)) {
+            const element = zona[key];
+            //this.clientes.push(element);
+            // this.$store.state.clientes.unshift(element);
+            this.$store.state.zonas.unshift(element);
+           
+            ///this.clientes_nombres.push(element.data.usuario.nombre)
+          }
+        }
+        
+         self.$f7.dialog.close();
     }).catch(error => {
         console.log(error);
     }); 
@@ -167,20 +187,20 @@ export default {
     // Acceder a datos almacenados
     this.profile_name = 'Bienvenido '+localStorage.getItem("name")+'.';
     this.uid = localStorage.getItem("uid");
-    console.log( "username = " + localStorage.getItem("username")+ "nombredeusuario = " + localStorage.getItem("password"));
+   
   },
   mounted() {
-    db.collection("users").add({
-    first: "Ada",
-    last: "Lovelace",
-    born: 1815
-})
-.then(function(docRef) {
-    console.log("Document written with ID: ", docRef.id);
-})
-.catch(function(error) {
-    console.error("Error adding document: ", error);
-});
+//     db.collection("users").add({
+//     first: "Ada",
+//     last: "Lovelace",
+//     born: 1815
+// })
+// .then(function(docRef) {
+//     console.log("Document written with ID: ", docRef.id);
+// })
+// .catch(function(error) {
+//     console.error("Error adding document: ", error);
+// });
   },
 }
 </script>

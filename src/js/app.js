@@ -7,6 +7,16 @@ import firebase from 'firebase'
 
 import store from "./store/index";
 
+
+import Message from 'primevue/message';
+
+
+
+import 'primevue/resources/themes/saga-blue/theme.css';       //theme
+//import 'primevue/resources/primevue.min.css';    
+import 'primevue/resources/primevue.min.css'                 //core css
+import 'primeicons/primeicons.css' 
+
 const firebaseConfig = {
   apiKey: "AIzaSyA8t8KjQDFQhJ62OHZoaKc7eJ3QrvEYFXA",
   authDomain: "manifest-life-279516.firebaseapp.com",
@@ -41,6 +51,7 @@ Vue.use({axios});
 Vue.use({firebase});
 Vue.use({db});
 Vue.use(require('vue-moment'));
+Vue.component('Message', Message);
 
 //Use the window object to make it available globally.
 window.axios = axios;

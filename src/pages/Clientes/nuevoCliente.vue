@@ -248,7 +248,8 @@ export default {
        self.$f7.dialog.close();
        let data={
          'id':response.data,
-         'data':this.form
+         'data':this.form,
+         'nuevo':true
        }
        this.$store.commit('addNewClientes',data);
       // this.$store.state.clientes.push(this.form);

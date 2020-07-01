@@ -1,5 +1,5 @@
 <template>
-<f7-page name="Setting">
+<f7-page name="Abono">
   <f7-navbar   :sliding="false">
      <f7-nav-left>
         <f7-link icon-ios="f7:menu" icon-aurora="f7:menu" icon-md="material:menu" panel-open="left"></f7-link>
@@ -224,12 +224,11 @@ export default {
         app.dialog.confirm(nombrecompleto,'Confirmar usuario', () => {
           this.cliente_seleccionado=id;
           console.log(this.cliente_seleccionado);
-          app.dialog.alert('Confirmado'+nombrecompleto+'!');
+          app.dialog.alert(nombrecompleto,'Confirmado!');
         });
       },
     pago(tipo_pago){
       this.tipo_seleccionado=tipo_pago;
-      console.log(tipo_pago);
     },
     confirmarPago(){
       let ui_cobrador=localStorage.getItem("uid");
@@ -242,13 +241,13 @@ export default {
         if(this.tipo_seleccionado=="Cobro"){
              axios.post(`https://us-central1-manifest-life-279516.cloudfunctions.net/CobradoresGuardarCobros?doc=${ui_cobrador}&sub=Cobros&subid=${this.formpago.cliente}`,this.formpago)
     .then( (response) =>  {
-          console.log(response);
+          this.formpago.valor=0
        });
         }
         else{
           axios.post(`https://us-central1-manifest-life-279516.cloudfunctions.net/CobradoresGuardarPrestamos?doc=${ui_cobrador}&sub=Prestamos&subid=${this.formpago.cliente}`,this.formpago)
     .then( (response) =>  {
-          console.log(response);
+           this.formpago.valor=0
        });
         }
        

@@ -12,10 +12,59 @@ const db = admin.firestore();
 
 
 exports.myFunctionName  = functions.firestore
-  .document('users/{userId}')
-  .onWrite((change, context) => { db.collection('cities').doc('SF').update({
-    capital: true
-})
+  .document('cobradores/{CobradoresID}/Clientes/{ClientesID}/{PrestamosCollectionId}/{PrestamosID}')
+  .onWrite((change, context) => { 
+    let cobradorid= context.params.CobradoresID;
+    let clienteid= context.params.ClientesID;
+    let prestamoid= context.params.PrestamosID;
+
+     
+               
+      let dd =db.collection(`cobradores/${cobradorid}/Clientes/${clienteid}/Prestamos`).doc(prestamoid).get();
+
+      
+        db.collection("cities").doc("SF").set({
+                   //dd.data()
+                })
+
+    //  .then(doc => {
+    //             if (!doc.exists) {
+
+    //               return response.send('Not Found')
+    //             }else{
+    //               db.collection("cities").doc("SF").update({
+    //                capital: doc.data().valor
+    //             })
+
+    //             }
+
+    //             return response.status(200).send(doc.data()).end();
+    //           })
+    //           .catch(err => {
+    //             return response.send('Error getting document', err).end();
+    //           });
+    
+    // let snapshop= db.collection('cobradores').doc(cobradorid).collection('Clientes').doc(clienteid).collection('Prestamos').doc(prestamoid).get()
+    //  .then(doc => {
+    //             if (!doc.exists) {
+
+    //               return response.send('Not Found')
+    //             }else{
+    //             //   db.collection("cities").doc("SF").update({
+    //             //    capital: doc.data()
+    //             // })
+
+    //             }
+
+    //             return response.status(200).send(doc.data()).end();
+    //           })
+    //           .catch(err => {
+    //             return response.send('Error getting document', err).end();
+    //           });
+
+    // .update({
+    // capital: cobradorid+clienteid+prestamoid
+    // })
  });
 
 
@@ -231,12 +280,29 @@ exports.CobradoresGuardarRutas = functions.https.onRequest(async (request, respo
   response.set('Access-Control-Allow-Headers', 'Content-Type');
   response.set('Access-Control-Allow-Headers', 'Content-Length,Content-Range');
   response.set('Access-Control-Allow-Headers', 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization');
-  await db.collection('cobradores').doc(request.query.doc).collection(request.query.sub).add({
-    Nombre: request.body.nombre,
-    Descripcion: request.body.descripcion,
-    fecha_creacion: request.body.fecha_creacion
-  }).then(() => {
-    return response.send('Ruta registrada.');
+  await db.collection('cobradores').doc(request.query.doc).collection(request.query.sub).add(request.body).then((result) => {
+    return response.send(result.id);
+  }).catch((error) => {
+    return response.status(500).send(error);
+  });
+});
+
+/**
+ * @function Funcion para guardar los rutas de los cobradores.
+ */
+exports.CobradoresGuardarClientesRutas = functions.https.onRequest(async (request, response, body) => {
+  response.set('Access-Control-Allow-Origin', '*');
+  response.set('Access-Control-Allow-Credentials', 'true'); // vital
+  response.set('Access-Control-Allow-Methods', 'GET,POST', 'PUT', 'DELETE', 'OPTIONS');
+  response.set('Access-Control-Allow-Headers', 'Content-Type');
+  response.set('Access-Control-Allow-Headers', 'Content-Length,Content-Range');
+  response.set('Access-Control-Allow-Headers', 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization');
+
+
+  await db.collection('cobradores').doc(request.query.doc).collection('Rutas').doc(request.query.sub).update({
+    clientes: request.body
+}, { merge: true }).then((result) => {
+    return response.send(result.id);
   }).catch((error) => {
     return response.status(500).send(error);
   });

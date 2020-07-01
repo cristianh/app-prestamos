@@ -27,10 +27,14 @@
       <!-- <pre>{{$store.getters.getContadorClientes}}</pre> -->
       
   <f7-row>
-    
+   
     <f7-col>
         <!-- {{[0]}} -->
       <f7-button fill large small href="/cliente_nuevo/" color="green">NUEVO CLIENTE</f7-button>
+    </f7-col>
+     <f7-col>
+      
+        <f7-button  sortable-toggle=".sortable" fill large small color="blue" @click="txt_ordenar=!txt_ordenar" :text="txt_ordenar?'LISTO':'ORDENAR'"></f7-button>
     </f7-col>
     
   </f7-row>
@@ -38,7 +42,7 @@
 
 <div v-if="clientes">
         <f7-list sortable @sortable:sort="onSort">
-        <f7-list-item  v-for="(cliente,index,key) in clientes"  :id=cliente.id :key=cliente.id :title="key"  :link="`/cliente_detalles/${cliente.id}/`">{{cliente.data.usuario.nombre}}</f7-list-item>
+        <f7-list-item    v-for="(cliente,index,key) in clientes"  :id=cliente.id :key=cliente.id :title="cliente.data.usuario.nombre" :link="`/cliente_detalles/${cliente.id}/`" :badge="cliente.nuevo?'nuevo':''" :badge-color="cliente.nuevo?'green':''"></f7-list-item>
         </f7-list>
       </div>
       <div v-else>
@@ -54,16 +58,6 @@
        </f7-row>  
       
 </div>
-  <f7-block>
- <f7-row>
-    
-    <f7-col>
-      
-        <f7-button  sortable-toggle=".sortable" fill large small color="blue" @click="txt_ordenar=!txt_ordenar" :text="txt_ordenar?'LISTO':'ORDENAR'"></f7-button>
-    </f7-col>
-  
-  </f7-row>
-    </f7-block>
  </f7-page>
 </template>
 

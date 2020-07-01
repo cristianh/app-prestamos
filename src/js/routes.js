@@ -6,13 +6,22 @@ import CatalogPage from '../pages/catalog.vue';
 import ProductPage from '../pages/product.vue';
 import AbonosPage from '../pages/abonos.vue';
 import Login from '../pages/login.vue';
-import ClientesPage from '../pages/clientes.vue';
-import RutasPage from '../pages/rutas.vue';
-import nuevoClientePage from '../pages/nuevoCliente.vue';
-import clienteDetallesPage from '../pages/clienteDetalles.vue';
+
+//Clientes.
+import ClientesPage from '../pages/Clientes/clientes.vue';
+import nuevoClientePage from '../pages/Clientes/nuevoCliente.vue';
+import clienteDetallesPage from '../pages/Clientes/clienteDetalles.vue';
+
+//Rutas.
+import RutasPage from '../pages/Rutas/rutas.vue';
+import nuevaRutaPage from '../pages/Rutas/nuevaRuta.vue';
+import nuevaRutaClientesPage from '../pages/Rutas/rutasClientes.vue';
+import nuevaRutaClientesDetallesPage from '../pages/Rutas/rutaClienteDetalles.vue';
+
 import DynamicRoutePage from '../pages/dynamic-route.vue';
 import RequestAndLoad from '../pages/request-and-load.vue';
 import NotFoundPage from '../pages/404.vue';
+
 
 
 var routes = [
@@ -34,6 +43,18 @@ var routes = [
   {
     path: '/rutas',
     component: RutasPage,
+  },
+  {
+    path: '/ruta_nueva',
+    component: nuevaRutaPage,
+  },
+  {
+    path: '/ruta_clientes/:id/:titulo',
+    component: nuevaRutaClientesPage,
+  },
+  {
+    path: '/ruta_clientes_datalles/:id/',
+    component: nuevaRutaClientesDetallesPage,
   },
   {
     path: '/clientes',

@@ -46,6 +46,12 @@
   }
   },
     beforeCreate(){
+     let posicion=this.$store.getters.getClientes.findIndex(x => {x.hasOwnProperty('nuevo')? x.nuevo === true:x});
+     if(posicion>0){
+       this.$store.commit('getSetNuevoClientes',posicion);
+     }
+     
+     
           let ui_cobrador=localStorage.getItem("uid"); 
           axios.get(`https://us-central1-manifest-life-279516.cloudfunctions.net/CobradoresClientesBuscar?doc=${ui_cobrador}&sub=Clientes&subdoc=${this.$f7route.params.id}`)
           .then( (response) =>  {
