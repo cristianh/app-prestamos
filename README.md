@@ -11,7 +11,7 @@ Framework7 app created with following options:
     "pwa",
     "cordova"
   ],
-  "name": "app_prestamos",
+  "name": "SVCC",
   "framework": "vue",
   "template": "tabs",
   "bundler": "webpack",

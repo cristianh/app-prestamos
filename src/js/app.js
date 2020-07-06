@@ -53,10 +53,25 @@ Vue.use({db});
 Vue.use(require('vue-moment'));
 Vue.component('Message', Message);
 
+import VueCurrencyFilter from 'vue-currency-filter'
+Vue.use(VueCurrencyFilter, {
+  symbol: '$', // El símbolo, por ejemplo €
+  thousandsSeparator: ',', // Separador de miles
+  fractionCount: 0, // ¿Cuántos decimales mostrar?
+  fractionSeparator: '.', // Separador de decimales
+  symbolPosition: 'front', // Posición del símbolo. Puede ser al inicio ('front') o al final ('') es decir, si queremos que sea al final, en lugar de front ponemos una cadena vacía ''
+  symbolSpacing: true // Indica si debe poner un espacio entre el símbolo y la cantidad
+})
 //Use the window object to make it available globally.
 window.axios = axios;
 window.firebase = firebase;
 window.db = db;
+
+axios.defaults.baseURL = 'https://us-central1-manifest-life-279516.cloudfunctions.net/';
+// axios.defaults.baseURL = 'http://localhost:4001/manifest-life-279516/us-central1/';
+axios.defaults.headers.post['Content-Type'] = 'multipart/form-data';
+// axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded';
+axios.defaults.headers.post['Accept'] = 'application/json';
 
 // Import App Component
 import App from '../components/app.vue';

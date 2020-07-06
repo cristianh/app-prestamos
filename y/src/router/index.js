@@ -22,6 +22,8 @@ const ZonaCobrador = () => import('@/views/pages/Zonas/ZonasCobradores.vue')
 //Cobrador
 const Cobrador_nuevo = () => import('@/views/pages/Cobradores/NuevoCobradoresPage')
 
+//Clientes
+const Listar_clientes = () => import('@/views/pages/Clientes/ListarClientesPage')
 
 
 const Charts = () => import('@/views/charts/Charts')
@@ -166,6 +168,31 @@ function configRoutes () {
               path: '/nueva_cobrador',
               name: 'Nueva cobrador',
               component: Cobrador_nuevo
+            }
+            // {
+            //   path: '/editar_cobrador',
+            //   name: 'Editar cobrador',
+            //   component: Empresa_Editar
+            // },
+            // {
+            //   path: '/borrar_cobrador',
+            //   name: 'Eliminr cobrador',
+            //   component: Eliminar_Editar
+            // }
+            ]
+        },
+        {
+          path: 'pages',
+          redirect: '/pages/clientes',
+          name: 'Pages',
+          component: {
+            render (c) { return c('router-view') }
+          },
+          children: [
+            {
+              path: '/listar_clientes',
+              name: 'Listar Clientes',
+              component: Listar_clientes
             }
             // {
             //   path: '/editar_cobrador',

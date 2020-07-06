@@ -9,7 +9,7 @@
       </f7-segmented>
     </f7-subnavbar>
     </f7-navbar>
-     <f7-tabs>
+    <f7-tabs>
     <f7-tab id="Personal" tab-active >
           <f7-block-title>Fomulario</f7-block-title>
    
@@ -21,6 +21,10 @@
         label="Identificacion"
         type="text"
         placeholder="Identificacion"
+        required
+        validate
+        pattern="[0-9]*"
+        error-message="Solo numeros"
         @input="form.usuario.identificacion=$event.target.value"
       ></f7-list-input>
 
@@ -30,6 +34,8 @@
         label="Nombre"
         type="text"
         placeholder="Nombre"
+        required
+        validate
         @input="form.usuario.nombre=$event.target.value"
       ></f7-list-input>
 
@@ -39,6 +45,8 @@
         label="Apellido"
         type="text"
         placeholder="Apellido"
+        required
+        validate
         @input="form.usuario.apellido=$event.target.value"
       ></f7-list-input>
 
@@ -48,6 +56,8 @@
         label="Direccion 1"
         type="text"
         placeholder="Direccion 1"
+        required
+        validate
         @input="form.usuario.direccion1=$event.target.value"
       ></f7-list-input>
 
@@ -59,7 +69,18 @@
         placeholder="Direccion 2"
         @input="form.usuario.direccion2=$event.target.value"
       ></f7-list-input>
-
+      <f7-list-input
+        outline
+        floating-label
+        label="Telefono"
+        type="text"
+        placeholder="Telefono"
+        required
+        validate
+        pattern="[0-9]*"
+        error-message="Solo numeros"
+        @input="form.usuario.telefono=$event.target.value"
+      ></f7-list-input>
        <f7-list-input
        outline
         floating-label
@@ -192,10 +213,11 @@
 </template>
 
 <script>
-import axios from 'axios';
+import ClientesCobradoresService from '../Services/ClientesService.js';
 export default {
     data() {
         return {
+           cobradoresClientesService:null,
             form:{
                 usuario:{
                   identificacion:'',
@@ -203,7 +225,8 @@ export default {
                   apellido:'',
                   direccion1:'',
                   direccion2:'',
-                  oficio:''
+                  oficio:'',
+                  telefono:''
                 },
                 negocio:{
                   nombre_negocio:'',
@@ -218,15 +241,20 @@ export default {
                   telefeno2:'',
                   telefeno3:'',
                   ciudad:''
-                }
+                },
+                prestamos:[],
+                cobros:[]
             }
         }
+    },
+    created() {
+       this.ClientesCobradoresService=new ClientesCobradoresService();
     },
     methods:{
         onGuardarCliente(){
   
 
-                     let config = {
+            let config = {
                      headers: { 'content-type': 'application/json; utf-8' },
                   method: 'POST'
   
@@ -242,8 +270,8 @@ export default {
 //     return response.status(500).send(error);
 //   });
 
-     axios.post(`https://us-central1-manifest-life-279516.cloudfunctions.net/CobradoresGuardarClientes?doc=${ui_cobrador}&sub=Clientes`,this.form)
-    .then( (response) =>  {
+    //  axios.post(`https://us-central1-manifest-life-279516.cloudfunctions.net/CobradoresGuardarClientes?doc=${ui_cobrador}&sub=Clientes`,this.form)
+    this.ClientesCobradoresService.guardarClienteCobrador(ui_cobrador,this.form).then( (response) =>  {
       console.log("................id",response);
        self.$f7.dialog.close();
        let data={

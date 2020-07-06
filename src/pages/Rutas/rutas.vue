@@ -27,10 +27,10 @@
   <f7-row>
      <f7-col>
         <!-- {{[0]}} -->
-      <f7-button fill large small href="/ruta_nueva/" color="blue">NUEVA</f7-button>
+      <f7-button fill large small href="/ruta_nueva/" color="green">NUEVA RUTA</f7-button>
     </f7-col>
     <f7-col>
-       <f7-button  sortable-toggle=".sortable" fill large small color="yellow" @click="txt_ordenar=!txt_ordenar" :text="txt_ordenar?'LISTO':'ORDENAR'"></f7-button>
+       <f7-button  sortable-toggle=".sortable" fill large small color="blue" @click="txt_ordenar=!txt_ordenar" :text="txt_ordenar?'LISTO':'ORDENAR'"></f7-button>
     </f7-col>  
   </f7-row>
 </f7-block>

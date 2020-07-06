@@ -6,10 +6,15 @@ Vue.use(Vuex);
 export default new Vuex.Store({
   state: {
     clientes:[],
+    cobros_pendientes:[],
     zonas:[],
+    tasaseinteres:[],
     contador:0
   },
   mutations: {
+    addTasaseInteres(state, tazas){
+      state.tasaseinteres.unshift(tazas)
+    },
    addNewClientes (state, clientenuevo) {
       // mutate state
       //console.log(clientenuevo);
@@ -24,10 +29,16 @@ export default new Vuex.Store({
     },
     getSetNuevoClientes (state,posicion){
       state.clientes[posicion].nuevo=false
+    },
+    cobroPendiente(state,clientePendiente){
+        state.cobros_pendientes.unshift(clientePendiente)
     }
   },
   getters: {
     getClientes:state=>{
+      return state.clientes
+    },
+    getClientesAbonos:state=>{
       return state.clientes
     },
      getZonas:state=>{
@@ -38,6 +49,9 @@ export default new Vuex.Store({
     },
     getContadorClientes:state=>{
       return state.clientes.length
+    },
+    getTazaseInteres:state=>{
+      return state.tasaseinteres
     }
   },
   actions: {},

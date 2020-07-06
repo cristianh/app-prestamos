@@ -111,6 +111,27 @@ export default [
         _children: ['Clientes']
       },
       {
+        _name: 'CSidebarNavDropdown',
+        name: 'Clientes',
+        route: '/zonas',
+        icon: 'cil-puzzle',
+        items: [
+          {
+             name: 'Listar  Clientes',
+             to: '/listar_clientes',
+             icon: 'cil-user-follow',
+          }
+          // {
+          //   name: 'Editar Empresa',
+          //   to: '/editar',
+          // },
+          // {
+          //   name: 'Borrar Empresa',
+          //   to: '/borrar',
+          // }
+        ]
+      },
+      {
         _name: 'CSidebarNavTitle',
         _children: ['Theme']
       },

@@ -1,8 +1,8 @@
 {
-  "name": "app_prestamos",
-  "short_name": "app_prestamos",
-  "description": "app_prestamos",
-  "lang": "en-US",
+  "name": "SVCC",
+  "short_name": "SVCC",
+  "description": "SVCC",
+  "lang": "es-Es",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#EE350F",

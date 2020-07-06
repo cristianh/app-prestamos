@@ -1,8 +1,8 @@
 {
-  "name": "app_prestamos",
+  "name": "SVCC",
   "private": true,
   "version": "1.0.0",
-  "description": "app_prestamos",
+  "description": "SVCC",
   "repository": "",
   "license": "UNLICENSED",
   "scripts": {
@@ -40,6 +40,7 @@
     "primevue": "^2.0.0-SNAPSHOT",
     "template7": "^1.4.2",
     "vue": "^2.6.11",
+    "vue-currency-filter": "^5.1.0",
     "vue-firebase": "^1.0.8",
     "vue-firestore": "^0.3.30",
     "vue-moment": "^4.1.0",
