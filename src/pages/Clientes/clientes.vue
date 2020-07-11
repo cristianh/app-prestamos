@@ -47,58 +47,139 @@
     </f7-col>
      <f7-col>
       
-        <f7-button  sortable-toggle=".sortable" fill large small color="blue" @click="txt_ordenar=!txt_ordenar" :text="txt_ordenar?'LISTO':'ORDENAR'"></f7-button>
+        <f7-button  sortable-toggle=".sortable" fill large small color="blue" @click="onCambiarMensajeOrdenar">{{mensaje_ordenar}}</f7-button>
     </f7-col>
     
   </f7-row>
 </f7-block>
 
-<div v-if="clientes!=null || clientes.length!=0">
+<div v-if="clientes.length!=0">
   <f7-list class="searchbar-not-found">
     <f7-list-item title="Cliente no encontrado."></f7-list-item>
   </f7-list>
+        <f7-block>
         <f7-list class="search-list searchbar-found" sortable @sortable:sort="onSort">
           <!-- :link="`/cliente_detalles/${cliente.id}/`" -->
-        <f7-list-item media-list footer="Click para más informacion"  :subtitle="`Cedula: ${cliente.data.usuario.identificacion}`"  v-for="(cliente,index,key) in clientes"  :id=cliente.id :key=cliente.id  :text="cliente.data.usuario.direccion1==''?cliente.data.usuario.direccion2:cliente.data.usuario.direccion1" :title="`${cliente.data.usuario.nombre} ${cliente.data.usuario.apellido}`"  :link="`/cliente_detalles/${cliente.id}/`" :badge="cliente.nuevo?'nuevo':''" :badge-color="cliente.nuevo?'green':''"> <f7-link  style="font-size:14px" external  :href="`tel:${cliente.data.usuario.telefono}`"><f7-icon material="settings_phone"></f7-icon>{{cliente.data.usuario.telefono}}</f7-link></f7-list-item>
+        <f7-list-item media-list footer="Click para más informacion"  :subtitle="`Cedula: ${cliente.data.usuario.identificacion}`"  v-for="(cliente,index,key) in getClientesLista"  :id=cliente.id :key=cliente.id  :text="cliente.data.usuario.direccion1==''?cliente.data.usuario.direccion2:cliente.data.usuario.direccion1" :title="`${cliente.data.usuario.nombre} ${cliente.data.usuario.apellido}`"  :link="`/cliente_detalles/${cliente.id}/`" :badge="cliente.nuevo?'nuevo':''" :badge-color="cliente.nuevo?'green':''"> <f7-link  style="font-size:14px" external  :href="`tel:${cliente.data.usuario.telefono}`"><f7-icon material="settings_phone"></f7-icon>{{cliente.data.usuario.telefono}}</f7-link></f7-list-item>
         </f7-list>
-      </div>
-      <div v-else>
-       <f7-block>
-         No hay clientes
-       </f7-block> 
-      
+        </f7-block>
 </div>
+<div v-else>
+       <f7-block inset>
+         <f7-card
+         title=" No hay clientes">
+           
+         </f7-card>
+        
+       </f7-block> 
+</div>
+    <pre>{{clientes}}</pre>
 
  </f7-page>
 </template>
 
 <script>
-import axios from 'axios';
+import { WhatsApp } from 'vue-socialmedia-share';
+
+// usage in local component
+
+
 export default {
+  components: {
+    WhatsApp
+  },
     data() {
         return {
             clientes:[],
+            clientes_lista_ordenada:[],
             isLoadUsers:false,
-            txt_ordenar:false
+            numero_clientes:0,
+            txt_ordenar:false,
+            mensaje_ordenar:'ORDENAR'
         }
     },
     methods: {
+      onCambiarMensajeOrdenar(){
+          if(this.txt_ordenar==false){
+            this.mensaje_ordenar='LISTO';
+             this.txt_ordenar=true;
+          }else{
+        
+          this.mensaje_ordenar='ORDENAR';
+          //this.$store.commit('guardarOrdenLista',true);
+          // this.$store.commit('setEstadoListaOrdenada',false);
+          this.txt_ordenar=false;
+          
+          
+          }
+      },
       onSort(data) {
         // Sort data
-        console.log(data);
+        // let elemento1=this.clientes[data.from];
+        let elemento2=this.clientes[data.to];
+        let data_elements={
+          elm:{
+            el1:elemento2
+          },
+          data:data
+        }
+        // let data_elements2={
+        //   elm:elemento2,
+        //   data:data
+        // }
+        
+        this.$store.commit('SetEliminarPosicionListaClientes',data_elements);
+        this.$store.commit('SetPosicionListaClientes',data_elements);
+        // this.$store.commit('SetPosicionListaClientes',data_elements1);
+        //Buscamos la posicion del elemento arrastrado dentro del arreglo.        
+    
+      },
+      getPosicionElemento(id_clientepass){
+          return this.clientes.findIndex(x=>x.id==id_clientepass);
+          // return this.clientes[1];
+      },
+      getElementoLista(id_clientepass){
+          return this.clientes.filter(x=>x.id==id_clientepass);
+          // return this.clientes[1];
+      },
+      getBuscarPosicionElementoInferior(posicion_find){
+          return this.clientes.filter(x=>x.data.posicion==posicion_find);
+          // return this.clientes[1];
+      },
+       getBuscarPosicionElementoSuperior(posicion_find){
+          return this.clientes.filter(x=>x.data.posicion==posicion_find);
+          // return this.clientes[1];
       }
     },
     watch: {
     UploadClientes(newValue,oldvalue){
+      console.log(newValue);
+      console.log(oldvalue);
       this.clientes=this.$store.getters.getClientes;
     }
   },
+  computed: {
+    getClientesLista(){
+       return this.$store.getters.getOrdenarClientes
+    }
+   
+  },
     beforeCreate() {
-    
+     
     },
     beforeMount(){
-      this.clientes=this.$store.getters.getClientes;
-      console.log(this.clientes);
+      // this.clientes=this.$store.getters.getClientes;
+      //this.clientes_lista_ordenada=this.$store.getters.getOrdenarClientes
+      this.clientes=this.$store.getters.getOrdenarClientes;
+      this.numero_clientes=this.clientes.length;
+         if(this.numero_clientes==1){
+      this.isLoadUsers=true;
+      }
+      else{
+      this.isLoadUsers=false;
+      }
+      
+     
     }
 }
 </script>

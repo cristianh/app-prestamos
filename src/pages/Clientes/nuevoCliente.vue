@@ -213,11 +213,23 @@
 </template>
 
 <script>
+// zona
+          // balance incial
+          // total prestamo 
+          // total cobros
+          // catidad cobrosefectivos
+          // catidad cobrosenofectivos
+          // total gstos
+          // total transfererencias
+          // balance final
+          // balance final manual
 import ClientesCobradoresService from '../Services/ClientesService.js';
 export default {
     data() {
         return {
            cobradoresClientesService:null,
+           contador_cobros_efectivos:0,
+           contador_cobros_no_efectivos:0,
             form:{
                 usuario:{
                   identificacion:'',
@@ -251,6 +263,9 @@ export default {
        this.ClientesCobradoresService=new ClientesCobradoresService();
     },
     methods:{
+        onCobrosNoRealizados(){
+          localStorage.setItem("cobros_no_efectivos",this.contador_cobros_no_efectivos++);
+        },
         onGuardarCliente(){
   
 
@@ -280,6 +295,7 @@ export default {
          'nuevo':true
        }
        this.$store.commit('addNewClientes',data);
+       localStorage.setItem("cobros_efectivos",this.contador_cobros_efectivos++);
       // this.$store.state.clientes.push(this.form);
        //this.$store.clientes.push(this.$store.getters.getClientes);
        this.form={

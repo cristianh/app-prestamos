@@ -14,6 +14,19 @@ const db = admin.firestore();
 const fieldValue = admin.firestore.FieldValue; 
 
 
+exports.updateEstadoUsuario = functions.firestore
+    .document('cobradores/{cobradorId}/Clientes/{clienteId}')
+    .onUpdate((change, context) => {
+      // Get an object representing the document
+      // e.g. {'name': 'Marie', 'age': 66}
+      // ...or the previous value before this update
+      const previousValue = change.before.data().activo;
+       db.collection('cobradores').doc(context.params.cobradorId).collection('Clientes').doc(context.params.clienteId).set({
+        activo: true},{merge:true});
+  });
+
+
+
 exports.myFunctionName  = functions.firestore
   .document('cobradores/{CobradoresID}/Clientes/{ClientesID}/{PrestamosCollectionId}/{PrestamosID}')
   .onWrite((change, context) => { 
@@ -81,16 +94,18 @@ exports.CobradoresGuardarCobros = functions.https.onRequest(async (request, resp
   response.set('Access-Control-Allow-Headers', 'Content-Length,Content-Range');
   response.set('Access-Control-Allow-Headers', 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization');
 
-  // await db.collection('cobradores').doc(request.query.doc).collection('Clientes').doc(request.query.subid).collection(request.query.sub).add(request.body)
-  await db.collection('cobradores').doc(request.query.doc).collection('Clientes').doc(request.query.sub).update({
+  try {
+     await db.collection('cobradores').doc(request.query.doc).collection('Clientes').doc(request.query.sub).update({
     cobros: fieldValue.arrayUnion(request.body)
-}).then(() => {
+  }).then(() => {
     return response.send('Cobro registrado.');
   }).catch((error) => {
     return response.status(500).send(error);
   })
+  } catch (error) {
+    return response.status(500).send(error);
+  }  
 });
-
 
 /**
  * @function Funcion que devuelve todas las sonas de la empresa.
@@ -197,6 +212,21 @@ exports.CobradoresGuardarClientes = functions.https.onRequest(async (request, re
   });
 });
 
+exports.CobradoresClientesUpdate = functions.https.onRequest(async (request, response, body) => {
+  response.set('Access-Control-Allow-Origin', '*');
+  response.set('Access-Control-Allow-Credentials', 'true'); // vital
+  response.set('Access-Control-Allow-Methods', 'GET', 'POST', 'PUT', 'DELETE', 'OPTIONS');
+  response.set('Access-Control-Allow-Headers', 'Content-Type');
+  response.set('Access-Control-Allow-Headers', 'Content-Length,Content-Range');
+  response.set('Access-Control-Allow-Headers', 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization');
+
+  await db.collection('cobradores').doc(request.query.doc).collection('Clientes').doc(request.query.subdoc).set(request.body,{merge:true}).then(idCliente => {
+    return response.send("Actualizado");
+  }).catch((error) => {
+    return response.status(500).send(error);
+  });
+});
+
 /**
  * @function Funcion para buscar el cliente del cobrador.
  */
@@ -260,26 +290,6 @@ exports.ZonasGuardarCobradores = functions.https.onRequest(async (request, respo
   });
 });
 /**
- * @function Funcion para guardar los cobros de los cobradores.
- */
-exports.CobradoresGuardarCobros = functions.https.onRequest(async (request, response, body) => {
-  response.set('Access-Control-Allow-Origin', '*');
-  response.set('Access-Control-Allow-Credentials', 'true'); // vital
-  response.set('Access-Control-Allow-Methods', 'GET', 'POST', 'PUT', 'DELETE', 'OPTIONS');
-  response.set('Access-Control-Allow-Headers', 'Content-Type');
-  response.set('Access-Control-Allow-Headers', 'Content-Length,Content-Range');
-  response.set('Access-Control-Allow-Headers', 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization');
-
-  // await db.collection('cobradores').doc(request.query.doc).collection('Clientes').doc(request.query.subid).collection(request.query.sub).add(request.body)
-  await db.collection('cobradores').doc(request.query.doc).collection('Clientes').doc(request.query.sub).update({
-    cobros: fieldValue.arrayUnion(request.body)
-}).then(() => {
-    return response.send('Cobro registrado.');
-  }).catch((error) => {
-    return response.status(500).send(error);
-  });
-});
-/**
  * @function Funcion para guardar los prestamos de los cobradores.
  */
 exports.CobradoresGuardarPrestamos = functions.https.onRequest(async (request, response, body) => {
@@ -297,6 +307,51 @@ exports.CobradoresGuardarPrestamos = functions.https.onRequest(async (request, r
   }).catch((error) => {
     return response.status(500).send(error);
   });
+});
+
+/**
+ * @function Funcion para guardar los prestamos de los cobradores.
+ */
+exports.CobradoresActualizarPrestamos = functions.https.onRequest(async (request, response, body) => {
+  response.set('Access-Control-Allow-Origin', '*');
+  response.set('Access-Control-Allow-Credentials', 'true'); // vital
+  response.set('Access-Control-Allow-Methods', 'GET', 'POST', 'PUT', 'DELETE', 'OPTIONS');
+  response.set('Access-Control-Allow-Headers', 'Content-Type');
+  response.set('Access-Control-Allow-Headers', 'Content-Length,Content-Range');
+  response.set('Access-Control-Allow-Headers', 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization');
+  // return response.send(request.body);
+  let data= request.body.toString();
+  await db.collection('cobradores').doc(request.query.doc).collection('Clientes').doc(request.query.sub).set({
+    prestamos: fieldValue.arrayUnion(request.body,{merge:true})
+}).then(() => {
+    return response.send('Prestamo registrado.');
+  }).catch((error) => {
+    return response.status(500).send(error);
+  });
+
+
+
+  // var batch = db.batch();
+  // var cliente = await db.collection('cobradores').doc(request.query.doc).collection('Clientes').doc(request.query.sub);
+
+// batch.update(cliente, {"prestamos": fieldValue.arrayRemove('valor')});
+
+// batch.update(cliente,
+// 'prestamos.valor', 'hola');
+
+// Commit the batch
+
+// batch.commit().then( (red) =>{
+//    return response.status(200).send("Prestamo actualizado");
+// }).catch(error=>{
+//   return response.status(500).send(error);
+// });
+
+
+
+// Update the population of 'SF'
+
+
 });
 
 /**
@@ -733,8 +788,8 @@ exports.Clientes = functions.https.onRequest(async (request, response, body) => 
 
         break;
       case 'PUT':
-        await db.collection('clientes').doc(request.query.doc).set(request.body, { merge: true })
-          .then(() => response.json(request.query.doc))
+        await db.collection('cobradores').doc(request.query.doc).collection('Clientes').doc(request.query.subdoc).set(request.body, { merge: true })
+          .then((response) => response.json(response))
           .catch((error) => response.status(500).send(error))
         break;
       case 'DELETE':
@@ -911,4 +966,51 @@ exports.getTazaseInteres = functions.https.onRequest(async (request, response, b
             });
             return response.status(200).send(JSON.stringify(cobradores));
           }
+});
+
+/**
+ * @function Funcion que devuelve todas las sonas de la empresa.
+ */
+exports.guardarJornadaInfoRuta = functions.https.onRequest(async (request, response, body) => {
+  response.set('Access-Control-Allow-Origin', '*');
+  response.set('Access-Control-Allow-Credentials', 'true'); // vital
+  response.set('Access-Control-Allow-Methods', 'GET', 'POST', 'PUT', 'DELETE', 'OPTIONS');
+  response.set('Access-Control-Allow-Headers', 'Content-Type');
+  response.set('Access-Control-Allow-Headers', 'Content-Length,Content-Range');
+  response.set('Access-Control-Allow-Headers', 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization');
+
+  try {
+    await db.collection('cobradores').doc(request.query.doc).collection('Jornada_Ruta').add(request.body).then(res => {
+                return response.status(200).send(JSON.stringify({mensaje:'Rornada_Ruta.',id:res.id})).end();
+              }).catch((error) => {
+                return response.status(500).send(error);
+    });
+  } catch (error) {
+    return response.send('Error getting document', error).end();
+  }
+});
+
+
+/**
+ * @function Funcion que devuelve todas las sonas de la empresa.
+ */
+exports.actualizarHoraYFechaRuta = functions.https.onRequest(async (request, response, body) => {
+  response.set('Access-Control-Allow-Origin', '*');
+  response.set('Access-Control-Allow-Credentials', 'true'); // vital
+  response.set('Access-Control-Allow-Methods', 'GET', 'POST', 'PUT', 'DELETE', 'OPTIONS');
+  response.set('Access-Control-Allow-Headers', 'Content-Type');
+  response.set('Access-Control-Allow-Headers', 'Content-Length,Content-Range');
+  response.set('Access-Control-Allow-Headers', 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization');
+
+  try {
+    const snashop = await db.collection('cobradores').doc(request.query.doc).collection('Jornada_Ruta').doc(request.query.subdoc);
+    // return response.status(200).send(JSON.stringify(snashop)).end();
+    snashop.set(request.body, { merge: true }).then(res => {
+                return response.status(200).send(JSON.stringify({mensaje:'Jornada terminada y actualizada.',id:res.id})).end();
+              }).catch((error) => {
+                return response.status(500).send(error);
+    });
+  } catch (error) {
+    return response.send('Error getting document', error).end();
+  }
 });

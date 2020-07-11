@@ -9,12 +9,13 @@
         <f7-block>
 <f7-list>
   <!-- <f7-link no-link-class color="black" tab-link="#view-ruta"  icon-ios="f7:swap_calls" icon-aurora="f7:swap_calls" icon-md="material:swap_calls" >Rutas</f7-link> -->
-  <f7-list-button panel-close><f7-link no-link-class color="black" tab-link="#view-ruta"  icon-ios="f7:swap_calls" icon-aurora="f7:swap_calls" icon-md="material:swap_calls" >Rutas</f7-link></f7-list-button>
+   <!-- <f7-list-button panel-close><f7-link   tab-link="#view-rutainicio" color="black" icon-ios="f7:swap_calls" icon-aurora="f7:swap_calls" icon-md="material:swap_calls" >Ruta</f7-link></f7-list-button>  -->
+  <!-- <f7-list-button panel-close><f7-link no-link-class color="black" tab-link="#view-ruta"  icon-ios="f7:swap_calls" icon-aurora="f7:swap_calls" icon-md="material:swap_calls" >Rutas</f7-link></f7-list-button> -->
   <f7-list-button panel-close><f7-link   color="black" icon-ios="f7:alarm_on" icon-aurora="f7:alarm_on" icon-md="material:alarm_on" >Pendientes</f7-link></f7-list-button>
   <f7-list-button panel-close><f7-link   color="black" icon-ios="f7:create" icon-aurora="f7:create" icon-md="material:create" >Modificar Abono</f7-link></f7-list-button>
   <f7-list-button panel-close><f7-link   color="black" icon-ios="f7:delete" icon-aurora="f7:delete" icon-md="material:delete" >Eliminar Abono</f7-link></f7-list-button>
   <f7-list-button panel-close><f7-link   color="black" icon-ios="f7:today" icon-aurora="f7:today" icon-md="material:today" >Resumen del dia</f7-link></f7-list-button>
-  <f7-list-button panel-close><f7-link   color="black" icon-ios="f7:cancel" icon-aurora="f7:cancel" icon-md="material:cancel" >Terminar ruta</f7-link></f7-list-button>  
+  <!-- <f7-list-button panel-close><f7-link   color="black" icon-ios="f7:cancel" icon-aurora="f7:cancel" icon-md="material:cancel" >Terminar ruta</f7-link></f7-list-button>   -->
   <f7-list-button @click="exitApp" ><f7-link   color="black" icon-ios="f7:exit_to_app" icon-aurora="f7:exit_to_app" icon-md="material:exit_to_app" >Salir</f7-link></f7-list-button>
 </f7-list>
 </f7-block>
@@ -27,7 +28,7 @@
     <!-- Tabbar for switching views-tabs -->
     <f7-toolbar tabbar labels bottom>
       <f7-link tab-link="#view-inicio" tab-link-active icon-ios="f7:home" icon-aurora="f7:home" icon-md="material:home" text="Inicio"></f7-link>
-      
+      <f7-link tab-link="#view-rutainicio" icon-ios="f7:swap_calls" icon-aurora="f7:swap_calls" icon-md="material:swap_calls" text="Ruta"></f7-link>
       <f7-link tab-link="#view-cliente" icon-ios="f7:square_list_fill" icon-aurora="f7:square_list_fill" icon-md="material:view_list" text="Clientes"></f7-link>
       <f7-link tab-link="#view-nuevocobro" icon-ios="f7:local_atm" icon-aurora="f7:local_atm" icon-md="material:local_atm" text="Abonos"></f7-link>
     </f7-toolbar>
@@ -45,6 +46,9 @@
 
     <!-- Pendientes -->
     <f7-view id="view-pendientes" name="pendiente" tab url="/pendientes/"></f7-view>
+
+    <!-- ComenzarRuta -->
+    <f7-view id="view-rutainicio" name="comenzar_ruta" tab url="/comenzar_ruta/"></f7-view>
 
   </f7-views>
 

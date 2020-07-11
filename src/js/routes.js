@@ -13,6 +13,7 @@ import RutasPage from '../pages/Rutas/rutas.vue';
 import nuevaRutaPage from '../pages/Rutas/nuevaRuta.vue';
 import nuevaRutaClientesPage from '../pages/Rutas/rutasClientes.vue';
 import nuevaRutaClientesDetallesPage from '../pages/Rutas/rutaClienteDetalles.vue';
+import comenzarRuta from '../pages/Rutas/comenzarRuta.vue';
 
 import PendientesPage from '../pages/Pendientes/PendientesPage.vue';
 
@@ -59,6 +60,10 @@ var routes = [
   {
     path: '/ruta_clientes_datalles/:id/',
     component: nuevaRutaClientesDetallesPage,
+  },
+  {
+    path: '/comenzar_ruta',
+    component: comenzarRuta,
   },
   {
     path: '/clientes',

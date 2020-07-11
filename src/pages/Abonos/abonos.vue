@@ -18,24 +18,22 @@
      <!-- <f7-nav-title sliding>Abonos</f7-nav-title>
       <f7-nav-title-large>Abonos</f7-nav-title-large> -->
   </f7-navbar>
-{{tazasdeinteres}}
 <f7-block  inset>
 <f7-row>
   <f7-col>
     <f7-button fill sheet-open=".demo-sheet-swipe-to-step" :disabled="cliente_seleccionado?false:true" @click="pago('Prestamo')">Prestamo <f7-icon material="swap_vert"></f7-icon></f7-button>
   </f7-col>
-  <f7-col>
-    <f7-button fill sheet-open=".demo-sheet-swipe-to-step"  :disabled="cliente_seleccionado?false:true" @click="pago('Cobro')">Cobro <f7-icon material="local_atm"></f7-icon></f7-button>
-  </f7-col>
-  <f7-col>
+  <!-- <f7-col>
       
-        <f7-button  sortable-toggle=".sortable" fill  color="blue" @click="txt_ordenar=!txt_ordenar" :text="txt_ordenar?'LISTO':'ORDENAR'"></f7-button>
+        <f7-button  sortable-toggle=".sortable_abono" fill  color="blue" @click="txt_ordenar=!txt_ordenar" :text="txt_ordenar?'LISTO':'ORDENAR'"></f7-button>
+    </f7-col> -->
+    <f7-col>
+      
+        <f7-button fill  color="blue" @click="onActualizarLista">Actualizar Lista</f7-button>
     </f7-col>
 </f7-row>
 </f7-block>
 <f7-block-title >Clientes</f7-block-title>
-<f7-card>
-  <f7-card-content :padding="false">
   <f7-list class="searchbar-not-found">
     <f7-list-item title="Cliente no encontrado."></f7-list-item>
     <f7-row>
@@ -46,23 +44,32 @@
     </f7-col>
     </f7-row>
   </f7-list>
-     <div > 
+     <div v-if="clientes.length!=0" > 
        <!-- :link="`/cliente_detalles/${cliente.id}/`" -->
-        <f7-list sortable media-list  v-if="clientes" class="search-list-abono searchbar-found">
-        <f7-list-item swipeout :footer="`${diasValorPagoClients[index]!=undefined? 'Valor prestamo '+diasValorPagoClients[index]:'NA'}`"  v-for="(cliente,index,key) in clientes" :after="`${cliente.data.prestamos.length==0 || cliente.data.prestamos==undefined? 'NA':diasMoraClients[index]>=1?'Dias de mora: '+diasMoraClients[index]+' dias':'Dias de mora: '+diasMoraClients[index]+' dia'}`" :subtitle="`Cedula: ${cliente.data.usuario.identificacion}`"   :id=cliente.id :key=cliente.id :title="`${cliente.data.usuario.nombre}-${cliente.data.usuario.apellido}`" >
+       <!-- :footer="`${diasValorPagoClients[index]!=undefined? 'Valor prestamo '+diasValorPagoClients[index]:'NA'}`" -->
+
+<!-- :after="`${cliente.data.prestamos.length==0 || cliente.data.prestamos==undefined? 'NA':diasMoraClients[index]>=1?'Dias de mora: '+diasMoraClients[index]+' dias':'Dias de mora: '+diasMoraClients[index]+' dia'}`" -->
+<f7-block>
+       <f7-list  media-list class="search-list-abono searchbar-found sortable_abono"> 
+        <f7-list-item swipeout  :footer="`${diasValorPagoClients[index]!=undefined? 'Valor prestamo '+diasValorPagoClients[index]:'NA'}`" v-for="(cliente,index,key) in getAllUsuario"  :subtitle="`Cedula: ${cliente.data.usuario.identificacion}`"   :id=cliente.id :key=cliente.id :title="`${cliente.data.usuario.nombre}-${cliente.data.usuario.apellido}`" >
         <f7-swipeout-actions right>
-        <f7-swipeout-button overswipe color="green" @click="onReply(cliente.id,cliente.data.usuario.nombre+cliente.data.usuario.apellido)">Seleccionar</f7-swipeout-button>
-        <f7-swipeout-button color="red" @click="onCobroPendiente(cliente.data.usuario)">Pendiente</f7-swipeout-button>
+        <f7-swipeout-button close overswipe color="green" @click="onSeleccionarCliente(cliente.id,cliente.data.usuario.nombre+cliente.data.usuario.apellido)">Seleccionar</f7-swipeout-button>
+        <f7-swipeout-button close color="red" @click="onCobroPendiente(cliente.data.usuario)">Pendiente</f7-swipeout-button>
         </f7-swipeout-actions>
         </f7-list-item>
         </f7-list>
-        <f7-list v-else class="search-list searchbar-found">
-         <f7-list-item  :class="`skeleton-text skeleton-effect-${effect}`" media-item :subtitle="`Cedula: ${cliente.data.usuario.identificacion}`" v-for="(cliente,index,key) in clientes"  :id=cliente.id :key=cliente.id :title="`${cliente.data.usuario.nombre}-${cliente.data.usuario.apellido}`"  > </f7-list-item>
-        </f7-list>
+</f7-block>
       </div>
-  </f7-card-content>
+      <div v-else>
+       <f7-block inset>
+         <f7-card
+         title=" No hay clientes">
+           
+         </f7-card>
+        
+       </f7-block> 
+</div>
 
-</f7-card>
 
 <!-- Swipe to step demo sheet -->
     <f7-sheet
@@ -88,11 +95,11 @@
             <f7-list-input
         label="Pago:"
         type="number"
-        :value="formpago.valor"
+        :value="info_prestamo.valor"
         min=0
         placeholder="0"
         clear-button
-        @input.capture="formpago.valor=$event.target.value"
+        @input.capture="info_prestamo.valor=$event.target.value"
         ></f7-list-input>
             <f7-list-input
     label="Plan"
@@ -110,8 +117,8 @@
           label="Fecha"
           type="date"
           clear-button
-          :value="formpago.fecha"
-           @input="formpago.fecha=$event.target.value"
+          :value="info_prestamo.fecha"
+           @input="info_prestamo.fecha=$event.target.value"
            disabled
       >
     </f7-list-input>
@@ -124,10 +131,9 @@
     <f7-link>{{balance_zona}}</f7-link>
   </f7-card-footer>
 </f7-card>
-{{planseleccionado}}
         <div class="display-flex padding justify-content-space-between align-items-center">
           <div style="font-size: 18px"><b>Total:</b></div>
-          <div style="font-size: 22px"><b><span>{{formpago.valor==0?0:formpago.valor|currency}}</span></b></div>
+          <div style="font-size: 22px"><b><span>{{info_prestamo.valor==0?0:info_prestamo.valor|currency}}</span></b></div>
         </div>
         <div class="padding-horizontal padding-bottom">
           <f7-button large fill @click="onConfirmarPago" >CONFIRMAR</f7-button>
@@ -178,42 +184,72 @@ import AbonoService from '../Services/AbonoServices.js';
 export default {
   data() {
     return {
+      total_prestado:0,
+      numero_clientes:0,
       planseleccionado:'',
       tazaseleccionada:'',
       tazasdeinteres:[],
       abonoService:null,
       balance_zona:'',
       clientes:[],
+      clientes_lista_ordendad:[],
       cliente_seleccionado:'',
       effect:'blink',
       tipo_seleccionado:'',
       txt_ordenar:false,
-      formpago:{
+      isLoadUsers:true,
+      info_prestamo:{
         valor:0,
         // fecha:this.$moment(new Date).format("DD/MM/YYYY"), 
         fecha:new Date().toISOString().slice(0,10), 
-        cliente:''
+        cliente:'',
+        total_apagar:0,
+        plan_seleccionado:'',
+        dias_plazo:'',
+        estado_prestamo:false
       }
       
     }
   },
   watch: {
     UploadClientes(newCliente,oldCliente){
+      console.log(newCliente,oldCliente);
       this.clientes=this.$store.getters.getClientes;
     }
   },
+  mounted() {
+    this.$store.watch(() => this.$store.getters.getClientes, cli => {
+      console.log('watched: ', cli)
+      this.clientes=cli;
+    })
+  },
+  beforeUpdate(){
+    
+    
+  },
   beforeMount(){
     this.balance_zona=localStorage.getItem("saldo_zona");
-    this.clientes=this.$store.getters.getClientes;
     this.abonoService= new AbonoService();
     this.tazasdeinteres=this.$store.getters.getTazaseInteres;
+    this.clientes=this.$store.getters.getClientes;
     
   },
   beforeCreate(){
- 
+   
+    
+    this.numero_clientes=this.clientes.length;
+      if(this.numero_clientes==1){
+      this.isLoadUsers=true;
+      }
+      else{
+      this.isLoadUsers=false;
+      }      
   
   },
   computed: {
+    getAllUsuario(){
+       return this.$store.getters.getClientes;
+    },
     diasMoraClients(){
       let dias=[];
       for (const key in this.clientes) {
@@ -236,25 +272,29 @@ export default {
       for (const key in this.clientes) {
         if (this.clientes.hasOwnProperty(key)) {
           const element = this.clientes[key];
-         
-          
-          element.data.prestamos.forEach(elementP => {
+          if(element.data.prestamos.length>0){
+             element.data.prestamos.forEach(elementP => {
              valor.push(elementP.valor);
           });
-         
-          console.log();
-          //return element;
+          }
         }
       }
       return valor;
     }
   },
   methods:{
-    onSelectPlan($event){
-      this.tazaseleccionada=$event.target.value.split("-")[1];
-        console.log(this.tazaseleccionada);
+    onActualizarLista(){
+      this.clientes=this.$store.getters.getClientes;
     },
-    updateValor(){
+    roundTo(value, places){
+     var power = Math.pow(10, places);
+     return Math.round(value * power) / power;
+    },
+    onSelectPlan($event){
+      this.planseleccionado=$event.target.value.split("-")[0];
+      this.tazaseleccionada=$event.target.value.split("-")[1];
+    },
+    updateBalanceValor(){
        let zona= localStorage.getItem("zona");
        let empresa= localStorage.getItem("empresa");
 
@@ -274,28 +314,26 @@ batch.commit().then(function () {
 });
        
        
-//       db.collection("empresas").doc(empresa).collection('Zonas').doc(zona).update({
-//     balance:  
-// })
-// .then(function() {
-//     
-// })
-// .catch(function(error) {
-//     // The document probably doesn't exist.
-//     console.error("Error updating document: ", error);
-// });
+
     },
     onCobroPendiente(usuario){
       this.$store.commit('cobroPendiente',usuario);
       console.log("Pendiente"+usuario);
     },
-    onReply(id,nombrecompleto) {
+    onSeleccionarCliente(id,nombrecompleto) {
         const app = this.$f7;
+        this.cliente_seleccionado=id;
         // app.dialog.alert(id);
         app.dialog.confirm(nombrecompleto,'Confirmar usuario', () => {
-          this.cliente_seleccionado=id;
+          
+           let elemento = this.clientes.findIndex(x=>x.id==id);
           // console.log(this.cliente_seleccionado);
-          app.dialog.alert(nombrecompleto,'Confirmado!');
+           if(this.clientes[elemento].data.prestamos.length>0){
+  // && this.clientes[elemento].data.prestamos.estado_prestamo!=true
+            app.dialog.alert('No se puede realizar el prestamo, el cliente tiene un saldo por pagar.',nombrecompleto);
+          }else{
+          app.dialog.alert('Confirmado!',nombrecompleto);
+          }
         });
       },
     pago(tipo_pago){
@@ -304,59 +342,62 @@ batch.commit().then(function () {
     onConfirmarPago(){
 
       const self = this;
-        self.$f7.dialog.preloader('Guardando pago...');
+      const app = this.$f7;
+      self.$f7.dialog.preloader('Guardando pago...');
       let ui_cobrador=localStorage.getItem("uid");
       if(this.cliente_seleccionado==='' || this.cliente_seleccionado==null){
-         const app = this.$f7;
+         
          app.dialog.alert('Debe seleccionar un Cliente!');
       }
       else{
-        this.formpago.cliente=this.cliente_seleccionado;
-        if(this.tipo_seleccionado=="Cobro"){
-          
-          this.abonoService.guardarAbonosCobros(ui_cobrador,this.formpago.cliente,this.formpago).then( (response) =>  {
-          let saldo_actual=  localStorage.getItem("saldo_zona");
-          let saldo_valor=   this.formpago.valor;
-          let descuentosaldozona=Number(saldo_actual)+Number(saldo_valor);
-          localStorage.setItem("saldo_zona", descuentosaldozona);
-          this.balance_zona= localStorage.getItem("saldo_zona");
-          this.updateValor();
-          this.formpago.valor=0
-          this.cliente_seleccionado='';
-          self.$f7.dialog.close();
-        this.$f7router.back()
-       });
-        }
-        else{
-          let calculo_pagos=0;
 
-          if(this.planseleccionado=="15"){
-          calculo_pagos=((this.tazaseleccionada/100)*this.formpago.valor)/(1-Math.round(Math.pow((1+this.tazaseleccionada/100),-this.planseleccionado),6));
-          }else{
-          calculo_pagos=((this.tazaseleccionada/100)*this.formpago.valor)/(1-Math.round(Math.pow((1+this.tazaseleccionada/100),-this.planseleccionado),6));
-          }
-          let rd=(1-(1+this.tazaseleccionada/100));
-          let multi=this.tazaseleccionada/100;
-          let sd=Math.pow(rd,-this.planseleccionado);
-          let ope=multi/sd;
-          let end=multi*this.formpago.valor/sd
-          // console.log(calculo_pagos);
-          console.log(rd);
-          console.log(Math.round(this.tazaseleccionada/100,3));
-          console.log(Math.round(ope));
-           this.abonoService.guardarAbonosCobros(ui_cobrador,this.formpago.cliente,this.formpago).then( (response) =>  {
+         //  valor preswtamo  "x"
+          //  interes  i
+          // plazo p
+          // total a pagar = x*i+x
+
+          // total a pagar / p 
+          // 2 valor
+          // fecha_hora
+          // fecha_inicio
+
+          this.info_prestamo.cliente=this.cliente_seleccionado;
+       
+      
+          let valor_prestamo=this.info_prestamo.valor;
+          let taza_seleccionada_interes= this.tazaseleccionada;
+          let plazo_dias= this.planseleccionado;
+          let total_apagar=Number(valor_prestamo)*Number(taza_seleccionada_interes)+Number(valor_prestamo);
+          console.log( this.info_prestamo);
+          let pago=Number(total_apagar)/Number(plazo_dias)
+
+          this.info_prestamo.total_apagar=total_apagar;
+          console.log( this.info_prestamo);
+          this.info_prestamo.plan_seleccionado=this.planseleccionado;
+          this.info_prestamo.dias_plazo=Number(this.planseleccionado);
+
+          this.abonoService.guardarAbonosPrestamos(ui_cobrador,this.info_prestamo.cliente,this.info_prestamo).then( (response) =>  {
           let saldo_actual=  localStorage.getItem("saldo_zona");
-          let saldo_valor=   this.formpago.valor;
+          let saldo_valor=   this.info_prestamo.valor;
           let descuentosaldozona=Number(saldo_actual)-Number(saldo_valor);
           localStorage.setItem("saldo_zona", descuentosaldozona);
           this.balance_zona= localStorage.getItem("saldo_zona");
-          this.updateValor();
-           this.formpago.valor=0;
-           this.cliente_seleccionado='';
+          this.total_prestado=Number(this.total_prestado)+Number(this.info_prestamo.valor)
+          localStorage.setItem("total_prestado",this.total_prestado);
+          console.log(this.info_prestamo);
+          let elemento = this.clientes.findIndex(x=>x.id==this.cliente_seleccionado);
+          this.clientes[elemento].data.prestamos.push(this.info_prestamo);
+          this.updateBalanceValor();
+          //  this.info_prestamo.valor=0;
+          // this.cliente_seleccionado='';
            self.$f7.dialog.close();
-        this.$f7router.back()
+           this.$f7.sheet.close();
+          this.$f7router.back();
+        
        });
-        }
+          
+          
+        
        
       }
     }

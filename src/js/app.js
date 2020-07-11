@@ -10,7 +10,9 @@ import store from "./store/index";
 
 import Message from 'primevue/message';
 
+import { WhatsApp } from 'vue-socialmedia-share';
 
+Vue.use(WhatsApp)
 
 import 'primevue/resources/themes/saga-blue/theme.css';       //theme
 //import 'primevue/resources/primevue.min.css';    
