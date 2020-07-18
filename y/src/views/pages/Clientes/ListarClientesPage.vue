@@ -1,16 +1,40 @@
 <template>
 <CRow>
         <CCol md="12">
+          <CRow>
+      <CCol>
         <CCard>
+          
          <CCardBody>
-              <CSelect
+           <CSelect
                   label="Empresas"
                   :options="empresas"
                   :value.sync="usuario.empresa"
-                  @change="onSelectdEmpresa"
+                   @change="onSelectdEmpresa"
                 />
+                 
          </CCardBody>
         </CCard>
+      </CCol>
+      <CCol>
+         <CCard>
+         <!-- <CCardHeader>
+           Zonas:
+         </CCardHeader> -->
+         
+         <CCardBody>
+            <CSelect
+                  label="Zonas"
+                  :options="zonas"
+                   :value.sync="usuario.zonas"
+                  :disabled=isEnabled
+                  @change="onSelectedZona"
+                />
+               
+         </CCardBody>
+        </CCard>
+      </CCol>
+    </CRow>
       </CCol>
       <CCol md="12">
         <CCard>
@@ -45,27 +69,40 @@
 </template>
 
 <script>
+import ZonaService from '../Zonas/Services/ZonaService.js';
+import ClientesService from './Services/ClientesServices.js';
+import EmpresaService from '../Empresa/Services/EmpresasService.js';
+import CobradoresService from '../Cobradores/Services/CobradoresService.js';
+
 export default {
   name: 'Table',
   data() {
       return {
-         items:[],
+       items:[],
+       isEnabled:true,
+       clienteservices:null,
+       empresaservice:null,
+       zonaservice:null,
+       cobradorservice:null,   
+       items:[],    
        usuario:{
             empresa:'',
+            zona:''
        },
-        empresas:[{ value: 'Seleccione', label: 'Seleccione' }], 
+        empresas:[{ value: 'Seleccione', label: 'Seleccione' }],
+        zonas:[{ value: 'Seleccione', label: 'Seleccione' }]
       }
   },
   props: {
     fields: {
       type: Array,
       default () {
-        return ['id','Nombre', 'Balance']
+        return ['nombre', 'apellido','identificacion','telefono','oficio']
       }
     },
     caption: {
       type: String,
-      default: 'Empresas'
+      default: 'Clientes'
     },
     hover: Boolean,
     striped: Boolean,
@@ -74,45 +111,78 @@ export default {
     fixed: Boolean,
     dark: Boolean
   },
+  created() {
+    this.empresaservice= new EmpresaService();
+    this.clienteservices = new ClientesService();
+    this.zonaservice = new ZonaService();
+    this.cobradorservice= new CobradoresService();
+  },
   beforeMount(){
-    //      axios.get('https://us-central1-manifest-life-279516.cloudfunctions.net/Empresas?doc=todos')
-    // .then( (response) =>  {
+     this.empresaservice.getAllEmpresas().then((result)=>{
+        let tamporal_empresas=[];
+        tamporal_empresas=result.data;
+          for (const key in tamporal_empresas) {
+            if (tamporal_empresas.hasOwnProperty(key)) {
+                 let element={ value: tamporal_empresas[key].id, label: tamporal_empresas[key].Nombre };
+                 
+                 this.empresas.push(element);
+                 
+                
+            }
+         }
         
-    //     this.items=response.data;
-    //     console.table(response.data);
-    //     this.isLoadUsers= true;
-    // }).catch(error => {
-    //     console.log(error);
-    // });
+        });
   },
   methods: {
      onSelectdEmpresa(){
-        //     this.isEnabled=false;
-        //     this.zonas=[{ value: 'Seleccione', label: 'Seleccione' }];
-        //     let tamporal_Zonas=[];
+            this.isEnabled=false;
+            this.zonas=[{ value: 'Seleccione', label: 'Seleccione' }];
+            let tamporal_Zonas=[];
             
-        //     this.zonaService.getAllZonasEmpresa(this.usuario.empresa,'Zonas').then((response)=>{
-        //     //console.log(response);
-        //     tamporal_Zonas=response;
-        //     for (const key in tamporal_Zonas) {
-        //     if (tamporal_Zonas.hasOwnProperty(key)) {
+            this.zonaservice.getAllZonasEmpresa(this.usuario.empresa,'Zonas').then((response)=>{
+            //console.log(response);
+            tamporal_Zonas=response;
+            for (const key in tamporal_Zonas) {
+            if (tamporal_Zonas.hasOwnProperty(key)) {
                 
-        //           let element={ value: tamporal_Zonas[key].id, label: tamporal_Zonas[key].nombre };
-        //           this.zonas.push(element);
-        //           // console.log(this.zonas);
-        //     }
-        // }   
+                  let element={ value: tamporal_Zonas[key].id, label: tamporal_Zonas[key].nombre };
+                  this.zonas.push(element);
+                  // console.log(this.zonas);
+            }
+        }   
              
-        // });
+        });
+     },
+     onSelectedZona(){
+         let tamporal_Clientes=[];
+            this.cobradores=[{ value: 'Seleccione', label: 'Seleccione' }];
+            console.log(this.usuario.zonas);
+            this.cobradorservice.buscarCobradorPorZona(this.usuario.zonas).then((response)=>{ 
+          
+              this.clienteservices.getAllClientesCobradores(response.data).then((response)=>{
+              console.log(response);
+            // tamporal_Clientes=response;
+            // for (const key in tamporal_Clientes) {
+            // if (tamporal_Clientes.hasOwnProperty(key)) {
+                
+            //       let element={ value: tamporal_Clientes[key].id, label: tamporal_Clientes[key].nombre };
+            //       this.cobradores.push(element);
+            //       // console.log(this.zonas);
+            //  }
+            // }
+            let usuarios=[];
+            usuarios.push(response.data[0].data.usuario);
+            console.log(typeof(usuarios));
+            console.log(Object.values(usuarios));
+                this.items=usuarios;
+  
+            });
+            });
+           
+     },
+     onSelectedCobrador(){
 
-            
-      }
-    // getBadge (status) {
-    //   return status === 'Active' ? 'success'
-    //     : status === 'Inactive' ? 'secondary'
-    //       : status === 'Pending' ? 'warning'
-    //         : status === 'Banned' ? 'danger' : 'primary'
-    // }
+     }
   }
-}
+}       
 </script>

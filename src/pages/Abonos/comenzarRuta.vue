@@ -1,0 +1,365 @@
+<template>
+<f7-page name="Abono">
+  <f7-navbar   :sliding="false">
+     <f7-nav-left>
+        <f7-link icon-ios="f7:menu" icon-aurora="f7:menu" icon-md="material:menu" panel-open="left"></f7-link>
+      </f7-nav-left>
+    <f7-nav-right>
+      <f7-link class="searchbar-enable" data-searchbar=".searchbar-ruta" icon-ios="f7:search" icon-aurora="f7:search" icon-md="material:search"></f7-link>
+    </f7-nav-right>
+    <f7-searchbar
+      expandable
+      class="searchbar-ruta"
+      search-container=".search-list-ruta"
+      search-in=".item-subtitle"
+      :disable-button="!$theme.aurora"
+      placeholder="Buscar por cedula..."
+    ></f7-searchbar>
+     <!-- <f7-nav-title sliding>Abonos</f7-nav-title>
+      <f7-nav-title-large>Abonos</f7-nav-title-large> -->
+  </f7-navbar>
+
+  <f7-list class="searchbar-not-found">
+    <f7-list-item title="Cliente no encontrado."></f7-list-item>
+    <f7-row>
+        
+    <f7-col>
+        <!-- {{[0]}} -->
+        <!-- {{jornada_cobrador}} -->
+      
+      <f7-button fill large small href="/cliente_nuevo/" color="green">NUEVO CLIENTE</f7-button>
+    </f7-col>
+    </f7-row>
+  </f7-list>
+     <div v-if="!this.isComienzoRuta" > 
+         <f7-block  inset>
+            <f7-row>
+            <f7-col lg="12" md="12">
+                <f7-button fill  @click="onGenerarListaJornadaPago">Comenzar<f7-icon material="swap_vert"></f7-icon></f7-button>
+            </f7-col>
+            </f7-row>
+            </f7-block>
+             <f7-block>
+               <div v-if="estado_lista_prestamos_clientes"> <f7-card>
+          <f7-card-content>
+       Jornada terminada...
+          </f7-card-content>
+         </f7-card></div>
+             </f7-block>
+     </div>
+      <div v-else>
+          <div v-if="clientes.length!=0 ">
+            <!-- <f7-block inset>
+              <f7-row>
+        <f7-col>
+                    <f7-button  sortable-toggle=".sortable"  fill  color="blue" @click="cambiarEstadoLista" :text="txt_ordenar?'GUARDAR':'ORDENAR'"></f7-button>
+                </f7-col>
+         </f7-row>
+         </f7-block> -->
+         <f7-block>
+       <!-- {{posiciones_lista_ordenada}} -->
+          
+         <f7-block-title >Clientes</f7-block-title>
+       <!-- :link="`/cliente_detalles/${cliente.id}/`" -->
+        <f7-list media-list class="search-list-ruta searchbar-found">
+                  
+<!-- :after="`${cliente.data.prestamos.length==0 || cliente.data.prestamos==undefined? 'NA':Number(cliente.data.prestamos[0].dias_con_mora)>=1?'Mora: '+Number(cliente.data.prestamos[0].dias_con_mora)+' dia':'Mora: '+Number(cliente.data.prestamos[0].dias_con_mora)+' dias'}`"  -->
+
+        <f7-list-item  
+        swipeout  
+        :disabled="!cliente.data.activo" 
+        v-for="(cliente,index,key) in getTodosClientesPrestamo"
+        :badge="`${cliente.data.prestamos.length==0 || cliente.data.prestamos==undefined? 'NA':Number(cliente.data.prestamos[0].dias_con_mora)>=1?'Mora: '+Number(cliente.data.prestamos[0].dias_con_mora)+' dia':'Mora: '+Number(cliente.data.prestamos[0].dias_con_mora)+' dias'}`"
+        :badge-color="`${cliente.data.prestamos.length==0 || cliente.data.prestamos==undefined? 'NA':Number(cliente.data.prestamos[0].dias_con_mora)>=1?'red':''}`"
+        :class="{'normal':cliente.data.prestamos[0].estado_pago_ruta==0,'pago':cliente.data.prestamos[0].estado_pago_ruta==1,'no-pago':cliente.data.prestamos[0].estado_pago_ruta==2,'pendiente':cliente.data.prestamos[0].estado_pago_ruta==3}"  
+        :subtitle="`Cedula: ${cliente.data.usuario.identificacion}`"   :id=cliente.id :key=cliente.id :title="`${cliente.data.usuario.nombre}-${cliente.data.usuario.apellido}`" 
+        :footer="`${calculoTotalPagoHoy[index]!=undefined ? 'Saldo pago hoy: '+calculoTotalPagoHoy[index]:'NA'}`"  
+        @click="onClickClientePaginaDetalles(cliente.id,calculoTotalPagoHoy[index])"
+        >
+        <f7-swipeout-actions right>
+        <!-- <f7-swipeout-button close overswipe color="green" @click="onReply(cliente,cliente.data.usuario.nombre+cliente.data.usuario.apellido)">Seleccionar</f7-swipeout-button> -->
+        <!-- <f7-swipeout-button color="blue" @click="onCobroPendiente(cliente.data.usuario)">Pago</f7-swipeout-button> -->
+        <f7-swipeout-button  close color="pendiente" @click="onCobroPendiente(cliente)">Pendiente</f7-swipeout-button>
+        </f7-swipeout-actions>
+        
+        </f7-list-item>
+        </f7-list>
+        </f7-block>
+        <f7-block>
+        <f7-row>
+        <f7-col>
+            <f7-button  fill color="red" @click="onCerrarRuta">Terminar Ruta <f7-icon material="cancel"></f7-icon></f7-button>
+        </f7-col>
+         </f7-row>
+        </f7-block>
+      </div>
+            <div v-else>
+       <f7-block  inset>
+         <f7-card>
+          <f7-card-content>
+        "No hay clientes con prestamo para hoy"
+          </f7-card-content>
+         </f7-card>
+
+</f7-block>
+</div>
+</div>
+
+    <f7-sheet class="mensaje_final-sheet" :opened="sheetOpened" @sheet:closed="sheetOpened = false">
+      <f7-toolbar>
+        <div class="left" style="margin-left:12px">Informe final de ruta</div>
+        <div class="right">
+          <f7-link sheet-close>Cerrar</f7-link>
+        </div>
+      </f7-toolbar>
+      <!-- Scrollable sheet content -->
+      <f7-page-content>
+        <f7-card>
+          <f7-card-content>
+          Cobros realizados hoy: {{jornada_cobrador.catidad_cobrosefectivos}}<br>
+          Cobros no realizados hoy: {{jornada_cobrador.catidad_cobrosenofectivos}}<br>
+          Cobros Pendientes: {{jornada_cobrador.numero_cobros_pendientes}}<br>
+          Balance de la zona: {{jornada_cobrador.balance_final}}<br>
+          Total dinero recogido: ${{jornada_cobrador.total_cobros_realizados}}
+          </f7-card-content>
+          <f7-row>
+          <f7-col md="12">
+              <f7-list >
+                <f7-list-input
+              outline
+              floating-label
+              label="Dinero fisico"
+              type="text"
+              placeholder="Por favor ingrese el saldo."
+              required
+              validate
+              pattern="[0-9]*"
+              error-message="Solo numeros"
+              @input="jornada_cobrador.balance_final_manual=$event.target.value"
+            ></f7-list-input>
+            <f7-button large  @click="onConfirmarJornada" >CONFIRMAR</f7-button>
+                </f7-list>
+                
+          </f7-col>
+          
+        </f7-row>
+        </f7-card>
+        
+       
+        
+        
+
+        
+      </f7-page-content>
+    </f7-sheet>
+
+</f7-page>
+</template>
+
+
+
+<script>
+import AbonoService from '../Services/AbonoServices.js';
+import CobradorService from '../Services/CobradoresServices.js';
+import ClientesService from '../Services/ClientesService.js';
+
+export default {
+  data() {
+    return {
+    sheetOpened: false,
+    posiciones_lista_ordenada:[],
+    estado_lista_prestamos_clientes:false,
+    color_bedge:'',
+    jornada_cobrador:{},
+      numero_clientes:0,
+      corbradorService:null,
+      balance_zona:'',
+      clientes:[],
+      cliente_seleccionado:'',
+      txt_ordenar:false,
+      isLoadUsers:false,
+      isComienzoRuta:false,
+      informacion_pago:{
+        valor:0,
+        // fecha:this.$moment(new Date).format("DD/MM/YYYY"), 
+        fecha:new Date().toISOString().slice(0,10), 
+        cliente:'',
+        estado_abono:true
+      },
+      contador_dias_pago:0
+      
+    }
+  },
+  watch: {
+    UploadClientes(newCliente,oldCliente){
+      this.clientes=this.$store.getters.getClientes;
+    },
+    UploadstadoRuta(newCliente,oldCliente){
+       this.isComienzoRuta=this.$store.getters.getEstadoRuta
+    }
+  },
+  beforeMount(){
+    this.balance_zona=localStorage.getItem("saldo_zona");
+    this.clientes=this.$store.getters.getClientesListaPrestamo;
+    this.corbradorService= new CobradorService();
+    this.isComienzoRuta=this.$store.getters.getEstadoRuta;
+    this.jornada_cobrador=this.$store.getters.getJornadaCobrador;
+    
+  },
+  beforeCreate(){
+ 
+  
+  },
+  computed: {
+    getTodosClientesPrestamo(){
+      return this.$store.getters.getClientesListaPrestamo
+    },
+     estadoPrestamodia(){
+       
+     },
+    
+     diasValoraPago(){
+      let valor_apagar=[];
+      for (const key in this.clientes) {
+        if (this.clientes.hasOwnProperty(key)) {
+          const element = this.clientes[key];
+          if(element.data.prestamos.length>0){
+          element.data.prestamos.forEach(elementP => {
+             valor_apagar.push(elementP.total_apagar);
+          });
+          }
+         
+         
+        }
+      }
+      return valor_apagar;
+    },
+     clientesConPrestamo(){
+       let element=this.clientes.filter(x =>x.data.prestamos.length>0 && x.data.prestamos[0].estado_prestamo!=true);
+       if(element){
+         this.numero_clientes=Number(this.numero_clientes)+1; 
+       }
+        
+       return element;
+    },
+     calculoTotalPagoHoy(){
+      //  console.log(this.$store.getters.getSaldoApagarHoy);
+      return this.$store.getters.getSaldoApagarHoy;
+       
+    }
+  },
+  methods:{
+    onClickClientePaginaDetalles(clienteId,saldoAPagar){
+      console.log(clienteId,saldoAPagar);
+      this.$f7router.navigate('/abonos_detalle/'+clienteId+'/'+saldoAPagar);
+    },
+    cambiarEstadoLista(){
+     
+    },
+    onSort(data) {
+      
+      // let data_posicion={
+      //   cliente_id:data.el.id,
+      //   from:data.from,
+      //   to:data.to
+      // }
+      // let data_values= Object.values(data_posicion);
+      //  console.log(data_values);
+
+      //  data_values.forEach(element => {
+        
+      //  });
+      // console.log(this.posiciones_lista_ordenada.filter(x=>x.cliente_id==data.el.id).length);
+      // if(this.posiciones_lista_ordenada.filter(x=>x.cliente_id==data.el.id).length>0){
+      //   let element= this.posiciones_lista_ordenada.filterIndex(x=>x.cliente_id==data.el.id);
+      //   this.posiciones_lista_ordenada[element].to=data.to;
+      // }else{
+      //   this.posiciones_lista_ordenada.push(data_posicion);
+      // }
+      
+    },
+    onConfirmarJornada(){
+       let ui_cobrador=localStorage.getItem("uid");
+      let id_jornadacobrador=localStorage.getItem("idjornadacobrador");
+      this.jornada_cobrador.balance_final=localStorage.getItem("saldo_zona");
+      this.corbradorService.actualizarJornadaCobrador(ui_cobrador,id_jornadacobrador,this.jornada_cobrador).then(response =>{
+                
+              this.$f7.dialog.alert('Jornada cerrada correctamente!','Correcto',()=>{
+                setTimeout(()=>{
+                  this.$f7.sheet.close('.mensaje_final-sheet');
+                  this.$f7.dialog.close();
+                },2000)
+              });
+             }).catch(error =>{
+                console.log(error);
+             })
+
+    },
+    onCerrarRuta(){
+       const app = this.$f7;
+        // app.dialog.alert(id);
+        if(this.$store.getters.getCobrosPendientes==0){
+          app.dialog.confirm('Seguro desea terminar la ruta!','Terminar ruta', () => {
+        
+          this.$store.commit('sethoraFinalJornada',this.$moment(new Date).format("hh:mm:ss"));
+          this.$store.commit('setfechaFinalJornada',new Date().toISOString().slice(0,10));
+          this.$store.commit('setEstadoRuta',false);
+
+          this.isComienzoRuta=false;
+          this.$f7.sheet.open('.mensaje_final-sheet');
+        
+        });
+        }
+        else{
+           app.dialog.confirm('Hay cobros pendientes','Atencion');
+        }
+
+    },
+    onGenerarListaJornadaPago(){
+        const self = this;
+        self.$f7.dialog.preloader('Creando lista...');
+        this.$store.commit('setfechInicialJornada',new Date().toISOString().slice(0,10));
+        this.$store.commit('sethoraInicialJornada',this.$moment(new Date).format("hh:mm:ss"));
+         let ui_cobrador=localStorage.getItem("uid");
+             this.corbradorService.guardarJornadaCobrador(ui_cobrador,this.jornada_cobrador).then(response =>{
+                 console.log(response);
+                 this.isComienzoRuta=true;
+                 this.estado_lista_prestamos_clientes=true;
+                 localStorage.setItem("idjornadacobrador",response.data.id);
+                 this.$store.commit('setEstadoRuta',true);
+                 self.$f7.dialog.close();
+             }).catch(error =>{
+                console.log(error);
+             })
+    },
+    onCobroPendiente(usuario){
+      this.$store.commit('cobroClientePendiente',usuario);
+      this.$store.commit('setNumero_cobros_pendientesJornada');
+         let data={
+            id: usuario.id,
+            estadopagoruta:3
+          };
+          this.$store.commit('setEstadoPrestamoRuta',data);
+          this.$f7.dialog.alert('Marcado como pendiente','Correcto');
+      console.log("Pendiente"+usuario.id);
+    }
+  }
+}
+</script>
+
+<style lang="less">
+.pago{
+  border-left: 5px solid green
+}
+
+.no-pago{
+   border-left: 5px solid red
+}
+
+.pendiente{
+   border-left: 5px solid blue
+}
+.normal{
+  border:0px
+}
+</style>

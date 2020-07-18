@@ -189,8 +189,7 @@ export default {
     beforeMount() {
 
       let tamporal_empresas=[];
-      let empresas= this.empresaService.getAllEmpresas();
-        empresas.then((result)=>{
+      this.empresaService.getAllEmpresas().then((result)=>{
         
         tamporal_empresas=result.data;
           for (const key in tamporal_empresas) {

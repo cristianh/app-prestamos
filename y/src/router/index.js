@@ -15,6 +15,8 @@ const Empresa = () => import('@/views/pages/Empresa/EmpresasPage')
 const Empresa_nueva = () => import('@/views/pages/Empresa/EmpresaNuevaPage')
 const Empresa_Editar = () => import('@/views/pages/Empresa/EmpresaEditarPage')
 const Eliminar_Editar = () => import('@/views/pages/Empresa/EliminarEmpresasPage')
+//Empresa Bienvenida
+// const MensajeBienvenidaCobradores = () => import('@/views/pages/Empresa/MensajeBienvenidaCobradores')
 
 //Zonas.
 const Zona_nueva = () => import('@/views/pages/Zonas/ZonaNuevaPage')
@@ -24,6 +26,9 @@ const Cobrador_nuevo = () => import('@/views/pages/Cobradores/NuevoCobradoresPag
 
 //Clientes
 const Listar_clientes = () => import('@/views/pages/Clientes/ListarClientesPage')
+
+//Tazas interes
+const Taza_Interes = () => import('@/views/pages/TazaInteres/TazaDeInteresPage')
 
 
 const Charts = () => import('@/views/charts/Charts')
@@ -123,6 +128,11 @@ function configRoutes () {
               name: 'Eliminr empresa',
               component: Eliminar_Editar
             }
+            // {
+            //   path: '/mensaje_bienvenida_cobradores',
+            //   name: 'Mensaje bienvenida',
+            //   component:MensajeBienvenidaCobradores
+            // }
             ]
         },
         {
@@ -168,6 +178,31 @@ function configRoutes () {
               path: '/nueva_cobrador',
               name: 'Nueva cobrador',
               component: Cobrador_nuevo
+            }
+            // {
+            //   path: '/editar_cobrador',
+            //   name: 'Editar cobrador',
+            //   component: Empresa_Editar
+            // },
+            // {
+            //   path: '/borrar_cobrador',
+            //   name: 'Eliminr cobrador',
+            //   component: Eliminar_Editar
+            // }
+            ]
+        },
+        {
+          path: 'pages',
+          redirect: '/pages/taza',
+          name: 'Pages',
+          component: {
+            render (c) { return c('router-view') }
+          },
+          children: [
+            {
+              path: '/nueva_plan',
+              name: 'Nueva plan',
+              component: Taza_Interes
             }
             // {
             //   path: '/editar_cobrador',

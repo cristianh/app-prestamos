@@ -13,4 +13,9 @@ export default class EmpresaServices {
         return axios.get(`getTazaseInteres`).then( response => response); 
 	}
 
+	getEmpresaPorId(IdEmpresa){
+		return axios.get(`Empresas?doc=${IdEmpresa}`).then( response => response).catch(error => {return error});
+	}
+	
+
 }

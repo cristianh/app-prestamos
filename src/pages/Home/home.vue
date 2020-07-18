@@ -15,7 +15,12 @@
     {{profile_name}}
     </f7-card-header>
   <f7-card-content>
-    <p>Card with header and footer. Card headers are used to display card titles and footers for additional information or just for custom actions.</p>
+    <div v-if="mensaje_bienvenida">
+    <p>{{mensaje_bienvenida}}</p>
+    </div>
+    <div v-else>
+      Cargando....
+    </div>
   </f7-card-content>
   <f7-card-footer>
     <strong>Ultima conexion:</strong> {{ lastActivity | moment("DD-MM-YYYY HH:mm") }}
@@ -28,7 +33,7 @@
    <!-- <f7-list-item title="Saldo Empresa" :after="balance_empresa"><f7-icon ios="f7:local_atm" aurora="f7:local_atm" md="material:local_atm"></f7-icon> -->
     
   </f7-list-item>
-   <f7-list-item title="Saldo Zona" :after="balance_zona"><f7-icon ios="f7:local_atm" aurora="f7:local_atm" md="material:local_atm"></f7-icon>
+   <f7-list-item title="Saldo Zona" :after="getBalanceZona"><f7-icon ios="f7:local_atm" aurora="f7:local_atm" md="material:local_atm"></f7-icon>
     
   </f7-list-item>
   </f7-list>
@@ -47,22 +52,28 @@ import EmpresaService from '../Services/EmpresaServices';
 export default {
   data() {
     return {
+      mensaje_bienvenida:'',
       firstor:'',
       lastActivity:'',
       profile_name:'',
       uid:'',
-      balance_zona:'',
+      balance_zona:0,
       balance_empresa:'',
       isLoadBalnces:false,
       cobradoresClientesService:null,
       cobradoresService:null,
-      empresaService:null
+      empresaService:null,
      
     }
   },
    watch: {
     Uploadabono(newBalance,oldBalance){
       this.balance_zona=localStorage.getItem("saldo_zona");
+    }
+  },
+  computed: {
+    getBalanceZona(){
+      return this.$store.getters.getBalance;
     }
   },
   beforeMount(){
@@ -94,6 +105,7 @@ export default {
         console.log(error);
     }); 
 
+    
 
     this.CobradoresService.getAllInfoCobradores(this.uid).then( (response) =>  {
         this.rutas=response.data;
@@ -102,13 +114,13 @@ export default {
         localStorage.setItem("empresa",empresa);
         localStorage.setItem("zona",zona);
         this.empresaService.getAllInfoEmpresaZona(empresa,zona).then( (datazona) =>  {
-                this.balance_zona=datazona.data.balance;
-                localStorage.setItem("saldo_zona", this.balance_zona);
-
+                this.$store.commit('setBalanceZona',datazona.data.balance);
+                localStorage.setItem("saldo_zona",datazona.data.balance);
+                this.balance_zona= this.$store.getters.getBalance;
                   
                   this.empresaService.getAllInfoEmpresa(empresa).then( (response) =>  {
                       
-                      this.balance_empresa=response.data.Balance;
+                      // this.balance_empresa=response.data.Balance;
                       // this.isLoadRutas= true;
                       this.isLoadBalnces=true;
   
@@ -120,6 +132,10 @@ export default {
             const element = cl[key];
             //this.clientes.push(element);
             this.$store.state.clientes.unshift(element);
+          
+            if(element.data.prestamos.length>0 && element.data.prestamos[0].estado_prestamo!=true){
+              this.$store.state.clientes_prestamos.unshift(element);
+            }
            
             ///this.clientes_nombres.push(element.data.usuario.nombre);
             
@@ -166,7 +182,14 @@ export default {
         console.log(error);
     }); 
 
-   
+  let empresa_cobrador=localStorage.getItem("empresa");
+   this.empresaService.getEmpresaPorId(empresa_cobrador).then( (response) =>  {
+      console.log(response);
+      this.mensaje_bienvenida = response.data.Mensaje;
+    }).catch(error => {
+      self.$f7.dialog.close();
+        console.log(error);
+    }); 
    
 
    
@@ -179,7 +202,6 @@ export default {
     this.ClientesCobradoresService=new ClientesCobradoresService();
     this.CobradoresService= new CobradoresService();
     this.empresaService= new EmpresaService();
-   
   },
   mounted() {
 //     db.collection("users").add({

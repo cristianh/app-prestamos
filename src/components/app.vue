@@ -30,7 +30,7 @@
       <f7-link tab-link="#view-inicio" tab-link-active icon-ios="f7:home" icon-aurora="f7:home" icon-md="material:home" text="Inicio"></f7-link>
       <f7-link tab-link="#view-rutainicio" icon-ios="f7:swap_calls" icon-aurora="f7:swap_calls" icon-md="material:swap_calls" text="Ruta"></f7-link>
       <f7-link tab-link="#view-cliente" icon-ios="f7:square_list_fill" icon-aurora="f7:square_list_fill" icon-md="material:view_list" text="Clientes"></f7-link>
-      <f7-link tab-link="#view-nuevocobro" icon-ios="f7:local_atm" icon-aurora="f7:local_atm" icon-md="material:local_atm" text="Abonos"></f7-link>
+      <f7-link tab-link="#view-nuevocobro" icon-ios="f7:local_atm" icon-aurora="f7:local_atm" icon-md="material:local_atm" text="Prestamos"></f7-link>
     </f7-toolbar>
 
     <!-- Your main view/tab, should have "view-main" class. It also has "tab-active" class -->
@@ -164,13 +164,30 @@
     },
     methods: {
       alertLoginData() {
-        this.$f7.dialog.alert('Username: ' + this.username + '<br>Password: ' + this.password, () => {
-          this.$f7.loginScreen.close();
-        });
+        
       },
       exitApp(){
+        window.close();
         // cordovaApp.
-        console.log(cordovaApp);
+        // console.log(navigator);
+        console.log(window.navigator);
+        
+        if (typeof cordovaApp !== 'undefined') {
+            if (navigator.app) {
+                navigator.app.exitApp();
+                 console.log('app exit');
+            }
+            else if (navigator.device) {
+                navigator.device.exitApp();
+                  console.log('device exit');
+            }
+        } else {
+            window.close();
+            $timeout(function () {
+              console.log('showCloseMessage exit');
+                self.showCloseMessage = true;  //since the browser can't be closed (otherwise this line would never run), ask the user to close the window
+            });
+        }
       }
     },
     mounted() {
@@ -178,6 +195,8 @@
         // Init cordova APIs (see cordova-app.js)
         if (Device.cordova) {
           cordovaApp.init(f7);
+           
+  
         }
         // Call F7 APIs here
       });

@@ -55,7 +55,7 @@ export default {
     dark: Boolean
   },
   beforeMount(){
-         axios.get('https://us-central1-manifest-life-279516.cloudfunctions.net/Empresas?doc=todos')
+  axios.get('https://us-central1-manifest-life-279516.cloudfunctions.net/Empresas?doc=todos')
     .then( (response) =>  {
         
         this.items=response.data;

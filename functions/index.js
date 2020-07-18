@@ -83,6 +83,42 @@ exports.myFunctionName  = functions.firestore
     // })
  });
 
+
+/**
+ * @function Funcion para guardar los cobros de los cobradores.
+ */
+exports.buscarCobradorZona = functions.https.onRequest(async (request, response, body) => {
+  response.set('Access-Control-Allow-Origin', '*');
+  response.set('Access-Control-Allow-Credentials', 'true'); // vital
+  response.set('Access-Control-Allow-Methods', 'GET', 'POST', 'PUT', 'DELETE', 'OPTIONS');
+  response.set('Access-Control-Allow-Headers', 'Content-Type');
+  response.set('Access-Control-Allow-Headers', 'Content-Length,Content-Range');
+  response.set('Access-Control-Allow-Headers', 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization');
+
+  try {
+    let cobradoresCollection = await db.collection('cobradores');
+    let idCobrador ='';
+    let restultadoConsulta = cobradoresCollection.where("Zona", "==", request.query.zona).get()
+    .then((querySnapshot) => {
+        querySnapshot.forEach((doc) => {
+            // doc.data() is never undefined for query doc snapshots
+            // console.log(doc.id, " => ", doc.data());
+            idCobrador=doc.id;
+             
+        });
+        return response.status(200).send(idCobrador);
+    })
+    .catch((error) => {
+        return response.status(500).send(error);
+    });
+     
+  } catch (error) {
+    return response.status(500).send(error);
+  }  
+});
+
+
+
 /**
  * @function Funcion para guardar los cobros de los cobradores.
  */
@@ -97,6 +133,55 @@ exports.CobradoresGuardarCobros = functions.https.onRequest(async (request, resp
   try {
      await db.collection('cobradores').doc(request.query.doc).collection('Clientes').doc(request.query.sub).update({
     cobros: fieldValue.arrayUnion(request.body)
+  }).then(() => {
+    return response.send('Cobro registrado.');
+  }).catch((error) => {
+    return response.status(500).send(error);
+  })
+  } catch (error) {
+    return response.status(500).send(error);
+  }  
+});
+
+/**
+ * @function Funcion para guardar los cobros de los cobradores.
+ */
+exports.ClienteEliminarPrestamosPago = functions.https.onRequest(async (request, response, body) => {
+  response.set('Access-Control-Allow-Origin', '*');
+  response.set('Access-Control-Allow-Credentials', 'true'); // vital
+  response.set('Access-Control-Allow-Methods', 'GET', 'POST', 'PUT', 'DELETE', 'OPTIONS');
+  response.set('Access-Control-Allow-Headers', 'Content-Type');
+  response.set('Access-Control-Allow-Headers', 'Content-Length,Content-Range');
+  response.set('Access-Control-Allow-Headers', 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization');
+
+  try {
+     await db.collection('cobradores').doc(request.query.doc).collection('Clientes').doc(request.query.sub).update({
+     prestamos: fieldValue.arrayRemove(request.body)
+  }).then(() => {
+    return response.send('Cobro registrado.');
+  }).catch((error) => {
+    return response.status(500).send(error);
+  })
+  } catch (error) {
+    return response.status(500).send(error);
+  }  
+});
+
+
+/**
+ * @function Funcion para guardar los cobros de los cobradores.
+ */
+exports.CobradoresGuardarObservacionNoPago = functions.https.onRequest(async (request, response, body) => {
+  response.set('Access-Control-Allow-Origin', '*');
+  response.set('Access-Control-Allow-Credentials', 'true'); // vital
+  response.set('Access-Control-Allow-Methods', 'GET', 'POST', 'PUT', 'DELETE', 'OPTIONS');
+  response.set('Access-Control-Allow-Headers', 'Content-Type');
+  response.set('Access-Control-Allow-Headers', 'Content-Length,Content-Range');
+  response.set('Access-Control-Allow-Headers', 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization');
+
+  try {
+     await db.collection('cobradores').doc(request.query.doc).collection('Clientes').doc(request.query.sub).update({
+    observaciones: fieldValue.arrayUnion(request.body)
   }).then(() => {
     return response.send('Cobro registrado.');
   }).catch((error) => {
@@ -568,7 +653,8 @@ exports.Empresas = functions.https.onRequest(async (request, response, body) => 
               let datadocument = {
                 'id': id,
                 'Nombre': doc.data().Nombre,
-                'Balance': doc.data().Balance
+                'Balance': doc.data().Balance,
+                'Mensaje': doc.data().Mensaje
               };
               empresas.push(datadocument);
               // users.push({
@@ -597,10 +683,7 @@ exports.Empresas = functions.https.onRequest(async (request, response, body) => 
       case 'POST':
         //response.status(200).send(request.body);
 
-        await db.collection('empresas').add({
-          Nombre: request.body.nombre,
-          Balance: request.body.balance
-        }).then(() => {
+        await db.collection('empresas').add(request.body).then(() => {
           return response.send('Empresas registrada');
         }).catch((error) => {
           return response.status(500).send(error);
@@ -968,6 +1051,32 @@ exports.getTazaseInteres = functions.https.onRequest(async (request, response, b
           }
 });
 
+
+
+
+
+/**
+ * @function Funcion que devuelve todas las sonas de la empresa.
+ */
+exports.GuardarNuevoPlanEmpresa = functions.https.onRequest(async (request, response, body) => {
+  response.set('Access-Control-Allow-Origin', '*');
+  response.set('Access-Control-Allow-Credentials', 'true'); // vital
+  response.set('Access-Control-Allow-Methods', 'GET', 'POST', 'PUT', 'DELETE', 'OPTIONS');
+  response.set('Access-Control-Allow-Headers', 'Content-Type');
+  response.set('Access-Control-Allow-Headers', 'Content-Length,Content-Range');
+  response.set('Access-Control-Allow-Headers', 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization');
+
+  try {
+    await db.collection('parametros_cobros').add(request.body).then(res => {
+                return response.status(200).send(JSON.stringify({mensaje:'El nuevo plan a sigo guardado.',id:res.id})).end();
+              }).catch((error) => {
+                return response.status(500).send(error);
+    });
+  } catch (error) {
+    return response.send('Error getting document', error).end();
+  }
+});
+
 /**
  * @function Funcion que devuelve todas las sonas de la empresa.
  */
@@ -990,11 +1099,10 @@ exports.guardarJornadaInfoRuta = functions.https.onRequest(async (request, respo
   }
 });
 
-
 /**
  * @function Funcion que devuelve todas las sonas de la empresa.
  */
-exports.actualizarHoraYFechaRuta = functions.https.onRequest(async (request, response, body) => {
+exports.actualizarJornadaRutaDia = functions.https.onRequest(async (request, response, body) => {
   response.set('Access-Control-Allow-Origin', '*');
   response.set('Access-Control-Allow-Credentials', 'true'); // vital
   response.set('Access-Control-Allow-Methods', 'GET', 'POST', 'PUT', 'DELETE', 'OPTIONS');
@@ -1010,6 +1118,33 @@ exports.actualizarHoraYFechaRuta = functions.https.onRequest(async (request, res
               }).catch((error) => {
                 return response.status(500).send(error);
     });
+  } catch (error) {
+    return response.send('Error getting document', error).end();
+  }
+});
+
+
+/**
+ * @function Funcion que devuelve todas las sonas de la empresa.
+ */
+exports.actualizarPosicionClienteLista = functions.https.onRequest(async (request, response, body) => {
+  response.set('Access-Control-Allow-Origin', '*');
+  response.set('Access-Control-Allow-Credentials', 'true'); // vital
+  response.set('Access-Control-Allow-Methods', 'GET', 'POST', 'PUT', 'DELETE', 'OPTIONS');
+  response.set('Access-Control-Allow-Headers', 'Content-Type');
+  response.set('Access-Control-Allow-Headers', 'Content-Length,Content-Range');
+  response.set('Access-Control-Allow-Headers', 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization');
+
+  try {
+    await db.collection('cobradores').doc(request.query.doc).collection('Clientes').doc(request.query.subdoc)
+    .update({posicion:Number(request.body.posicion_inicial)}, { merge: true })
+    .then(res => {
+                return response.status(200).send(JSON.stringify({mensaje:'Posicion Guardada',id:res.id})).end();
+              }).catch((error) => {
+                return response.status(500).send(error);
+    });
+    //return response.status(200).send(JSON.stringify(snashop)).end();
+
   } catch (error) {
     return response.send('Error getting document', error).end();
   }

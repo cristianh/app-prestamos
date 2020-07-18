@@ -6,7 +6,7 @@ export default class CobradorServices {
 	}
 
 	getZonaCobrador(id) {
-        return axios.get(`Cobradores?doc=${id}&sub=Rutas`).then( response => response); 
+        return axios.get(`Cobradores?doc=${id}&subdoc=Rutas`).then( response => response); 
 	}
 
 	guardarClienteCobrador(){
@@ -18,7 +18,7 @@ export default class CobradorServices {
 	}
 
 	actualizarJornadaCobrador(ui_rutacobrador,id_rutajornada,data) {
-		console.log(`actualizarHoraYFechaRuta?doc=${ui_rutacobrador}&subdoc=${id_rutajornada}`);
-        return axios.post(`actualizarHoraYFechaRuta?doc=${ui_rutacobrador}&subdoc=${id_rutajornada}`,data).then( response => response); 
+		
+        return axios.post(`actualizarJornadaRutaDia?doc=${ui_rutacobrador}&subdoc=${id_rutajornada}`,data).then( response => response); 
 	}
 }

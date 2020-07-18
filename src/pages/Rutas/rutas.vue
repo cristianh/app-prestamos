@@ -40,7 +40,7 @@
   </f7-list>
 <div v-if="clientes" class="search-list searchbar-found">
         <f7-list  sortable @sortable:sort="onSort">
-        <f7-list-item v-for="(ruta,index,key) in rutas"  :id=ruta.id :key=key :title="ruta.data.nombre"  :link="`/ruta_clientes/${ruta.id}/${ruta.data.nombre}`" > 
+        <f7-list-item v-for="(ruta,index,key) in rutas"  :id=ruta.id :key=key :title="ruta"  :link="`/ruta_clientes/${ruta.id}/${ruta}`" > 
       <!-- <select name="rutas" multiple>
         <option   @change="usuariosseleccionados" v-for="(cliente,index,key) in clientes" :id=cliente.id :key=key  :value="cliente.id" :link="`/cliente_detalles/${cliente.id}/`" >{{cliente.data.usuario.nombre}}</option>
       </select> -->

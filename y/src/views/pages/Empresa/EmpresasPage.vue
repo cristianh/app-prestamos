@@ -1,5 +1,6 @@
 <template>
     <div>
+      {{empresa_form}}
      <CCard>
          <CCardHeader>
         <strong>Empresa:</strong>
@@ -21,7 +22,7 @@
         <CInput
           label="Nombre"
           placeholder="Ingresa el nombre de la empresa"
-          v-model="empresa_form.nombre"
+          v-model="empresa_form.Nombre"
         />
       </CCol>
     </CRow>
@@ -32,11 +33,22 @@
                   append=".00"
                   description="Ingresa del balance inicial"
                   prepend="$"
-                  v-model="empresa_form.balance"
+                  v-model="empresa_form.Balance"
          />
         
       </CCol>
     </CRow>
+     <CRow>
+      <CCol sm="12">
+      <CInput
+                description="Ingrese el mensaje de bienvenida que aparecera en el app."
+                label="Mensaje: (opcional)"
+                type="textarea"
+                placeholder="Mensaje..."
+                v-model="empresa_form.Mensaje"
+              />
+      </CCol>
+     </CRow>
     <CRow>
        <CCol col="4" sm="4" md="2" xl class="mb-3 mb-xl-0">
             <CButton color="success"  @click="onGuardarEmpresa" >GUARDAR</CButton>
@@ -148,8 +160,9 @@ export default {
   data () {
     return {
       empresa_form:{
-          nombre:'',
-          balance:''
+          Nombre:'',
+          Balance:'',
+          Mensaje:''
       },
       empresaService:null,
       selected: 'Month',
@@ -220,6 +233,11 @@ export default {
     onGuardarEmpresa(){
       this.empresaService.guardarEmpresa(this.empresa_form).then(rsp=>{
         this.$toast.add({severity:'success', summary: 'Correcto.', detail:'Empresa Creada', life: 3000});  
+        this.empresa_form={
+          nombre:'',
+          balance:'',
+          mensaje:''
+      }
       }).catch((error) => {
         //return response.status(500).send(error);
         this.$toast.add({severity:'warn', summary: 'Error.', detail:error, life: 3000});  

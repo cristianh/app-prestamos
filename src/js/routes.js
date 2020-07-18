@@ -1,6 +1,6 @@
 
 import HomePage from '../pages/Home/home.vue';
-import AbonosPage from '../pages/Abonos/abonos.vue';
+import PrestamosPage from '../pages/Prestamos/Prestamos.vue';
 import Login from '../pages/Login/login.vue';
 
 //Clientes.
@@ -13,7 +13,10 @@ import RutasPage from '../pages/Rutas/rutas.vue';
 import nuevaRutaPage from '../pages/Rutas/nuevaRuta.vue';
 import nuevaRutaClientesPage from '../pages/Rutas/rutasClientes.vue';
 import nuevaRutaClientesDetallesPage from '../pages/Rutas/rutaClienteDetalles.vue';
-import comenzarRuta from '../pages/Rutas/comenzarRuta.vue';
+
+//Abonos
+import comenzarRuta from '../pages/Abonos/comenzarRuta.vue';
+import detalleAbono from '../pages/Abonos/detallesAbono.vue';
 
 import PendientesPage from '../pages/Pendientes/PendientesPage.vue';
 
@@ -99,7 +102,11 @@ var routes = [
   // },
   {
     path: '/abonos/',
-    component: AbonosPage,
+    component: PrestamosPage,
+  },
+  {
+    path: '/abonos_detalle/:id/:saldo_apagar',
+    component: detalleAbono
   },
   {
     path: '/pendientes/',

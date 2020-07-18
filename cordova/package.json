@@ -16,6 +16,7 @@
     "cordova-android": "^8.1.0",
     "cordova-ios": "^5.1.1",
     "cordova-plugin-exitapp2": "^1.0.4",
+    "cordova-plugin-geolocation": "^4.0.2",
     "cordova-plugin-keyboard": "^1.2.0",
     "cordova-plugin-splashscreen": "^5.0.4",
     "cordova-plugin-statusbar": "^2.4.3",
@@ -29,7 +30,8 @@
       "cordova-plugin-splashscreen": {},
       "cordova-plugin-wkwebview-file-xhr": {},
       "cordova-plugin-whitelist": {},
-      "kr.co.joycorp.cordova.exitapp": {}
+      "kr.co.joycorp.cordova.exitapp": {},
+      "cordova-plugin-geolocation": {}
     },
     "platforms": [
       "ios",

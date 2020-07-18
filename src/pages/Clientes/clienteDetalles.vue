@@ -4,6 +4,7 @@
     <f7-block-title>Usuario id: {{id}}</f7-block-title>
     <f7-card>
     </f7-card>
+  
     <f7-block strong>
       <f7-block-title >Usuario</f7-block-title>
       <f7-list>
@@ -25,6 +26,24 @@
       <f7-list>
        <f7-list-item   v-for="(codeudor,index,keycod) in clientes_info.codeudor" :id="index" :key="keycod">
          <span>{{index | capitalize}}:</span>{{codeudor}}
+      </f7-list-item>
+      </f7-list>
+    </f7-block>
+    
+    <f7-block strong>
+      <f7-block-title>Prestamo</f7-block-title>
+      <f7-list>
+       <f7-list-item   v-for="(prestamos,index,keycod) in clientes_info.prestamos" :id="index" :key="keycod">
+        <div v-if="clientes_info.prestamos.dias_plazo!=''">
+        <span> Dias de plazo: </span>{{prestamos.dias_plazo}}<br>
+         <span>Fecha del prestamo: </span>{{prestamos.fecha}}<br>
+         <span>Valor del prestamo: </span>{{prestamos.valor}}<br>
+         <span>Total a pagar: </span>{{prestamos.total_apagar}}<br>
+         <span>Plan seleccionado: </span>{{prestamos.plan_seleccionado}}<br>
+        </div>
+        <div v-else>
+     No tiene prestamos
+    </div>      
       </f7-list-item>
       </f7-list>
     </f7-block>

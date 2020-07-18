@@ -15,6 +15,10 @@ export default class EmpresaService {
 		return axios.post('Empresas',data).then( response => response.data).catch(error => {return error}); 
 	}
 
+	guardarNuevoPlanEmpresa(data) {
+		return axios.post('GuardarNuevoPlanEmpresa',data).then( response => response.data).catch(error => {return error}); 
+	}
+
 	getCarsLarge() {
 		return axios.get('demo/data/cars-large.json').then(res => res.data.data);
 	}
