@@ -47,7 +47,7 @@
     <CDropdownItem>
       <CIcon name="cil-settings" /> Settings
     </CDropdownItem>
-    <CDropdownItem>
+    <!-- <CDropdownItem>
       <CIcon name="cil-dollar" /> Payments
       <CBadge color="secondary" class="ml-auto">{{ itemsCount }}</CBadge>
     </CDropdownItem>
@@ -58,8 +58,8 @@
     <CDropdownDivider/>
     <CDropdownItem>
       <CIcon name="cil-shield-alt" /> Lock Account
-    </CDropdownItem>
-    <CDropdownItem>
+    </CDropdownItem> -->
+    <CDropdownItem @click="logout">
       <CIcon name="cil-lock-locked" /> Logout
     </CDropdownItem>
   </CDropdown>
@@ -72,7 +72,12 @@ export default {
     return { 
       itemsCount: 42
     }
-  }
+  },
+  methods: {
+    logout(){
+    this.$router.replace('/');
+    }
+  },
 }
 </script>
 

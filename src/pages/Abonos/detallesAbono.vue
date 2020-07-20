@@ -25,7 +25,9 @@
         <div v-if="clientes_info.prestamos.dias_plazo!=''">
         <f7-block-title>Prestamo</f7-block-title>
         <f7-block>
-         <h5> Dias de plazo: {{prestamos.dias_plazo}}<br>
+         <h5>
+         Dias de mora: {{prestamos.dias_con_mora}}<br>
+         Dias de plazo: {{prestamos.dias_plazo}}<br>
          Fecha del prestamo: {{prestamos.fecha}}<br>
          Valor del prestamo: {{prestamos.valor}}<br>
          Total a pagar: {{prestamos.total_apagar}}<br>
@@ -157,7 +159,7 @@
         </f7-list-item>
       </f7-list>  -->
     </f7-sheet>
-    <f7-popover class="popover-menu" :closeOnEscape="false" :closeByOutsideClick="true" :closeByBackdropClick="false" >
+    <f7-popover class="popover-menu" :closeOnEscape="false" :closeByOutsideClick="false" :closeByBackdropClick="false" >
       <f7-block-header><span style="margin-left:25%">Motivo del no pago</span><f7-button fill @click="onCobroNoPago" color="orange">Confirmar</f7-button></f7-block-header>
    <f7-list>
   <f7-list-item  v-for="(opcion,index,key) in opcionesRadioNoPago" :key="key"
@@ -183,6 +185,13 @@
         ></f7-list-input>
 </f7-list>
   </f7-popover>
+  <!-- <f7-block>
+  <f7-row>
+    <f7-col>
+  <f7-button fill  @click="onCobroPendiente()"  color="blue">Pendiente</f7-button>
+    </f7-col>
+  </f7-row>
+  </f7-block> -->
 
   </f7-page>
 </template>
@@ -229,6 +238,20 @@ import ClientesService from '../Services/ClientesService.js';
   }
   },
   methods: {
+  onCobroPendiente(){
+      // this.$store.commit('cobroClientePendiente',this.clientes_info);
+    //  this.$store.commit('setNumero_cobros_pendientesJornada');
+     
+      let data={
+            id: this.id,
+            estadopagoruta:2
+          };
+          this.$store.commit('setEstadoPrestamoRuta',data);
+          //  this.$f7.dialog.alert('Marcado como pendiente','Correcto');
+           this.$f7router.back();
+    // this.onCambiarEstadoRuta();
+   
+  },
     onOpenPopverCobroNoPago(){
         // let popoeveBotonNoPago=this.$f7.popover.open('.popover-menu','.boton-no-pago');
         // popoeveBotonNoPago.closeByBackdropClick=false;
@@ -238,14 +261,15 @@ import ClientesService from '../Services/ClientesService.js';
         // });
     },
     onCobroNoPago(){
-      this.$f7.dialog.preloader('Guardando información...');
-        this.$f7.popover.close('.popover-menu');
+      if(this.radioNoPagoSeleccionado=="Otro" && this.inputNoPagoSeleccionado!=""){
+        this.$f7.dialog.preloader('Guardando informacion...');
+          this.$f7.popover.close('.popover-menu');
         this.$store.commit('setCatidad_cobrosenofectivosJornada');
         let elemento = this.clientes_info;
         
         
         elemento.prestamos[0].dias_con_mora=Number(elemento.prestamos[0].dias_con_mora)+1
-        console.log(elemento.prestamos[0].dias_con_mora);
+        // console.log(elemento.prestamos[0].dias_con_mora);
         let ui_cobrador=localStorage.getItem("uid");
         elemento.prestamos[0].total_apagar=Number(elemento.prestamos[0].total_apagar)+Number(this.saldo_a_pagar);
           let dataTotalAPagarHoy={
@@ -266,19 +290,75 @@ import ClientesService from '../Services/ClientesService.js';
             dias_mora:elemento.prestamos[0].dias_con_mora
           };
           this.$store.commit('setEstadoDiasMora',data_mora);
+            let data_pendiente={
+            id: this.id,
+            pagopendiente:false
+          };
+      this.$store.commit('setEstadoPrestamoPendiente',data_pendiente);
           let informacionNoPago={
            fecha_hora:this.$moment(new Date()).format("DDDD-MM-YYYY hh:mm:ss"), 
            razonnopago:this.inputNoPagoSeleccionado!=''?this.inputNoPagoSeleccionado:this.radioNoPagoSeleccionado
         }
         this.clientesService.guardarObservacionNoPago(ui_cobrador,this.id,informacionNoPago).then( (response) =>  {
+           this.$store.commit('setQuitar_cobros_pendientesJornada');
             this.$f7.dialog.close();
             this.$f7router.back();
         });
               
           });
+      }
+      else if(this.radioNoPagoSeleccionado!=""){
+        this.$f7.dialog.preloader('Guardando informacion...');
+          this.$f7.popover.close('.popover-menu');
+        this.$store.commit('setCatidad_cobrosenofectivosJornada');
+        let elemento = this.clientes_info;
         
+        
+        elemento.prestamos[0].dias_con_mora=Number(elemento.prestamos[0].dias_con_mora)+1
+        // console.log(elemento.prestamos[0].dias_con_mora);
+        let ui_cobrador=localStorage.getItem("uid");
+        elemento.prestamos[0].total_apagar=Number(elemento.prestamos[0].total_apagar)+Number(this.saldo_a_pagar);
+          let dataTotalAPagarHoy={
+            Idcliente: this.id,
+            pagototalhoy:Number(this.saldo_a_pagar)+Number(this.saldo_a_pagar)
+          };
+          this.$store.commit('setEstadoTotalAPagar',dataTotalAPagarHoy);
+        
+        this.clientesService.actualizarClienteCobrador(ui_cobrador,this.id,elemento).then( (response) =>  {
+              // this.informacion_pago.valor_pago=0;
+          let data={
+            id: this.id,
+            estadopagoruta:2
+          };
+          this.$store.commit('setEstadoPrestamoRuta',data);
+          let data_mora={
+            id: this.id,
+            dias_mora:elemento.prestamos[0].dias_con_mora
+          };
+          this.$store.commit('setEstadoDiasMora',data_mora);
+            let data_pendiente={
+            id: this.id,
+            pagopendiente:false
+          };
+          this.$store.commit('setEstadoPrestamoPendiente',data_pendiente);
+          let informacionNoPago={
+           fecha_hora:this.$moment(new Date()).format("DDDD-MM-YYYY hh:mm:ss"), 
+           razonnopago:this.inputNoPagoSeleccionado!=''?this.inputNoPagoSeleccionado:this.radioNoPagoSeleccionado
+        }
+        this.clientesService.guardarObservacionNoPago(ui_cobrador,this.id,informacionNoPago).then( (response) =>  {
+           this.$store.commit('setQuitar_cobros_pendientesJornada');
+            this.$f7.dialog.close();
+            this.$f7router.back();
+        });
+              
+          });
+        }else{
+         this.$f7.dialog.alert('Por favor seleccione el motivo de no pago.','Atencion!');
+          // this.$f7.popover.open('.popover-menu');
+      }
     },
        updateValor(){
+          this.$f7router.back();
        let zona= localStorage.getItem("zona");
        let empresa= localStorage.getItem("empresa");
 
@@ -294,7 +374,7 @@ batch.update(sfRef, {"balance": this.balance_zona});
 // Commit the batch
 batch.commit().then(function () {
     // ...
-    console.log("Balance Actualizado");
+   
 });
     },
     onConfirmarPago(){
@@ -336,56 +416,52 @@ batch.commit().then(function () {
           
          
         //Actualizamos el valor del prestamo a pagar.
-         if(Number(this.informacion_pago.valor_pago)<Number(this.saldo_a_pagar)){
-          elemento.prestamos[0].saldo_pendiente=Number(this.saldo_a_pagar)-Number(this.informacion_pago.valor_pago);
-          console.log(elemento.prestamos[0].saldo_pendiente);
-          elemento.prestamos[0].total_apagar=Number(elemento.prestamos[0].total_apagar)-Number(this.informacion_pago.valor_pago);
-          let dataTotalAPagarHoy={
-            Idcliente: this.id,
-            pagototalhoy:elemento.prestamos[0].saldo_pendiente
-          };
-          this.$store.commit('setEstadoTotalAPagar',dataTotalAPagarHoy);
-          elemento.prestamos[0].dias_con_mora=Number(elemento.prestamos[0].dias_con_mora)+1;
-          // elemento.prestamos[0].dias_plazo=Number(elemento.prestamos[0].dias_plazo)+1;
-            let data_estado={
-            id: this.id,
-            estadopagoruta:1
-          };
-          this.$store.commit('setEstadoPrestamoRuta',data_estado);
-            let data_mora={
-            id: this.id,
-            dias_mora:elemento.prestamos[0].dias_con_mora
-          };
-          this.$store.commit('setEstadoDiasMora',data_mora);
+        console.log(Number(this.informacion_pago.valor_pago));
+        console.log(Number(this.saldo_a_pagar));
+         if(Number(this.informacion_pago.valor_pago)===Number(this.saldo_a_pagar)){
             
-          
-         }
-         else if(Number(this.informacion_pago.valor_pago==Number(this.saldo_a_pagar))){
+
           //  elemento.prestamos[0].saldo_pendiente=0;
+         
           elemento.prestamos[0].saldo_pendiente=Number(this.saldo_a_pagar)-Number(this.informacion_pago.valor_pago);
           elemento.prestamos[0].total_apagar=Number(elemento.prestamos[0].total_apagar)-Number(this.informacion_pago.valor_pago);
           // elemento.prestamos[0].dias_plazo=Number(elemento.prestamos[0].dias_plazo)-1;
-            let dataTotalAPagarHoy={
-            Idcliente: this.id,
-            pagototalhoy:elemento.prestamos[0].saldo_pendiente
-          };
-          this.$store.commit('setEstadoTotalAPagar',dataTotalAPagarHoy);
+          
           if(elemento.prestamos[0].dias_con_mora>0){
             
             elemento.prestamos[0].dias_con_mora=Number(elemento.prestamos[0].dias_con_mora)-1;
             
           }
-          let data_estado={
+          let dataTotalAPagarHoy={
+            Idcliente: this.id,
+            pagototalhoy:elemento.prestamos[0].saldo_pendiente
+          };
+          this.$store.commit('setEstadoTotalAPagar',dataTotalAPagarHoy);
+           let data_ruta_bien={
             id: this.id,
             estadopagoruta:1
           };
-          this.$store.commit('setEstadoPrestamoRuta',data_estado);
-            let data_mora={
+          this.$store.commit('setEstadoPrestamoRuta',data_ruta_bien);
+          let data_mora={
             id: this.id,
             dias_mora:elemento.prestamos[0].dias_con_mora
           };
           this.$store.commit('setEstadoDiasMora',data_mora);
+           let data_pendiente={
+            id: this.id,
+            pagopendiente:false
+          };
+      this.$store.commit('setEstadoPrestamoPendiente',data_pendiente);
+       this.$store.commit('setQuitar_cobros_pendientesJornada');
          }
+         else {
+          
+          elemento.prestamos[0].saldo_pendiente=Number(this.saldo_a_pagar)-Number(this.informacion_pago.valor_pago);
+          // console.log(elemento.prestamos[0].saldo_pendiente);
+          elemento.prestamos[0].total_apagar=Number(elemento.prestamos[0].total_apagar)-Number(this.informacion_pago.valor_pago);
+         
+          elemento.prestamos[0].dias_con_mora=Number(elemento.prestamos[0].dias_con_mora)+1;
+          
          
        
 
@@ -411,8 +487,29 @@ batch.commit().then(function () {
             //Pendiente de comprobacion
              //this.$store.commit('eliminarClientePrestamoDiario',this.id);
            }
-           
-          this.$f7router.back();
+           // elemento.prestamos[0].dias_plazo=Number(elemento.prestamos[0].dias_plazo)+1;
+            let data_estado={
+            id: this.id,
+            estadopagoruta:1
+          };
+          this.$store.commit('setEstadoPrestamoRuta',data_estado);
+            let data_mora={
+            id: this.id,
+            dias_mora:elemento.prestamos[0].dias_con_mora
+          };
+          this.$store.commit('setEstadoDiasMora',data_mora);
+         }
+          let dataTotalAPagarHoy={
+            Idcliente: this.id,
+            pagototalhoy:elemento.prestamos[0].saldo_pendiente
+          };
+          this.$store.commit('setEstadoTotalAPagar',dataTotalAPagarHoy);
+           let data_pendiente={
+            id: this.id,
+            pagopendiente:false
+          };
+      this.$store.commit('setEstadoPrestamoPendiente',data_pendiente);
+         this.$store.commit('setQuitar_cobros_pendientesJornada');
           this.$f7.sheet.close();
           this.$f7.dialog.close();
           this.updateValor();
@@ -437,7 +534,7 @@ batch.commit().then(function () {
           axios.get(`https://us-central1-manifest-life-279516.cloudfunctions.net/CobradoresClientesBuscar?doc=${ui_cobrador}&sub=Clientes&subdoc=${this.$f7route.params.id}`)
           .then( (response) =>  {
               this.clientes_info=response.data;
-              console.log("datossss...",response);
+              // console.log("datossss...",response);
               this.isLoadUsers= true;
           }).catch(error => {
               console.log(error);

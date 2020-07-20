@@ -35,14 +35,43 @@
          <f7-block  inset>
             <f7-row>
             <f7-col lg="12" md="12">
-                <f7-button fill  @click="onGenerarListaJornadaPago">Comenzar<f7-icon material="swap_vert"></f7-icon></f7-button>
+                <f7-button fill  :disabled="ruta_terminada" @click="onGenerarListaJornadaPago">Comenzar<f7-icon material="swap_vert"></f7-icon></f7-button>
             </f7-col>
             </f7-row>
             </f7-block>
              <f7-block>
                <div v-if="estado_lista_prestamos_clientes"> <f7-card>
           <f7-card-content>
-       Jornada terminada...
+            <f7-card>
+          <f7-card-content>
+          Cobros realizados hoy: {{jornada_cobrador.catidad_cobrosefectivos}}<br>
+          Cobros no realizados hoy: {{jornada_cobrador.catidad_cobrosenofectivos}}<br>
+          Cobros Pendientes: {{jornada_cobrador.numero_cobros_pendientes}}<br>
+          Balance de la zona: {{this.balance_zona}}<br>
+          Total dinero recogido hoy: ${{jornada_cobrador.total_cobros_realizados}}
+          </f7-card-content>
+          <f7-row v-if="!ruta_terminada">
+          <f7-col md="12">
+              <f7-list >
+                <f7-list-input
+              outline
+              floating-label
+              label="Dinero fisico"
+              type="text"
+              placeholder="Por favor ingrese el saldo."
+              required
+              validate
+              pattern="[0-9]*"
+              error-message="Solo numeros"
+              @input="jornada_cobrador.balance_final_manual=$event.target.value"
+            ></f7-list-input>
+            <f7-button large :disabled="ruta_terminada" @click="onConfirmarJornada" >CONFIRMAR</f7-button>
+                </f7-list>
+                
+          </f7-col>
+          
+        </f7-row>
+        </f7-card>
           </f7-card-content>
          </f7-card></div>
              </f7-block>
@@ -64,22 +93,26 @@
         <f7-list media-list class="search-list-ruta searchbar-found">
                   
 <!-- :after="`${cliente.data.prestamos.length==0 || cliente.data.prestamos==undefined? 'NA':Number(cliente.data.prestamos[0].dias_con_mora)>=1?'Mora: '+Number(cliente.data.prestamos[0].dias_con_mora)+' dia':'Mora: '+Number(cliente.data.prestamos[0].dias_con_mora)+' dias'}`"  -->
-
+<!-- {'pendiente':cliente.data.prestamos[0].estado_pago_ruta==3,'normal':cliente.data.prestamos[0].estado_pago_ruta==0,'pago':cliente.data.prestamos[0].estado_pago_ruta==1,'no-pago':cliente.data.prestamos[0].estado_pago_ruta==2 -->
         <f7-list-item  
         swipeout  
         :disabled="!cliente.data.activo" 
         v-for="(cliente,index,key) in getTodosClientesPrestamo"
+       
         :badge="`${cliente.data.prestamos.length==0 || cliente.data.prestamos==undefined? 'NA':Number(cliente.data.prestamos[0].dias_con_mora)>=1?'Mora: '+Number(cliente.data.prestamos[0].dias_con_mora)+' dia':'Mora: '+Number(cliente.data.prestamos[0].dias_con_mora)+' dias'}`"
         :badge-color="`${cliente.data.prestamos.length==0 || cliente.data.prestamos==undefined? 'NA':Number(cliente.data.prestamos[0].dias_con_mora)>=1?'red':''}`"
-        :class="{'normal':cliente.data.prestamos[0].estado_pago_ruta==0,'pago':cliente.data.prestamos[0].estado_pago_ruta==1,'no-pago':cliente.data.prestamos[0].estado_pago_ruta==2,'pendiente':cliente.data.prestamos[0].estado_pago_ruta==3}"  
-        :subtitle="`Cedula: ${cliente.data.usuario.identificacion}`"   :id=cliente.id :key=cliente.id :title="`${cliente.data.usuario.nombre}-${cliente.data.usuario.apellido}`" 
+        :class="{'pendiente':cliente.data.prestamos[0].estado_pendiente_prestamo_ruta,'normal':cliente.data.prestamos[0].estado_pago_ruta==0,'pago':cliente.data.prestamos[0].estado_pago_ruta==1,'no-pago':cliente.data.prestamos[0].estado_pago_ruta==2}"  
+        :subtitle="`Cedula: ${cliente.data.usuario.identificacion}`"   
+        :id=cliente.id
+        :key=key
+        :title="`${cliente.data.usuario.nombre}-${cliente.data.usuario.apellido}`" 
         :footer="`${calculoTotalPagoHoy[index]!=undefined ? 'Saldo pago hoy: '+calculoTotalPagoHoy[index]:'NA'}`"  
         @click="onClickClientePaginaDetalles(cliente.id,calculoTotalPagoHoy[index])"
         >
         <f7-swipeout-actions right>
         <!-- <f7-swipeout-button close overswipe color="green" @click="onReply(cliente,cliente.data.usuario.nombre+cliente.data.usuario.apellido)">Seleccionar</f7-swipeout-button> -->
-        <!-- <f7-swipeout-button color="blue" @click="onCobroPendiente(cliente.data.usuario)">Pago</f7-swipeout-button> -->
-        <f7-swipeout-button  close color="pendiente" @click="onCobroPendiente(cliente)">Pendiente</f7-swipeout-button>
+        <f7-swipeout-button close color="blue" @click="onCobroPendiente(cliente)">Pendiente</f7-swipeout-button>
+        <f7-swipeout-button confirm-text="Desea eliminar este cliente de la lista!" confirm-title="Seguro!" color="red" delete>Eliminar</f7-swipeout-button>
         </f7-swipeout-actions>
         
         </f7-list-item>
@@ -114,36 +147,7 @@
       </f7-toolbar>
       <!-- Scrollable sheet content -->
       <f7-page-content>
-        <f7-card>
-          <f7-card-content>
-          Cobros realizados hoy: {{jornada_cobrador.catidad_cobrosefectivos}}<br>
-          Cobros no realizados hoy: {{jornada_cobrador.catidad_cobrosenofectivos}}<br>
-          Cobros Pendientes: {{jornada_cobrador.numero_cobros_pendientes}}<br>
-          Balance de la zona: {{jornada_cobrador.balance_final}}<br>
-          Total dinero recogido: ${{jornada_cobrador.total_cobros_realizados}}
-          </f7-card-content>
-          <f7-row>
-          <f7-col md="12">
-              <f7-list >
-                <f7-list-input
-              outline
-              floating-label
-              label="Dinero fisico"
-              type="text"
-              placeholder="Por favor ingrese el saldo."
-              required
-              validate
-              pattern="[0-9]*"
-              error-message="Solo numeros"
-              @input="jornada_cobrador.balance_final_manual=$event.target.value"
-            ></f7-list-input>
-            <f7-button large  @click="onConfirmarJornada" >CONFIRMAR</f7-button>
-                </f7-list>
-                
-          </f7-col>
-          
-        </f7-row>
-        </f7-card>
+   
         
        
         
@@ -166,6 +170,8 @@ import ClientesService from '../Services/ClientesService.js';
 export default {
   data() {
     return {
+    // estado_peniente:false,
+    ruta_terminada:false,
     sheetOpened: false,
     posiciones_lista_ordenada:[],
     estado_lista_prestamos_clientes:false,
@@ -191,12 +197,12 @@ export default {
     }
   },
   watch: {
-    UploadClientes(newCliente,oldCliente){
-      this.clientes=this.$store.getters.getClientes;
-    },
-    UploadstadoRuta(newCliente,oldCliente){
-       this.isComienzoRuta=this.$store.getters.getEstadoRuta
-    }
+    // UploadClientes(newCliente,oldCliente){
+    //   this.clientes=this.$store.getters.getClientes;
+    // },
+    // isComienzoRuta(newCliente,oldCliente){
+    //    this.isComienzoRuta=this.$store.getters.getEstadoRuta
+    // }
   },
   beforeMount(){
     this.balance_zona=localStorage.getItem("saldo_zona");
@@ -211,8 +217,14 @@ export default {
   
   },
   computed: {
+    getSaldoBalaceZona(){
+        this.balance_zona=localStorage.getItem("saldo_zona");
+    },
     getTodosClientesPrestamo(){
       return this.$store.getters.getClientesListaPrestamo
+    },
+    getEstadosPrestamos(){
+      return this.$store.getters.getEstadoPrestamoRuta
     },
      estadoPrestamodia(){
        
@@ -249,6 +261,20 @@ export default {
     }
   },
   methods:{
+    onCobroPendiente(cliente){
+      // alert('pendiente');
+      console.log(cliente);
+       let data_pendiente={
+            id: cliente.id,
+            pagopendiente:true
+          };
+      this.$store.commit('setEstadoPrestamoPendiente',data_pendiente);
+      this.$f7.dialog.alert('Marcado como pendiente','Correcto');
+      this.$store.commit('cobroClientePendiente',cliente);
+     
+    // this.onCambiarEstadoRuta();
+   
+  },
     onClickClientePaginaDetalles(clienteId,saldoAPagar){
       console.log(clienteId,saldoAPagar);
       this.$f7router.navigate('/abonos_detalle/'+clienteId+'/'+saldoAPagar);
@@ -279,15 +305,18 @@ export default {
       
     },
     onConfirmarJornada(){
+     let guardando= this.$f7.dialog.preloader('Guardando...');
        let ui_cobrador=localStorage.getItem("uid");
       let id_jornadacobrador=localStorage.getItem("idjornadacobrador");
       this.jornada_cobrador.balance_final=localStorage.getItem("saldo_zona");
       this.corbradorService.actualizarJornadaCobrador(ui_cobrador,id_jornadacobrador,this.jornada_cobrador).then(response =>{
-                
+                this.$f7.dialog.close();
               this.$f7.dialog.alert('Jornada cerrada correctamente!','Correcto',()=>{
                 setTimeout(()=>{
-                  this.$f7.sheet.close('.mensaje_final-sheet');
+                  this.ruta_terminada=true
+                  // this.$f7.sheet.close('.mensaje_final-sheet');
                   this.$f7.dialog.close();
+                  // guardando.close();
                 },2000)
               });
              }).catch(error =>{
@@ -306,7 +335,7 @@ export default {
           this.$store.commit('setEstadoRuta',false);
 
           this.isComienzoRuta=false;
-          this.$f7.sheet.open('.mensaje_final-sheet');
+          // this.$f7.sheet.open('.mensaje_final-sheet');
         
         });
         }
@@ -331,19 +360,8 @@ export default {
              }).catch(error =>{
                 console.log(error);
              })
-    },
-    onCobroPendiente(usuario){
-      this.$store.commit('cobroClientePendiente',usuario);
-      this.$store.commit('setNumero_cobros_pendientesJornada');
-         let data={
-            id: usuario.id,
-            estadopagoruta:3
-          };
-          this.$store.commit('setEstadoPrestamoRuta',data);
-          this.$f7.dialog.alert('Marcado como pendiente','Correcto');
-      console.log("Pendiente"+usuario.id);
     }
-  }
+}
 }
 </script>
 

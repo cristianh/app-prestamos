@@ -26,9 +26,11 @@
         placeholder="Identificacion"
         required
         validate
+        maxlength="11"
+        max="11"
         pattern="[0-9]*"
         error-message="Solo numeros"
-        @input="form.usuario.identificacion=$event.target.value"
+        @input="identificacion=$event.target.value"
       ></f7-list-input>
 
       <f7-list-input
@@ -95,7 +97,7 @@
         :error-message-force="false"
         @input="telefono=$event.target.value"
       ></f7-list-input>
-      <f7-block style="color:red;font-size:12px;font-family:Roboto" v-if="error_form">{{error_form}}</f7-block>
+      
        <f7-list-input
        outline
         floating-label
@@ -152,7 +154,7 @@
         validate
         pattern="[0-9]*"
         error-message="Solo numeros"
-        @input="form.negocio.telefono=$event.target.value"
+        @input="telefonoNegocio=$event.target.value"
       ></f7-list-input>
 
       <f7-list-input
@@ -240,7 +242,7 @@
     </f7-list>
     </f7-tab>
   </f7-tabs>
-  
+  <f7-block style="text-align:center;color:red;font-size:12px;font-family:Roboto" v-if="error_form">{{error_form}}</f7-block>
       <f7-block>
 
   <f7-row>
@@ -260,11 +262,12 @@
   </f7-row>
 
 </f7-block>
-<div v-if="lat=='' && log==''"> 
-  <Message  severity="error"  :sticky="true">No se ha podido tener informacion de la localizacion, revise el gps y vuelva a intentarlo.</Message>
+<div v-if="cargarGps"> 
+  <Message  severity="success"  :sticky="true" :life="1500">Localizacion optenida</Message>
 </div>
 <div v-else>
-  <Message  severity="success"  :sticky="true">Localizacion optenida</Message>
+  <Message  severity="error"  :sticky="true" :life="1500">No se ha podido tener informacion de la localizacion, revise el gps y vuelva a intentarlo.</Message>
+  
 </div>
 
   </f7-page>
@@ -286,10 +289,16 @@ export default {
     data() {
         return {
           telefono:'',
+          telefonoNegocio:'',
+          telefonoContacto1:'',
+          telefonoContacto2:'',
+          identificacion:'',
+          cargarGps:true,
            cobradoresClientesService:null,
            contador_cobros_efectivos:0,
            contador_cobros_no_efectivos:0,
-           validar_campos:false,
+           validar_campos:true,
+           clientes:[],
             form:{
                 posicion:0,
                 activo:true,
@@ -325,6 +334,7 @@ export default {
             mensajeErrorGelocalizacion:'',
             geoHabilitado:false,
             error_form:'',
+            
         }
     },
     computed: {
@@ -335,11 +345,39 @@ export default {
          console.log(value.length);
         if(value.length<10){
             this.error_form='El celular no esta completo.';
+            this.validar_campos=true;
         }else{
            this.error_form='';
-           this.form.usuario.telefono=this.error_form;
+           this.form.usuario.telefono=this.telefono;
+            this.validar_campos=false;
         }
       },
+      telefonoNegocio(value){
+         console.log(value.length);
+        if(value.length<10){
+            this.error_form='El telefono del negocio no esta completo.';
+            this.validar_campos=true;
+        }else{
+           this.error_form='';
+           this.form.negocio.telefono=this.telefono;
+           this.validar_campos=false;
+        }
+      },
+      identificacion(value){
+          if(value.length<=9){
+            this.error_form='La cedula tiene pocos numeros.';
+            this.validar_campos=true;
+          } else {
+            this.error_form='';
+            if(this.clientes.filter(x=>x.data.usuario.identificacion==value).length>0){
+            this.$f7.dialog.alert('Este cliente ya existe!','Atencion!',()=>{
+              // this.identificacion=''
+            });
+          }else{
+            this.form.usuario.identificacion=this.identificacion;
+          }
+          }
+      }
     },
     destroyed() {
       this.form={
@@ -381,6 +419,9 @@ export default {
        this.cobradoresClientesService=new ClientesCobradoresService();
        navigator.geolocation.getCurrentPosition(this.onSuccessGeolocalizacion, this.onErrorGeolocalizacio);
     },
+    beforeMount() {
+      this.clientes=this.$store.getters.getClientes;
+    },
     methods:{
      
       onVolverACargarGeo(){
@@ -390,15 +431,19 @@ export default {
          this.geoHabilitado=true;
           switch(error.code) {
           case error.PERMISSION_DENIED:
+            this.cargarGps=false;
             this.mensajeErrorGelocalizacion = "No a dado permisos para acceder a localizacion, no se guardara la ubicacion del cliente."
             break;
           case error.POSITION_UNAVAILABLE:
+            this.cargarGps=false;
             this.mensajeErrorGelocalizacion= "No se puede acceder a la informacion de la localizacion."
             break;
           case error.TIMEOUT:
+            this.cargarGps=false;
             this.mensajeErrorGelocalizacion = "Tiempo agotado para acceder a la localizacion."
             break;
           case error.UNKNOWN_ERROR:
+            this.cargarGps=false;
             this.mensajeErrorGelocalizacion = "Error desconocido por favor contacte al administrador"
             break;
         }
@@ -408,6 +453,7 @@ export default {
        },
        onSuccessGeolocalizacion(position){
          this.geoHabilitado=false;
+         this.cargarGps=true;
           this.form.geolocalizacion={
              log:position.coords.longitude,
              lat:position.coords.latitude
@@ -428,12 +474,13 @@ export default {
           let filtro_contador_campos_usuario=campos_usuario.filter(x=>x=="").length;
           let filtro_contador_campos_negocio=campos_negocio.filter(x=>x=="").length;
          
-
-          if(filtro_contador_campos_usuario<=1  && filtro_contador_campos_usuario!=0){
-          this.$f7.dialog.confirm('La informacion del usuario y el negocio son requeridas, por favor verifique los campos he intentelo nuevamente.','Atencio!');
-          }
-          else{
-              
+         
+          let sumaacampos=Number(filtro_contador_campos_usuario)+Number(filtro_contador_campos_negocio);
+           console.log(Number(filtro_contador_campos_usuario));
+           console.log(Number(filtro_contador_campos_negocio));
+           console.log(sumaacampos);
+          if(sumaacampos==0 || sumaacampos==1){
+              this.validar_campos=false;
         let config = {
                      headers: { 'content-type': 'application/json; utf-8' },
                   method: 'POST'
@@ -461,6 +508,11 @@ export default {
     }).catch(error => {
         console.log(error);
     }); 
+          }
+          else{
+
+            this.$f7.dialog.confirm('La informacion del usuario y el negocio son requeridas, por favor verifique los campos he intentelo nuevamente.','Atencio!');
+            
   
           }
 

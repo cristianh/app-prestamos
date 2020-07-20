@@ -26,12 +26,12 @@
                   </CInput>
                   <CRow>
                     <CCol col="6" class="text-left">
-                      <CButton color="primary" class="px-4" @click="signIn">INGRESAR</CButton>
+                      <CButton color="primary" class="px-4"  @click="signIn">INGRESAR</CButton>
                     </CCol>
-                    <CCol col="6" class="text-right">
+                    <!-- <CCol col="6" class="text-right">
                       <CButton color="link" class="px-0">Forgot password?</CButton>
                       <CButton color="link" class="d-lg-none">Register now!</CButton>
-                    </CCol>
+                    </CCol> -->
                   </CRow>
                 </CForm>
               </CCardBody>
@@ -79,15 +79,36 @@ export default {
                 
                     firebase.auth().signInWithEmailAndPassword(this.username, this.password).then((response)=> {
                     console.log(response);
-                      this.$router.push('home/dashboard');
+                    if(response.user.uid=='azM3juHaCffFxmZ8CcUzmZFdoSK2'){
+                         this.$router.push('home/dashboard');
+                    }else{
+                       this.error='No tiene privilegios para ingresar a eta pagina.';
+                       this.$toast.add({severity:'error', summary: 'Error', detail:this.error, life: 3000});  
+                        //  this.$router.push('/');
+                    }
+                     
                     // ...
                     }).catch((error)=> {
                     // Handle Errors here.
                     
                     //var errorCode = error.code;
                     var errorMessage = error.message;
-                    this.error=errorMessage;
-                    console.log(errorMessage);
+                   
+                    console.log(error);
+                    switch(error.code){
+                        case 'auth/user-not-found':
+                           this.error='No hay ningún registro de usuario que corresponda a este identificador o usuario puede haber sido eliminado.';
+                          break
+                        case 'auth/wrong-password':
+                        this.error='La contraseña es inválida o el usuario no tiene contraseña.'
+                        break
+                        case 'auth/invalid-email':
+                          this.error='La dirección de correo electrónico no es valida o está mal formateada.'
+                          break
+
+                    }
+                    
+        //
                      this.$toast.add({severity:'error', summary: 'Error', detail:this.error, life: 3000});  
                     
                     });

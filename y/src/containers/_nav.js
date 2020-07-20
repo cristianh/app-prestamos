@@ -153,6 +153,11 @@ export default [
           // }
         ]
       },
+       // {
+      //   _name: 'CSidebarNavTitle',
+      //   _children: ['Theme']
+      // },
+      
       // {
       //   _name: 'CSidebarNavTitle',
       //   _children: ['Theme']

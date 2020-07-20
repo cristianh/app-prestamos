@@ -65,19 +65,37 @@
     </CCardBody>
   </CCard>
       </CCol>
+      <loading :active.sync="isLoading" 
+        :can-cancel="true"
+        color='#007BFF' 
+        :on-cancel="onCancel"
+        :is-full-page="fullPage"></loading>
 </CRow>
+
 </template>
 
 <script>
+  // Import component
+    import Loading from 'vue-loading-overlay';
+    // Import stylesheet
+    import 'vue-loading-overlay/dist/vue-loading.css';
+    
 import ZonaService from '../Zonas/Services/ZonaService.js';
 import ClientesService from './Services/ClientesServices.js';
 import EmpresaService from '../Empresa/Services/EmpresasService.js';
 import CobradoresService from '../Cobradores/Services/CobradoresService.js';
 
+
 export default {
   name: 'Table',
+  components: {
+            Loading
+  },
   data() {
       return {
+       isLoading: false,
+       fullPage: true,
+       loading:'',
        items:[],
        isEnabled:true,
        clienteservices:null,
@@ -134,6 +152,9 @@ export default {
         });
   },
   methods: {
+     onCancel() {
+              console.log('User cancelled the loader.')
+     },
      onSelectdEmpresa(){
             this.isEnabled=false;
             this.zonas=[{ value: 'Seleccione', label: 'Seleccione' }];
@@ -156,11 +177,13 @@ export default {
      onSelectedZona(){
          let tamporal_Clientes=[];
             this.cobradores=[{ value: 'Seleccione', label: 'Seleccione' }];
+             this.isLoading = true;
             console.log(this.usuario.zonas);
             this.cobradorservice.buscarCobradorPorZona(this.usuario.zonas).then((response)=>{ 
           
               this.clienteservices.getAllClientesCobradores(response.data).then((response)=>{
               console.log(response);
+              this.isLoading = false;
             // tamporal_Clientes=response;
             // for (const key in tamporal_Clientes) {
             // if (tamporal_Clientes.hasOwnProperty(key)) {
@@ -171,12 +194,17 @@ export default {
             //  }
             // }
             let usuarios=[];
-            usuarios.push(response.data[0].data.usuario);
-            console.log(typeof(usuarios));
-            console.log(Object.values(usuarios));
-                this.items=usuarios;
-  
+            
+            response.data.forEach(element => {
+              console.log(element.data);
+            // console.log(typeof(usuarios));
+            // console.log(Object.values(usuarios));
+                this.items.push(element.data.usuario);
             });
+            
+               
+            });
+             
             });
            
      },

@@ -55,7 +55,7 @@
         <f7-list-item swipeout  :footer="`${cliente.data.prestamos.length>0?'Valor del prestamo: '+cliente.data.prestamos[0].valor:'NA'}`" v-for="(cliente,index,key) in getAllUsuario"  :subtitle="`Cedula: ${cliente.data.usuario.identificacion}`"   :id=cliente.id :key=cliente.id :title="`${cliente.data.usuario.nombre}-${cliente.data.usuario.apellido}`" >
         <f7-swipeout-actions right>
         <f7-swipeout-button close color="blue" @click="onSeleccionarCliente(cliente.id,cliente.data.usuario.nombre+cliente.data.usuario.apellido)">Prestamo</f7-swipeout-button>
-        <f7-swipeout-button close color="red" @click="onCobroPendiente(cliente.data.usuario)">Pendiente</f7-swipeout-button>
+        <!-- <f7-swipeout-button close color="red" @click="onCobroPendiente(cliente.data.usuario)">Pendiente</f7-swipeout-button> -->
         </f7-swipeout-actions>
         </f7-list-item>
         </f7-list>
@@ -113,7 +113,8 @@
     validate
   >
    <option value="0">Seleccione</option>
-  <option  v-for="(planes,index,key) in tazasdeinteres"  :key=key :value="`${planes.data.plazo}-${planes.data.interes}`">{{planes.data.nombre}}</option>
+  <option  v-for="(planes,index,key) in tazasdeinteres"  :key=key :value="`${planes.data.plazo}-${planes.data.interes}`">{{planes.data.nombre}}
+  </option>
        </f7-list-input>
         </f7-list>
           <f7-list inset>
@@ -198,23 +199,12 @@ export default {
         dias_plazo:'',
         dias_con_mora:0,
         estado_prestamo:false,
+        estado_pendiente_prestamo_ruta:false,
         saldo_pendiente:0,
         saldo_pago_dia:0
       }
       
     }
-  },
-  watch: {
-    UploadClientes(newCliente,oldCliente){
-      console.log(newCliente,oldCliente);
-      this.clientes=newCliente;
-    }
-  },
-  mounted() {
-    // this.$store.watch(() => this.$store.getters.getClientes, cli => {
-    //   console.log('watched: ', cli)
-    //   this.clientes=cli;
-    // })
   },
   beforeUpdate(){
     

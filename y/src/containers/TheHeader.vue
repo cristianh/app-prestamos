@@ -11,7 +11,11 @@
       @click="$store.commit('toggleSidebarDesktop')"
     />
     <CHeaderBrand class="mx-auto d-lg-none" to="/">
-      <CIcon name="logo" height="48" alt="Logo"/>
+      <!-- <CIcon name="logo" height="48" alt="Logo"/> -->
+      <!-- Sucomercio
+      <div class="ml-auto">
+     
+    </div> -->
     </CHeaderBrand>
     <CHeaderNav class="d-md-down-none mr-auto">
       <CHeaderNavItem class="px-3">
