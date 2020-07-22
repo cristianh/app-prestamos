@@ -90,11 +90,12 @@
           
          <f7-block-title >Clientes</f7-block-title>
        <!-- :link="`/cliente_detalles/${cliente.id}/`" -->
-        <f7-list media-list class="search-list-ruta searchbar-found">
+        <f7-list  class="search-list-ruta searchbar-found">
                   
 <!-- :after="`${cliente.data.prestamos.length==0 || cliente.data.prestamos==undefined? 'NA':Number(cliente.data.prestamos[0].dias_con_mora)>=1?'Mora: '+Number(cliente.data.prestamos[0].dias_con_mora)+' dia':'Mora: '+Number(cliente.data.prestamos[0].dias_con_mora)+' dias'}`"  -->
 <!-- {'pendiente':cliente.data.prestamos[0].estado_pago_ruta==3,'normal':cliente.data.prestamos[0].estado_pago_ruta==0,'pago':cliente.data.prestamos[0].estado_pago_ruta==1,'no-pago':cliente.data.prestamos[0].estado_pago_ruta==2 -->
         <f7-list-item  
+        media-list
         swipeout  
         :disabled="!cliente.data.activo" 
         v-for="(cliente,index,key) in getTodosClientesPrestamo"

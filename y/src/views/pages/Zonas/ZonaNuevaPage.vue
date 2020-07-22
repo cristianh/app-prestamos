@@ -63,7 +63,6 @@
      </CCard>
       </CForm>
      <Toast  autoZIndex position="bottomright" />
-     {{zonas_form}}
     </div>
 </template>
 

@@ -1,6 +1,6 @@
 <template>
     <div>
-      {{empresa_form}}
+    
      <CCard>
          <CCardHeader>
         <strong>Empresa:</strong>

@@ -1,4 +1,5 @@
 <template>
+<div>
   <CCard>
     <CCardHeader>
       <slot name="header">
@@ -26,13 +27,29 @@
       </CDataTable>
     </CCardBody>
   </CCard>
+   <loading :active.sync="isLoading" 
+        :can-cancel="true"
+        color='#007BFF' 
+        :on-cancel="onCancel"
+        :is-full-page="fullPage"></loading>
+</div>
 </template>
 
 <script>
+// Import component
+    import Loading from 'vue-loading-overlay';
+    // Import stylesheet
+    import 'vue-loading-overlay/dist/vue-loading.css';
 export default {
   name: 'Table',
+  components: {
+            Loading
+  },
   data() {
       return {
+        isLoading: false,
+       fullPage: true,
+       loading:'',
          items:[] 
       }
   },
@@ -55,9 +72,10 @@ export default {
     dark: Boolean
   },
   beforeMount(){
+      this.isLoading = true;
   axios.get('https://us-central1-manifest-life-279516.cloudfunctions.net/Empresas?doc=todos')
     .then( (response) =>  {
-        
+          this.isLoading = false;
         this.items=response.data;
         console.table(response.data);
         this.isLoadUsers= true;
@@ -66,6 +84,9 @@ export default {
     });
   },
   methods: {
+     onCancel() {
+              console.log('User cancelled the loader.')
+     },
     getBadge (status) {
       return status === 'Active' ? 'success'
         : status === 'Inactive' ? 'secondary'

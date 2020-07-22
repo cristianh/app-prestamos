@@ -1,7 +1,7 @@
 <template>
   <CRow>
     <CCol sm="6" lg="3">
-      <CWidgetDropdown color="primary" header="9.823" text="Members online">
+      <CWidgetDropdown color="primary" header="9.823" text="Zonas">
         <template #default>
           <CDropdown
             color="transparent p-0"
@@ -30,7 +30,7 @@
       </CWidgetDropdown>
     </CCol>
     <CCol sm="6" lg="3">
-      <CWidgetDropdown color="info" header="9.823" text="Members online">
+      <CWidgetDropdown color="info" header="9.823" text="Cobradores">
         <template #default>
           <CDropdown
             color="transparent p-0"
@@ -64,7 +64,7 @@
       <CWidgetDropdown
         color="warning"
         header="9.823"
-        text="Members online"
+        text="Empresas"
       >
         <template #default>
           <CDropdown
@@ -98,7 +98,7 @@
       <CWidgetDropdown
         color="danger"
         header="9.823"
-        text="Members online"
+        text="Usuarios"
       >
         <template #default>
           <CDropdown

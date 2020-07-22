@@ -427,7 +427,7 @@ batch.commit().then(function () {
           elemento.prestamos[0].total_apagar=Number(elemento.prestamos[0].total_apagar)-Number(this.informacion_pago.valor_pago);
           // elemento.prestamos[0].dias_plazo=Number(elemento.prestamos[0].dias_plazo)-1;
           
-          if(elemento.prestamos[0].dias_con_mora>0){
+          if(elemento.prestamos[0].dias_con_mora!=0){
             
             elemento.prestamos[0].dias_con_mora=Number(elemento.prestamos[0].dias_con_mora)-1;
             
@@ -453,14 +453,24 @@ batch.commit().then(function () {
           };
       this.$store.commit('setEstadoPrestamoPendiente',data_pendiente);
        this.$store.commit('setQuitar_cobros_pendientesJornada');
+        this.clientesService.actualizarClienteCobrador(ui_cobrador,this.id,elemento).then( (response) =>  {
+              this.informacion_pago.valor_pago=0;  
+                this.$f7.sheet.close();
+          this.$f7.dialog.close();
+          this.updateValor();    
+          });
          }
          else {
           
           elemento.prestamos[0].saldo_pendiente=Number(this.saldo_a_pagar)-Number(this.informacion_pago.valor_pago);
           // console.log(elemento.prestamos[0].saldo_pendiente);
           elemento.prestamos[0].total_apagar=Number(elemento.prestamos[0].total_apagar)-Number(this.informacion_pago.valor_pago);
-         
-          elemento.prestamos[0].dias_con_mora=Number(elemento.prestamos[0].dias_con_mora)+1;
+           if(elemento.prestamos[0].dias_con_mora>=0){
+            
+            elemento.prestamos[0].dias_con_mora=Number(elemento.prestamos[0].dias_con_mora)+1;
+            
+          }
+          // elemento.prestamos[0].dias_con_mora=Number(elemento.prestamos[0].dias_con_mora)+1;
           
          
        
@@ -477,10 +487,7 @@ batch.commit().then(function () {
           // });
            } 
 
-          
-          this.clientesService.actualizarClienteCobrador(ui_cobrador,this.id,elemento).then( (response) =>  {
-              this.informacion_pago.valor_pago=0;      
-          });
+        
           
          
           if(Number(this.saldo_a_pagar)-Number(this.informacion_pago.valor_pago)<=0){
@@ -510,9 +517,14 @@ batch.commit().then(function () {
           };
       this.$store.commit('setEstadoPrestamoPendiente',data_pendiente);
          this.$store.commit('setQuitar_cobros_pendientesJornada');
-          this.$f7.sheet.close();
+           
+          this.clientesService.actualizarClienteCobrador(ui_cobrador,this.id,elemento).then( (response) =>  {
+              this.informacion_pago.valor_pago=0;    
+                this.$f7.sheet.close();
           this.$f7.dialog.close();
-          this.updateValor();
+          this.updateValor();  
+          });
+        
         });
       }
          

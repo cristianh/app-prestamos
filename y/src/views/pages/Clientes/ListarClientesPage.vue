@@ -21,7 +21,6 @@
          <!-- <CCardHeader>
            Zonas:
          </CCardHeader> -->
-         
          <CCardBody>
             <CSelect
                   label="Zonas"
@@ -56,11 +55,18 @@
         :dark="dark"
         pagination
       >
-        <template #status="{item}">
-          <td>
-            <CBadge :color="getBadge(item.status)">{{item.status}}</CBadge>
+      <template #valor="{item}">
+          <td style="text-aling:center">
+          
+            {{item.valor==undefined?'NA':item.valor}}
           </td>
         </template>
+        <template #dias_con_mora="{item}">
+          <td style="text-aling:center">
+            <CBadge :color="getBadge(item.dias_con_mora)">{{item.dias_con_mora==undefined?'NA':item.dias_con_mora}}</CBadge>
+          </td>
+        </template>
+        
       </CDataTable>
     </CCardBody>
   </CCard>
@@ -96,7 +102,6 @@ export default {
        isLoading: false,
        fullPage: true,
        loading:'',
-       items:[],
        isEnabled:true,
        clienteservices:null,
        empresaservice:null,
@@ -115,7 +120,7 @@ export default {
     fields: {
       type: Array,
       default () {
-        return ['nombre', 'apellido','identificacion','telefono','oficio']
+        return ['nombre', 'apellido','identificacion','telefono','oficio','valor','dias_con_mora']
       }
     },
     caption: {
@@ -152,6 +157,12 @@ export default {
         });
   },
   methods: {
+     getBadge (dias_con_mora) {
+      return dias_con_mora==0 ? 'success'
+        : dias_con_mora===1 || dias_con_mora===2 ? 'primary'
+          : dias_con_mora==3 ? 'warning'
+            :dias_con_mora>5 ? 'danger' : 'secondary'
+    },
      onCancel() {
               console.log('User cancelled the loader.')
      },
@@ -199,7 +210,10 @@ export default {
               console.log(element.data);
             // console.log(typeof(usuarios));
             // console.log(Object.values(usuarios));
-                this.items.push(element.data.usuario);
+            let Usuario=element.data.usuario;
+            let Prestamos=element.data.prestamos[0];
+            let Completo=Object.assign(Usuario, Prestamos);
+                this.items.push(Completo);
             });
             
                

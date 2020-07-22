@@ -79,8 +79,6 @@
         </div>
     </template>
 </PickList>
-{{selection}}
-{{selectionItemSelccionado}}
       </CCardBody>
       <CCardFooter align="right">
         <CButton color="success"  @click="onGuardarCobrador" >GUARDAR</CButton>

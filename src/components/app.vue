@@ -30,7 +30,7 @@
       <f7-link tab-link="#view-inicio" tab-link-active icon-ios="f7:home" icon-aurora="f7:home" icon-md="material:home" text="Inicio"></f7-link>
       <f7-link tab-link="#view-rutainicio" icon-ios="f7:swap_calls" icon-aurora="f7:swap_calls" icon-md="material:swap_calls" text="Ruta"></f7-link>
       <f7-link tab-link="#view-cliente" icon-ios="f7:square_list_fill" icon-aurora="f7:square_list_fill" icon-md="material:view_list" text="Clientes"></f7-link>
-      <f7-link tab-link="#view-nuevocobro" icon-ios="f7:local_atm" icon-aurora="f7:local_atm" icon-md="material:local_atm" text="Prestamos"></f7-link>
+      <!-- <f7-link tab-link="#view-nuevocobro" icon-ios="f7:local_atm" icon-aurora="f7:local_atm" icon-md="material:local_atm" text="Prestamos"></f7-link> -->
     </f7-toolbar>
 
     <!-- Your main view/tab, should have "view-main" class. It also has "tab-active" class -->
