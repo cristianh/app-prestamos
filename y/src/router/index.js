@@ -26,6 +26,12 @@ const Eliminar_Editar = () =>
     //Empresa Bienvenida
     // const MensajeBienvenidaCobradores = () => import('@/views/pages/Empresa/MensajeBienvenidaCobradores')
 
+//Transferencias
+const Transferencias = () =>
+    import ('@/views/pages/Transferencias/TransferenciasPage')
+const NuevaTransferencia = () =>
+    import ('@/views/pages/Transferencias/NuevaTransferenciaPage')
+
 //Zonas.
 const Zona_nueva = () =>
     import ('@/views/pages/Zonas/ZonaNuevaPage')
@@ -226,6 +232,29 @@ function configRoutes() {
                         //   name: 'Editar cobrador',
                         //   component: Empresa_Editar
                         // },
+                        // {
+                        //   path: '/borrar_cobrador',
+                        //   name: 'Eliminr cobrador',
+                        //   component: Eliminar_Editar
+                        // }
+                    ]
+                },
+                {
+                    path: 'pages',
+                    redirect: '/pages/transferencias',
+                    name: 'Pages',
+                    component: {
+                        render(c) { return c('router-view') }
+                    },
+                    children: [{
+                            path: '/transferencias',
+                            name: '',
+                            component: Transferencias
+                        }, {
+                            path: '/nueva_transferencia',
+                            name: 'nueva transferencia',
+                            component: NuevaTransferencia
+                        },
                         // {
                         //   path: '/borrar_cobrador',
                         //   name: 'Eliminr cobrador',

@@ -261,12 +261,12 @@ import ClientesService from '../Services/ClientesService.js';
         // });
     },
     onCobroNoPago(){
+      
       if(this.radioNoPagoSeleccionado=="Otro" && this.inputNoPagoSeleccionado!=""){
         this.$f7.dialog.preloader('Guardando informacion...');
           this.$f7.popover.close('.popover-menu');
-        this.$store.commit('setCatidad_cobrosenofectivosJornada');
         let elemento = this.clientes_info;
-        
+        this.$store.commit('setCatidad_cobrosenofectivosJornada');
         
         elemento.prestamos[0].dias_con_mora=Number(elemento.prestamos[0].dias_con_mora)+1
         // console.log(elemento.prestamos[0].dias_con_mora);
@@ -310,9 +310,8 @@ import ClientesService from '../Services/ClientesService.js';
       else if(this.radioNoPagoSeleccionado!=""){
         this.$f7.dialog.preloader('Guardando informacion...');
           this.$f7.popover.close('.popover-menu');
-        this.$store.commit('setCatidad_cobrosenofectivosJornada');
         let elemento = this.clientes_info;
-        
+        this.$store.commit('setCatidad_cobrosenofectivosJornada');
         
         elemento.prestamos[0].dias_con_mora=Number(elemento.prestamos[0].dias_con_mora)+1
         // console.log(elemento.prestamos[0].dias_con_mora);
@@ -413,6 +412,7 @@ batch.commit().then(function () {
           localStorage.setItem("total_cobros",  this.$store.getters.getCobrosTotalCobrado);
           this.balance_zona= localStorage.getItem("saldo_zona");
           this.$store.commit('setBalanceZona',Number(descuentosaldozona));
+          this.$store.commit('setbalance_finalJornada',Number(descuentosaldozona));
           
          
         //Actualizamos el valor del prestamo a pagar.

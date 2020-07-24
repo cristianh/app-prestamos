@@ -5,6 +5,8 @@ Vue.use(Vuex);
 
 export default new Vuex.Store({
     state: {
+        contador_transferencias: 0,
+        datos_transeferencia: [],
         saldo_pago_dia: [],
         estados_prestamos_ruta: [],
         jornada_cobrador: {
@@ -35,6 +37,15 @@ export default new Vuex.Store({
 
     },
     mutations: {
+        setDatosTransferencia(state, data_transferencia) {
+            state.datos_transeferencia.push(data_transferencia)
+        },
+        setAumentaContadorTransferencias(state) {
+            state.contador_transferencias++;
+        },
+        setDisminuyeContadorTransferencias(state) {
+            state.contador_transferencias--;
+        },
         setfechInicialJornada(state, fecha_inicial_jornada) {
             state.jornada_cobrador.fecha_inicial = fecha_inicial_jornada;
         },
@@ -149,6 +160,12 @@ export default new Vuex.Store({
 
     },
     getters: {
+        getDatosTransferencia: state => {
+            return state.datos_transeferencia;
+        },
+        getContadorTransacciones: state => {
+            return state.contador_transferencias;
+        },
         getSaldoApagarHoy: state => {
             let valor_prestamo = 0;
             let taza_seleccionada_interes = 0;
@@ -190,6 +207,9 @@ export default new Vuex.Store({
 
             });
             return state.saldo_pago_dia;
+        },
+        getBalanceFinalZona: state => {
+            return state.jornada_cobrador.balance_final
         },
         getCobrosTotalCobrado: state => {
             return state.jornada_cobrador.total_cobros_realizados;

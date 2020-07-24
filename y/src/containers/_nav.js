@@ -56,6 +56,27 @@ export default [{
                 // }
             ]
         },
+        {
+            _name: 'CSidebarNavDropdown',
+            name: 'Transferencia',
+            route: '/empresa',
+            icon: 'cil-puzzle',
+            items: [{
+                    name: 'Nueva transferencia',
+                    to: '/nueva_transferencia',
+                    icon: 'cil-plus'
+
+                },
+                // {
+                //   name: 'Listar Empresas',
+                //   to: '/editar_empresa',
+                // }
+                // {
+                //   name: 'MEnsaje',
+                //   to: '/borrar_empresa',
+                // }
+            ]
+        },
         //  {
         //   _name: 'CSidebarNavTitle',
         //   _children: ['Zonas']

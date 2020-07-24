@@ -1,5 +1,5 @@
 <template>
- <f7-page name="Clientes">
+<f7-page name="Clientes">
     <f7-navbar :sliding="false">
       <f7-nav-left>
         <f7-link icon-ios="f7:menu" icon-aurora="f7:menu" icon-md="material:menu" panel-open="left"></f7-link>
@@ -8,21 +8,11 @@
        <f7-nav-right>
       <f7-link class="searchbar-enable" data-searchbar=".searchbar-cliente" icon-ios="f7:search" icon-aurora="f7:search" icon-md="material:search"></f7-link>
     </f7-nav-right>
-       <!-- <f7-subnavbar :inner="false">
-        
-      <f7-searchbar
-        search-container=".search-list"
-        search-in=".item-subtitle"
-        :disable-button="!$theme.aurora"
-         placeholder="Buscar por cedula..."
-      ></f7-searchbar>
-     
-    </f7-subnavbar> -->
       <f7-searchbar
       expandable
       class="searchbar-cliente"
-      search-container=".search-list"
-      search-in=".item-subtitle"
+      search-container=".search-list-cliente"
+      search-in=".item-text"
       :disable-button="!$theme.aurora"
       placeholder="Buscar por cedula..."
     ></f7-searchbar>
@@ -58,25 +48,24 @@
     <f7-list-item title="Cliente no encontrado."></f7-list-item>
   </f7-list>
         <f7-block>
-        <f7-list class="search-list searchbar-found" sortable @sortable:sort="onSort">
+        <f7-list media-list class="search-list-cliente searchbar-found" sortable @sortable:sort="onSort">
           <!-- :link="`/cliente_detalles/${cliente.id}/`" -->
-        <f7-list-item swipeout media-list   
-        :subtitle="`Cedula: ${cliente.data.usuario.identificacion}`" 
-         v-for="(cliente,index,key) in getClientesLista" 
+        <f7-list-item swipeout   v-for="(cliente,index,key) in getClientesLista" 
           :id=cliente.id :key="key"  
-          :text="cliente.data.usuario.direccion1==''?cliente.data.usuario.direccion2:cliente.data.usuario.direccion1" 
+          :text="`Cedula: ${cliente.data.usuario.identificacion}`" 
           :title="`${cliente.data.usuario.nombre} ${cliente.data.usuario.apellido}`" 
+          :subtitle="cliente.data.usuario.direccion1==''?cliente.data.usuario.direccion2:cliente.data.usuario.direccion1" 
           :link="`/cliente_detalles/${cliente.id}/`" 
           :badge="cliente.nuevo?'nuevo':''" 
           :badge-color="cliente.nuevo?'green':''"
-          :footer="`${cliente.data.prestamos.length>0?'Valor del prestamo: '+cliente.data.prestamos[0].valor:'NA'}`" >
-          <!-- <f7-block> -->
-           <f7-link v-if="cliente.data.usuario.telefono" style="margin-left:12px;font-size:14px" external  :href="`tel:${cliente.data.usuario.telefono}`"><f7-icon material="settings_phone"></f7-icon>{{cliente.data.usuario.telefono}}</f7-link>
-           <!-- <f7-block> -->
+          :footer="`${cliente.data.prestamos.length>0?'Prestamo: '+cliente.data.prestamos[0].valor:'Prestamo: NA'}`"
+           >
+          <!-- `:after=""Telefono: ${cliente.data.usuario.telefono}` -->
            <f7-swipeout-actions right>
-        <f7-swipeout-button close color="blue" @click="onSeleccionarCliente(cliente.id,cliente.data.usuario.nombre+cliente.data.usuario.apellido)">Prestamo</f7-swipeout-button>
-        <!-- <f7-swipeout-button close color="red" @click="onCobroPendiente(cliente.data.usuario)">Pendiente</f7-swipeout-button> -->
+             <f7-swipeout-button close color="green" @click="onLlamar(cliente.data.usuario.telefono)">Llamar</f7-swipeout-button>
+        <f7-swipeout-button close overswipe color="blue" @click="onSeleccionarCliente(cliente.id,cliente.data.usuario.nombre+cliente.data.usuario.apellido)">Prestamo</f7-swipeout-button>
         </f7-swipeout-actions>
+         <!-- <f7-link v-if="cliente.data.usuario.telefono" style="margin-left:12px;font-size:14px" external  :href="`tel:${cliente.data.usuario.telefono}`"><f7-icon material="settings_phone"></f7-icon>{{cliente.data.usuario.telefono}}</f7-link> -->
           </f7-list-item>
         </f7-list>
         </f7-block>
@@ -252,6 +241,9 @@ export default {
  
     },
     methods: {
+      onLlamar(telefono){
+        window.location.href = "tel:"+telefono;
+      },
       onCambiarMensajeOrdenar(){
          this.txt_ordenar=!this.txt_ordenar
         
@@ -280,7 +272,7 @@ export default {
          }else{
                // https://us-central1-manifest-life-279516.cloudfunctions.net/actualizarPosicionClienteLista?doc=zEAF3BMDDj9IXGwYOBXO&subdoc=Js46FGqf1w9yvPhjKeJ9
         this.clientesservices.actualizarPosicionCliente(ui_cobrador,this.clientes[data.to].id,{posicion_inicial:Number(data.from)}).then(()=>{     
-           this.clientesservices.actualizarPosicionCliente(ui_cobrador,this.clientes[data.from].id,{posicion_inicial:Number(data.to)-1}).then(()=>{
+           this.clientesservices.actualizarPosicionCliente(ui_cobrador,this.clientes[data.from].id,{posicion_inicial:Number(data.to)+1}).then(()=>{
                 this.$f7.dialog.close();
            })
         });

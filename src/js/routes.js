@@ -1,4 +1,3 @@
-
 import HomePage from '../pages/Home/home.vue';
 import PrestamosPage from '../pages/Prestamos/Prestamos.vue';
 import Login from '../pages/Login/login.vue';
@@ -22,6 +21,12 @@ import PendientesPage from '../pages/Pendientes/PendientesPage.vue';
 
 import NotFoundPage from '../pages/404.vue';
 
+//Transacciones 
+import TransaccionesPage from '../pages/Transacciones/NuevaTransaccion.vue';
+
+//Notificacion 
+import NotificacionPage from '../pages/Notificaciones/Notificacion.vue';
+
 //Defaul
 // import DynamicRoutePage from '../pages/dynamic-route.vue';
 // import RequestAndLoad from '../pages/request-and-load.vue';
@@ -32,144 +37,152 @@ import NotFoundPage from '../pages/404.vue';
 
 
 
-var routes = [
-   {
-    path: '/',
-    //component: Login,
-    async(routeTo, routeFrom, resolve, reject) {
-        if (localStorage.getItem("username")) {
-          resolve({
-            component: HomePage,
-          });
-        } else {
-          resolve({
-            component: Login
-          });
+var routes = [{
+        path: '/',
+        //component: Login,
+        async(routeTo, routeFrom, resolve, reject) {
+            if (localStorage.getItem("username")) {
+                resolve({
+                    component: HomePage,
+                });
+            } else {
+                resolve({
+                    component: Login
+                });
+            }
         }
-    }
-  },
-  {
-    path: '/rutas',
-    component: RutasPage,
-  },
-  {
-    path: '/ruta_nueva',
-    component: nuevaRutaPage,
-  },
-  {
-    path: '/ruta_clientes/:id/:titulo',
-    component: nuevaRutaClientesPage,
-  },
-  {
-    path: '/ruta_clientes_datalles/:id/',
-    component: nuevaRutaClientesDetallesPage,
-  },
-  {
-    path: '/comenzar_ruta',
-    component: comenzarRuta,
-  },
-  {
-    path: '/clientes',
-    component: ClientesPage,
-  },
-  {
-    path: '/cliente_nuevo',
-    component: nuevoClientePage,
-  },
-  {
-    path: '/cliente_detalles/:id/',
-    component: clienteDetallesPage
-  },
-  {
-    path: '/home',
-    component: HomePage
-  },
-  // {
-  //   path: '/about/',
-  //   component: AboutPage,
-  // },
-  // {
-  //   path: '/form/',
-  //   component: FormPage,
-  // },
-  // {
-  //   path: '/catalog/',
-  //   component: CatalogPage,
-  // },
-  // {
-  //   path: '/product/:id/',
-  //   component: ProductPage,
-  // },
-  {
-    path: '/abonos/',
-    component: PrestamosPage,
-  },
-  {
-    path: '/abonos_detalle/:id/:saldo_apagar',
-    component: detalleAbono
-  },
-  {
-    path: '/pendientes/',
-    component: PendientesPage,
-  },
-  // {
-  //   path: '/dynamic-route/blog/:blogId/post/:postId/',
-  //   component: DynamicRoutePage,
-  // },
-  // {
-  //   path: '/request-and-load/user/:userId/',
-  //   async: function (routeTo, routeFrom, resolve, reject) {
-  //     // Router instance
-  //     var router = this;
+    },
+    {
+        path: '/rutas',
+        component: RutasPage,
+    },
+    {
+        path: '/ruta_nueva',
+        component: nuevaRutaPage,
+    },
+    {
+        path: '/ruta_clientes/:id/:titulo',
+        component: nuevaRutaClientesPage,
+    },
+    {
+        path: '/ruta_clientes_datalles/:id/',
+        component: nuevaRutaClientesDetallesPage,
+    },
+    {
+        path: '/comenzar_ruta',
+        component: comenzarRuta,
+    },
+    {
+        path: '/clientes',
+        component: ClientesPage,
+    },
+    {
+        path: '/cliente_nuevo',
+        component: nuevoClientePage,
+    },
+    {
+        path: '/cliente_detalles/:id/',
+        component: clienteDetallesPage
+    },
+    {
+        path: '/home',
+        component: HomePage
+    },
+    // {
+    //   path: '/about/',
+    //   component: AboutPage,
+    // },
+    // {
+    //   path: '/form/',
+    //   component: FormPage,
+    // },
+    // {
+    //   path: '/catalog/',
+    //   component: CatalogPage,
+    // },
+    // {
+    //   path: '/product/:id/',
+    //   component: ProductPage,
+    // },
+    {
+        path: '/abonos/',
+        component: PrestamosPage,
+    },
+    {
+        path: '/abonos_detalle/:id/:saldo_apagar',
+        component: detalleAbono
+    },
+    {
+        path: '/pendientes/',
+        component: PendientesPage,
+    },
+    {
+        path: '/transacciones/',
+        component: TransaccionesPage,
+    },
+    {
+        path: '/notificaciones/',
+        component: NotificacionPage,
+    },
 
-  //     // App instance
-  //     var app = router.app;
+    // {
+    //   path: '/dynamic-route/blog/:blogId/post/:postId/',
+    //   component: DynamicRoutePage,
+    // },
+    // {
+    //   path: '/request-and-load/user/:userId/',
+    //   async: function (routeTo, routeFrom, resolve, reject) {
+    //     // Router instance
+    //     var router = this;
 
-  //     // Show Preloader
-  //     app.preloader.show();
+    //     // App instance
+    //     var app = router.app;
 
-  //     // User ID from request
-  //     var userId = routeTo.params.userId;
+    //     // Show Preloader
+    //     app.preloader.show();
 
-  //     // Simulate Ajax Request
-  //     setTimeout(function () {
-  //       // We got user data from request
-  //       var user = {
-  //         firstName: 'Vladimir',
-  //         lastName: 'Kharlampidi',
-  //         about: 'Hello, i am creator of Framework7! Hope you like it!',
-  //         links: [
-  //           {
-  //             title: 'Framework7 Website',
-  //             url: 'http://framework7.io',
-  //           },
-  //           {
-  //             title: 'Framework7 Forum',
-  //             url: 'http://forum.framework7.io',
-  //           },
-  //         ]
-  //       };
-  //       // Hide Preloader
-  //       app.preloader.hide();
+    //     // User ID from request
+    //     var userId = routeTo.params.userId;
 
-  //       // Resolve route to load page
-  //       resolve(
-  //         {
-  //           component: RequestAndLoad,
-  //         },
-  //         {
-  //           context: {
-  //             user: user,
-  //           }
-  //         }
-  //       );
-  //     }, 1000);
-  //   },
-  // },
-  {
-    path: '(.*)',
-    component: NotFoundPage,
-  },
+    //     // Simulate Ajax Request
+    //     setTimeout(function () {
+    //       // We got user data from request
+    //       var user = {
+    //         firstName: 'Vladimir',
+    //         lastName: 'Kharlampidi',
+    //         about: 'Hello, i am creator of Framework7! Hope you like it!',
+    //         links: [
+    //           {
+    //             title: 'Framework7 Website',
+    //             url: 'http://framework7.io',
+    //           },
+    //           {
+    //             title: 'Framework7 Forum',
+    //             url: 'http://forum.framework7.io',
+    //           },
+    //         ]
+    //       };
+    //       // Hide Preloader
+    //       app.preloader.hide();
+
+    //       // Resolve route to load page
+    //       resolve(
+    //         {
+    //           component: RequestAndLoad,
+    //         },
+    //         {
+    //           context: {
+    //             user: user,
+    //           }
+    //         }
+    //       );
+    //     }, 1000);
+    //   },
+    // },
+    {
+        path: '(.*)',
+        component: NotFoundPage,
+    },
 ];
 
 export default routes;

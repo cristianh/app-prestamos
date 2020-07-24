@@ -77,6 +77,7 @@
     created(){
     localStorage.clear();
 
+
          
     },
     methods: {
@@ -144,14 +145,16 @@
             localStorage.setItem("email", response.user.email);
             localStorage.setItem("name", id[0]);
             localStorage.setItem("lastactivity", response.user.metadata.lastSignInTime);
-            const self = this;
-            const app = self.$f7;
-            const router = self.$f7router;
-            this.$f7router.navigate('/home/', {
+            
+             this.$f7router.navigate('/home/', {
             props: {
                 usuario: username.displayName
             }
-            })
+            });
+            const self = this;
+            const app = self.$f7;
+            const router = self.$f7router;
+           
             // ...
             }).catch((error)=> {
             // Handle Errors here.

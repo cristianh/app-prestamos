@@ -8,9 +8,13 @@
         <f7-navbar title="Menu"></f7-navbar>
         <f7-block>
 <f7-list>
+  <!-- icon-badge="0" -->
+  <!-- :badge="getTransferencias==0?'':getTransferencias" -->
   <!-- <f7-link no-link-class color="black" tab-link="#view-ruta"  icon-ios="f7:swap_calls" icon-aurora="f7:swap_calls" icon-md="material:swap_calls" >Rutas</f7-link> -->
    <!-- <f7-list-button panel-close><f7-link   tab-link="#view-rutainicio" color="black" icon-ios="f7:swap_calls" icon-aurora="f7:swap_calls" icon-md="material:swap_calls" >Ruta</f7-link></f7-list-button>  -->
   <!-- <f7-list-button panel-close><f7-link no-link-class color="black" tab-link="#view-ruta"  icon-ios="f7:swap_calls" icon-aurora="f7:swap_calls" icon-md="material:swap_calls" >Rutas</f7-link></f7-list-button> -->
+  <f7-list-button panel-close><f7-link  tab-link="#view-transacciones"  text="Transferencias" color="black" icon-ios="f7:import_export" icon-aurora="f7:import_export" icon-md="material:import_export" ></f7-link></f7-list-button>
+  <f7-list-button panel-close><f7-link  tab-link="#view-notificaciones"  text="Notificaciones"  :icon-badge="getTransferencias==0?'':getTransferencias"  badge-color="green"   color="black" icon-ios="f7:import_export" icon-aurora="f7:import_export" icon-md="material:import_export" ></f7-link></f7-list-button>
   <f7-list-button panel-close><f7-link   color="black" icon-ios="f7:alarm_on" icon-aurora="f7:alarm_on" icon-md="material:alarm_on" >Pendientes</f7-link></f7-list-button>
   <f7-list-button panel-close><f7-link   color="black" icon-ios="f7:create" icon-aurora="f7:create" icon-md="material:create" >Modificar Abono</f7-link></f7-list-button>
   <f7-list-button panel-close><f7-link   color="black" icon-ios="f7:delete" icon-aurora="f7:delete" icon-md="material:delete" >Eliminar Abono</f7-link></f7-list-button>
@@ -49,6 +53,12 @@
 
     <!-- ComenzarRuta -->
     <f7-view id="view-rutainicio" name="comenzar_ruta" tab url="/comenzar_ruta/"></f7-view>
+
+     <!-- Transacciones -->
+    <f7-view id="view-transacciones" name="transacciones" tab url="/transacciones/"></f7-view>
+
+     <!-- Notificaciones -->
+    <f7-view id="view-notificaciones" name="notificaciones" tab url="/notificaciones/"></f7-view>
 
   </f7-views>
 
@@ -189,6 +199,25 @@
             });
         }
       }
+    },
+    computed: {
+      getTransferencias(){
+        return this.$store.getters.getContadorTransacciones;
+      }
+    },
+    created(){
+    let idCobrador=localStorage.getItem('uid');
+    db.collection("cobradores").doc(idCobrador).collection('Transferencias').doc('nueva_transaccion')
+    .onSnapshot({includeMetadataChanges: false},(doc) => {
+          console.log(doc);
+      if(doc.exists!=false){
+        this.$f7.dialog.alert('Tiene una nueva transferencia!','Atencion!');
+        console.log("Current data: ", doc.data());
+         this.$store.commit('setAumentaContadorTransferencias');
+         this.$store.commit('setDatosTransferencia',doc.data());
+      }
+      
+    });
     },
     mounted() {
       this.$f7ready((f7) => {

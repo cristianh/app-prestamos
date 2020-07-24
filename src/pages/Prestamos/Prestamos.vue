@@ -29,7 +29,7 @@
     </f7-col> -->
     <f7-col>
       
-        <f7-button fill  color="blue" @click="onActualizarLista">Actualizar Lista</f7-button>
+        <f7-button fill  color="blue" >Actualizar Lista</f7-button>
     </f7-col>
 </f7-row>
 </f7-block>

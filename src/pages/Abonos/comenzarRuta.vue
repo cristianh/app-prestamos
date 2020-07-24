@@ -44,11 +44,12 @@
           <f7-card-content>
             <f7-card>
           <f7-card-content>
-          Cobros realizados hoy: {{jornada_cobrador.catidad_cobrosefectivos}}<br>
-          Cobros no realizados hoy: {{jornada_cobrador.catidad_cobrosenofectivos}}<br>
-          Cobros Pendientes: {{jornada_cobrador.numero_cobros_pendientes}}<br>
-          Balance de la zona: {{this.balance_zona}}<br>
-          Total dinero recogido hoy: ${{jornada_cobrador.total_cobros_realizados}}
+          Cobros realizados hoy: {{getCantidadCobrosEfectivos}}<br>
+          Cobros no realizados hoy: {{getCantidadCobrosNoRealizados}}<br>
+          Cobros Pendientes: {{getCatidadCobrosPendientes}}<br>
+          Balance inicial de la zona: {{this.balance_zona}}<br>
+          Balance final de la zona: {{getBalanceFinal}}<br>
+          Total dinero recogido hoy: ${{getTotalCobros}}
           </f7-card-content>
           <f7-row v-if="!ruta_terminada">
           <f7-col md="12">
@@ -177,7 +178,9 @@ export default {
     posiciones_lista_ordenada:[],
     estado_lista_prestamos_clientes:false,
     color_bedge:'',
-    jornada_cobrador:{},
+    jornada_cobrador:{
+      balance_final_manual:0
+    },
       numero_clientes:0,
       corbradorService:null,
       balance_zona:'',
@@ -218,6 +221,21 @@ export default {
   
   },
   computed: {
+    getTotalCobros(){
+     return this.$store.getters.getCobrosTotalCobrado
+    },
+    getCantidadCobrosNoRealizados(){
+      return Number(this.$store.getters.getClientesListaPrestamo.length)-Number(this.$store.getters.getCobrosEfectivos)
+    },
+    getCatidadCobrosPendientes(){
+      return this.$store.getters.getCobrosPendientes
+    },
+    getCantidadCobrosEfectivos(){
+      return this.$store.getters.getCobrosEfectivos
+    },
+    getBalanceFinal(){
+      return this.$store.getters.getBalanceFinalZona
+    },
     getSaldoBalaceZona(){
         this.balance_zona=localStorage.getItem("saldo_zona");
     },
@@ -306,7 +324,8 @@ export default {
       
     },
     onConfirmarJornada(){
-     let guardando= this.$f7.dialog.preloader('Guardando...');
+      if(this.jornada_cobrador.balance_final_manual==this.$store.getters.getCobrosTotalCobrado){
+          let guardando= this.$f7.dialog.preloader('Guardando...');
        let ui_cobrador=localStorage.getItem("uid");
       let id_jornadacobrador=localStorage.getItem("idjornadacobrador");
       this.jornada_cobrador.balance_final=localStorage.getItem("saldo_zona");
@@ -323,11 +342,16 @@ export default {
              }).catch(error =>{
                 console.log(error);
              })
+      }else{
+        this.$f7.dialog.alert('Los valores no corresponden, por favor verifique','Atencion!');
+      }
+   
 
     },
     onCerrarRuta(){
        const app = this.$f7;
         // app.dialog.alert(id);
+        console.log(this.$store.getters.getCobrosPendientes);
         if(this.$store.getters.getCobrosPendientes==0){
           app.dialog.confirm('Seguro desea terminar la ruta!','Terminar ruta', () => {
         

@@ -33,9 +33,8 @@
    <!-- <f7-list-item title="Saldo Empresa" :after="balance_empresa"><f7-icon ios="f7:local_atm" aurora="f7:local_atm" md="material:local_atm"></f7-icon> -->
     
   </f7-list-item>
-   <f7-list-item title="Saldo Zona" :after="getBalanceZona"><f7-icon ios="f7:local_atm" aurora="f7:local_atm" md="material:local_atm"></f7-icon>
-    
-  </f7-list-item>
+   <f7-list-item title="Saldo Zona" :after="getBalanceZona"><f7-icon ios="f7:local_atm" aurora="f7:local_atm" md="material:local_atm"></f7-icon> </f7-list-item>
+   <f7-list-item title="Id" :after="uid"><f7-icon ios="f7:person" aurora="f7:person" md="material:person"></f7-icon></f7-list-item>
   </f7-list>
    </div>
    <div v-else>
@@ -49,6 +48,7 @@
 import ClientesCobradoresService from '../Services/ClientesService.js';
 import CobradoresService from '../Services/CobradoresServices.js';
 import EmpresaService from '../Services/EmpresaServices';
+import firebase from 'firebase'
 export default {
   data() {
     return {
@@ -78,11 +78,32 @@ export default {
   },
   beforeMount(){
     const self = this;
+    
+//         firebase.database().ref('users/').set({
+//               username: 'name',
+//               email: 'email',
+//               profile_picture : 'imageUrl'
+//             }).then( ()=>{
+// alert('Creado');
+//             }).catch((error)=>{
+// alert('Error');
+//             });
+
+//             var starCountRef = firebase.database().ref('users/');
+//             starCountRef.on('value', function(snapshot) {
+//               alert(snapshot.val().username);
+//             });
+
+            ;
     self.$f7.dialog.preloader("Cargando informacion...");
     this.profile_name = 'Bienvenido '+localStorage.getItem("name")+'.';
     this.lastActivity=localStorage.getItem("lastactivity");
     // this.balance_zona=localStorage.getItem("saldo_zona");
     this.uid = localStorage.getItem("uid");
+
+    // .onSnapshot((doc) => {
+    //     console.log("Current data: ", doc.data());
+    // });
 
     let zona;
     let empresa;
