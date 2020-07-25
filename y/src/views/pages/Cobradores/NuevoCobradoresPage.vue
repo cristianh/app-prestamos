@@ -131,7 +131,7 @@
               >
               <CIcon 
               name="cil-check-circle"/> Registrar</CButton>
-              <CButton type="reset" size="sm" color="danger"><CIcon name="cil-ban"/> Reset</CButton>
+              <!-- <CButton type="reset" size="sm" color="danger"><CIcon name="cil-ban"/> </CButton> -->
             </CCardBody>
       </CCard>
       </CCol>

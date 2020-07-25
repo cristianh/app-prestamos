@@ -1150,3 +1150,54 @@ exports.actualizarPosicionClienteLista = functions.https.onRequest(async(request
         return response.send('Error getting document', error).end();
     }
 });
+
+
+/**
+ * @function Funcion para guardar los prestamos de los cobradores.
+ */
+exports.EliminarTransaccion = functions.https.onRequest(async(request, response, body) => {
+    response.set('Access-Control-Allow-Origin', '*');
+    response.set('Access-Control-Allow-Credentials', 'true'); // vital
+    response.set('Access-Control-Allow-Methods', 'GET', 'POST', 'PUT', 'DELETE', 'OPTIONS');
+    response.set('Access-Control-Allow-Headers', 'Content-Type');
+    response.set('Access-Control-Allow-Headers', 'Content-Length,Content-Range');
+    response.set('Access-Control-Allow-Headers', 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization');
+
+    try {
+
+        await db.collection('empresas').doc(request.query.doc).collection('Zonas').doc(request.query.subdoc).collection('Transferencias').doc('nueva_transaccion').delete();
+        // });
+    } catch (error) {
+        return response.status(500).send(error);
+    }
+
+});
+
+
+/**
+ * @function Funcion para guardar los prestamos de los cobradores.
+ */
+exports.guardarHistorialTransaccion = functions.https.onRequest(async(request, response, body) => {
+    response.set('Access-Control-Allow-Origin', '*');
+    response.set('Access-Control-Allow-Credentials', 'true'); // vital
+    response.set('Access-Control-Allow-Methods', 'GET', 'POST', 'PUT', 'DELETE', 'OPTIONS');
+    response.set('Access-Control-Allow-Headers', 'Content-Type');
+    response.set('Access-Control-Allow-Headers', 'Content-Length,Content-Range');
+    response.set('Access-Control-Allow-Headers', 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization');
+    try {
+        const snapshot = await db.collection('empresas').doc(request.query.doc).get();
+
+        if (!snapshot.exists) {
+            return response.status(200).send(JSON.stringify({ mensaje: 'Empresa no econtrada.' })).end();
+        } else {
+
+            await db.collection('empresas').doc(request.query.doc).collection('historial_transaccion').add(request.body).then(() => {
+                return response.status(200).send(JSON.stringify({ mensaje: 'Historial Guardado.' })).end();
+            }).catch((error) => {
+                return response.status(500).send(error);
+            });
+        }
+    } catch (error) {
+        return response.send('Error getting document', error).end();
+    }
+});

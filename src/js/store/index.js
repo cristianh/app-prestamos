@@ -40,6 +40,9 @@ export default new Vuex.Store({
         setDatosTransferencia(state, data_transferencia) {
             state.datos_transeferencia.push(data_transferencia)
         },
+        setEstadoTransferencia(state, estadotransferencia) {
+            state.datos_transeferencia[0].estado_transaccion = estadotransferencia
+        },
         setAumentaContadorTransferencias(state) {
             state.contador_transferencias++;
         },

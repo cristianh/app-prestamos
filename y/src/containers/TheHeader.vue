@@ -37,7 +37,9 @@
     <CHeaderNav class="mr-4">
       <CHeaderNavItem class="d-md-down-none mx-2">
         <CHeaderNavLink>
-          <CIcon name="cil-bell"/>
+          
+          <CIcon  name="cil-bell"/>
+          <CBadge color="warning" class="ml-auto">1</CBadge>
         </CHeaderNavLink>
       </CHeaderNavItem>
       <CHeaderNavItem class="d-md-down-none mx-2">

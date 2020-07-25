@@ -528,6 +528,20 @@ export default {
       ]
     }
   },
+   created(){
+    // let idCobrador=localStorage.getItem('uid');
+    // db.collection("cobradores").doc(idCobrador).collection('Transferencias').doc('nueva_transaccion')
+    // .onSnapshot({includeMetadataChanges: false},(doc) => {
+    //       console.log(doc);
+    //   // if(doc.exists!=false){
+    //   //   this.$f7.dialog.alert('Tiene una nueva transferencia!','Atencion!');
+    //   //   console.log("Current data: ", doc.data());
+    //   //    this.$store.commit('setAumentaContadorTransferencias');
+    //   //    this.$store.commit('setDatosTransferencia',doc.data());
+    //   // }
+      
+    // });
+   },
   methods: {
     color (value) {
       let $color

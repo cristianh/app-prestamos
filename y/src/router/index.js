@@ -147,6 +147,11 @@ function configRoutes() {
             component: Login
         },
         {
+            path: '/registro',
+            name: 'registro',
+            component: Register
+        },
+        {
             path: '/home',
             redirect: 'home/dashboard',
             name: 'Home',

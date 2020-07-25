@@ -17,7 +17,7 @@
     
     <f7-row>
       <f7-col style="text-align:center">
-        <span><b>Envia:</b><br> {{transferencia.nombreCobradorEnvia}}</span>
+        <span><b>Envia:</b><br> {{transferencia.Envia}}</span>
         
       </f7-col>
       <f7-col style="text-align:center">
@@ -52,11 +52,15 @@
 </template>
 
 <script>
-
+import TransaccionesService from '../Services/TransaccionServices.js';
 export default {
     data() {
         return {
+          id_empresa:'',
+          id_zona:'',
+          datos_transaccion:'',
           datos_transferencia:{},
+          transacccionservice:null,
           clientes:[],
             form_transaccion:{
               idCobrador_recibe:'',
@@ -73,6 +77,7 @@ export default {
     beforeMount(){
       // this.clientes=this.$store.getters.getClientes;
       //this.clientes_lista_ordenada=this.$store.getters.getOrdenarClientes
+      this.transacccionservice= new TransaccionesService();
       this.clientes=this.$store.getters.getOrdenarClientes;
     },
     computed:{
@@ -82,11 +87,25 @@ export default {
     },
     methods: {
    onAceptarTransaccion(valor_transaccion) {
+     let uid = localStorage.getItem("uid");
+     this.id_empresa=localStorage.getItem("empresa");
+     this.id_zona = localStorage.getItem("zona")
+     this.$store.commit('setEstadoTransferencia',true);
+     
+     this.datos_transaccion= this.$store.getters.getDatosTransferencia;
      let balance_actual_zona=this.$store.getters.getBalance;
      let nuevo_balance_zona=Number(balance_actual_zona)+Number(valor_transaccion);
      this.$store.commit('setBalanceZona',nuevo_balance_zona);
      this.$f7.dialog.alert('Nuevo saldo '+nuevo_balance_zona,'Saldo actualizado!',()=>{
               // this.identificacion=''
+              console.log(JSON.stringify(this.datos_transaccion[0]));
+              const promise1=this.transacccionservice.elminiarTransaccion(this.id_empresa,this.id_zona);
+              const promise2=this.transacccionservice.guardarHistorialTransaccion(this.id_empresa,this.datos_transaccion[0]);
+
+              Promise.all([promise1, promise2]).then(function(values) {
+                console.log(values);
+              });
+
       });
    }
 }

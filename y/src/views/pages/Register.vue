@@ -7,7 +7,7 @@
             <CCardBody class="p-4">
               <CForm>
                 <h1>Register</h1>
-                <p class="text-muted">Create your account</p>
+                <p class="text-muted">Crear cuenta</p>
                 <CInput
                   placeholder="Username"
                   autocomplete="username"
@@ -34,10 +34,10 @@
                 >
                   <template #prepend-content><CIcon name="cil-lock-locked"/></template>
                 </CInput>
-                <CButton color="success" block>Create Account</CButton>
+                <CButton color="success" block>Registrarme</CButton>
               </CForm>
             </CCardBody>
-            <CCardFooter class="p-4">
+            <!-- <CCardFooter class="p-4">
               <CRow>
                 <CCol col="6">
                   <CButton block color="facebook">
@@ -50,7 +50,7 @@
                   </CButton>
                 </CCol>
               </CRow>
-            </CCardFooter>
+            </CCardFooter> -->
           </CCard>
         </CCol>
       </CRow>

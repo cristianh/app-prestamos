@@ -34,7 +34,9 @@
     
   </f7-list-item>
    <f7-list-item title="Saldo Zona" :after="getBalanceZona"><f7-icon ios="f7:local_atm" aurora="f7:local_atm" md="material:local_atm"></f7-icon> </f7-list-item>
-   <f7-list-item title="Id" :after="uid"><f7-icon ios="f7:person" aurora="f7:person" md="material:person"></f7-icon></f7-list-item>
+   <!-- <f7-list-item title="Id Zona" :after="id_zona"><f7-icon ios="f7:room" aurora="f7:room" md="material:room"></f7-icon></f7-list-item>
+   <f7-list-item title="Id Cobrador" :after="uid"><f7-icon ios="f7:person" aurora="f7:person" md="material:person"></f7-icon></f7-list-item>
+   <f7-list-item title="Id Empresa" :after="id_empresa"><f7-icon ios="f7:person" aurora="f7:person" md="material:person"></f7-icon></f7-list-item> -->
   </f7-list>
    </div>
    <div v-else>
@@ -56,7 +58,6 @@ export default {
       firstor:'',
       lastActivity:'',
       profile_name:'',
-      uid:'',
       balance_zona:0,
       balance_empresa:'',
       isLoadBalnces:false,
@@ -99,7 +100,8 @@ export default {
     this.profile_name = 'Bienvenido '+localStorage.getItem("name")+'.';
     this.lastActivity=localStorage.getItem("lastactivity");
     // this.balance_zona=localStorage.getItem("saldo_zona");
-    this.uid = localStorage.getItem("uid");
+    
+   
 
     // .onSnapshot((doc) => {
     //     console.log("Current data: ", doc.data());

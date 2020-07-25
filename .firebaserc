@@ -1,5 +1,15 @@
 {
   "projects": {
     "default": "manifest-life-279516"
+  },
+  "targets": {
+    "manifest-life-279516": {
+      "hosting": {
+        "empresa1sucomercio": [
+          "manifest-life-279516",
+          "prestamos"
+        ]
+      }
+    }
   }
 }
