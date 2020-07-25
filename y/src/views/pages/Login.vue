@@ -75,11 +75,24 @@ export default {
     }
   },
   methods:{
-        signIn() {
+     signIn() {
                 
-                    firebase.auth().signInWithEmailAndPassword(this.username, this.password).then((response)=> {
-                    console.log(response);
-                    if(response.user.uid=='azM3juHaCffFxmZ8CcUzmZFdoSK2'){
+                  firebase.auth().signInWithEmailAndPassword(this.username, this.password).then((response)=> {
+                   
+                    const info= response.user.displayName.split("-");
+                console.log(info);
+                     const usuario_login={
+                       'id':info[1],
+                       'username':response.user,
+                       'displayName':info[0],
+                       'email':response.user.email,
+                       'ultimaconexion':response.user.metadata.lastSignInTime,
+                       'rol':info[2]
+                     }
+                      console.log(usuario_login);
+                     this.$store.commit('setUsurioLogin',usuario_login);
+            
+                    if(usuario_login.rol=='administrador'){
                          this.$router.push('home/dashboard');
                     }else{
                        this.error='No tiene privilegios para ingresar a eta pagina.';
@@ -92,27 +105,65 @@ export default {
                     // Handle Errors here.
                     
                     //var errorCode = error.code;
-                    var errorMessage = error.message;
-                   
-                    console.log(error);
-                    switch(error.code){
-                        case 'auth/user-not-found':
-                           this.error='No hay ningún registro de usuario que corresponda a este identificador o usuario puede haber sido eliminado.';
-                          break
-                        case 'auth/wrong-password':
-                        this.error='La contraseña es inválida o el usuario no tiene contraseña.'
-                        break
-                        case 'auth/invalid-email':
-                          this.error='La dirección de correo electrónico no es valida o está mal formateada.'
-                          break
-
-                    }
-                    
-        //
+                  //  var errorMessage = error.message;
+                  switch (error.code) {
+              case 'auth/user-not-found':
+                 this.error= 'No hay ningún registro de usuario que corresponda a este identificador o usuario puede haber sido eliminado.';
+                 break;
+            case 'auth/wrong-password':
+                 this.error= 'La contraseña es inválida o el usuario no tiene contraseña.'
+                break;
+            case 'auth/invalid-email':
+                this.error= 'La dirección de correo electrónico no es valida o está mal formateada.'
+                  break;
+              case 'emailAlreadyInUse':
+                 this.error= "Este correo ya está siendo usado por otro usuario"
+                  break;
+                
+              case 'userDisabled':
+                 this.error= "Este usuario ha sido deshabilitado"
+                break;
+              case 'operationNotAllowed':
+                 this.error= "Operación no permitida"
+                         break;
+              case 'invalidEmail':
+                 this.error= "Correo electrónico no valido"
+                         break;
+              case 'wrongPassword':
+                 this.error= "Contraseña incorrecta"
+                         break;
+              case 'userNotFound':
+                 this.error= "No se encontró cuenta del usuario con el correo especificado"
+                         break;
+              case 'networkError':
+                 this.error= "Promblema al intentar conectar al servidor"
+                         break;
+              case 'weakPassword':
+                 this.error= "Contraseña muy debil o no válida"
+                         break;
+              case 'missingEmail':
+                 this.error= "Hace falta registrar un correo electrónico"
+                         break;
+              case 'internalError':
+                 this.error= "Error interno"
+                         break;
+              case 'invalidCustomToken':
+                 this.error = "Token personalizado invalido"
+                         break;
+              case 'tooManyRequests':
+                 this.error= "Ya se han enviado muchas solicitudes al servidor"
+                         break;
+              default:
+                 this.error= "Error desconocido contacte al administrador."
+                
+            }
+              
                      this.$toast.add({severity:'error', summary: 'Error', detail:this.error, life: 3000});  
                     
                     });
-              }
+    }
+        
+ 
   }
   
 }

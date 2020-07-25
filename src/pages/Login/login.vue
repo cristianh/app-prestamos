@@ -161,51 +161,61 @@
              
             var errorCode = error.code;
             var errorMessage = error.message;
-
+            alert(error);
             //this.error=errorMessage;
-
-            switch (errorMessage) {
-              case "There is no user record corresponding to this identifier. The user may have been deleted.":
-                  this.error="El usuario no esta registrado o ha sido eliminado.";
-                break;
-              case "The password is invalid or the user does not have a password.":
-                  this.error="La contraseña es inválida o el usuario no tiene contraseña.";
-                break;  
-              default:
-                break;
-            }
-            
-                          //  switch self {
-        // case .emailAlreadyInUse:
-        //     return "Este correo ya está siendo usado por otro usuario"
-        // case .userDisabled:
-        //     return "Este usuario ha sido deshabilitado"
-        // case .operationNotAllowed:
-        //     return "Operación no permitida"
-        // case .invalidEmail:
-        //     return "Correo electrónico no valido"
-        // case .wrongPassword:
-        //     return "Contraseña incorrecta"
-        // case .userNotFound:
-        //     return "No se encontró cuenta del usuario con el correo especificado"
-        // case .networkError:
-        //     return "Promblema al intentar conectar al servidor"
-        // case .weakPassword:
-        //     return "Contraseña muy debil o no válida"
-        // case .missingEmail:
-        //     return "Hace falta registrar un correo electrónico"
-        // case .internalError:
-        //     return "Error interno"
-        // case .invalidCustomToken:
-        //     return "Token personalizado invalido"
-        // case .tooManyRequests:
-        //     return "Ya se han enviado muchas solicitudes al servidor"
-        // default:
-        //     return nil
-        // }
-            
-            
+            this.error= this.errorloginValidador(error.code);
             });
+      },
+      errorloginValidador(error_code){
+            switch (error_code) {
+              case 'auth/user-not-found':
+                return 'No hay ningún registro de usuario que corresponda a este identificador o usuario puede haber sido eliminado.';
+              
+            case 'auth/wrong-password':
+                return 'La contraseña es inválida o el usuario no tiene contraseña.'
+               
+            case 'auth/invalid-email':
+               return 'La dirección de correo electrónico no es valida o está mal formateada.'
+              
+              case 'emailAlreadyInUse':
+                return "Este correo ya está siendo usado por otro usuario"
+                
+              case 'userDisabled':
+                return "Este usuario ha sido deshabilitado"
+                
+              case 'operationNotAllowed':
+                return "Operación no permitida"
+                
+              case 'invalidEmail':
+                return "Correo electrónico no valido"
+                
+              case 'wrongPassword':
+                return "Contraseña incorrecta"
+                
+              case 'userNotFound':
+                return "No se encontró cuenta del usuario con el correo especificado"
+              case 'networkError':
+                return "Promblema al intentar conectar al servidor"
+                
+              case 'weakPassword':
+                return "Contraseña muy debil o no válida"
+                
+              case 'missingEmail':
+                return "Hace falta registrar un correo electrónico"
+                
+              case 'internalError':
+                return "Error interno"
+                
+              case 'invalidCustomToken':
+                return "Token personalizado invalido"
+                
+              case 'tooManyRequests':
+                return "Ya se han enviado muchas solicitudes al servidor"
+                
+              default:
+                return "Error desconocido contacte al administrador."
+                
+            }
       },
       getCheck($event){
        console.log($event);

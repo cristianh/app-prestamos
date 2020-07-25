@@ -902,6 +902,10 @@ exports.Clientes = functions.https.onRequest(async(request, response, body) => {
  */
 exports.Usuarios = functions.https.onRequest(async(request, response, body) => {
     //response.send("Hello from Firebase!");
+    response.set('Access-Control-Allow-Origin', '*');
+    response.set('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
+    response.set('Access-Control-Allow-Credentials', 'true'); // vital
+    response.set('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
     try {
         const snapshot = await db.collection('usuarios').get();
         //return  await response.send(request.query.all);
@@ -944,15 +948,8 @@ exports.Usuarios = functions.https.onRequest(async(request, response, body) => {
             case 'POST':
                 //response.status(200).send(request.body);
 
-                await db.collection('usuarios').add({
-                    Nombre: request.body.nombre,
-                    Apellido: request.body.apellido,
-                    Direccion1: request.body.direccion1,
-                    Direccion2: request.body.direccion2,
-                    Identificacion: request.body.identificacion,
-                    Oficio: request.body.oficio
-                }).then(() => {
-                    return response.send('Usuario registrado');
+                await db.collection('usuarios').add(request.body).then((res) => {
+                    return response.status(200).send({ mensaje: 'Usuario registrado', id: res.id });
                 }).catch((error) => {
                     return response.status(500).send(error);
                 });

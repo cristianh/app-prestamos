@@ -159,6 +159,7 @@ export default {
   },
   data () {
     return {
+      usuarioOnLogin:'',
       empresa_form:{
           Nombre:'',
           Balance:'',
@@ -229,8 +230,12 @@ export default {
   created() {
         this.empresaService= new EmpresaService();
   },
+  beforeMount() {
+     this.usuarioOnLogin=this.$store.getters.getUsurioLoginId
+  },
   methods: {
     onGuardarEmpresa(){
+      //  this.empresaService.guardarEmpresa(this.usuarioOnLogin,this.empresa_form).then(rsp=>{
       this.empresaService.guardarEmpresa(this.empresa_form).then(rsp=>{
         this.$toast.add({severity:'success', summary: 'Correcto.', detail:'Empresa Creada', life: 3000});  
         this.empresa_form={

@@ -3,6 +3,7 @@
     <WidgetsDropdown/>
     <CCard>
       <CCardBody>
+        {{usuarioOnLogin}}
         <CRow>
           <CCol sm="5">
             <h4 id="traffic" class="card-title mb-0">Traffic</h4>
@@ -467,6 +468,7 @@ export default {
   },
   data () {
     return {
+      usuarioOnLogin:{},
       selected: 'Month',
       tableItems: [
         {
@@ -541,6 +543,9 @@ export default {
     //   // }
       
     // });
+   },
+   beforeMount() {
+     this.usuarioOnLogin=this.$store.getters.getUsurioLoginId
    },
   methods: {
     color (value) {

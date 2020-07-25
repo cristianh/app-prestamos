@@ -163,13 +163,15 @@ export default {
         else if(balance_actual_zona==0){
             this.$f7.dialog.alert('No se puede realizar la transaccion, no hay saldo disponible de la zona','Atencion!');
         }else{
-               this.form_transaccion.idCobrador_envia=localStorage.getItem('uid');
+        
+        this.form_transaccion.idCobrador_envia=localStorage.getItem('uid');
         this.form_transaccion.nombreCobradorEnvia=localStorage.getItem('name');
         
       
       this.$f7.dialog.confirm('Desea realizar la transaccion','Seguro!', () => {
         this.$f7.dialog.preloader('Guardando...');
-      db.collection("empresas").doc(this.form_transaccion.idCobrador_recibe).collection("Transferencias").doc('nueva_transaccion').set(this.form_transaccion)
+        if(this.opcionseleccionada=='empresa'){
+           db.collection("empresas").doc(this.id_empresa).collection("Transferencias").doc('nueva_transaccion').set(this.form_transaccion)
     .then(() =>{
         console.log("Document successfully written!");
      let nuevo_balance_zona=Number(balance_actual_zona)-Number(this.form_transaccion.valor);
@@ -179,6 +181,20 @@ export default {
     .catch((error)=> {
         console.error("Error writing document: ", error);
     });
+        }
+        else{
+           db.collection("empresas").doc(this.id_empresa).collection("Zonas").doc(this.form_transaccion.idCobrador_recibe).collection("Transferencias").doc('nueva_transaccion').set(this.form_transaccion)
+    .then(() =>{
+        console.log("Document successfully written!");
+     let nuevo_balance_zona=Number(balance_actual_zona)-Number(this.form_transaccion.valor);
+     this.$store.commit('setBalanceZona',nuevo_balance_zona);
+        this.$f7.dialog.close();
+    })
+    .catch((error)=> {
+        console.error("Error writing document: ", error);
+    });
+        }
+     
       });
         } 
   },

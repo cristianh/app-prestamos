@@ -210,26 +210,25 @@
    
       let idempresa=localStorage.getItem("empresa");
       let idzona=localStorage.getItem("zona")
-    db.collection("empresas").doc(idempresa).collection('Zonas').doc(idzona).collection('Transferencias').doc('nueva_transaccion')
+    db.collection("empresas").doc(idempresa).collection('Transferencias').doc('nueva_transaccion')
     .onSnapshot({includeMetadataChanges: false},(doc) => {
           console.log(doc);
       if(doc.exists!=false){
-        this.$f7.dialog.alert('Tiene una nueva transferencia!','Atencion!');
+        this.$f7.dialog.alert('Tiene una nueva transferencia de empresa!','Atencion!');
         console.log("Current data: ", doc.data());
          this.$store.commit('setAumentaContadorTransferencias');
          this.$store.commit('setDatosTransferencia',doc.data());
       }
-      // snapshot.docChanges().forEach(function(change) {
-      //       if (change.type === "added") {
-                
-      //       }
-      //       if (change.type === "modified") {
-      //           console.log("Modified city: ", change.doc.data());
-      //       }
-      //       if (change.type === "removed") {
-      //           console.log("Removed city: ", change.doc.data());
-      //       }
-      //   });
+    });
+      db.collection("empresas").doc(idempresa).collection('Zonas').doc(idzona).collection('Transferencias').doc('nueva_transaccion')
+    .onSnapshot({includeMetadataChanges: false},(doc) => {
+          console.log(doc);
+      if(doc.exists!=false){
+        this.$f7.dialog.alert('Tiene una nueva transferencia de zona!','Atencion!');
+        console.log("Current data: ", doc.data());
+         this.$store.commit('setAumentaContadorTransferencias');
+         this.$store.commit('setDatosTransferencia',doc.data());
+      }
     });
     },
     mounted() {

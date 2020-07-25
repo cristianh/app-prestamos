@@ -96,6 +96,7 @@ export default {
      let balance_actual_zona=this.$store.getters.getBalance;
      let nuevo_balance_zona=Number(balance_actual_zona)+Number(valor_transaccion);
      this.$store.commit('setBalanceZona',nuevo_balance_zona);
+     this.$store.commit('setDisminuyeContadorTransferencias');
      this.$f7.dialog.alert('Nuevo saldo '+nuevo_balance_zona,'Saldo actualizado!',()=>{
               // this.identificacion=''
               console.log(JSON.stringify(this.datos_transaccion[0]));
@@ -104,6 +105,7 @@ export default {
 
               Promise.all([promise1, promise2]).then(function(values) {
                 console.log(values);
+                 
               });
 
       });
