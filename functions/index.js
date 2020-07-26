@@ -13,80 +13,23 @@ const db = admin.firestore();
 
 const fieldValue = admin.firestore.FieldValue;
 
-
+/**
+ * @function Funcion para actualizar el estado del usuario en la lista de cobros.
+ */
 exports.updateEstadoUsuario = functions.firestore
-    .document('cobradores/{cobradorId}/Clientes/{clienteId}')
+    .document('usuarios/{usuarioId}/cobradores/{cobradorId}/Clientes/{clienteId}')
     .onUpdate((change, context) => {
         // Get an object representing the document
         // e.g. {'name': 'Marie', 'age': 66}
         // ...or the previous value before this update
         const previousValue = change.before.data().activo;
-        db.collection('cobradores').doc(context.params.cobradorId).collection('Clientes').doc(context.params.clienteId).set({
+        db.collection('usuarios').doc(context.params.usuarioId).collection('cobradores').doc(context.params.cobradorId).collection('Clientes').doc(context.params.clienteId).set({
             activo: true
         }, { merge: true });
     });
 
-
-
-exports.myFunctionName = functions.firestore
-    .document('cobradores/{CobradoresID}/Clientes/{ClientesID}/{PrestamosCollectionId}/{PrestamosID}')
-    .onWrite((change, context) => {
-        let cobradorid = context.params.CobradoresID;
-        let clienteid = context.params.ClientesID;
-        let prestamoid = context.params.PrestamosID;
-
-
-
-        let dd = db.collection(`cobradores/${cobradorid}/Clientes/${clienteid}/Prestamos`).doc(prestamoid).get();
-
-
-        db.collection("cities").doc("SF").set({
-            //dd.data()
-        })
-
-        //  .then(doc => {
-        //             if (!doc.exists) {
-
-        //               return response.send('Not Found')
-        //             }else{
-        //               db.collection("cities").doc("SF").update({
-        //                capital: doc.data().valor
-        //             })
-
-        //             }
-
-        //             return response.status(200).send(doc.data()).end();
-        //           })
-        //           .catch(err => {
-        //             return response.send('Error getting document', err).end();
-        //           });
-
-        // let snapshop= db.collection('cobradores').doc(cobradorid).collection('Clientes').doc(clienteid).collection('Prestamos').doc(prestamoid).get()
-        //  .then(doc => {
-        //             if (!doc.exists) {
-
-        //               return response.send('Not Found')
-        //             }else{
-        //             //   db.collection("cities").doc("SF").update({
-        //             //    capital: doc.data()
-        //             // })
-
-        //             }
-
-        //             return response.status(200).send(doc.data()).end();
-        //           })
-        //           .catch(err => {
-        //             return response.send('Error getting document', err).end();
-        //           });
-
-        // .update({
-        // capital: cobradorid+clienteid+prestamoid
-        // })
-    });
-
-
 /**
- * @function Funcion para guardar los cobros de los cobradores.
+ * @function Funcion para buscar el cobrador por la zona.
  */
 exports.buscarCobradorZona = functions.https.onRequest(async(request, response, body) => {
     response.set('Access-Control-Allow-Origin', '*');
@@ -97,7 +40,7 @@ exports.buscarCobradorZona = functions.https.onRequest(async(request, response, 
     response.set('Access-Control-Allow-Headers', 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization');
 
     try {
-        let cobradoresCollection = await db.collection('cobradores');
+        let cobradoresCollection = await db.collection('usuarios').doc(request.query.idadmin).collection('cobradores');
         let idCobrador = '';
         let restultadoConsulta = cobradoresCollection.where("Zona", "==", request.query.zona).get()
             .then((querySnapshot) => {
@@ -107,18 +50,13 @@ exports.buscarCobradorZona = functions.https.onRequest(async(request, response, 
                     idCobrador = doc.id;
 
                 });
-                return response.status(200).send(idCobrador);
-            })
-            .catch((error) => {
-                return response.status(500).send(error);
+                return idCobrador;
             });
-
+        return response.status(200).send(restultadoConsulta);
     } catch (error) {
         return response.status(500).send(error);
     }
 });
-
-
 
 /**
  * @function Funcion para guardar los cobros de los cobradores.
@@ -132,20 +70,17 @@ exports.CobradoresGuardarCobros = functions.https.onRequest(async(request, respo
     response.set('Access-Control-Allow-Headers', 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization');
 
     try {
-        await db.collection('cobradores').doc(request.query.doc).collection('Clientes').doc(request.query.sub).update({
+        await db.collection('usuarios').doc(request.query.idadmin).collection('cobradores').doc(request.query.doc).collection('Clientes').doc(request.query.sub).update({
             cobros: fieldValue.arrayUnion(request.body)
-        }).then(() => {
-            return response.send('Cobro registrado.');
-        }).catch((error) => {
-            return response.status(500).send(error);
-        })
+        });
+        return response.send('Cobro registrado.');
     } catch (error) {
         return response.status(500).send(error);
     }
 });
 
 /**
- * @function Funcion para guardar los cobros de los cobradores.
+ * @function Funcion para los prestamos del cliente.
  */
 exports.ClienteEliminarPrestamosPago = functions.https.onRequest(async(request, response, body) => {
     response.set('Access-Control-Allow-Origin', '*');
@@ -156,21 +91,17 @@ exports.ClienteEliminarPrestamosPago = functions.https.onRequest(async(request, 
     response.set('Access-Control-Allow-Headers', 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization');
 
     try {
-        await db.collection('cobradores').doc(request.query.doc).collection('Clientes').doc(request.query.sub).update({
+        await db.collection('usuarios').doc(request.query.idadmin).collection('cobradores').doc(request.query.doc).collection('Clientes').doc(request.query.sub).update({
             prestamos: fieldValue.arrayRemove(request.body)
-        }).then(() => {
-            return response.send('Cobro registrado.');
-        }).catch((error) => {
-            return response.status(500).send(error);
-        })
+        });
+        return response.send('Cobro registrado.');
     } catch (error) {
         return response.status(500).send(error);
     }
 });
 
-
 /**
- * @function Funcion para guardar los cobros de los cobradores.
+ * @function Funcion para guardar las observaciones de los cobros no realizados.
  */
 exports.CobradoresGuardarObservacionNoPago = functions.https.onRequest(async(request, response, body) => {
     response.set('Access-Control-Allow-Origin', '*');
@@ -181,20 +112,17 @@ exports.CobradoresGuardarObservacionNoPago = functions.https.onRequest(async(req
     response.set('Access-Control-Allow-Headers', 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization');
 
     try {
-        await db.collection('cobradores').doc(request.query.doc).collection('Clientes').doc(request.query.sub).update({
+        await db.collection('usuarios').doc(request.query.idadmin).collection('cobradores').doc(request.query.doc).collection('Clientes').doc(request.query.sub).update({
             observaciones: fieldValue.arrayUnion(request.body)
-        }).then(() => {
-            return response.send('Cobro registrado.');
-        }).catch((error) => {
-            return response.status(500).send(error);
-        })
+        });
+        return response.send('Cobro registrado.');
     } catch (error) {
         return response.status(500).send(error);
     }
 });
 
 /**
- * @function Funcion que devuelve todas las sonas de la empresa.
+ * @function Funcion que guarda la zona de la empresa.
  */
 exports.getEmpresaZonaDoc = functions.https.onRequest(async(request, response, body) => {
     response.set('Access-Control-Allow-Origin', '*');
@@ -204,8 +132,9 @@ exports.getEmpresaZonaDoc = functions.https.onRequest(async(request, response, b
     response.set('Access-Control-Allow-Headers', 'Content-Length,Content-Range');
     response.set('Access-Control-Allow-Headers', 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization');
 
-    let datasubcolltion = [];
-    await db.collection('empresas').doc(request.query.doc).collection('Zonas').doc(request.query.subdoc).get().then(doc => {
+    try {
+        let datasubcolltion = [];
+        await db.collection('usuarios').doc(request.query.idadmin).collection('empresas').doc(request.query.doc).collection('Zonas').doc(request.query.subdoc).get().then(doc => {
             if (!doc.exists) {
 
                 return response.send('Not Found')
@@ -213,13 +142,13 @@ exports.getEmpresaZonaDoc = functions.https.onRequest(async(request, response, b
 
             return response.status(200).send(JSON.stringify(doc.data())).end();
         })
-        .catch(err => {
-            return response.send('Error getting document', err).end();
-        });
+    } catch (error) {
+        return response.send('Error getting document', err).end();
+    }
 });
 
 /**
- * @function Funcion que devuelve todas las sonas de la empresa.
+ * @function Funcion que devuelve las zonas de la empresa.
  */
 exports.EmpresasZonas = functions.https.onRequest(async(request, response, body) => {
     response.set('Access-Control-Allow-Origin', '*');
@@ -230,19 +159,13 @@ exports.EmpresasZonas = functions.https.onRequest(async(request, response, body)
     response.set('Access-Control-Allow-Headers', 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization');
 
     let datasubcolltion = [];
-    await db.collection('empresas').doc(request.query.doc).collection(request.query.sub).get()
+    await db.collection('usuarios').doc(request.query.idadmin).collection('empresas').doc(request.query.doc).collection(request.query.sub).get()
         .then(snapshot => {
             snapshot.forEach(doc => {
                 let id = doc.id;
                 let datadocument = doc.data();
                 datadocument.id = id;
                 datasubcolltion.push(datadocument);
-                // datasubcolltion.push({
-                //   id: doc.id,
-                //   data: doc.data()
-                // });
-
-
             });
             return response.status(200).send(JSON.stringify(datasubcolltion));
         })
@@ -262,13 +185,13 @@ exports.EmpresasZonasGuardar = functions.https.onRequest(async(request, response
     response.set('Access-Control-Allow-Headers', 'Content-Length,Content-Range');
     response.set('Access-Control-Allow-Headers', 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization');
     try {
-        const snapshot = await db.collection('empresas').doc(request.query.doc).get();
+        const snapshot = await db.collection('usuarios').doc(request.query.idadmin).collection('empresas').doc(request.query.doc).get();
 
         if (!snapshot.exists) {
             return response.status(200).send(JSON.stringify({ mensaje: 'Empresa no econtrada.' })).end();
         } else {
 
-            await db.collection('empresas').doc(request.query.doc).collection(request.query.sub).add(request.body).then(() => {
+            await db.collection('usuarios').doc(request.query.idadmin).collection('empresas').doc(request.query.doc).collection(request.query.sub).add(request.body).then(() => {
                 return response.status(200).send(JSON.stringify({ mensaje: 'Zona Guardada.' })).end();
             }).catch((error) => {
                 return response.status(500).send(error);
@@ -291,13 +214,16 @@ exports.CobradoresGuardarClientes = functions.https.onRequest(async(request, res
     response.set('Access-Control-Allow-Headers', 'Content-Length,Content-Range');
     response.set('Access-Control-Allow-Headers', 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization');
 
-    await db.collection('cobradores').doc(request.query.doc).collection(request.query.sub).add(request.body).then(idCliente => {
+    await db.collection('usuarios').doc(request.query.idadmin).collection('cobradores').doc(request.query.doc).collection(request.query.sub).add(request.body).then(idCliente => {
         return response.send(idCliente.id);
     }).catch((error) => {
         return response.status(500).send(error);
     });
 });
 
+/**
+ * @function Funcion para actualiza los clientes de los cobradores.
+ */
 exports.CobradoresClientesUpdate = functions.https.onRequest(async(request, response, body) => {
     response.set('Access-Control-Allow-Origin', '*');
     response.set('Access-Control-Allow-Credentials', 'true'); // vital
@@ -305,12 +231,13 @@ exports.CobradoresClientesUpdate = functions.https.onRequest(async(request, resp
     response.set('Access-Control-Allow-Headers', 'Content-Type');
     response.set('Access-Control-Allow-Headers', 'Content-Length,Content-Range');
     response.set('Access-Control-Allow-Headers', 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization');
-
-    await db.collection('cobradores').doc(request.query.doc).collection('Clientes').doc(request.query.subdoc).set(request.body, { merge: true }).then(idCliente => {
-        return response.send("Actualizado");
-    }).catch((error) => {
+    try {
+        await db.collection('usuarios').doc(request.query.idadmin).collection('cobradores').doc(request.query.doc).collection('Clientes').doc(request.query.subdoc).set(request.body, { merge: true }).then(idCliente => {
+            return response.status(500).send("Actualizado");
+        });
+    } catch (error) {
         return response.status(500).send(error);
-    });
+    }
 });
 
 /**
@@ -324,7 +251,7 @@ exports.CobradoresClientesBuscar = functions.https.onRequest(async(request, resp
     response.set('Access-Control-Allow-Headers', 'Content-Length,Content-Range');
     response.set('Access-Control-Allow-Headers', 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization');
     let datasubcolltion = [];
-    const docRef = await db.collection('cobradores').doc(request.query.doc).collection(request.query.sub).doc(request.query.subdoc).get().then(doc => {
+    const docRef = await db.collection('usuarios').doc(request.query.idadmin).collection('cobradores').doc(request.query.doc).collection(request.query.sub).doc(request.query.subdoc).get().then(doc => {
             if (!doc.exists) {
 
                 return response.send('Not Found')
@@ -335,28 +262,6 @@ exports.CobradoresClientesBuscar = functions.https.onRequest(async(request, resp
         .catch(err => {
             return response.send('Error getting document', err).end();
         });
-    //return response.status(200).send(docRef);
-
-    //let datasubcolltion=[];
-    // const docRef =  await db.collection('cobradores').doc(request.query.doc).collection(request.query.sub).doc(request.query.subdoc).get()
-    //   .then(snapshot => {
-    //      snapshot.forEach(doc => {
-    //       let id = doc.id;
-    //       let datadocument = doc.data();
-    //       //cobradores.push(id,datadocument);
-    //       datasubcolltion.push({
-    //               id: doc.id,
-    //               data: doc.data()
-    //           });
-
-
-    //      });
-    //      return response.status(200).send(JSON.stringify(datasubcolltion));
-    //   })
-    //   .catch(err => {
-    //     return response.send('Error getting document', err).end();
-    //   });
-
 });
 
 /**
@@ -369,12 +274,22 @@ exports.ZonasGuardarCobradores = functions.https.onRequest(async(request, respon
     response.set('Access-Control-Allow-Headers', 'Content-Type');
     response.set('Access-Control-Allow-Headers', 'Content-Length,Content-Range');
     response.set('Access-Control-Allow-Headers', 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization');
-    await db.collection('empresas').doc(request.query.doc).collection('Zonas').doc(request.query.subdoc).collection('Cobradores').add(request.body).then(() => {
-        return response.send(JSON.stringify({ mensaje: 'Cobrador Guardado en la zona.' }));
-    }).catch((error) => {
+    try {
+        await db.collection('usuarios').doc(request.query.idadmin).collection('empresas').doc(request.query.doc).collection('Zonas').doc(request.query.subdoc).collection('Cobradores').add(request.body).then(() => {
+            return response.send(JSON.stringify({ mensaje: 'Cobrador Guardado en la zona.' }));
+        });
+    } catch (error) {
         return response.status(500).send(error);
-    });
+    }
 });
+
+
+
+
+
+
+
+
 /**
  * @function Funcion para guardar los prestamos de los cobradores.
  */
@@ -386,7 +301,7 @@ exports.CobradoresGuardarPrestamos = functions.https.onRequest(async(request, re
     response.set('Access-Control-Allow-Headers', 'Content-Length,Content-Range');
     response.set('Access-Control-Allow-Headers', 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization');
     // await db.collection('cobradores').doc(request.query.doc).collection('Clientes').doc(request.query.subid).collection(request.query.sub).add(request.body).then(() => {
-    await db.collection('cobradores').doc(request.query.doc).collection('Clientes').doc(request.query.sub).update({
+    await db.collection('usuarios').doc(request.query.idadmin).collection('cobradores').doc(request.query.doc).collection('Clientes').doc(request.query.sub).update({
         prestamos: fieldValue.arrayUnion(request.body)
     }).then(() => {
         return response.send('Prestamo registrado.');
@@ -407,37 +322,13 @@ exports.CobradoresActualizarPrestamos = functions.https.onRequest(async(request,
     response.set('Access-Control-Allow-Headers', 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization');
     // return response.send(request.body);
     let data = request.body.toString();
-    await db.collection('cobradores').doc(request.query.doc).collection('Clientes').doc(request.query.sub).set({
+    await db.collection('usuarios').doc(request.query.idadmin).collection('cobradores').doc(request.query.doc).collection('Clientes').doc(request.query.sub).set({
         prestamos: fieldValue.arrayUnion(request.body, { merge: true })
     }).then(() => {
         return response.send('Prestamo registrado.');
     }).catch((error) => {
         return response.status(500).send(error);
     });
-
-
-
-    // var batch = db.batch();
-    // var cliente = await db.collection('cobradores').doc(request.query.doc).collection('Clientes').doc(request.query.sub);
-
-    // batch.update(cliente, {"prestamos": fieldValue.arrayRemove('valor')});
-
-    // batch.update(cliente,
-    // 'prestamos.valor', 'hola');
-
-    // Commit the batch
-
-    // batch.commit().then( (red) =>{
-    //    return response.status(200).send("Prestamo actualizado");
-    // }).catch(error=>{
-    //   return response.status(500).send(error);
-    // });
-
-
-
-    // Update the population of 'SF'
-
-
 });
 
 /**
@@ -450,7 +341,7 @@ exports.CobradoresGuardarRutas = functions.https.onRequest(async(request, respon
     response.set('Access-Control-Allow-Headers', 'Content-Type');
     response.set('Access-Control-Allow-Headers', 'Content-Length,Content-Range');
     response.set('Access-Control-Allow-Headers', 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization');
-    await db.collection('cobradores').doc(request.query.doc).collection(request.query.sub).add(request.body).then((result) => {
+    await db.collection('usuarios').doc(request.query.idadmin).collection('cobradores').doc(request.query.doc).collection(request.query.sub).add(request.body).then((result) => {
         return response.send(result.id);
     }).catch((error) => {
         return response.status(500).send(error);
@@ -469,7 +360,7 @@ exports.CobradoresGuardarClientesRutas = functions.https.onRequest(async(request
     response.set('Access-Control-Allow-Headers', 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization');
 
 
-    await db.collection('cobradores').doc(request.query.doc).collection('Rutas').doc(request.query.sub).update({
+    await db.collection('usuarios').doc(request.query.idadmin).collection('cobradores').doc(request.query.doc).collection('Rutas').doc(request.query.sub).update({
         clientes: request.body
     }, { merge: true }).then((result) => {
         return response.send(result.id);
@@ -482,7 +373,7 @@ exports.CobradoresGuardarClientesRutas = functions.https.onRequest(async(request
  * @function Funcion para guardar los gastos de los cobradores.
  */
 exports.CobradoresGuardarGastos = functions.https.onRequest(async(request, response, body) => {
-    await db.collection('cobradores').doc(request.query.doc).collection(request.query.sub).add({
+    await db.collection('usuarios').doc(request.query.idadmin).collection('cobradores').doc(request.query.doc).collection(request.query.sub).add({
         Descripcion: request.body.descripcion,
         Valor_gasto: request.body.valor_gasto,
         fecha_creacion: request.body.fecha_creacion
@@ -507,7 +398,7 @@ exports.Cobradores = functions.https.onRequest(async(request, response, body) =>
     response.set('Access-Control-Allow-Headers', 'Content-Length,Content-Range');
     response.set('Access-Control-Allow-Headers', 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization');
     try {
-        const snapshot = await db.collection('cobradores').get();
+        const snapshot = await db.collection('usuarios').doc(request.query.idadmin).collection('cobradores').get();
         //return  await response.send(request.query.all);
 
         switch (request.method) {
@@ -534,10 +425,10 @@ exports.Cobradores = functions.https.onRequest(async(request, response, body) =>
                     if (request.query.sub) {
                         let datasubcolltion = [];
 
-                        const collections = await db.collection('cobradores').doc(request.query.doc).listCollections();
+                        const collections = await db.collection('usuarios').doc(request.query.idadmin).collection('cobradores').doc(request.query.doc).listCollections();
                         const collectionIds = collections.map(col => col.id);
 
-                        const docRef = await db.collection('cobradores').doc(request.query.doc).collection(request.query.sub).get()
+                        const docRef = await db.collection('usuarios').doc(request.query.idadmin).collection('cobradores').doc(request.query.doc).collection(request.query.sub).get()
                             .then(snapshot => {
                                 snapshot.forEach(doc => {
                                     let id = doc.id;
@@ -561,7 +452,7 @@ exports.Cobradores = functions.https.onRequest(async(request, response, body) =>
                             });
                     } else {
 
-                        const docRef = await db.collection('cobradores').doc(request.query.doc).get()
+                        const docRef = await db.collection('usuarios').doc(request.query.idadmin).collection('cobradores').doc(request.query.doc).get()
                             .then(doc => {
                                 if (!doc.exists) {
 
@@ -580,7 +471,7 @@ exports.Cobradores = functions.https.onRequest(async(request, response, body) =>
                 break;
             case 'POST':
                 //response.status(200).send(request.body);
-                await db.collection('cobradores').add({
+                await db.collection('usuarios').doc(request.query.idadmin).collection('cobradores').add({
                     Nombre: request.body.nombre,
                     Apellido: request.body.apellido,
                     Direccion1: request.body.direccion1,
@@ -598,13 +489,13 @@ exports.Cobradores = functions.https.onRequest(async(request, response, body) =>
 
                 break;
             case 'PUT':
-                await db.collection('cobradores').doc(request.query.doc).set(request.body, { merge: true })
+                await db.collection('usuarios').doc(request.query.idadmin).collection('cobradores').doc(request.query.doc).set(request.body, { merge: true })
                     .then(() => response.json(request.query.doc))
                     .catch((error) => response.status(500).send(error))
                 break;
             case 'DELETE':
 
-                await db.collection('cobradores').doc(request.query.doc).delete()
+                await db.collection('usuarios').doc(request.query.idadmin).collection('cobradores').doc(request.query.doc).delete()
                     .then(() => res.status(204).send("Document successfully deleted!"))
                     .catch((error) => {
                         return response.status(500).send(error);
@@ -638,7 +529,7 @@ exports.Empresas = functions.https.onRequest(async(request, response, body) => {
     response.set('Access-Control-Allow-Headers', 'Content-Length,Content-Range');
     response.set('Access-Control-Allow-Headers', 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization');
     try {
-        const snapshot = await db.collection('empresas').get();
+        const snapshot = await db.collection('usuarios').doc(request.query.idadmin).collection('empresas').get();
         //return  await response.send(request.query.all);
 
         switch (request.method) {
@@ -666,7 +557,7 @@ exports.Empresas = functions.https.onRequest(async(request, response, body) => {
                         return response.status(200).send(JSON.stringify(empresas));
                     }
                 } else {
-                    const docRef = await db.collection('empresas').doc(request.query.doc).get()
+                    const docRef = await db.collection('usuarios').doc(request.query.idadmin).collection('empresas').doc(request.query.doc).get()
                         .then(doc => {
                             if (!doc.exists) {
 
@@ -684,7 +575,7 @@ exports.Empresas = functions.https.onRequest(async(request, response, body) => {
             case 'POST':
                 //response.status(200).send(request.body);
 
-                await db.collection('empresas').add(request.body).then(() => {
+                await db.collection('usuarios').doc(request.query.idadmin).collection('empresas').add(request.body).then(() => {
                     return response.send('Empresas registrada');
                 }).catch((error) => {
                     return response.status(500).send(error);
@@ -692,13 +583,13 @@ exports.Empresas = functions.https.onRequest(async(request, response, body) => {
 
                 break;
             case 'PUT':
-                await db.collection('empresas').doc(request.query.doc).set(request.body, { merge: true })
+                await db.collection('usuarios').doc(request.query.idadmin).collection('empresas').doc(request.query.doc).set(request.body, { merge: true })
                     .then(() => response.json(request.query.doc))
                     .catch((error) => response.status(500).send(error))
                 break;
             case 'DELETE':
 
-                await db.collection('empresas').doc(request.query.doc).delete()
+                await db.collection('usuarios').doc(request.query.idadmin).collection('empresas').doc(request.query.doc).delete()
                     .then(() => res.status(204).send("Document successfully deleted!"))
                     .catch((error) => {
                         return response.status(500).send(error);
@@ -729,7 +620,7 @@ exports.Rutas = functions.https.onRequest(async(request, response, body) => {
     response.set('Access-Control-Allow-Credentials', 'true'); // vital
     response.set('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
     try {
-        const snapshot = await db.collection('rutas').get();
+        const snapshot = await db.collection('usuarios').doc(request.query.idadmin).collection('rutas').get();
         //return  await response.send(request.query.all);
 
         switch (request.method) {
@@ -752,7 +643,7 @@ exports.Rutas = functions.https.onRequest(async(request, response, body) => {
                         return response.status(200).send(JSON.stringify(rutas));
                     }
                 } else {
-                    const docRef = await db.collection('rutas').doc(request.query.doc).get()
+                    const docRef = await db.collection('usuarios').doc(request.query.idadmin).collection('rutas').doc(request.query.doc).get()
                         .then(doc => {
                             if (!doc.exists) {
 
@@ -769,7 +660,7 @@ exports.Rutas = functions.https.onRequest(async(request, response, body) => {
                 break;
             case 'POST':
 
-                await db.collection('rutas').add({
+                await db.collection('usuarios').doc(request.query.idadmin).collection('rutas').add({
                     Nombre: request.body.nombre,
                     fecha_creacion: request.body.fecha,
                     balance: request.body.balance
@@ -781,13 +672,13 @@ exports.Rutas = functions.https.onRequest(async(request, response, body) => {
 
                 break;
             case 'PUT':
-                await db.collection('rutas').doc(request.query.doc).set(request.body, { merge: true })
+                await db.collection('usuarios').doc(request.query.idadmin).collection('rutas').doc(request.query.doc).set(request.body, { merge: true })
                     .then(() => response.json(request.query.doc))
                     .catch((error) => response.status(500).send(error))
                 break;
             case 'DELETE':
 
-                await db.collection('rutas').doc(request.query.doc).delete()
+                await db.collection('usuarios').doc(request.query.idadmin).collection('rutas').doc(request.query.doc).delete()
                     .then(() => res.status(204).send("Document successfully deleted!"))
                     .catch((error) => {
                         return response.status(500).send(error);
@@ -817,7 +708,7 @@ exports.Clientes = functions.https.onRequest(async(request, response, body) => {
     response.set('Access-Control-Allow-Credentials', 'true'); // vital
     response.set('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
     try {
-        const snapshot = await db.collection('clientes').get();
+        const snapshot = await db.collection('usuarios').doc(request.query.idadmin).collection('clientes').get();
         //return  await response.send(request.query.all);
 
         switch (request.method) {
@@ -840,7 +731,7 @@ exports.Clientes = functions.https.onRequest(async(request, response, body) => {
                         return response.status(200).send(JSON.stringify(clientes));
                     }
                 } else {
-                    const docRef = await db.collection('clientes').doc(request.query.doc).get()
+                    const docRef = await db.collection('usuarios').doc(request.query.idadmin).collection('clientes').doc(request.query.doc).get()
                         .then(doc => {
                             if (!doc.exists) {
 
@@ -857,7 +748,7 @@ exports.Clientes = functions.https.onRequest(async(request, response, body) => {
                 break;
             case 'POST':
 
-                await db.collection('clientes').add({
+                await db.collection('usuarios').doc(request.query.idadmin).collection('clientes').add({
                     Nombre: request.body.nombre,
                     Apellido: request.body.apellido,
                     Direccion1: request.body.direccion1,
@@ -872,13 +763,13 @@ exports.Clientes = functions.https.onRequest(async(request, response, body) => {
 
                 break;
             case 'PUT':
-                await db.collection('cobradores').doc(request.query.doc).collection('Clientes').doc(request.query.subdoc).set(request.body, { merge: true })
+                await db.collection('usuarios').doc(request.query.idadmin).collection('cobradores').doc(request.query.doc).collection('Clientes').doc(request.query.subdoc).set(request.body, { merge: true })
                     .then((response) => response.json(response))
                     .catch((error) => response.status(500).send(error))
                 break;
             case 'DELETE':
 
-                await db.collection('clientes').doc(request.query.doc).delete()
+                await db.collection('usuarios').doc(request.query.idadmin).collection('clientes').doc(request.query.doc).delete()
                     .then(() => res.status(204).send("Document successfully deleted!"))
                     .catch((error) => {
                         return response.status(500).send(error);
@@ -979,24 +870,15 @@ exports.Usuarios = functions.https.onRequest(async(request, response, body) => {
     return response.status(200).send('ok').end();
 });
 
-
-exports.addEmpresa = functions.https.onRequest((request, response, body) => {
-    //response.send("Hello from Firebase!");
-    const empresa = request.body;
-    try {
-        db.collection('empresas').add(empresa);
-        return response.send('ok');
-    } catch (error) {
-        return response.send('Error getting document', error);
-    }
-});
-
+/**
+ * @function Funcion que retorna todas las empresas activas.
+ */
 exports.getEmpresasActive = functions.https.onRequest((request, response, body) => {
     //response.send("Hello from Firebase!");
 
 
     // Create a reference to the cities collection
-    let citiesRef = db.collection('empresas');
+    let citiesRef = db.collection('usuarios').doc(request.query.idadmin).collection('empresas');
 
     // Create a query against the collection
     let queryRef = citiesRef.where('activo', '==', 'true').get()
@@ -1020,7 +902,7 @@ exports.getEmpresasActive = functions.https.onRequest((request, response, body) 
 });
 
 /**
- * @function Funcion que devuelve todas las sonas de la empresa.
+ * @function Funcion que devuelve todas la tazas de interes.
  */
 exports.getTazaseInteres = functions.https.onRequest(async(request, response, body) => {
     response.set('Access-Control-Allow-Origin', '*');
@@ -1031,7 +913,7 @@ exports.getTazaseInteres = functions.https.onRequest(async(request, response, bo
     response.set('Access-Control-Allow-Headers', 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization');
 
     let cobradores = [];
-    const snapshot = await db.collection('parametros_cobros').get();
+    const snapshot = await db.collection('usuarios').doc(request.query.idadmin).collection('parametros_cobros').get();
     if (snapshot.empty) {
         return response.send('Not Found');
     } else {
@@ -1049,12 +931,8 @@ exports.getTazaseInteres = functions.https.onRequest(async(request, response, bo
     }
 });
 
-
-
-
-
 /**
- * @function Funcion que devuelve todas las sonas de la empresa.
+ * @function Funcion que guarda los planes nuevos de cobro de la empresa.
  */
 exports.GuardarNuevoPlanEmpresa = functions.https.onRequest(async(request, response, body) => {
     response.set('Access-Control-Allow-Origin', '*');
@@ -1065,7 +943,7 @@ exports.GuardarNuevoPlanEmpresa = functions.https.onRequest(async(request, respo
     response.set('Access-Control-Allow-Headers', 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization');
 
     try {
-        await db.collection('parametros_cobros').add(request.body).then(res => {
+        await db.collection('usuarios').doc(request.query.idadmin).collection('parametros_cobros').add(request.body).then(res => {
             return response.status(200).send(JSON.stringify({ mensaje: 'El nuevo plan a sigo guardado.', id: res.id })).end();
         }).catch((error) => {
             return response.status(500).send(error);
@@ -1076,7 +954,7 @@ exports.GuardarNuevoPlanEmpresa = functions.https.onRequest(async(request, respo
 });
 
 /**
- * @function Funcion que devuelve todas las sonas de la empresa.
+ * @function Funcion que guardar la informacion de la ruta.
  */
 exports.guardarJornadaInfoRuta = functions.https.onRequest(async(request, response, body) => {
     response.set('Access-Control-Allow-Origin', '*');
@@ -1087,7 +965,7 @@ exports.guardarJornadaInfoRuta = functions.https.onRequest(async(request, respon
     response.set('Access-Control-Allow-Headers', 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization');
 
     try {
-        await db.collection('cobradores').doc(request.query.doc).collection('Jornada_Ruta').add(request.body).then(res => {
+        await db.collection('usuarios').doc(request.query.idadmin).collection('cobradores').doc(request.query.doc).collection('Jornada_Ruta').add(request.body).then(res => {
             return response.status(200).send(JSON.stringify({ mensaje: 'Rornada_Ruta.', id: res.id })).end();
         }).catch((error) => {
             return response.status(500).send(error);
@@ -1098,7 +976,7 @@ exports.guardarJornadaInfoRuta = functions.https.onRequest(async(request, respon
 });
 
 /**
- * @function Funcion que devuelve todas las sonas de la empresa.
+ * @function Funcion que actualiza la ruta de la jornada.
  */
 exports.actualizarJornadaRutaDia = functions.https.onRequest(async(request, response, body) => {
     response.set('Access-Control-Allow-Origin', '*');
@@ -1109,7 +987,7 @@ exports.actualizarJornadaRutaDia = functions.https.onRequest(async(request, resp
     response.set('Access-Control-Allow-Headers', 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization');
 
     try {
-        const snashop = await db.collection('cobradores').doc(request.query.doc).collection('Jornada_Ruta').doc(request.query.subdoc);
+        const snashop = await db.collection('usuarios').doc(request.query.idadmin).collection('cobradores').doc(request.query.doc).collection('Jornada_Ruta').doc(request.query.subdoc);
         // return response.status(200).send(JSON.stringify(snashop)).end();
         snashop.set(request.body, { merge: true }).then(res => {
             return response.status(200).send(JSON.stringify({ mensaje: 'Jornada terminada y actualizada.', id: res.id })).end();
@@ -1123,7 +1001,7 @@ exports.actualizarJornadaRutaDia = functions.https.onRequest(async(request, resp
 
 
 /**
- * @function Funcion que devuelve todas las sonas de la empresa.
+ * @function Funcion actualiza la posicion del cliente en la lista.
  */
 exports.actualizarPosicionClienteLista = functions.https.onRequest(async(request, response, body) => {
     response.set('Access-Control-Allow-Origin', '*');
@@ -1134,7 +1012,7 @@ exports.actualizarPosicionClienteLista = functions.https.onRequest(async(request
     response.set('Access-Control-Allow-Headers', 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization');
 
     try {
-        await db.collection('cobradores').doc(request.query.doc).collection('Clientes').doc(request.query.subdoc)
+        await db.collection('usuarios').doc(request.query.idadmin).collection('cobradores').doc(request.query.doc).collection('Clientes').doc(request.query.subdoc)
             .update({ posicion: Number(request.body.posicion_inicial) }, { merge: true })
             .then(res => {
                 return response.status(200).send(JSON.stringify({ mensaje: 'Posicion Guardada', id: res.id })).end();
@@ -1150,7 +1028,7 @@ exports.actualizarPosicionClienteLista = functions.https.onRequest(async(request
 
 
 /**
- * @function Funcion para guardar los prestamos de los cobradores.
+ * @function Funcion para Eliminar las transacciones.
  */
 exports.EliminarTransaccion = functions.https.onRequest(async(request, response, body) => {
     response.set('Access-Control-Allow-Origin', '*');
@@ -1162,7 +1040,7 @@ exports.EliminarTransaccion = functions.https.onRequest(async(request, response,
 
     try {
 
-        await db.collection('empresas').doc(request.query.doc).collection('Zonas').doc(request.query.subdoc).collection('Transferencias').doc('nueva_transaccion').delete();
+        await db.collection('usuarios').doc(request.query.idadmin).collection('empresas').doc(request.query.doc).collection('Zonas').doc(request.query.subdoc).collection('Transferencias').doc('nueva_transaccion').delete();
         // });
     } catch (error) {
         return response.status(500).send(error);
@@ -1172,7 +1050,7 @@ exports.EliminarTransaccion = functions.https.onRequest(async(request, response,
 
 
 /**
- * @function Funcion para guardar los prestamos de los cobradores.
+ * @function Funcion para guardar los prestamos de los guardar el historial de transacciones.
  */
 exports.guardarHistorialTransaccion = functions.https.onRequest(async(request, response, body) => {
     response.set('Access-Control-Allow-Origin', '*');
@@ -1182,7 +1060,7 @@ exports.guardarHistorialTransaccion = functions.https.onRequest(async(request, r
     response.set('Access-Control-Allow-Headers', 'Content-Length,Content-Range');
     response.set('Access-Control-Allow-Headers', 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization');
     try {
-        const snapshot = await db.collection('empresas').doc(request.query.doc).get();
+        const snapshot = await db.collection('usuarios').doc(request.query.idadmin).collection('empresas').doc(request.query.doc).get();
 
         if (!snapshot.exists) {
             return response.status(200).send(JSON.stringify({ mensaje: 'Empresa no econtrada.' })).end();

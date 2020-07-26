@@ -145,6 +145,7 @@
 <script>
 import ZonaService from '../Zonas/Services/ZonaService.js';
 import EmpresaService from '../Empresa/Services/EmpresasService.js';
+import CobradorService from '../Cobradores/Services/CobradoresService.js';
 export default {
     data() {
         return {
@@ -162,6 +163,10 @@ export default {
           zona:'',
           empresa:''
        },
+      zonaservice:null, 
+      empresaservice:null,
+      cobradorservice:null, 
+      usuarioOnLogin:'', 
       isEnabled:true,
       empresas:[{ value: 'Seleccione', label: 'Seleccione' }],
       zonas:[{ value: 'Seleccione', label: 'Seleccione' }]
@@ -170,12 +175,14 @@ export default {
         }
     },
      created() {
-        this.zonaService = new ZonaService();
-        this.empresaService= new EmpresaService();
+        this.zonaservice = new ZonaService();
+        this.empresaservice= new EmpresaService();
+        this.cobradorservice= new CobradorService();
     },
     beforeMount(){
+      this.usuarioOnLogin=localStorage.getItem('id');
       let tamporal_empresas=[];
-      this.empresaService.getAllEmpresas().then((result)=>{
+      this.empresaservice.getAllEmpresas(this.usuarioOnLogin).then((result)=>{
         
         tamporal_empresas=result.data;
         console.log(tamporal_empresas);
@@ -198,7 +205,7 @@ export default {
             this.zonas=[{ value: 'Seleccione', label: 'Seleccione' }];
             let tamporal_Zonas=[];
             
-            this.zonaService.getAllZonasEmpresa(this.usuario.empresa,'Zonas').then((response)=>{
+            this.zonaservice.getAllZonasEmpresa(this.usuarioOnLogin,this.usuario.empresa,'Zonas').then((response)=>{
             //console.log(response);
             tamporal_Zonas=response;
             for (const key in tamporal_Zonas) {
@@ -223,10 +230,11 @@ export default {
 
         
 
-              axios.post('https://us-central1-manifest-life-279516.cloudfunctions.net/Cobradores',this.usuario).then( (response) =>  {
+              // axios.post('https://us-central1-manifest-life-279516.cloudfunctions.net/Cobradores',this.usuario).then( (response) =>  {
+                this.cobradorservice.guardarCobrador(this.usuarioOnLogin,this.usuario).then( (response) =>  {
                 var id =response.data;
                 user.updateProfile({
-                      displayName:this.usuario.nombre +" "+this.usuario.apellido+'-'+id,
+                      displayName:this.usuario.nombre +" "+this.usuario.apellido+'-'+id+'-'+this.usuarioOnLogin,
                       photoURL: "hola"
                     }).then(function() {
                       return "actualizado";
@@ -246,11 +254,59 @@ export default {
             console.log(user);
         }).catch(function(error) {
         // Handle Errors here.
-        var errorCode = error.code;
-        var errorMessage = error.message;
-        // ...
-        console.log(errorCode);
-        console.log(errorMessage);
+        switch (error.code) {
+              case 'auth/user-not-found':
+                 this.error= 'No hay ningún registro de usuario que corresponda a este identificador o usuario puede haber sido eliminado.';
+                 break;
+            case 'auth/wrong-password':
+                 this.error= 'La contraseña es inválida o el usuario no tiene contraseña.'
+                break;
+            case 'auth/invalid-email':
+                this.error= 'La dirección de correo electrónico no es valida o está mal formateada.'
+                  break;
+              case 'emailAlreadyInUse':
+                 this.error= "Este correo ya está siendo usado por otro usuario"
+                  break;
+                
+              case 'userDisabled':
+                 this.error= "Este usuario ha sido deshabilitado"
+                break;
+              case 'operationNotAllowed':
+                 this.error= "Operación no permitida"
+                         break;
+              case 'invalidEmail':
+                 this.error= "Correo electrónico no valido"
+                         break;
+              case 'wrongPassword':
+                 this.error= "Contraseña incorrecta"
+                         break;
+              case 'userNotFound':
+                 this.error= "No se encontró cuenta del usuario con el correo especificado"
+                         break;
+              case 'networkError':
+                 this.error= "Promblema al intentar conectar al servidor"
+                         break;
+              case 'weakPassword':
+                 this.error= "Contraseña muy debil o no válida"
+                         break;
+              case 'missingEmail':
+                 this.error= "Hace falta registrar un correo electrónico"
+                         break;
+              case 'internalError':
+                 this.error= "Error interno"
+                         break;
+              case 'invalidCustomToken':
+                 this.error = "Token personalizado invalido"
+                         break;
+              case 'tooManyRequests':
+                 this.error= "Ya se han enviado muchas solicitudes al servidor"
+                         break;
+              default:
+                 this.error= "Error desconocido contacte al administrador."
+                
+            }
+              
+                     this.$toast.add({severity:'error', summary: 'Error', detail:this.error, life: 3000}); 
       });
       
            

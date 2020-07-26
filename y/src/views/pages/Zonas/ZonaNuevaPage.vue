@@ -80,7 +80,8 @@ export default {
         },
         empresas:[{ value: 'Seleccione', label: 'Seleccione' }],
         zonaService:null,
-        empresaService:null
+        empresaService:null,
+        usuarioOnLogin:''
         }
         
     },
@@ -89,9 +90,9 @@ export default {
         this.empresaService= new EmpresaService();
     },
     beforeMount() {
-
+      this.usuarioOnLogin=localStorage.getItem('id');
       let tamporal=[];
-      let empresas= this.empresaService.getAllEmpresas();
+      let empresas= this.empresaService.getAllEmpresas(this.usuarioOnLogin);
         empresas.then((result)=>{
         
         tamporal=result.data;
@@ -106,14 +107,14 @@ export default {
         
         });
 
-   
+      
     },
     methods:{
         onGuardarZona(){
 //           const params = new URLSearchParams();
 // params.append('param1', 'value1');
 // params.append('param2', 'value2');
-          this.zonaService.guardarZonaEmpresa(this.zonas_form.empresa,this.zonas_form).then(response=>{
+          this.zonaService.guardarZonaEmpresa(this.usuarioOnLogin,this.zonas_form.empresa,this.zonas_form).then(response=>{
             let mensaje=response.mensaje;
             console.log(response);
             if(mensaje){

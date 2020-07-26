@@ -80,7 +80,7 @@ export default {
                   firebase.auth().signInWithEmailAndPassword(this.username, this.password).then((response)=> {
                    
                     const info= response.user.displayName.split("-");
-                console.log(info);
+                // console.log(info);
                      const usuario_login={
                        'id':info[1],
                        'username':response.user,
@@ -89,10 +89,17 @@ export default {
                        'ultimaconexion':response.user.metadata.lastSignInTime,
                        'rol':info[2]
                      }
-                      console.log(usuario_login);
-                     this.$store.commit('setUsurioLogin',usuario_login);
+                     localStorage.setItem('id',info[1]);
+                     localStorage.setItem('username',response.user);
+                     localStorage.setItem('displayName',info[0]);
+                     localStorage.setItem('email',info[1],response.user.email);
+                     localStorage.setItem('ultimaconexion',response.user.metadata.lastSignInTime);
+                     localStorage.setItem('rol',info[2]);
+
+                      // console.log(usuario_login);
+                    //this.$store.commit('setUsurioLogin',usuario_login);
             
-                    if(usuario_login.rol=='administrador'){
+                    if(info[2]=='administrador'){
                          this.$router.push('home/dashboard');
                     }else{
                        this.error='No tiene privilegios para ingresar a eta pagina.';

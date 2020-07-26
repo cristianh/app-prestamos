@@ -75,17 +75,21 @@ export default {
       planpago_form:{
           nombre:'',
           interes:'',
-          plazo:''
+          plazo:'' 
       },
+       usuarioOnLogin:'',
       empresaService:null
     }
+  },
+  beforeMount() {
+    this.usuarioOnLogin=localStorage.getItem('id');
   },
   created() {
         this.empresaService= new EmpresaService();
   },
   methods: {
     onGuardarPlan(){
-      this.empresaService.guardarNuevoPlanEmpresa(this.planpago_form).then(rsp=>{
+      this.empresaService.guardarNuevoPlanEmpresa(this.usuarioOnLogin,this.planpago_form).then(rsp=>{
         this.$toast.add({severity:'success', summary: 'Correcto.', detail:'Plan creado', life: 3000});  
         this.planpago_form={
           nombre:'',

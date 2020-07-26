@@ -6,6 +6,7 @@
         <CIcon name="cil-grid"/> {{caption}}
       </slot>
     </CCardHeader>
+    {{usuarioOnLogin}}
     <CCardBody>
       <CDataTable
         :hover="hover"
@@ -40,6 +41,7 @@
     import Loading from 'vue-loading-overlay';
     // Import stylesheet
     import 'vue-loading-overlay/dist/vue-loading.css';
+    import EmpresaService from '../Empresa/Services/EmpresasService.js';
 export default {
   name: 'Table',
   components: {
@@ -50,7 +52,9 @@ export default {
         isLoading: false,
        fullPage: true,
        loading:'',
-         items:[] 
+       items:[],
+       empresaservice:null,
+       usuarioOnLogin:'' 
       }
   },
   props: {
@@ -72,9 +76,10 @@ export default {
     dark: Boolean
   },
   beforeMount(){
+    this.usuarioOnLogin=localStorage.getItem('id');
       this.isLoading = true;
-  axios.get('https://us-central1-manifest-life-279516.cloudfunctions.net/Empresas?doc=todos')
-    .then( (response) =>  {
+      this.empresaservice=new EmpresaService();
+    this.empresaservice.getAllEmpresas(this.usuarioOnLogin).then( (response) =>  {
           this.isLoading = false;
         this.items=response.data;
         console.table(response.data);
@@ -82,6 +87,7 @@ export default {
     }).catch(error => {
         console.log(error);
     });
+    
   },
   methods: {
      onCancel() {
