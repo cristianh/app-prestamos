@@ -198,10 +198,12 @@
 <script>
 import AbonoService from '../Services/AbonoServices.js';
 import ClientesService from '../Services/ClientesService.js';
+import CobradorService from '../Services/CobradoresServices.js';
 
   export default {
    data() {
        return {
+            idad:'',
             id :this.$f7route.params.id,
             saldo_a_pagar:this.$f7route.params.saldo_apagar,
             clientes_info:[],
@@ -220,6 +222,7 @@ import ClientesService from '../Services/ClientesService.js';
             mensajeSaldo: `Saldo a pagar: ${this.$f7route.params.saldo_apagar}`,
             abonoService:null,
             clientesService:null,
+            cobradoresService:null,
             informacion_pago:{
             valor:'',
             valor_pago:0,
@@ -278,7 +281,7 @@ import ClientesService from '../Services/ClientesService.js';
           };
           this.$store.commit('setEstadoTotalAPagar',dataTotalAPagarHoy);
         
-        this.clientesService.actualizarClienteCobrador(ui_cobrador,this.id,elemento).then( (response) =>  {
+        this.clientesService.actualizarClienteCobrador(this.idad,ui_cobrador,this.id,elemento).then( (response) =>  {
               // this.informacion_pago.valor_pago=0;
           let data={
             id: this.id,
@@ -299,7 +302,7 @@ import ClientesService from '../Services/ClientesService.js';
            fecha_hora:this.$moment(new Date()).format("DDDD-MM-YYYY hh:mm:ss"), 
            razonnopago:this.inputNoPagoSeleccionado!=''?this.inputNoPagoSeleccionado:this.radioNoPagoSeleccionado
         }
-        this.clientesService.guardarObservacionNoPago(ui_cobrador,this.id,informacionNoPago).then( (response) =>  {
+        this.clientesService.guardarObservacionNoPago(this.idad,ui_cobrador,this.id,informacionNoPago).then( (response) =>  {
            this.$store.commit('setQuitar_cobros_pendientesJornada');
             this.$f7.dialog.close();
             this.$f7router.back();
@@ -323,7 +326,7 @@ import ClientesService from '../Services/ClientesService.js';
           };
           this.$store.commit('setEstadoTotalAPagar',dataTotalAPagarHoy);
         
-        this.clientesService.actualizarClienteCobrador(ui_cobrador,this.id,elemento).then( (response) =>  {
+        this.clientesService.actualizarClienteCobrador(this.idad,ui_cobrador,this.id,elemento).then( (response) =>  {
               // this.informacion_pago.valor_pago=0;
           let data={
             id: this.id,
@@ -344,7 +347,7 @@ import ClientesService from '../Services/ClientesService.js';
            fecha_hora:this.$moment(new Date()).format("DDDD-MM-YYYY hh:mm:ss"), 
            razonnopago:this.inputNoPagoSeleccionado!=''?this.inputNoPagoSeleccionado:this.radioNoPagoSeleccionado
         }
-        this.clientesService.guardarObservacionNoPago(ui_cobrador,this.id,informacionNoPago).then( (response) =>  {
+        this.clientesService.guardarObservacionNoPago(this.idad,ui_cobrador,this.id,informacionNoPago).then( (response) =>  {
            this.$store.commit('setQuitar_cobros_pendientesJornada');
             this.$f7.dialog.close();
             this.$f7router.back();
@@ -390,7 +393,7 @@ batch.commit().then(function () {
           this.$f7.dialog.preloader('Guardando pago...');
           elemento.cobros.push(this.informacion_pago);
           this.informacion_pago.cliente=this.id;
-          this.abonoService.guardarAbonosCobros(ui_cobrador,this.id,this.informacion_pago).then( (response) =>  {
+          this.abonoService.guardarAbonosCobros(this.idad,ui_cobrador,this.id,this.informacion_pago).then( (response) =>  {
           let saldo_actual=  localStorage.getItem("saldo_zona");
           let saldo_valor=   this.informacion_pago.valor_pago;
           this.$store.commit('setEstadoRuta',false);
@@ -453,7 +456,7 @@ batch.commit().then(function () {
           };
       this.$store.commit('setEstadoPrestamoPendiente',data_pendiente);
        this.$store.commit('setQuitar_cobros_pendientesJornada');
-        this.clientesService.actualizarClienteCobrador(ui_cobrador,this.id,elemento).then( (response) =>  {
+        this.clientesService.actualizarClienteCobrador(this.idad,ui_cobrador,this.id,elemento).then( (response) =>  {
               this.informacion_pago.valor_pago=0;  
                 this.$f7.sheet.close();
           this.$f7.dialog.close();
@@ -518,7 +521,7 @@ batch.commit().then(function () {
       this.$store.commit('setEstadoPrestamoPendiente',data_pendiente);
          this.$store.commit('setQuitar_cobros_pendientesJornada');
            
-          this.clientesService.actualizarClienteCobrador(ui_cobrador,this.id,elemento).then( (response) =>  {
+          this.clientesService.actualizarClienteCobrador(this.idad,ui_cobrador,this.id,elemento).then( (response) =>  {
               this.informacion_pago.valor_pago=0;    
                 this.$f7.sheet.close();
           this.$f7.dialog.close();
@@ -534,6 +537,8 @@ batch.commit().then(function () {
       this.balance_zona=localStorage.getItem("saldo_zona");
       this.abonoService= new AbonoService();
       this.clientesService=new ClientesService();
+      this.cobradoresService= new CobradorService();
+      this.idad=localStorage.getItem("iad");
   },
     beforeCreate(){
      let posicion=this.$store.getters.getClientes.findIndex(x => {x.hasOwnProperty('nuevo')? x.nuevo === true:x});
@@ -542,15 +547,14 @@ batch.commit().then(function () {
      }
      
      
-          let ui_cobrador=localStorage.getItem("uid"); 
-          axios.get(`https://us-central1-manifest-life-279516.cloudfunctions.net/CobradoresClientesBuscar?doc=${ui_cobrador}&sub=Clientes&subdoc=${this.$f7route.params.id}`)
-          .then( (response) =>  {
+          let ui_cobrador=localStorage.getItem("uid");
+          this.cobradoresService.getCobradoresClientesBuscar(this.idad,ui_cobrador,this.$f7route.params.id).then( (response) =>  {
               this.clientes_info=response.data;
               // console.log("datossss...",response);
               this.isLoadUsers= true;
           }).catch(error => {
               console.log(error);
-          }); 
+          });
+    }
   }
-  };
-</script>
+</script>   

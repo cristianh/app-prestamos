@@ -213,12 +213,14 @@ exports.CobradoresGuardarClientes = functions.https.onRequest(async(request, res
     response.set('Access-Control-Allow-Headers', 'Content-Type');
     response.set('Access-Control-Allow-Headers', 'Content-Length,Content-Range');
     response.set('Access-Control-Allow-Headers', 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization');
-
-    await db.collection('usuarios').doc(request.query.idadmin).collection('cobradores').doc(request.query.doc).collection(request.query.sub).add(request.body).then(idCliente => {
-        return response.send(idCliente.id);
-    }).catch((error) => {
+    try {
+        await db.collection('usuarios').doc(request.query.idadmin).collection('cobradores').doc(request.query.doc).collection('clientes').add(request.body).then((res) => {
+            return response.status(200).send(res.id);
+        });
+    } catch (error) {
         return response.status(500).send(error);
-    });
+    }
+
 });
 
 /**
@@ -251,7 +253,7 @@ exports.CobradoresClientesBuscar = functions.https.onRequest(async(request, resp
     response.set('Access-Control-Allow-Headers', 'Content-Length,Content-Range');
     response.set('Access-Control-Allow-Headers', 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization');
     let datasubcolltion = [];
-    const docRef = await db.collection('usuarios').doc(request.query.idadmin).collection('cobradores').doc(request.query.doc).collection(request.query.sub).doc(request.query.subdoc).get().then(doc => {
+    const docRef = await db.collection('usuarios').doc(request.query.idadmin).collection('cobradores').doc(request.query.doc).collection('clientes').doc(request.query.subdoc).get().then(doc => {
             if (!doc.exists) {
 
                 return response.send('Not Found')
@@ -520,8 +522,6 @@ exports.Cobradores = functions.https.onRequest(async(request, response, body) =>
  * @param body
  */
 exports.Empresas = functions.https.onRequest(async(request, response, body) => {
-    //response.send("Hello from Firebase!");
-    //response.status(200).send(request.body);
     response.set('Access-Control-Allow-Origin', '*');
     response.set('Access-Control-Allow-Credentials', 'true'); // vital
     response.set('Access-Control-Allow-Methods', 'GET', 'POST', 'PUT', 'DELETE', 'OPTIONS');

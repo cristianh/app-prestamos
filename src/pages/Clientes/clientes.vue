@@ -170,6 +170,7 @@ export default {
   },
     data() {
         return {
+            idad:'',
             clientes:[],
             clientes_lista_ordenada:[],
             isLoadUsers:false,
@@ -225,11 +226,10 @@ export default {
      
     },
     beforeMount(){
-      // this.clientes=this.$store.getters.getClientes;
-      //this.clientes_lista_ordenada=this.$store.getters.getOrdenarClientes
+      this.idad=localStorage.getItem("iad");
       this.clientes=this.$store.getters.getOrdenarClientes;
       this.numero_clientes=this.clientes.length;
-         if(this.numero_clientes==1){
+      if(this.numero_clientes==1){
       this.isLoadUsers=true;
       }
       else{
@@ -264,15 +264,15 @@ export default {
         
          if(distancia==1){
                // https://us-central1-manifest-life-279516.cloudfunctions.net/actualizarPosicionClienteLista?doc=zEAF3BMDDj9IXGwYOBXO&subdoc=Js46FGqf1w9yvPhjKeJ9
-        this.clientesservices.actualizarPosicionCliente(ui_cobrador,this.clientes[data.to].id,{posicion_inicial:Number(data.from)}).then(()=>{     
-           this.clientesservices.actualizarPosicionCliente(ui_cobrador,this.clientes[data.from].id,{posicion_inicial:Number(data.to)}).then(()=>{
+        this.clientesservices.actualizarPosicionCliente(this.idad,ui_cobrador,this.clientes[data.to].id,{posicion_inicial:Number(data.from)}).then(()=>{     
+           this.clientesservices.actualizarPosicionCliente(this.idad,ui_cobrador,this.clientes[data.from].id,{posicion_inicial:Number(data.to)}).then(()=>{
                 this.$f7.dialog.close();
            })
         });
          }else{
                // https://us-central1-manifest-life-279516.cloudfunctions.net/actualizarPosicionClienteLista?doc=zEAF3BMDDj9IXGwYOBXO&subdoc=Js46FGqf1w9yvPhjKeJ9
-        this.clientesservices.actualizarPosicionCliente(ui_cobrador,this.clientes[data.to].id,{posicion_inicial:Number(data.from)}).then(()=>{     
-           this.clientesservices.actualizarPosicionCliente(ui_cobrador,this.clientes[data.from].id,{posicion_inicial:Number(data.to)+1}).then(()=>{
+        this.clientesservices.actualizarPosicionCliente(this.idad,ui_cobrador,this.clientes[data.to].id,{posicion_inicial:Number(data.from)}).then(()=>{     
+           this.clientesservices.actualizarPosicionCliente(this.idad,ui_cobrador,this.clientes[data.from].id,{posicion_inicial:Number(data.to)+1}).then(()=>{
                 this.$f7.dialog.close();
            })
         });
@@ -340,7 +340,8 @@ export default {
 var batch = db.batch();
 
 // Update the population of 'SF'
-var sfRef = db.collection("empresas").doc(empresa).collection('Zonas').doc(zona);
+
+var sfRef = db.collection("usuarios").doc(this.idad).collection("empresas").doc(empresa).collection('Zonas').doc(zona);
 batch.update(sfRef, {"balance": this.balance_zona});
 
 
@@ -440,7 +441,7 @@ batch.commit().then( ()=> {
           this.info_prestamo.plan_seleccionado=this.planseleccionado;
           this.info_prestamo.dias_plazo=Number(this.planseleccionado);
 
-          this.abonoService.guardarAbonosPrestamos(ui_cobrador,this.info_prestamo.cliente,this.info_prestamo).then( (response) =>  {
+          this.abonoService.guardarAbonosPrestamos(this.idad,ui_cobrador,this.info_prestamo.cliente,this.info_prestamo).then( (response) =>  {
           let saldo_actual=  localStorage.getItem("saldo_zona");
           let saldo_valor=   this.info_prestamo.valor;
           let descuentosaldozona=Number(saldo_actual)-Number(saldo_valor);

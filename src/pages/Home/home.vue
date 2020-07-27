@@ -64,6 +64,7 @@ export default {
       cobradoresClientesService:null,
       cobradoresService:null,
       empresaService:null,
+      idad:''
      
     }
   },
@@ -78,39 +79,18 @@ export default {
     }
   },
   beforeMount(){
+    this.idad=localStorage.getItem("iad");
     const self = this;
     
-//         firebase.database().ref('users/').set({
-//               username: 'name',
-//               email: 'email',
-//               profile_picture : 'imageUrl'
-//             }).then( ()=>{
-// alert('Creado');
-//             }).catch((error)=>{
-// alert('Error');
-//             });
-
-//             var starCountRef = firebase.database().ref('users/');
-//             starCountRef.on('value', function(snapshot) {
-//               alert(snapshot.val().username);
-//             });
-
             ;
     self.$f7.dialog.preloader("Cargando informacion...");
     this.profile_name = 'Bienvenido '+localStorage.getItem("name")+'.';
     this.lastActivity=localStorage.getItem("lastactivity");
-    // this.balance_zona=localStorage.getItem("saldo_zona");
-    
-   
-
-    // .onSnapshot((doc) => {
-    //     console.log("Current data: ", doc.data());
-    // });
-
+  
     let zona;
     let empresa;
 
-    this.empresaService.getAllTazaeInteres().then( (response) =>  {
+    this.empresaService.getAllTazaeInteres(this.idad).then( (response) =>  {
          let tazaseinteres = response.data;
         for (const key in tazaseinteres) {
           if (tazaseinteres.hasOwnProperty(key)) {
@@ -130,25 +110,26 @@ export default {
 
     
 
-    this.CobradoresService.getAllInfoCobradores(this.uid).then( (response) =>  {
+    this.CobradoresService.getAllInfoCobradores(this.idad,this.uid).then( (response) =>  {
         this.rutas=response.data;
         zona=response.data.Zona;
         empresa=response.data.Empresa;
         localStorage.setItem("empresa",empresa);
         localStorage.setItem("zona",zona);
-        this.empresaService.getAllInfoEmpresaZona(empresa,zona).then( (datazona) =>  {
+        this.empresaService.getAllInfoEmpresaZona(this.idad,empresa,zona).then( (datazona) =>  {
                 this.$store.commit('setBalanceZona',datazona.data.balance);
                 localStorage.setItem("saldo_zona",datazona.data.balance);
                 this.balance_zona= this.$store.getters.getBalance;
                   
-                  this.empresaService.getAllInfoEmpresa(empresa).then( (response) =>  {
+                  this.empresaService.getAllInfoEmpresa(this.idad,empresa).then( (response) =>  {
                       
                       // this.balance_empresa=response.data.Balance;
                       // this.isLoadRutas= true;
                       this.isLoadBalnces=true;
   
 
-    this.ClientesCobradoresService.getAllClientesCobradores(this.uid).then( response =>  {
+    this.ClientesCobradoresService.getAllClientesCobradores(this.idad).then( response =>  {
+      console.log(response.data);
         let cl = response.data;
         for (const key in cl) {
           if (cl.hasOwnProperty(key)) {
@@ -158,13 +139,10 @@ export default {
           
             if(element.data.prestamos.length>0 && element.data.prestamos[0].estado_prestamo!=true){
               this.$store.state.clientes_prestamos.unshift(element);
-            }
-           
-            ///this.clientes_nombres.push(element.data.usuario.nombre);
-            
+            }  
           }
         }
-        //this.$store.state.clientes.push(response.data);
+        
        
       
     }).catch(error => {
@@ -173,7 +151,7 @@ export default {
     }); 
 
     // axios.get(`https://us-central1-manifest-life-279516.cloudfunctions.net/Cobradores?doc=${}&sub=Rutas`)
-    this.CobradoresService.getZonaCobrador(this.uid).then( (response) =>  {
+    this.CobradoresService.getZonaCobrador(this.idad,this.uid).then( (response) =>  {
       let zona = response.data;
         for (const key in zona) {
           if (zona.hasOwnProperty(key)) {
@@ -206,7 +184,7 @@ export default {
     }); 
 
   let empresa_cobrador=localStorage.getItem("empresa");
-   this.empresaService.getEmpresaPorId(empresa_cobrador).then( (response) =>  {
+   this.empresaService.getEmpresaPorId(this.idad,empresa_cobrador).then( (response) =>  {
       console.log(response);
       this.mensaje_bienvenida = response.data.Mensaje;
     }).catch(error => {

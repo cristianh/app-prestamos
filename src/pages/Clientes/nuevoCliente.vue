@@ -288,6 +288,7 @@ import ClientesCobradoresService from '../Services/ClientesService.js';
 export default {
     data() {
         return {
+          idad:'',
           telefono:'',
           telefonoNegocio:'',
           telefonoContacto1:'',
@@ -421,6 +422,7 @@ export default {
     },
     beforeMount() {
       this.clientes=this.$store.getters.getClientes;
+      this.idad=localStorage.getItem("iad");
     },
     methods:{
      
@@ -490,7 +492,7 @@ export default {
         self.$f7.dialog.preloader('Guardando...');
      let ui_cobrador=localStorage.getItem("uid");
      this.form.posicion=Number(this.$store.getters.getContadorClientes)+1;
-      this.cobradoresClientesService.guardarClienteCobrador(ui_cobrador,this.form).then( (response) =>  {
+      this.cobradoresClientesService.guardarClienteCobrador(this.idad,ui_cobrador,this.form).then( (response) =>  {
       
        self.$f7.dialog.close();
        let data={

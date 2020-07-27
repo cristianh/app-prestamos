@@ -144,6 +144,7 @@
             localStorage.setItem("uid", id[1]);
             localStorage.setItem("email", response.user.email);
             localStorage.setItem("name", id[0]);
+            localStorage.setItem("iad", id[2]);
             localStorage.setItem("lastactivity", response.user.metadata.lastSignInTime);
             
              this.$f7router.navigate('/home/', {
@@ -159,9 +160,9 @@
             }).catch((error)=> {
             // Handle Errors here.
              
-            var errorCode = error.code;
-            var errorMessage = error.message;
-            alert(error);
+            // var errorCode = error.code;
+            // var errorMessage = error.message;
+            console.log(error);
             //this.error=errorMessage;
             this.error= this.errorloginValidador(error.code);
             });
