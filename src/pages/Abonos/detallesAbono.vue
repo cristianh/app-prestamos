@@ -539,6 +539,14 @@ batch.commit().then(function () {
       this.clientesService=new ClientesService();
       this.cobradoresService= new CobradorService();
       this.idad=localStorage.getItem("iad");
+       let ui_cobrador=localStorage.getItem("uid");
+          this.cobradoresService.getCobradoresClientesBuscar(this.idad,ui_cobrador,this.$f7route.params.id).then( (response) =>  {
+              this.clientes_info=response.data;
+              // console.log("datossss...",response);
+              this.isLoadUsers= true;
+          }).catch(error => {
+              console.log(error);
+          });
   },
     beforeCreate(){
      let posicion=this.$store.getters.getClientes.findIndex(x => {x.hasOwnProperty('nuevo')? x.nuevo === true:x});
@@ -547,14 +555,7 @@ batch.commit().then(function () {
      }
      
      
-          let ui_cobrador=localStorage.getItem("uid");
-          this.cobradoresService.getCobradoresClientesBuscar(this.idad,ui_cobrador,this.$f7route.params.id).then( (response) =>  {
-              this.clientes_info=response.data;
-              // console.log("datossss...",response);
-              this.isLoadUsers= true;
-          }).catch(error => {
-              console.log(error);
-          });
+         
     }
   }
 </script>   

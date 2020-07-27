@@ -50,11 +50,14 @@
   </f7-page>
 </template>
 <script>
+import CobradorService from '../Services/CobradoresServices.js';
   export default {
    data() {
        return {
+            idad:'',
             id :this.$f7route.params.id,
-            clientes_info:[]
+            clientes_info:[],
+            cobradorservice:null
        }
    },
    filters: {
@@ -64,22 +67,23 @@
     return value.charAt(0).toUpperCase() + value.slice(1)
   }
   },
-    beforeCreate(){
-     let posicion=this.$store.getters.getClientes.findIndex(x => {x.hasOwnProperty('nuevo')? x.nuevo === true:x});
-     if(posicion>0){
-       this.$store.commit('getSetNuevoClientes',posicion);
-     }
-     
-     
-          let ui_cobrador=localStorage.getItem("uid"); 
-          axios.get(`https://us-central1-manifest-life-279516.cloudfunctions.net/CobradoresClientesBuscar?doc=${ui_cobrador}&sub=Clientes&subdoc=${this.$f7route.params.id}`)
-          .then( (response) =>  {
+  beforeMount() {
+    this.idad=localStorage.getItem("iad");
+     let ui_cobrador=localStorage.getItem("uid"); 
+          this.cobradoresService.getCobradoresClientesBuscar(this.idad,ui_cobrador,this.$f7route.params.id).then( (response) =>  {
               this.clientes_info=response.data;
               console.log("datossss...",response);
               this.isLoadUsers= true;
           }).catch(error => {
               console.log(error);
           }); 
+  },
+    beforeCreate(){
+      this.cobradoresService= new CobradorService();
+     let posicion=this.$store.getters.getClientes.findIndex(x => {x.hasOwnProperty('nuevo')? x.nuevo === true:x});
+     if(posicion>0){
+       this.$store.commit('getSetNuevoClientes',posicion);
+     }
   }
   };
 </script>

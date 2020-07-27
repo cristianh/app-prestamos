@@ -94,8 +94,9 @@ export default {
         this.empresaService= new EmpresaService();
     },
     beforeMount(){
+      this.usuarioOnLogin=localStorage.getItem('id');
       let tamporal_empresas=[];
-      this.empresaService.getAllEmpresas().then((result)=>{
+      this.empresaService.getAllEmpresas(this.usuarioOnLogin).then((result)=>{
         
         tamporal_empresas=result.data;
         console.log(tamporal_empresas);
@@ -114,7 +115,7 @@ export default {
     methods: {
         onGuardarTransaccion(){
     this.form_transaccion.Envia='Empresa';
-      db.collection("empresas").doc(this.idSeleccionadaEmpresa).collection("Zonas").doc(this.idSeleccionadaZona).collection("Transferencias").doc('nueva_transaccion').set(this.form_transaccion)
+      db.collection("usuarios").doc(this.usuarioOnLogin).collection("empresas").doc(this.idSeleccionadaEmpresa).collection("Zonas").doc(this.idSeleccionadaZona).collection("Transferencias").doc('nueva_transaccion').set(this.form_transaccion)
     .then(() =>{
         console.log("Document successfully written!");
         this.$toast.add({severity:'success', summary: 'Correcto', detail:'Transaccion Realizada en espera de aprobacion', life: 3000});    
@@ -133,7 +134,7 @@ export default {
             this.zonas=[{ value: 'Seleccione', label: 'Seleccione' }];
             let tamporal_Zonas=[];
             this.idSeleccionadaEmpresa=this.usuario.empresa;
-            this.zonaService.getAllZonasEmpresa(this.usuario.empresa,'Zonas').then((response)=>{
+            this.zonaService.getAllZonasEmpresa(this.usuarioOnLogin,this.usuario.empresa,'Zonas').then((response)=>{
             //console.log(response);
             tamporal_Zonas=response;
             for (const key in tamporal_Zonas) {

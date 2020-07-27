@@ -3,7 +3,7 @@
     <WidgetsDropdown/>
     <CCard>
       <CCardBody>
-        {{usuarioOnLogin}}
+        {{idad}}
         <CRow>
           <CCol sm="5">
             <h4 id="traffic" class="card-title mb-0">Traffic</h4>
@@ -468,6 +468,7 @@ export default {
   },
   data () {
     return {
+      idad:'',
       usuarioOnLogin:{},
       selected: 'Month',
       tableItems: [
@@ -530,22 +531,37 @@ export default {
       ]
     }
   },
-   created(){
-    // let idCobrador=localStorage.getItem('uid');
-    // db.collection("cobradores").doc(idCobrador).collection('Transferencias').doc('nueva_transaccion')
-    // .onSnapshot({includeMetadataChanges: false},(doc) => {
-    //       console.log(doc);
-    //   // if(doc.exists!=false){
-    //   //   this.$f7.dialog.alert('Tiene una nueva transferencia!','Atencion!');
-    //   //   console.log("Current data: ", doc.data());
-    //   //    this.$store.commit('setAumentaContadorTransferencias');
-    //   //    this.$store.commit('setDatosTransferencia',doc.data());
-    //   // }
-      
-    // });
-   },
+  beforeCreate() {
+  //  .doc(idempresa).collection('Transferencias').doc('nueva_transaccion')
+  //   .onSnapshot({includeMetadataChanges: false},(doc) => {
+  //         console.log(doc);
+  //     if(doc.exists!=false){
+  //       // this.$f7.dialog.alert('Tiene una nueva transferencia de empresa!','Atencion!');
+  //       console.log("Current data: ", doc.data());
+  //       //  this.$store.commit('setAumentaContadorTransferencias');
+  //       //  this.$store.commit('setDatosTransferencia',doc.data());
+  //     }
+  //   });
+  },
    beforeMount() {
-     this.usuarioOnLogin=this.$store.getters.getUsurioLoginId
+     this.idad=localStorage.getItem('id');
+      console.log('created');
+    db.collection("usuarios").doc(this.idad).collection("empresas").get().then((querySnapshot)=> {
+    querySnapshot.forEach((doc)=> {
+        // doc.data() is never undefined for query doc snapshots
+        // console.log(doc.id, " => ", doc.data());
+        
+     db.collection("usuarios").doc(this.idad).collection("empresas").doc(doc.id).collection('Transferencias').doc('nueva_transaccion').onSnapshot({includeMetadataChanges: false},(doc) => {
+          // console.log(doc);
+     if(doc.exists!=false){
+       
+        console.log("Current data: ", doc.data());
+        this.$store.commit('setAumentaContadorTransacciones');
+     }
+
+    });
+    });
+   });
    },
   methods: {
     color (value) {

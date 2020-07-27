@@ -103,6 +103,7 @@
 export default {
     data() {
         return {
+          idad:'',
           uid:'',
           id_zona:'',
           id_empresa:'',
@@ -123,8 +124,7 @@ export default {
         }
     },
     beforeMount(){
-      // this.clientes=this.$store.getters.getClientes;
-      //this.clientes_lista_ordenada=this.$store.getters.getOrdenarClientes
+      this.idad=localStorage.getItem("iad");
       this.uid = localStorage.getItem("uid");
       this.id_empresa=localStorage.getItem("empresa");
       this.id_zona = localStorage.getItem("zona")
@@ -171,7 +171,7 @@ export default {
       this.$f7.dialog.confirm('Desea realizar la transaccion','Seguro!', () => {
         this.$f7.dialog.preloader('Guardando...');
         if(this.opcionseleccionada=='empresa'){
-           db.collection("empresas").doc(this.id_empresa).collection("Transferencias").doc('nueva_transaccion').set(this.form_transaccion)
+           db.collection("usuarios").doc(this.idad).collection("empresas").doc(this.id_empresa).collection("Transferencias").doc('nueva_transaccion').set(this.form_transaccion)
     .then(() =>{
         console.log("Document successfully written!");
      let nuevo_balance_zona=Number(balance_actual_zona)-Number(this.form_transaccion.valor);
@@ -183,7 +183,7 @@ export default {
     });
         }
         else{
-           db.collection("empresas").doc(this.id_empresa).collection("Zonas").doc(this.form_transaccion.idCobrador_recibe).collection("Transferencias").doc('nueva_transaccion').set(this.form_transaccion)
+            db.collection("usuarios").doc(this.idad).collection("empresas").doc(this.id_empresa).collection("Zonas").doc(this.form_transaccion.idCobrador_recibe).collection("Transferencias").doc('nueva_transaccion').set(this.form_transaccion)
     .then(() =>{
         console.log("Document successfully written!");
      let nuevo_balance_zona=Number(balance_actual_zona)-Number(this.form_transaccion.valor);

@@ -9,7 +9,7 @@ export default class CobradorServices {
     }
 
     getCobradoresClientesBuscar(id_admin, ui_cobrador, id_cliente) {
-        return axios.get(`CobradoresClientesBuscar?idadmin=${id_admin}&doc=${ui_cobrador}&subdoc=${this.$f7route.params.id}`).then(response => response);
+        return axios.get(`CobradoresClientesBuscar?idadmin=${id_admin}&doc=${ui_cobrador}&subdoc=${id_cliente}`).then(response => response);
     }
 
     guardarJornadaCobrador(id_admin, ui_cobrador, data) {

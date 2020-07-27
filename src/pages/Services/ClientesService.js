@@ -1,7 +1,7 @@
 export default class ClientesService {
 
     getAllClientesCobradores(id_admin, id) {
-        return axios.get(`Cobradores?idadmin=${id_admin}&doc=${id}&sub=Clientes`).then(response => response).catch(error => { return error });
+        return axios.get(`Cobradores?idadmin=${id_admin}&doc=${id}&sub=clientes`).then(response => response).catch(error => { return error });
     }
 
     actualizarPosicionCliente(id_admin, id_cobrador, id_cliente, data) {

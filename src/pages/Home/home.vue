@@ -128,7 +128,7 @@ export default {
                       this.isLoadBalnces=true;
   
 
-    this.ClientesCobradoresService.getAllClientesCobradores(this.idad).then( response =>  {
+    this.ClientesCobradoresService.getAllClientesCobradores(this.idad,this.uid).then( response =>  {
       console.log(response.data);
         let cl = response.data;
         for (const key in cl) {

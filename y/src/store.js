@@ -5,7 +5,8 @@ Vue.use(Vuex)
 const state = {
     sidebarShow: 'responsive',
     sidebarMinimize: false,
-    usuario_login: {}
+    usuario_login: {},
+    contador_transacciones: 0
 }
 
 const mutations = {
@@ -22,6 +23,12 @@ const mutations = {
     },
     setUsurioLogin(state, usuarioLogin) {
         state.usuario_login = usuarioLogin
+    },
+    setAumentaContadorTransacciones(state) {
+        state.contador_transacciones++
+    },
+    setDisminuyeContadorTransacciones(state) {
+        state.contador_transacciones--
     }
 }
 
@@ -31,6 +38,9 @@ const getters = {
     },
     getUsurioLoginId(state) {
         return state.usuario_login.id
+    },
+    getContadorTransacciones(state) {
+        return state.contador_transacciones
     }
 
 }

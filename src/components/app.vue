@@ -129,6 +129,7 @@
             return {
 
               // Demo products for Catalog section
+              idad:'',
               products: [
                 {
                   id: '1',
@@ -207,10 +208,11 @@
     },
     created(){
     let idCobrador=localStorage.getItem('uid');
+    this.idad=localStorage.getItem("iad");
    
       let idempresa=localStorage.getItem("empresa");
       let idzona=localStorage.getItem("zona")
-    db.collection("empresas").doc(idempresa).collection('Transferencias').doc('nueva_transaccion')
+    db.collection("usuarios").doc(this.idad).collection("empresas").doc(idempresa).collection('Transferencias').doc('nueva_transaccion')
     .onSnapshot({includeMetadataChanges: false},(doc) => {
           console.log(doc);
       if(doc.exists!=false){
@@ -220,7 +222,7 @@
          this.$store.commit('setDatosTransferencia',doc.data());
       }
     });
-      db.collection("empresas").doc(idempresa).collection('Zonas').doc(idzona).collection('Transferencias').doc('nueva_transaccion')
+      db.collection("usuarios").doc(this.idad).collection("empresas").doc(idempresa).collection('Zonas').doc(idzona).collection('Transferencias').doc('nueva_transaccion')
     .onSnapshot({includeMetadataChanges: false},(doc) => {
           console.log(doc);
       if(doc.exists!=false){

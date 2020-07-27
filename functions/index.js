@@ -23,7 +23,7 @@ exports.updateEstadoUsuario = functions.firestore
         // e.g. {'name': 'Marie', 'age': 66}
         // ...or the previous value before this update
         const previousValue = change.before.data().activo;
-        db.collection('usuarios').doc(context.params.usuarioId).collection('cobradores').doc(context.params.cobradorId).collection('Clientes').doc(context.params.clienteId).set({
+        db.collection('usuarios').doc(context.params.usuarioId).collection('cobradores').doc(context.params.cobradorId).collection('clientes').doc(context.params.clienteId).set({
             activo: true
         }, { merge: true });
     });
@@ -70,7 +70,7 @@ exports.CobradoresGuardarCobros = functions.https.onRequest(async(request, respo
     response.set('Access-Control-Allow-Headers', 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization');
 
     try {
-        await db.collection('usuarios').doc(request.query.idadmin).collection('cobradores').doc(request.query.doc).collection('Clientes').doc(request.query.sub).update({
+        await db.collection('usuarios').doc(request.query.idadmin).collection('cobradores').doc(request.query.doc).collection('clientes').doc(request.query.sub).update({
             cobros: fieldValue.arrayUnion(request.body)
         });
         return response.send('Cobro registrado.');
@@ -91,7 +91,7 @@ exports.ClienteEliminarPrestamosPago = functions.https.onRequest(async(request, 
     response.set('Access-Control-Allow-Headers', 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization');
 
     try {
-        await db.collection('usuarios').doc(request.query.idadmin).collection('cobradores').doc(request.query.doc).collection('Clientes').doc(request.query.sub).update({
+        await db.collection('usuarios').doc(request.query.idadmin).collection('cobradores').doc(request.query.doc).collection('clientes').doc(request.query.sub).update({
             prestamos: fieldValue.arrayRemove(request.body)
         });
         return response.send('Cobro registrado.');
@@ -112,7 +112,7 @@ exports.CobradoresGuardarObservacionNoPago = functions.https.onRequest(async(req
     response.set('Access-Control-Allow-Headers', 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization');
 
     try {
-        await db.collection('usuarios').doc(request.query.idadmin).collection('cobradores').doc(request.query.doc).collection('Clientes').doc(request.query.sub).update({
+        await db.collection('usuarios').doc(request.query.idadmin).collection('cobradores').doc(request.query.doc).collection('clientes').doc(request.query.sub).update({
             observaciones: fieldValue.arrayUnion(request.body)
         });
         return response.send('Cobro registrado.');
@@ -234,8 +234,8 @@ exports.CobradoresClientesUpdate = functions.https.onRequest(async(request, resp
     response.set('Access-Control-Allow-Headers', 'Content-Length,Content-Range');
     response.set('Access-Control-Allow-Headers', 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization');
     try {
-        await db.collection('usuarios').doc(request.query.idadmin).collection('cobradores').doc(request.query.doc).collection('Clientes').doc(request.query.subdoc).set(request.body, { merge: true }).then(idCliente => {
-            return response.status(500).send("Actualizado");
+        await db.collection('usuarios').doc(request.query.idadmin).collection('cobradores').doc(request.query.doc).collection('clientes').doc(request.query.subdoc).set(request.body, { merge: true }).then(() => {
+            return response.status(200).send({ mensaje: 'Actualizado' });
         });
     } catch (error) {
         return response.status(500).send(error);
@@ -303,7 +303,7 @@ exports.CobradoresGuardarPrestamos = functions.https.onRequest(async(request, re
     response.set('Access-Control-Allow-Headers', 'Content-Length,Content-Range');
     response.set('Access-Control-Allow-Headers', 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization');
     // await db.collection('cobradores').doc(request.query.doc).collection('Clientes').doc(request.query.subid).collection(request.query.sub).add(request.body).then(() => {
-    await db.collection('usuarios').doc(request.query.idadmin).collection('cobradores').doc(request.query.doc).collection('Clientes').doc(request.query.sub).update({
+    await db.collection('usuarios').doc(request.query.idadmin).collection('cobradores').doc(request.query.doc).collection('clientes').doc(request.query.sub).update({
         prestamos: fieldValue.arrayUnion(request.body)
     }).then(() => {
         return response.send('Prestamo registrado.');
@@ -324,7 +324,7 @@ exports.CobradoresActualizarPrestamos = functions.https.onRequest(async(request,
     response.set('Access-Control-Allow-Headers', 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization');
     // return response.send(request.body);
     let data = request.body.toString();
-    await db.collection('usuarios').doc(request.query.idadmin).collection('cobradores').doc(request.query.doc).collection('Clientes').doc(request.query.sub).set({
+    await db.collection('usuarios').doc(request.query.idadmin).collection('cobradores').doc(request.query.doc).collection('clientes').doc(request.query.sub).set({
         prestamos: fieldValue.arrayUnion(request.body, { merge: true })
     }).then(() => {
         return response.send('Prestamo registrado.');
@@ -385,7 +385,7 @@ exports.CobradoresGuardarGastos = functions.https.onRequest(async(request, respo
         return response.status(500).send(error);
     });
 });
-/**
+/*
  * @function Funcion que se encarga de manajar los end-point de Empresas.
  * @param request
  * @param response
@@ -513,7 +513,6 @@ exports.Cobradores = functions.https.onRequest(async(request, response, body) =>
     }
     return response.status(200).send('ok').end();
 });
-
 
 /**
  * @function Funcion que se encarga de manajar los end-point de Empresas.
@@ -763,7 +762,7 @@ exports.Clientes = functions.https.onRequest(async(request, response, body) => {
 
                 break;
             case 'PUT':
-                await db.collection('usuarios').doc(request.query.idadmin).collection('cobradores').doc(request.query.doc).collection('Clientes').doc(request.query.subdoc).set(request.body, { merge: true })
+                await db.collection('usuarios').doc(request.query.idadmin).collection('cobradores').doc(request.query.doc).collection('clientes').doc(request.query.subdoc).set(request.body, { merge: true })
                     .then((response) => response.json(response))
                     .catch((error) => response.status(500).send(error))
                 break;
@@ -1012,7 +1011,7 @@ exports.actualizarPosicionClienteLista = functions.https.onRequest(async(request
     response.set('Access-Control-Allow-Headers', 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization');
 
     try {
-        await db.collection('usuarios').doc(request.query.idadmin).collection('cobradores').doc(request.query.doc).collection('Clientes').doc(request.query.subdoc)
+        await db.collection('usuarios').doc(request.query.idadmin).collection('cobradores').doc(request.query.doc).collection('clientes').doc(request.query.subdoc)
             .update({ posicion: Number(request.body.posicion_inicial) }, { merge: true })
             .then(res => {
                 return response.status(200).send(JSON.stringify({ mensaje: 'Posicion Guardada', id: res.id })).end();

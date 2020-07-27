@@ -39,7 +39,7 @@
         <CHeaderNavLink>
           
           <CIcon  name="cil-bell"/>
-          <CBadge color="warning" class="ml-auto">1</CBadge>
+          <CBadge v-if="getContadorTransacciones>0" color="warning"  class="ml-auto">{{getContadorTransacciones}}</CBadge>
         </CHeaderNavLink>
       </CHeaderNavItem>
       <CHeaderNavItem class="d-md-down-none mx-2">
@@ -65,8 +65,21 @@ import TheHeaderDropdownAccnt from './TheHeaderDropdownAccnt'
 
 export default {
   name: 'TheHeader',
+  data() {
+    return {
+      idad:''
+    }
+  },
   components: {
     TheHeaderDropdownAccnt
-  }
+  },
+  computed: {
+    getContadorTransacciones(){
+      return this.$store.getters.getContadorTransacciones;
+    }
+  },
+   beforeMount() {
+      this.idad=localStorage.getItem('id');
+   },
 }
 </script>
