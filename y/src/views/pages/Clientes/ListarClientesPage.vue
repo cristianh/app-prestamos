@@ -99,6 +99,7 @@ export default {
   },
   data() {
       return {
+      usuarioOnLogin:'',
        isLoading: false,
        fullPage: true,
        loading:'',
@@ -141,7 +142,8 @@ export default {
     this.cobradorservice= new CobradoresService();
   },
   beforeMount(){
-     this.empresaservice.getAllEmpresas().then((result)=>{
+    this.usuarioOnLogin=localStorage.getItem('id');
+     this.empresaservice.getAllEmpresas(this.usuarioOnLogin).then((result)=>{
         let tamporal_empresas=[];
         tamporal_empresas=result.data;
           for (const key in tamporal_empresas) {
@@ -171,7 +173,7 @@ export default {
             this.zonas=[{ value: 'Seleccione', label: 'Seleccione' }];
             let tamporal_Zonas=[];
             
-            this.zonaservice.getAllZonasEmpresa(this.usuario.empresa,'Zonas').then((response)=>{
+            this.zonaservice.getAllZonasEmpresa(this.usuarioOnLogin,this.usuario.empresa,'Zonas').then((response)=>{
             //console.log(response);
             tamporal_Zonas=response;
             for (const key in tamporal_Zonas) {
@@ -189,10 +191,10 @@ export default {
          let tamporal_Clientes=[];
             this.cobradores=[{ value: 'Seleccione', label: 'Seleccione' }];
              this.isLoading = true;
-            console.log(this.usuario.zonas);
-            this.cobradorservice.buscarCobradorPorZona(this.usuario.zonas).then((response)=>{ 
-          
-              this.clienteservices.getAllClientesCobradores(response.data).then((response)=>{
+            console.log("...",this.usuario.zonas);
+            this.cobradorservice.buscarCobradorPorZona(this.usuarioOnLogin,this.usuario.zonas).then((response)=>{ 
+              console.log(response);
+              this.clienteservices.getAllClientesCobradores(this.usuarioOnLogin,response.data).then((response)=>{
               console.log(response);
               this.isLoading = false;
             // tamporal_Clientes=response;

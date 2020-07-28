@@ -6,15 +6,15 @@
         <f7-link icon-ios="f7:menu" icon-aurora="f7:menu" icon-md="material:menu" panel-open="left"></f7-link>
       </f7-nav-left>
       <f7-nav-title sliding>Nueva Transacion</f7-nav-title>
-       <f7-subnavbar >
+       <!-- <f7-subnavbar >
       <f7-segmented sliding raised>
         <f7-button tab-link="#Enviar" tab-link-active>Enviar</f7-button>
         <!-- <f7-button tab-link="#Recibir">Recibir</f7-button> -->
-      </f7-segmented>
-    </f7-subnavbar>
+      <!-- </f7-segmented>
+    </f7-subnavbar> -->
     </f7-navbar>
-    <f7-tabs>
-    <f7-tab id="Enviar" tab-active >
+    <!-- <f7-tabs>
+    <f7-tab id="Enviar" tab-active > -->
     <f7-list no-hairlines-md inset>
       <f7-list-input
     label="Enviar a:"
@@ -37,9 +37,9 @@
         type="text"
         :value="form_transaccion.idCobrador_recibe"
         placeholder="Id a enviar"
-        @input="form_transaccion.idCobrador_recibe=$event.target.value"
+        @input="form_transaccion.idCobrador_recibe=$event.target.value.replace(/\s/, '')"
         :disabled="isHabilitadoInput"
-      ></f7-list-input>
+      ></f7-list-input>ww3
 
       <f7-list-input
         outline
@@ -93,8 +93,8 @@
   </f7-row>
  
 </f7-block>
-    </f7-tab>
-    </f7-tabs>
+    <!-- </f7-tab>
+    </f7-tabs> -->
   </f7-page>
 </template>
 
@@ -107,11 +107,13 @@ export default {
           uid:'',
           id_zona:'',
           id_empresa:'',
+          balance_zona:0,
           opcionseleccionada:'',
           isHabilitadoInput:'',
           datos_transferencia:{},
           clientes:[],
           form_transaccion:{
+          idEmpresa:'',  
           idCobrador_recibe:'',
           nombreCobradorEnvia:'',
           idCobrador_envia:'',  
@@ -136,6 +138,34 @@ export default {
       }
     },
     methods: {
+       updateValorBalance(){
+       let zona= localStorage.getItem("zona");
+       let empresa= localStorage.getItem("empresa");
+
+       // Get a new write batch
+var batch = db.batch();
+
+// Update the population of 'SF'
+// /usuarios/Nf05nKycByv8CrjrzfL6/empresas/mhVF3FZqPlNAx1sV9c0o/Zonas/SmhRYXL86AUXG2JBZaNU
+var sfRef = db.collection("usuarios").doc(this.idad).collection("empresas").doc(empresa).collection('Zonas').doc(zona);
+batch.update(sfRef, {"balance": this.balance_zona});
+
+
+
+// Commit the batch
+batch.commit().then( () =>{
+    // ...
+    console.log('balance actualizado');
+              this.$f7.dialog.close();
+              this.$f7.dialog.alert('Nuevo saldo '+this.balance_zona,'Saldo actualizado!',()=>{
+              // this.identificacion=''
+              this.$f7router.back();
+             
+
+        }); 
+              });
+  
+    },
     onSelectPlan($event){
       this.opcionseleccionada=$event.target.value;
       if(this.opcionseleccionada=="empresa"){
@@ -171,12 +201,15 @@ export default {
       this.$f7.dialog.confirm('Desea realizar la transaccion','Seguro!', () => {
         this.$f7.dialog.preloader('Guardando...');
         if(this.opcionseleccionada=='empresa'){
+          this.form_transaccion.idEmpresa=this.id_empresa;
            db.collection("usuarios").doc(this.idad).collection("empresas").doc(this.id_empresa).collection("Transferencias").doc('nueva_transaccion').set(this.form_transaccion)
     .then(() =>{
         console.log("Document successfully written!");
      let nuevo_balance_zona=Number(balance_actual_zona)-Number(this.form_transaccion.valor);
+     this.balance_zona=nuevo_balance_zona;
      this.$store.commit('setBalanceZona',nuevo_balance_zona);
         this.$f7.dialog.close();
+        this.updateValorBalance();
     })
     .catch((error)=> {
         console.error("Error writing document: ", error);
@@ -187,8 +220,10 @@ export default {
     .then(() =>{
         console.log("Document successfully written!");
      let nuevo_balance_zona=Number(balance_actual_zona)-Number(this.form_transaccion.valor);
+     this.balance_zona=nuevo_balance_zona;
      this.$store.commit('setBalanceZona',nuevo_balance_zona);
         this.$f7.dialog.close();
+        this.updateValorBalance();
     })
     .catch((error)=> {
         console.error("Error writing document: ", error);

@@ -7,9 +7,23 @@
       </f7-nav-left>
       <f7-nav-title sliding>Notificacion</f7-nav-title>
     </f7-navbar>
-      
+     {{getDatosTransferencia.length}}
        <div v-for="(transferencia,index,key) in getDatosTransferencia" :key="key">
-       <f7-card>
+         <div v-if="getDatosTransferencia.length===0">
+ 
+<f7-block inset>
+         <f7-card
+         title=" No hay transacciones">
+           
+         </f7-card>
+        
+       </f7-block> 
+
+
+    
+         </div>
+         <div v-else>
+               <f7-card>
   <f7-card-header class="title-card-text">
   <div>Nueva transferencia</div>
   </f7-card-header>
@@ -35,6 +49,7 @@
     <f7-link>Valor: </f7-link> -->
   </f7-card-footer>
 </f7-card>
+         </div>
   <f7-block>
 
   <f7-row>
@@ -56,12 +71,14 @@ import TransaccionesService from '../Services/TransaccionServices.js';
 export default {
     data() {
         return {
+          idad:'',
           id_empresa:'',
           id_zona:'',
           datos_transaccion:'',
           datos_transferencia:{},
           transacccionservice:null,
           clientes:[],
+          balance_zona:0,
             form_transaccion:{
               idCobrador_recibe:'',
               nombreCobradorEnvia:'',
@@ -77,6 +94,7 @@ export default {
     beforeMount(){
       // this.clientes=this.$store.getters.getClientes;
       //this.clientes_lista_ordenada=this.$store.getters.getOrdenarClientes
+      this.idad=localStorage.getItem("iad");
       this.transacccionservice= new TransaccionesService();
       this.clientes=this.$store.getters.getOrdenarClientes;
     },
@@ -86,6 +104,43 @@ export default {
       }
     },
     methods: {
+         updateValorZona(){
+         
+       let zona= localStorage.getItem("zona");
+       let empresa= localStorage.getItem("empresa");
+
+       // Get a new write batch
+var batch = db.batch();
+
+// Update the population of 'SF'
+// /usuarios/Nf05nKycByv8CrjrzfL6/empresas/mhVF3FZqPlNAx1sV9c0o/Zonas/SmhRYXL86AUXG2JBZaNU
+var sfRef = db.collection("usuarios").doc(this.idad).collection("empresas").doc(empresa).collection('Zonas').doc(zona);
+batch.update(sfRef, {"balance": this.balance_zona});
+
+
+
+// Commit the batch
+batch.commit().then( () =>{
+    // ...
+    console.log('balance actualizado');
+     
+              this.transacccionservice.elminiarTransaccion(this.idad,this.id_empresa,this.id_zona);
+              this.transacccionservice.guardarHistorialTransaccion(this.idad,this.id_empresa,this.datos_transaccion[0]).then(()=>{
+              this.$store.commit('setEliminarDatosTransferencia');  
+              this.$f7.dialog.close();
+              this.$f7.dialog.alert('Nuevo saldo '+this.balance_zona,'Saldo actualizado!',()=>{
+              // this.identificacion=''
+              this.$f7router.back();
+             
+
+        }); 
+              });
+      
+      // Promise.all([promise1, promise2]).then((values)=> {
+                 
+      // });
+});
+    },
    onAceptarTransaccion(valor_transaccion) {
      let uid = localStorage.getItem("uid");
      this.id_empresa=localStorage.getItem("empresa");
@@ -95,20 +150,12 @@ export default {
      this.datos_transaccion= this.$store.getters.getDatosTransferencia;
      let balance_actual_zona=this.$store.getters.getBalance;
      let nuevo_balance_zona=Number(balance_actual_zona)+Number(valor_transaccion);
+     this.balance_zona=nuevo_balance_zona
      this.$store.commit('setBalanceZona',nuevo_balance_zona);
      this.$store.commit('setDisminuyeContadorTransferencias');
-     this.$f7.dialog.alert('Nuevo saldo '+nuevo_balance_zona,'Saldo actualizado!',()=>{
-              // this.identificacion=''
-              console.log(JSON.stringify(this.datos_transaccion[0]));
-              const promise1=this.transacccionservice.elminiarTransaccion(this.id_empresa,this.id_zona);
-              const promise2=this.transacccionservice.guardarHistorialTransaccion(this.id_empresa,this.datos_transaccion[0]);
-
-              Promise.all([promise1, promise2]).then(function(values) {
-                console.log(values);
-                 
-              });
-
-      });
+     this.$f7.dialog.preloader("Actualizando saldo...");
+     this.updateValorZona();
+     
    }
 }
 }

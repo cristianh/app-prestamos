@@ -368,7 +368,7 @@ import CobradorService from '../Services/CobradoresServices.js';
 var batch = db.batch();
 
 // Update the population of 'SF'
-var sfRef = db.collection("empresas").doc(empresa).collection('Zonas').doc(zona);
+var sfRef = db.collection("usuarios").doc(this.idad).collection("empresas").doc(empresa).collection('Zonas').doc(zona);
 batch.update(sfRef, {"balance": this.balance_zona});
 
 
@@ -418,9 +418,7 @@ batch.commit().then(function () {
           this.$store.commit('setbalance_finalJornada',Number(descuentosaldozona));
           
          
-        //Actualizamos el valor del prestamo a pagar.
-        console.log(Number(this.informacion_pago.valor_pago));
-        console.log(Number(this.saldo_a_pagar));
+      
          if(Number(this.informacion_pago.valor_pago)===Number(this.saldo_a_pagar)){
             
 

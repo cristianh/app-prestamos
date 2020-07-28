@@ -67,6 +67,12 @@ export default [{
                     icon: 'cil-plus'
 
                 },
+                {
+                    name: 'Historial transferencia',
+                    to: '/historial_transacciones',
+                    icon: 'cil-plus'
+
+                },
                 // {
                 //   name: 'Listar Empresas',
                 //   to: '/editar_empresa',

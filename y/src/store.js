@@ -5,6 +5,7 @@ Vue.use(Vuex)
 const state = {
     sidebarShow: 'responsive',
     sidebarMinimize: false,
+    datos_transeferencia: [],
     usuario_login: {},
     contador_transacciones: 0
 }
@@ -29,6 +30,15 @@ const mutations = {
     },
     setDisminuyeContadorTransacciones(state) {
         state.contador_transacciones--
+    },
+    setDatosTransferencia(state, data_transferencia) {
+        state.datos_transeferencia.push(data_transferencia)
+    },
+    setEliminarDatosTransferencia(state) {
+        state.datos_transeferencia = []
+    },
+    setEstadoTransferencia(state, estadotransferencia) {
+        state.datos_transeferencia[0].estado_transaccion = estadotransferencia
     }
 }
 
@@ -41,6 +51,9 @@ const getters = {
     },
     getContadorTransacciones(state) {
         return state.contador_transacciones
+    },
+    getDatosTransferencia: state => {
+        return state.datos_transeferencia;
     }
 
 }

@@ -81,7 +81,11 @@ export default {
       this.empresaservice=new EmpresaService();
     this.empresaservice.getAllEmpresas(this.usuarioOnLogin).then( (response) =>  {
           this.isLoading = false;
-        this.items=response.data;
+        if(response.data!='Not Found'){ 
+          this.items=response.data;
+        }
+        
+        
         console.table(response.data);
         this.isLoadUsers= true;
     }).catch(error => {

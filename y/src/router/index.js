@@ -31,6 +31,13 @@ const Transferencias = () =>
     import ('@/views/pages/Transferencias/TransferenciasPage')
 const NuevaTransferencia = () =>
     import ('@/views/pages/Transferencias/NuevaTransferenciaPage')
+const HistorialTransferencia = () =>
+    import ('@/views/pages/Transferencias/HistorialTransferenciasPage')
+
+const NuevaNotificacion = () =>
+    import ('@/views/pages/Notificaciones/NotificacionesPage')
+
+
 
 //Zonas.
 const Zona_nueva = () =>
@@ -260,12 +267,25 @@ function configRoutes() {
                             name: 'nueva transferencia',
                             component: NuevaTransferencia
                         },
-                        // {
-                        //   path: '/borrar_cobrador',
-                        //   name: 'Eliminr cobrador',
-                        //   component: Eliminar_Editar
-                        // }
+                        {
+                            path: '/historial_transacciones',
+                            name: 'historial transacciones',
+                            component: HistorialTransferencia
+                        }
                     ]
+                },
+                {
+                    path: 'pages',
+                    redirect: '/pages/notificaciones',
+                    name: 'Pages',
+                    component: {
+                        render(c) { return c('router-view') }
+                    },
+                    children: [{
+                        path: '/notificaciones',
+                        name: '',
+                        component: NuevaNotificacion
+                    }]
                 },
                 {
                     path: 'pages',

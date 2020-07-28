@@ -4,9 +4,9 @@ export default class EmpresaService {
         return axios.get(`Empresas?idadmin=${id_admin}&doc=todos`).then(response => response).catch(error => { return error });
     }
 
-    // guardarZonaEmpresa(id,data) {
-    //     return axios.post('EmpresasGuardarZonas?doc='+id+'&sub=zonas',data).then( response => response.data).catch(error => {return error}); 
-    // }
+    getEmpresaPorId(id_admin, IdEmpresa) {
+        return axios.get(`Empresas?idadmin=${id_admin}&doc=${IdEmpresa}`).then(response => response).catch(error => { return error });
+    }
 
     guardarEmpresa(id_admin, data) {
         // return axios.post('Empresas', data).then(response => response.data).catch(error => { return error });

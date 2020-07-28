@@ -451,6 +451,7 @@
         </CCard>
       </CCol>
     </CRow>
+    <Toast  autoZIndex position="bottomright" />
   </div>
 </template>
 
@@ -556,7 +557,9 @@ export default {
      if(doc.exists!=false){
        
         console.log("Current data: ", doc.data());
+        this.$toast.add({severity:'info', summary: 'Atencion!', detail: 'Tiene un nueva transaccion.', life: 6000});  
         this.$store.commit('setAumentaContadorTransacciones');
+        this.$store.commit('setDatosTransferencia',doc.data());
      }
 
     });
