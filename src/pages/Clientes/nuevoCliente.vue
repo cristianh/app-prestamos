@@ -24,12 +24,12 @@
         label="Identificacion"
         type="text"
         placeholder="Identificacion"
-        required
+        require
         validate
-        maxlength="11"
-        max="11"
-        pattern="[0-9]*"
-        error-message="Solo numeros"
+        maxlength=10
+        minlength=7
+        pattern="[0-9]{7,10}"
+        error-message="Solo numeros y minimo 7 maximo 10 caracteres"
         @input="identificacion=$event.target.value"
       ></f7-list-input>
 
@@ -82,18 +82,15 @@
       <f7-list-input
         outline
         floating-label
-        label="Celular"
+        label="Telefono"
         type="text"
-        placeholder="Celular"
+        placeholder="Telefono"
         required
         validate
-        maxlength="10"
-        max="10"
-        minlength="1"
-        min="1"
-        info="Ingrese el numero de celular completo."
-        pattern="[0-9]*"
-        error-message="Solo numeros"
+        maxlength=10
+        minlength=7
+        pattern="[0-9]{7,10}"
+        error-message="Solo numeros y minimo 7 maximo 10 caracteres "
         :error-message-force="false"
         @input="telefono=$event.target.value"
       ></f7-list-input>
@@ -288,6 +285,7 @@ import ClientesCobradoresService from '../Services/ClientesService.js';
 export default {
     data() {
         return {
+          error_mensaje:'',
           idad:'',
           telefono:'',
           telefonoNegocio:'',
@@ -345,7 +343,7 @@ export default {
        telefono(value){
          console.log(value.length);
         if(value.length<10){
-            this.error_form='El celular no esta completo.';
+            // this.error_form='El celular no esta completo.';
             this.validar_campos=true;
         }else{
            this.error_form='';
@@ -356,7 +354,7 @@ export default {
       telefonoNegocio(value){
          console.log(value.length);
         if(value.length<10){
-            this.error_form='El telefono del negocio no esta completo.';
+            // this.error_form='El telefono del negocio no esta completo.';
             this.validar_campos=true;
         }else{
            this.error_form='';
@@ -425,7 +423,9 @@ export default {
       this.idad=localStorage.getItem("iad");
     },
     methods:{
-     
+     onValidatedInput(isValid){
+       alert(isValid);
+     },
       onVolverACargarGeo(){
         navigator.geolocation.getCurrentPosition(this.onSuccessGeolocalizacion, this.onErrorGeolocalizacio);
       },

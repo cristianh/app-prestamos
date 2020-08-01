@@ -28,10 +28,12 @@ exports.updateEstadoUsuario = functions.firestore
         }, { merge: true });
     });
 
+
+
 /**
  * @function Funcion para buscar el cobrador por la zona.
  */
-exports.buscarCobradorZona = functions.https.onRequest(async(request, response, body) => {
+exports.InformacionParaCobradores = functions.https.onRequest(async(request, response, body) => {
     response.set('Access-Control-Allow-Origin', '*');
     response.set('Access-Control-Allow-Credentials', 'true'); // vital
     response.set('Access-Control-Allow-Methods', 'GET', 'POST', 'PUT', 'DELETE', 'OPTIONS');
@@ -40,23 +42,105 @@ exports.buscarCobradorZona = functions.https.onRequest(async(request, response, 
     response.set('Access-Control-Allow-Headers', 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization');
 
     try {
-        let cobradoresCollection = await db.collection('usuarios').doc(request.query.idadmin).collection('cobradores');
-        let idCobrador = '';
-        let restultadoConsulta = cobradoresCollection.where("Zona", "==", request.query.zona).get()
+        let infocobrador = {
+            empresa: [],
+            zonas: [],
+            cobrador: [],
+            parametros_cobros: []
+        };
+        const collections = await db.collection('usuarios').doc(request.query.idadmin).collection('empresas').doc(request.query.doc).listCollections();
+        const info_empresa = await db.collection('usuarios').doc(request.query.idadmin).collection('empresas').doc(request.query.doc);
+        const collections_clientes_cobrador = await db.collection('usuarios').doc(request.query.idadmin).collection('empresas').doc(request.query.doc);
+        const collectionIds = collections.map(col => col.id);
+        const collections_zona = await db.collection('usuarios').doc(request.query.idadmin).collection('empresas').doc(request.query.doc).collection(collectionIds[0]);
+        const collections_parametros_cobro = await db.collection('usuarios').doc(request.query.idadmin).collection('empresas').doc(request.query.doc).collection(collectionIds[3]);
+        const collections_cobradores = await db.collection('usuarios').doc(request.query.idadmin).collection('empresas').doc(request.query.doc).collection(collectionIds[1]).doc(request.query.idcobrador);
+        let restultadoConsultazonasempresa = collections_zona.where("empresa", "==", request.query.doc).get()
             .then((querySnapshot) => {
                 querySnapshot.forEach((doc) => {
-                    // doc.data() is never undefined for query doc snapshots
-                    // console.log(doc.id, " => ", doc.data());
-                    idCobrador = doc.id;
 
+                    let id = doc.id;
+                    let datadocument = doc.data();
+                    datadocument.id = id;
+                    infocobrador.zonas.push(datadocument);
                 });
-                return response.status(200).send(idCobrador);
+                return true;
             });
+
+        let restultadoConsultacobradoressempresa = collections_cobradores.get()
+            .then((doc) => {
+                if (doc.exists) {
+                    let id_cobrador = doc.id;
+                    let datadocument_cobrador = doc.data();
+                    datadocument_cobrador.id = id_cobrador;
+                    infocobrador.cobrador.push(datadocument_cobrador);
+
+                    return true;
+
+                } else {
+                    return false;
+                }
+
+            });
+
+        let restultadoConsultainfoempresa = info_empresa.get()
+            .then((doc) => {
+                if (doc.exists) {
+                    let id_cobrador = doc.id;
+                    let datadocument_cobrador = doc.data();
+                    datadocument_cobrador.id = id_cobrador;
+                    infocobrador.empresa.push(datadocument_cobrador);
+
+                    return true;
+
+                } else {
+                    return false;
+                }
+
+            });
+
+        let restultadoConsultaparametroscobros = collections_parametros_cobro.where("empresa", "==", request.query.doc).get()
+            .then((querySnapshot) => {
+                querySnapshot.forEach((doc) => {
+
+                    let id_parametros_cobros = doc.id;
+                    let datadocument_parametros_cobros = doc.data();
+                    datadocument_parametros_cobros.id = id_parametros_cobros;
+                    infocobrador.parametros_cobros.push(datadocument_parametros_cobros);
+                });
+                return true;
+            });
+        Promise.all([restultadoConsultazonasempresa, restultadoConsultacobradoressempresa, restultadoConsultainfoempresa, restultadoConsultaparametroscobros]).then(values => {
+            return response.status(200).send(infocobrador);
+        }).catch((error) => {
+            return response.status(500).send(error);
+        });
+
+
+
+        //     let empresasCollection = await db.collection('usuarios').doc(request.query.idadmin).collection('empresas');
+        //     let zonasCollection = await db.collection('usuarios').doc(request.query.idadmin).collection('empresas').doc(request.query.doc).collection('empresas');
+        //     let idCobrador = '';
+        //     let restultadoConsulta = empresasCollection.where("Zona", "==", request.query.zona).get()
+        //         .then((querySnapshot) => {
+        //             querySnapshot.forEach((doc) => {
+        //                 // doc.data() is never undefined for query doc snapshots
+        //                 // console.log(doc.id, " => ", doc.data());
+        //                 idCobrador = doc.id;
+
+        //             });
+        //             return response.status(200).send(idCobrador);
+        //         });
 
     } catch (error) {
         return response.status(500).send(error);
     }
 });
+
+
+
+
+
 
 /**
  * @function Funcion para guardar los cobros de los cobradores.
@@ -385,6 +469,79 @@ exports.CobradoresGuardarGastos = functions.https.onRequest(async(request, respo
         return response.status(500).send(error);
     });
 });
+
+/**
+ * @function Funcion para buscar el cobrador por la zona.
+ */
+exports.buscarCobradorZona = functions.https.onRequest(async(request, response, body) => {
+    response.set('Access-Control-Allow-Origin', '*');
+    response.set('Access-Control-Allow-Credentials', 'true'); // vital
+    response.set('Access-Control-Allow-Methods', 'GET', 'POST', 'PUT', 'DELETE', 'OPTIONS');
+    response.set('Access-Control-Allow-Headers', 'Content-Type');
+    response.set('Access-Control-Allow-Headers', 'Content-Length,Content-Range');
+    response.set('Access-Control-Allow-Headers', 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization');
+
+    try {
+        let cobradoresCollection = await db.collection('usuarios').doc(request.query.idadmin).collection('empresas').doc(request.query.doc).collection('cobradores');
+        let idFind = '';
+        let query = cobradoresCollection.where('zona', '==', request.query.zona).get()
+            .then((snapshot) => {
+                if (snapshot.empty) {
+                    idFind = { id: "No hay coincidencias" };
+                }
+
+                snapshot.forEach(doc => {
+                    idFind = { id: doc.id };
+                });
+                return response.status(200).send(idFind);
+            })
+            .catch(err => {
+                console.log('Error getting documents', err);
+            });
+
+    } catch (error) {
+        return response.status(500).send(error);
+    }
+});
+
+
+
+
+exports.CobradoresGuardar = functions.https.onRequest(async(request, response, body) => {
+    response.set('Access-Control-Allow-Origin', '*');
+    response.set('Access-Control-Allow-Credentials', 'true'); // vital
+    response.set('Access-Control-Allow-Methods', 'GET,POST', 'PUT', 'DELETE', 'OPTIONS');
+    response.set('Access-Control-Allow-Headers', 'Content-Type');
+    response.set('Access-Control-Allow-Headers', 'Content-Length,Content-Range');
+    response.set('Access-Control-Allow-Headers', 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization');
+
+    try {
+        // return response.status(200).send(request.body);
+        // await db.collection('usuarios').doc(request.query.idadmin).collection('empresas').doc(request.query.doc).collection('cobradores').add(request.body).
+        // let data = {
+        //     Nombre: request.body.nombre
+        //         // Apellido: request.body.apellido,
+        //         // Direccion1: request.body.direccion1,
+        //         // Direccion2: request.body.direccion2,
+        //         // Identificacion: request.body.identificacion,
+        //         // Telefono: request.body.telefono,
+        //         // Zona: request.body.zona,
+        //         // Empresa: request.body.empresa,
+        //         // Rol: request.body.rol
+        // }
+        await db.collection('usuarios').doc(request.query.idadmin).collection('empresas').doc(request.query.doc).collection('cobradores').add(request.body).then((ref) => {
+            // db.collection('cobradores').doc(ref.id).collection("Clientes").set({'hola':'fg'});
+            return response.status(200).send({ mensaje: 'El nuevo cobrador ha sido registrado', id: ref.id });
+        });
+
+    } catch (error) {
+        // db.collection('cobradores').doc(ref.id).collection("Clientes").set({'hola':'fg'});
+        return response.status(500).send(error);
+    }
+
+});
+
+
 /*
  * @function Funcion que se encarga de manajar los end-point de Empresas.
  * @param request
@@ -400,7 +557,7 @@ exports.Cobradores = functions.https.onRequest(async(request, response, body) =>
     response.set('Access-Control-Allow-Headers', 'Content-Length,Content-Range');
     response.set('Access-Control-Allow-Headers', 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization');
     try {
-        const snapshot = await db.collection('usuarios').doc(request.query.idadmin).collection('cobradores').get();
+        const snapshot = await db.collection('usuarios').doc(request.query.idadmin).collection('empresas').doc(request.query.doc).collection('cobradores').get();
         //return  await response.send(request.query.all);
 
         switch (request.method) {
@@ -430,7 +587,7 @@ exports.Cobradores = functions.https.onRequest(async(request, response, body) =>
                         const collections = await db.collection('usuarios').doc(request.query.idadmin).collection('cobradores').doc(request.query.doc).listCollections();
                         const collectionIds = collections.map(col => col.id);
 
-                        const docRef = await db.collection('usuarios').doc(request.query.idadmin).collection('cobradores').doc(request.query.doc).collection(request.query.sub).get()
+                        const docRef = await db.collection('usuarios').doc(request.query.idadmin).collection('empresas').doc(request.query.doc).collection('cobradores').doc(request.query.doc).collection(request.query.sub).get()
                             .then(snapshot => {
                                 snapshot.forEach(doc => {
                                     let id = doc.id;
@@ -454,7 +611,7 @@ exports.Cobradores = functions.https.onRequest(async(request, response, body) =>
                             });
                     } else {
 
-                        const docRef = await db.collection('usuarios').doc(request.query.idadmin).collection('cobradores').doc(request.query.doc).get()
+                        const docRef = await db.collection('usuarios').doc(request.query.idadmin).collection('empresas').doc(request.query.doc).collection('cobradores').doc(request.query.doc).get()
                             .then(doc => {
                                 if (!doc.exists) {
 
@@ -471,33 +628,14 @@ exports.Cobradores = functions.https.onRequest(async(request, response, body) =>
                 }
 
                 break;
-            case 'POST':
-                //response.status(200).send(request.body);
-                await db.collection('usuarios').doc(request.query.idadmin).collection('cobradores').add({
-                    Nombre: request.body.nombre,
-                    Apellido: request.body.apellido,
-                    Direccion1: request.body.direccion1,
-                    Direccion2: request.body.direccion2,
-                    Identificacion: request.body.identificacion,
-                    Telefono: request.body.telefono,
-                    Zona: request.body.zona,
-                    Empresa: request.body.empresa
-                }).then((ref) => {
-                    // db.collection('cobradores').doc(ref.id).collection("Clientes").set({'hola':'fg'});
-                    return response.send(ref.id);
-                }).catch((error) => {
-                    return response.status(500).send(error);
-                });
-
-                break;
             case 'PUT':
-                await db.collection('usuarios').doc(request.query.idadmin).collection('cobradores').doc(request.query.doc).set(request.body, { merge: true })
+                await db.collection('usuarios').doc(request.query.idadmin).collection('empresas').doc(request.query.doc).collection('cobradores').doc(request.query.doc).set(request.body, { merge: true })
                     .then(() => response.json(request.query.doc))
                     .catch((error) => response.status(500).send(error))
                 break;
             case 'DELETE':
 
-                await db.collection('usuarios').doc(request.query.idadmin).collection('cobradores').doc(request.query.doc).delete()
+                await db.collection('usuarios').doc(request.query.idadmin).collection('empresas').doc(request.query.doc).collection('cobradores').doc(request.query.doc).delete()
                     .then(() => res.status(204).send("Document successfully deleted!"))
                     .catch((error) => {
                         return response.status(500).send(error);
@@ -511,7 +649,6 @@ exports.Cobradores = functions.https.onRequest(async(request, response, body) =>
         return response.send('Error getting document', err);
 
     }
-    return response.status(200).send('ok').end();
 });
 
 /**
@@ -574,8 +711,8 @@ exports.Empresas = functions.https.onRequest(async(request, response, body) => {
             case 'POST':
                 //response.status(200).send(request.body);
 
-                await db.collection('usuarios').doc(request.query.idadmin).collection('empresas').add(request.body).then(() => {
-                    return response.send('Empresas registrada');
+                await db.collection('usuarios').doc(request.query.idadmin).collection('empresas').add(request.body).then((resp) => {
+                    return response.send({ mensaje: 'Empresas registrada', id: resp.id });
                 }).catch((error) => {
                     return response.status(500).send(error);
                 });
@@ -942,7 +1079,7 @@ exports.GuardarNuevoPlanEmpresa = functions.https.onRequest(async(request, respo
     response.set('Access-Control-Allow-Headers', 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization');
 
     try {
-        await db.collection('usuarios').doc(request.query.idadmin).collection('parametros_cobros').add(request.body).then(res => {
+        await db.collection('usuarios').doc(request.query.idadmin).collection('empresas').doc(request.query.doc).collection('parametros_cobros').add(request.body).then(res => {
             return response.status(200).send(JSON.stringify({ mensaje: 'El nuevo plan a sigo guardado.', id: res.id })).end();
         }).catch((error) => {
             return response.status(500).send(error);

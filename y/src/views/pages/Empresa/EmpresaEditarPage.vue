@@ -6,7 +6,7 @@
         <CIcon name="cil-grid"/> {{caption}}
       </slot>
     </CCardHeader>
-    {{usuarioOnLogin}}
+    
     <CCardBody>
       <CDataTable
         :hover="hover"

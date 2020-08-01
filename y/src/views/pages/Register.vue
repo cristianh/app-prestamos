@@ -6,7 +6,7 @@
           <CCard class="mx-4 mb-0">
             <CCardBody class="p-4">
               <CForm>
-                <h1>Register</h1>
+                <h1>Registro</h1>
                 <p class="text-muted">Crear cuenta</p>
                 <CInput
                   placeholder="Username"
@@ -59,7 +59,6 @@
         </CCol>
       </CRow>
     </CContainer>
-    {{error}}
     <Toast  autoZIndex position="bottomright" />
   </div>
 </template>
@@ -84,8 +83,13 @@ export default {
   methods: {
       guardar_usuario(){
         // let telefono=this.usuario.telefono;
-
-        firebase.auth().createUserWithEmailAndPassword(this.register.email, this.register.password).then((response)=>{
+        if(this.register.password!==this.register.repassword){
+          this.$toast.add({severity:'error', summary: 'Error', detail:'La contraseñas no coinciden!', life: 3000});
+          
+        }
+        else{
+          
+           firebase.auth().createUserWithEmailAndPassword(this.register.email, this.register.password).then((response)=>{
             var user = firebase.auth().currentUser;
              
 
@@ -103,8 +107,12 @@ export default {
                       // An error happened.
                       return error;
                     });   
-                    //this.$router.push('/');
-                    this.$toast.add({severity:'success', summary: 'Correcto', detail:response.data.mensaje, life: 3000});  
+                    
+                    this.$toast.add({severity:'success', summary: 'Correcto', detail:response.data.mensaje, life: 3000});
+                    setTimeout(()=>{
+                      this.$router.push('/'); 
+                    },3500)
+                     
               }).catch(error => {
                   console.log(error);
               });
@@ -173,7 +181,7 @@ export default {
         this.$toast.add({severity:'error', summary: 'Error', detail:this.error, life: 3000}); 
         
       });
-      
+        }
            
     }
   },

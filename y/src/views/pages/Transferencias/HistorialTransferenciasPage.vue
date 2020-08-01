@@ -43,16 +43,28 @@
     </CCardBody>
   </CCard>
         </CCol>
+         <loading :active.sync="isLoading" 
+        :can-cancel="true"
+        color='#007BFF' 
+        :on-cancel="onCancel"
+        :is-full-page="fullPage"></loading>
   </CRow>
 </template>
 
 <script>
+import Loading from 'vue-loading-overlay';
 import TransaccionesService from '../Transferencias/Services/TransaccionServices.js';
 import EmpresaService from '../Empresa/Services/EmpresasService.js';
 export default {
   name: 'Table',
+   components: {
+            Loading
+  },
   data() {
       return {
+          isLoading: false,
+          fullPage: true,
+          loading:'Cargando...',
           items:[],
           transaccionservice:null,
           empresaservice:null,
@@ -68,7 +80,7 @@ export default {
     fields: {
       type: Array,
       default () {
-        return ['nombreCobradorEnvia','mensaje', 'estado_transaccion', 'fecha', 'hora','valor']
+        return ['Envia','mensaje', 'estado_transaccion', 'fecha', 'hora','valor']
       }
     },
     caption: {
@@ -107,13 +119,29 @@ export default {
    
   },
   methods: {
+     onCancel() {
+              console.log('User cancelled the loader.')
+     },
        onSelectdEmpresa(){
            this.usuarioOnLogin=localStorage.getItem('id');
-           
+           this.isLoading = true;
+           if(this.usuario.empresa!='Seleccione'){
+             console.log(this.usuario.empresa);
            this.transaccionservice.getHistorialTransaccion(this.usuarioOnLogin,this.usuario.empresa).then((res)=>{
               console.log(res.data);
-               this.items=Object.values(res.data);
+              this.isLoading = false;
+              if(res.data!='Not Found'){
+                this.items=Object.values(res.data);
+              }else{
+                this.items=[];
+              }
+               
            });
+           }
+           else{
+             this.isLoading = false;
+           }
+          
      },
     getBadge (status) {
       return status === 'Active' ? 'success'

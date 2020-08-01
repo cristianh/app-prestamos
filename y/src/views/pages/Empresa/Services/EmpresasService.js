@@ -13,8 +13,8 @@ export default class EmpresaService {
         return axios.post(`Empresas?idadmin=${id_admin}`, data).then(response => response.data).catch(error => { return error });
     }
 
-    guardarNuevoPlanEmpresa(id_admin, data) {
-        return axios.post(`GuardarNuevoPlanEmpresa?idadmin=${id_admin}`, data).then(response => response.data).catch(error => { return error });
+    guardarNuevoPlanEmpresa(id_admin, IdEmpresa, data) {
+        return axios.post(`GuardarNuevoPlanEmpresa?idadmin=${id_admin}&doc=${IdEmpresa}`, data).then(response => response.data).catch(error => { return error });
     }
 
 }

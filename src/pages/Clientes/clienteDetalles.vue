@@ -70,10 +70,12 @@ import CobradorService from '../Services/CobradoresServices.js';
   beforeMount() {
     this.idad=localStorage.getItem("iad");
      let ui_cobrador=localStorage.getItem("uid"); 
+     this.$f7.dialog.preloader("Buscando Informacion...");
           this.cobradoresService.getCobradoresClientesBuscar(this.idad,ui_cobrador,this.$f7route.params.id).then( (response) =>  {
               this.clientes_info=response.data;
               console.log("datossss...",response);
               this.isLoadUsers= true;
+              this.$f7.dialog.close();
           }).catch(error => {
               console.log(error);
           }); 

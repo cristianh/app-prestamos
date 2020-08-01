@@ -3,7 +3,7 @@
     <WidgetsDropdown/>
     <CCard>
       <CCardBody>
-        {{idad}}
+      
         <CRow>
           <CCol sm="5">
             <h4 id="traffic" class="card-title mb-0">Traffic</h4>

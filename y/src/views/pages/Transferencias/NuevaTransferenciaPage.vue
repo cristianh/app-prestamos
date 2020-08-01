@@ -58,6 +58,7 @@
       
     
     </CRow>
+    {{nuevo_balanceempresa}}
      <Toast  autoZIndex position="bottomright" />
     </div>
 </template>
@@ -83,10 +84,13 @@ export default {
           estado_transaccion:false,
           fecha:new Date().toISOString().slice(0,10),
           hora: this.$moment(new Date()).format("hh:mm:ss"),
-          mensaje:''
+          mensaje:'',
+          idEnvia:'',
+          idRecibe:''
           },
           idSeleccionadaEmpresa:'',
-          idSeleccionadaZona:''
+          idSeleccionadaZona:'',
+          nuevo_balanceempresa:0
         }
     },
       created() {
@@ -115,17 +119,64 @@ export default {
     methods: {
         onGuardarTransaccion(){
     this.form_transaccion.Envia='Empresa';
-      db.collection("usuarios").doc(this.usuarioOnLogin).collection("empresas").doc(this.idSeleccionadaEmpresa).collection("Zonas").doc(this.idSeleccionadaZona).collection("Transferencias").doc('nueva_transaccion').set(this.form_transaccion)
+    var sfRef = db.collection("usuarios").doc(this.usuarioOnLogin).collection("empresas").doc(this.idSeleccionadaEmpresa);
+
+sfRef.get().then((doc)=>{
+ 
+    this.nuevo_balanceempresa=doc.data().Balance;
+   
+if(this.form_transaccion.valor==0 ||this.form_transaccion.valor==''){
+  this.$toast.add({severity:'error', summary: 'Atencion', detail:'La transaccion no se puede realizar, ingrese el saldo a transferir', life: 3000});    
+}else if(this.form_transaccion.valor>this.nuevo_balanceempresa || this.nuevo_balanceempresa==0){
+   this.$toast.add({severity:'error', summary: 'Atencion', detail:'La transaccion no se puede realizar, el valor a transferir es mayor al saldo de la empresa o no cuenta con saldo.', life: 3000});    
+}else{
+   db.collection("usuarios").doc(this.usuarioOnLogin).collection("empresas").doc(this.idSeleccionadaEmpresa).collection("Zonas").doc(this.idSeleccionadaZona).collection("Transferencias").doc('nueva_transaccion').set(this.form_transaccion)
     .then(() =>{
-        console.log("Document successfully written!");
+        
         this.$toast.add({severity:'success', summary: 'Correcto', detail:'Transaccion Realizada en espera de aprobacion', life: 3000});    
-    //  let nuevo_balance_zona=Number(balance_actual_zona)-Number(this.form_transaccion.valor);
-    //  this.$store.commit('setBalanceZona',nuevo_balance_zona);
+        // let nuevo_balance_empresa=Number(balance_actual_zona)-Number(this.form_transaccion.valor);
+        // this.$store.commit('setBalanceZona',nuevo_balance_zona);
     //     this.$f7.dialog.close();
+      var batch = db.batch();
+
+// Update the population of 'SF'
+// /usuarios/Nf05nKycByv8CrjrzfL6/empresas/mhVF3FZqPlNAx1sV9c0o/Zonas/SmhRYXL86AUXG2JBZaNU
+
+
+this.nuevo_balanceempresa=Number(this.nuevo_balanceempresa)-Number(this.form_transaccion.valor);
+
+ console.log(this.nuevo_balanceempresa);
+if(this.nuevo_balanceempresa>0 || this.nuevo_balanceempresa==0){
+  batch.update(sfRef, {"Balance": this.nuevo_balanceempresa });
+ 
+}
+else{
+   batch.update(sfRef, {"Balance": 0 });
+}
+
+
+
+
+// Commit the batch
+      batch.commit().then( () =>{
+          // ...
+          // this.transacccionservice.elminiarTransaccion(this.idad,this.id_empresa,this.id_zona);
+          // this.$store.commit('setEliminarDatosTransferencia');  
+          // this.$f7router.back();
+      });
     })
     .catch((error)=> {
         console.error("Error writing document: ", error);
     });
+}
+
+
+
+
+});
+
+
+   
      
 
         },
@@ -152,6 +203,7 @@ export default {
       },
       onZonaSeleccionada($event){
           this.idSeleccionadaZona=$event.target.value;
+          console.log(this.idSeleccionadaEmpresa);
 
       }
     },   

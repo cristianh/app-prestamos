@@ -18,11 +18,11 @@ export default [{
             _name: 'CSidebarNavDropdown',
             name: 'Empresas',
             route: '/empresa',
-            icon: 'cil-puzzle',
+            icon: 'cil-cloud-download',
             items: [{
                     name: 'Nueva Empresa',
                     to: '/nueva_empresa',
-                    icon: 'cil-plus'
+                    icon: 'cil-building-business'
 
                 },
                 {

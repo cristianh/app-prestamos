@@ -45,6 +45,15 @@
               />
       </CCol>
      </CRow>
+      <CRow>
+      <CCol md="12">
+        <CSelect
+                  label="Empresas"
+                  :options="empresas"
+                  :value.sync="planpago_form.empresa"
+                />
+      </CCol>
+      </CRow>
     <CRow>
        <CCol col="4" sm="4" md="2" xl class="mb-3 mb-xl-0">
             <CButton color="success"  @click="onGuardarPlan" >GUARDAR</CButton>
@@ -52,7 +61,7 @@
     </CRow>
     </CCardBody>
      </CCard>
-       
+       {{planpago_form}}
      <Toast  autoZIndex position="bottomright" />
     </div>
 </template>
@@ -75,22 +84,42 @@ export default {
       planpago_form:{
           nombre:'',
           interes:'',
-          plazo:'' 
+          plazo:'',
+          empresa:'' 
       },
-       usuarioOnLogin:'',
+      empresas:[{ value: 'Seleccione', label: 'Seleccione' }],
+      idSeleccionadaEmpresa:'',
+      usuarioOnLogin:'',
       empresaService:null
     }
   },
   beforeMount() {
     this.usuarioOnLogin=localStorage.getItem('id');
+      let tamporal_empresas=[];
+      this.empresaService.getAllEmpresas(this.usuarioOnLogin).then((result)=>{
+        
+        tamporal_empresas=result.data;
+        console.log(tamporal_empresas);
+          for (const key in tamporal_empresas) {
+            if (tamporal_empresas.hasOwnProperty(key)) {
+                 let element={ value: tamporal_empresas[key].id, label: tamporal_empresas[key].Nombre };
+                 
+                 this.empresas.push(element);
+                 
+                
+            }
+         }
+        
+        });
   },
   created() {
         this.empresaService= new EmpresaService();
   },
   methods: {
     onGuardarPlan(){
-      this.empresaService.guardarNuevoPlanEmpresa(this.usuarioOnLogin,this.planpago_form).then(rsp=>{
-        this.$toast.add({severity:'success', summary: 'Correcto.', detail:'Plan creado', life: 3000});  
+      this.empresaService.guardarNuevoPlanEmpresa(this.usuarioOnLogin,this.planpago_form.empresa,this.planpago_form).then(rsp=>{
+        console.log(rsp);
+        this.$toast.add({severity:'success', summary: 'Correcto.', detail:rsp.mensaje, life: 3000});  
         this.planpago_form={
           nombre:'',
           interes:'',

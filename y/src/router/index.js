@@ -56,6 +56,10 @@ const Listar_clientes = () =>
 const Taza_Interes = () =>
     import ('@/views/pages/TazaInteres/TazaDeInteresPage')
 
+//Tazas interes
+const Map_users = () =>
+    import ('@/views/pages/Map/MapPage')
+
 
 const Charts = () =>
     import ('@/views/charts/Charts')
@@ -157,6 +161,11 @@ function configRoutes() {
             path: '/registro',
             name: 'registro',
             component: Register
+        },
+        {
+            path: '/map',
+            name: 'map',
+            component: Map_users
         },
         {
             path: '/home',

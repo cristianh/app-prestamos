@@ -145,6 +145,7 @@
             localStorage.setItem("email", response.user.email);
             localStorage.setItem("name", id[0]);
             localStorage.setItem("iad", id[2]);
+            localStorage.setItem("empresa", id[3]);
             localStorage.setItem("lastactivity", response.user.metadata.lastSignInTime);
             
              this.$f7router.navigate('/home/', {
@@ -190,9 +191,8 @@
               case 'invalidEmail':
                 return "Correo electrónico no valido"
                 
-              case 'wrongPassword':
-                return "Contraseña incorrecta"
-                
+              case 'auth/wrong-password':
+                return "La contraseña es inválida o el usuario no tiene contraseña."
               case 'userNotFound':
                 return "No se encontró cuenta del usuario con el correo especificado"
               case 'networkError':
@@ -209,10 +209,8 @@
                 
               case 'invalidCustomToken':
                 return "Token personalizado invalido"
-                
-              case 'tooManyRequests':
-                return "Ya se han enviado muchas solicitudes al servidor"
-                
+              case 'auth/too-many-requests':
+                 return "Demasiados intentos fallidos de acceso. Por favor, inténtalo de nuevo más tarde."
               default:
                 return "Error desconocido contacte al administrador."
                 

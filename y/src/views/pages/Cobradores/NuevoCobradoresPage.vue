@@ -137,8 +137,6 @@
       </CCol>
       </CRow>
       <Toast  autoZIndex position="bottomright" />
-     {{$data.usuario}}
-     {{$data.register}}
     </div>
 </template>
 
@@ -161,7 +159,8 @@ export default {
           direccion2:'',
           telefono:'',
           zona:'',
-          empresa:''
+          empresa:'',
+          rol:'cobrador'
        },
       zonaservice:null, 
       empresaservice:null,
@@ -169,7 +168,8 @@ export default {
       usuarioOnLogin:'', 
       isEnabled:true,
       empresas:[{ value: 'Seleccione', label: 'Seleccione' }],
-      zonas:[{ value: 'Seleccione', label: 'Seleccione' }]
+      zonas:[{ value: 'Seleccione', label: 'Seleccione' }],
+      error:''
        
         
         }
@@ -222,20 +222,23 @@ export default {
             
       },
         guardar_cobrador(){
-
-        let telefono=this.usuario.telefono;
+        
+        // console.log("Cobrador........");
+        let consulta=this.cobradorservice.buscarCobradorPorZona(this.usuarioOnLogin,this.usuario.empresa,this.usuario.zona).then((response)=>{
+         console.log(response);
+          if(response.data.id=='No hay coincidencias'){
+            
+              
+                let telefono=this.usuario.telefono;
 
         firebase.auth().createUserWithEmailAndPassword(this.register.email, this.register.password).then((response)=>{
             var user = firebase.auth().currentUser;
-
-        
-
-              // axios.post('https://us-central1-manifest-life-279516.cloudfunctions.net/Cobradores',this.usuario).then( (response) =>  {
-                this.cobradorservice.guardarCobrador(this.usuarioOnLogin,this.usuario).then( (response) =>  {
+console.log(this.usuario);
+        this.cobradorservice.guardarCobrador(this.usuarioOnLogin,this.usuario.empresa,this.usuario).then( (response) =>  {
+                console.log(response);
                 var id =response.data;
                 user.updateProfile({
-                      displayName:this.usuario.nombre +" "+this.usuario.apellido+'-'+id+'-'+this.usuarioOnLogin,
-                      photoURL: "hola"
+                      displayName:this.usuario.nombre +" "+this.usuario.apellido+'-'+id+'-'+this.usuarioOnLogin+'-'+this.usuario.empresa
                     }).then(function() {
                       return "actualizado";
                       
@@ -244,16 +247,30 @@ export default {
                       // An error happened.
                       return "error";
                     });   
-                this.$toast.add({severity:'success', summary: 'Correcto', detail:'Usuario Guardado.', life: 3000});  
+                this.$toast.add({severity:'success', summary: 'Correcto', detail:'Cobrador ha sido guardado', life: 3000});
+                this.register={
+                    email:'',
+                    password:''
+                }
+                this.usuario={
+                    identificacion:'',
+                    nombre:'',
+                    apellido:'',
+                    direccion1:'',
+                    direccion2:'',
+                    telefono:'',
+                    zona:'',
+                    empresa:'',
+                    rol:'cobrador'
+                }
               }).catch(error => {
                   console.log(error);
               });
-
-             
-
+              
             console.log(user);
-        }).catch(function(error) {
+        }).catch((error)=> {
         // Handle Errors here.
+        console.log(error.code);
         switch (error.code) {
               case 'auth/user-not-found':
                  this.error= 'No hay ningún registro de usuario que corresponda a este identificador o usuario puede haber sido eliminado.';
@@ -264,12 +281,15 @@ export default {
             case 'auth/invalid-email':
                 this.error= 'La dirección de correo electrónico no es valida o está mal formateada.'
                   break;
-              case 'emailAlreadyInUse':
+              case 'auth/email-already-in-use':
                  this.error= "Este correo ya está siendo usado por otro usuario"
                   break;
                 
               case 'userDisabled':
                  this.error= "Este usuario ha sido deshabilitado"
+                break;
+              case 'auth/network-request-failed':
+                 this.error= "Error en la peticion de autenticacion."
                 break;
               case 'operationNotAllowed':
                  this.error= "Operación no permitida"
@@ -308,8 +328,25 @@ export default {
               
                      this.$toast.add({severity:'error', summary: 'Error', detail:this.error, life: 3000}); 
       });
+            
+          }
+          else{
+             this.$toast.add({severity:'info', summary: 'Atencion', detail:'Esta zona ya tiene un cobrador asignado', life: 3000});
+             
+              
+          }
+
+          
+          
+          
+
+        });
+
+        
+       
+         
       
-           
+        
     }
     
   }

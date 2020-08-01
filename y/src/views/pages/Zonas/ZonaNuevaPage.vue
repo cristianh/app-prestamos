@@ -26,22 +26,36 @@
       </CCol>
     </CRow>
     <CRow>
+    <CCol sm="12">
+      <CInput
+                description="Ingrese la descripcion de la zona."
+                label="Descripcion"
+                type="textarea"
+                placeholder="Descripcion"
+                v-model="zonas_form.descripcion_zona"
+              />
+      </CCol>
+    </CRow>
+    <CRow>
       <CCol sm="12">
         <CInput
                   label="Balance"
                   append=".000"
-                  description="Ingresa del balance inicial"
+                  description="Balance inicial"
                   prepend="$"
+                  :value=0
+                  readonly
                   v-model="zonas_form.balance"
          />
       </CCol>
-      <CCol sm="12">
+      <!-- <CCol sm="12">
              <CInput
-                label="Fecha"
-                type="date"
-                v-model="zonas_form.fecha"
+                label="Fecha y Hora"
+                type="datetime"
+                :value="fecha_hora_value"
+                v-model="zonas_form.fecha_hora"
               />
-      </CCol>
+      </CCol> -->
       <CCol sm="12">
       <CSelect
                   label="Empresas"
@@ -74,9 +88,11 @@ export default {
         return {
         zonas_form:{
           nombre:'',
-          balance:'',
-          fecha:'',
-          empresa:''
+          balance:0,
+          fecha:new Date().toISOString().slice(0,10),
+          hora: this.$moment(new Date()).format("hh:mm:ss"),
+          empresa:'',
+          descripcion_zona:''
         },
         empresas:[{ value: 'Seleccione', label: 'Seleccione' }],
         zonaService:null,
@@ -90,6 +106,7 @@ export default {
         this.empresaService= new EmpresaService();
     },
     beforeMount() {
+      this.fecha_hora_value=this.$moment(new Date()).format("MM/DDDD/YYYY hh:mm:ss"),
       this.usuarioOnLogin=localStorage.getItem('id');
       let tamporal=[];
       let empresas= this.empresaService.getAllEmpresas(this.usuarioOnLogin);

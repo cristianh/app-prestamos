@@ -1,6 +1,5 @@
 <template>
     <div>
-   {{usuarioOnLogin}}
      <CCard>
          <CCardHeader>
         <strong>Empresa:</strong>
@@ -27,10 +26,47 @@
       </CCol>
     </CRow>
     <CRow>
+      <!-- @change="onSelectdEmpresa" -->
+      <CCol sm="4">
+         <CSelect
+                  label="Pais"
+                  :options="paises"
+                  :value.sync="empresa_form.Pais"
+                  @change="onSelectdPais"
+                  
+                />
+       
+        
+      </CCol>
+
+      <!-- @change="onSelectdEmpresa" -->
+      <CCol sm="4">
+         <CSelect
+                  label="Departamento"
+                  :options="departamentos"
+                  :value.sync="empresa_form.Departamento"
+                  @change="onSelectdDepartamento"
+                />
+       
+        
+      </CCol>
+      <CCol sm="4">
+         <CSelect
+                  label="Ciudad"
+                  :options="ciudades"
+                  :value.sync="empresa_form.Ciudad"
+                  
+                />
+       
+        
+      </CCol>
+    </CRow>
+     <CRow>
+      <!-- @change="onSelectdEmpresa" -->
       <CCol sm="12">
         <CInput
                   label="Balance"
-                  append=".00"
+                  append=".000"
                   description="Ingresa del balance inicial"
                   prepend="$"
                   v-model="empresa_form.Balance"
@@ -149,7 +185,8 @@ import MainChartExample from '@/views/charts/MainChartExample'
 import WidgetsDropdown from '@/views/widgets/WidgetsDropdown'
 import WidgetsBrand from '@/views/widgets/WidgetsBrand'
 import EmpresaService from '../Empresa/Services/EmpresasService.js';
-
+import paisesData from '@/views/Paises/Paises.js'
+import ciudadesData from '@/views/Ciudades/Ciudades.js'
 export default {
   name: 'Dashboard',
   components: {
@@ -159,11 +196,19 @@ export default {
   },
   data () {
     return {
+      paises_data:paisesData,
+      ciudades_data:ciudadesData,
       usuarioOnLogin:'',
+      paises:[{ value: 'Seleccione', label: 'Seleccione' }],
+      departamentos:[{ value: 'Seleccione', label: 'Seleccione' }],
+      ciudades:[{ value: 'Seleccione', label: 'Seleccione' }],
       empresa_form:{
           Nombre:'',
           Balance:'',
-          Mensaje:''
+          Mensaje:'',
+          Pais:'',
+          Departamento:'',
+          Ciudad:''
       },
       empresaService:null,
       selected: 'Month',
@@ -227,23 +272,87 @@ export default {
       ]
     }
   },
+  computed: {
+    
+  },
   created() {
         this.empresaService= new EmpresaService();
   },
   beforeMount() {
      this.usuarioOnLogin=localStorage.getItem('id');
+    //  axios.get('https://restcountries.eu/rest/v2/region/americas?fields=name;').then((resp)=>{
+        
+    //   //  =
+    //  })
+
+    for (const key in this.paises_data) {
+            if (this.paises_data.hasOwnProperty(key)) {
+                
+                  let element={ value: this.paises_data[key].name, label: this.paises_data[key].name };
+                  this.paises.push(element);
+                  // console.log(this.zonas);
+            }
+        }  
+
+        
+
   },
   methods: {
+    onSelectdPais($event){
+      
+      if(this.empresa_form.Pais==="Colombia"){ 
+         for (const key in this.ciudades_data) {
+            if (this.ciudades_data.hasOwnProperty(key)) {
+                
+                  let element={ value: this.ciudades_data[key].id, label: this.ciudades_data[key].departamento};
+                  this.departamentos.push(element);
+                 
+            }
+        }  
+      }
+      
+    },
+     onSelectdDepartamento($event){
+      
+  
+         for (const key in this.ciudades_data) {
+            
+              if (this.ciudades_data.hasOwnProperty(key)) {
+                
+                if(this.ciudades_data[key].id==$event.target.value){
+                  console.log(this.ciudades_data[key].ciudades);
+                  this.empresa_form.Departamento=this.ciudades_data[key].departamento
+                  this.ciudades_data[key].ciudades.forEach(ciudades => {
+                    let element={ value: ciudades, label: ciudades};
+                    this.ciudades.push(element);
+                  });
+                  
+                  // console.log(this.zonas);
+                  
+      // console.log(this.empresa_form.Departamento);
+            }
+            }
+      }
+      
+    },
     onGuardarEmpresa(){
      
       //this.empresaService.guardarEmpresa(this.empresa_form).then(rsp=>{
         this.empresaService.guardarEmpresa(this.usuarioOnLogin,this.empresa_form).then(rsp=>{
-        this.$toast.add({severity:'success', summary: 'Correcto.', detail:'Empresa Creada', life: 3000});  
+        console.log(rsp);
+        localStorage.setItem('empresa',rsp.id);
+        this.$toast.add({severity:'success', summary: 'Correcto.', detail:rsp.mensaje, life: 3000});
+        this.departamentos=[{ value: 'Seleccione', label: 'Seleccione' }],
+        this.ciudades=[{ value: 'Seleccione', label: 'Seleccione' }],  
         this.empresa_form={
-          nombre:'',
-          balance:'',
-          mensaje:''
+          Nombre:'',
+          Balance:'',
+          Mensaje:'',
+          Pais:'',
+          Departamento:'',
+          Ciudad:''
       }
+      
       }).catch((error) => {
         //return response.status(500).send(error);
         this.$toast.add({severity:'warn', summary: 'Error.', detail:error, life: 3000});  

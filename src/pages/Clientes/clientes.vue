@@ -120,7 +120,7 @@
     validate
   >
    <option value="0">Seleccione</option>
-  <option  v-for="(planes,index,key) in tazasdeinteres"  :key=key :value="`${planes.data.plazo}-${planes.data.interes}`">{{planes.data.nombre}}
+  <option  v-for="(planes,index,key) in tazasdeinteres"  :key=key :value="`${planes.plazo}-${planes.interes}`">{{planes.nombre}}
   </option>
        </f7-list-input>
         </f7-list>

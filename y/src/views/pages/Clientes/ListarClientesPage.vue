@@ -102,7 +102,7 @@ export default {
       usuarioOnLogin:'',
        isLoading: false,
        fullPage: true,
-       loading:'',
+       loading:'Cargando...',
        isEnabled:true,
        clienteservices:null,
        empresaservice:null,
@@ -192,7 +192,8 @@ export default {
             this.cobradores=[{ value: 'Seleccione', label: 'Seleccione' }];
              this.isLoading = true;
             console.log("...",this.usuario.zonas);
-            this.cobradorservice.buscarCobradorPorZona(this.usuarioOnLogin,this.usuario.zonas).then((response)=>{ 
+            let empresa=localStorage.getItem('empresa');
+            this.cobradorservice.buscarCobradorPorZona(this.usuarioOnLogin,empresa,{zona:this.usuario.zonas}).then((response)=>{ 
               console.log(response);
               this.clienteservices.getAllClientesCobradores(this.usuarioOnLogin,response.data).then((response)=>{
               console.log(response);

@@ -7,7 +7,13 @@
       </f7-nav-left>
       <f7-nav-title sliding>Notificacion</f7-nav-title>
     </f7-navbar>
-     {{getDatosTransferencia.length}}
+     <f7-block  v-if="getDatosTransferencia.length==0" inset>
+         <f7-card
+         title=" No hay notificaciones">
+           
+         </f7-card>
+        
+       </f7-block> 
        <div v-for="(transferencia,index,key) in getDatosTransferencia" :key="key">
          <div v-if="getDatosTransferencia.length===0">
  
@@ -58,6 +64,10 @@
       <f7-button fill large small @click="onAceptarTransaccion(transferencia.valor)" color="green">ACEPTAR</f7-button>
           
     </f7-col>
+      <f7-col >
+      <f7-button fill large small @click="onCancelarTransaccion(transferencia)" color="red">CANCELAR</f7-button>
+          
+    </f7-col>
     
   </f7-row>
  
@@ -78,6 +88,8 @@ export default {
           datos_transferencia:{},
           transacccionservice:null,
           clientes:[],
+          saldoActualEmpresa:0,
+          saldoActualZona:0,
           balance_zona:0,
             form_transaccion:{
               idCobrador_recibe:'',
@@ -156,6 +168,109 @@ batch.commit().then( () =>{
      this.$f7.dialog.preloader("Actualizando saldo...");
      this.updateValorZona();
      
+   },
+   onCancelarTransaccion(tranferencia){
+    if(tranferencia.Envia=='Empresa'){
+       console.log(".....................",tranferencia);
+     let uid = localStorage.getItem("uid");
+     this.id_empresa=localStorage.getItem("empresa");
+     this.id_zona = localStorage.getItem("zona")
+     this.$store.commit('setEstadoTransferencia',false);
+     
+      this.transacccionservice.guardarHistorialTransaccion(this.idad,this.id_empresa,this.datos_transaccion[0]).then(()=>{
+      
+      // this.$f7.dialog.close();
+      this.$f7.dialog.alert('transaccion cancelada','Atencion!',()=>{
+      // this.identificacion=''
+         let zona= localStorage.getItem("zona");
+       let empresa= localStorage.getItem("empresa");
+
+
+
+// Update the population of 'SF'
+// /usuarios/Nf05nKycByv8CrjrzfL6/empresas/mhVF3FZqPlNAx1sV9c0o/Zonas/SmhRYXL86AUXG2JBZaNU
+var sfRef = db.collection("usuarios").doc(this.idad).collection("empresas").doc(empresa);
+
+sfRef.get().then((doc)=>{
+  console.log(doc.data().Balance);
+    this.saldoActualEmpresa=doc.data().Balance;
+           // Get a new write batch
+var batch = db.batch();
+console.log(this.saldoActualEmpresa);
+
+this.saldoActualEmpresa=Number(this.saldoActualEmpresa)+ Number(tranferencia.valor)
+console.log(this.saldoActualEmpresa);
+
+batch.update(sfRef, {"Balance": this.saldoActualEmpresa });
+
+
+
+// Commit the batch
+      batch.commit().then( () =>{
+          // ...
+           this.$store.commit('setDisminuyeContadorTransferencias');
+          this.transacccionservice.elminiarTransaccion(this.idad,this.id_empresa,this.id_zona);
+          this.$store.commit('setEliminarDatosTransferencia');  
+          this.$f7router.back();
+      });
+});
+
+
+      
+        });
+      });
+    }
+    else{
+       console.log(".....................",tranferencia);
+     let uid = localStorage.getItem("uid");
+     this.id_empresa=localStorage.getItem("empresa");
+     this.id_zona = localStorage.getItem("zona")
+     this.$store.commit('setEstadoTransferencia',false);
+     
+      this.transacccionservice.guardarHistorialTransaccion(this.idad,this.id_empresa,this.datos_transaccion[0]).then(()=>{
+      
+      // this.$f7.dialog.close();
+      this.$f7.dialog.alert('transaccion cancelada','Atencion!',()=>{
+      // this.identificacion=''
+         let zona= localStorage.getItem("zona");
+       let empresa= localStorage.getItem("empresa");
+
+
+
+// Update the population of 'SF'
+// /usuarios/Nf05nKycByv8CrjrzfL6/empresas/mhVF3FZqPlNAx1sV9c0o/Zonas/SmhRYXL86AUXG2JBZaNU
+var sfRef = db.collection("usuarios").doc(this.idad).collection("empresas").doc(empresa).collection("Zonas").doc(zona);
+
+sfRef.get().then((doc)=>{
+  console.log(doc.data().balance);
+    this.saldoActualZona=doc.data().balance;
+           // Get a new write batch
+var batch = db.batch();
+console.log(this.saldoActualEmpresa);
+
+this.saldoActualZona=Number(this.saldoActualZona)+ Number(tranferencia.valor)
+console.log(this.saldoActualZona);
+
+batch.update(sfRef, {"balance": this.saldoActualZona });
+
+
+
+// Commit the batch
+      batch.commit().then( () =>{
+          // ...
+           this.$store.commit('setDisminuyeContadorTransferencias');
+          this.transacccionservice.elminiarTransaccion(this.idad,this.id_empresa,this.id_zona);
+          this.$store.commit('setEliminarDatosTransferencia');  
+          this.$f7router.back();
+      });
+});
+
+
+      
+        });
+      });
+    }
+    
    }
 }
 }

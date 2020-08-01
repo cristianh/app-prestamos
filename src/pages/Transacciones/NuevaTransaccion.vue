@@ -115,7 +115,7 @@ export default {
           form_transaccion:{
           idEmpresa:'',  
           idCobrador_recibe:'',
-          nombreCobradorEnvia:'',
+          Envia:'',
           idCobrador_envia:'',  
           valor:'',
           estado_transaccion:false,
@@ -195,7 +195,7 @@ batch.commit().then( () =>{
         }else{
         
         this.form_transaccion.idCobrador_envia=localStorage.getItem('uid');
-        this.form_transaccion.nombreCobradorEnvia=localStorage.getItem('name');
+        this.form_transaccion.Envia=localStorage.getItem('name');
         
       
       this.$f7.dialog.confirm('Desea realizar la transaccion','Seguro!', () => {

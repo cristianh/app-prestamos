@@ -10,6 +10,10 @@ import store from "./store/index";
 import Message from 'primevue/message';
 
 import { WhatsApp } from 'vue-socialmedia-share';
+import SimpleVueValidation from 'simple-vue-validator';
+Vue.use(SimpleVueValidation);
+
+
 
 Vue.use(WhatsApp)
 
@@ -56,6 +60,7 @@ Vue.use({ db });
 Vue.use({ dbrealtime });
 Vue.use(require('vue-moment'));
 Vue.component('Message', Message);
+
 
 import VueCurrencyFilter from 'vue-currency-filter'
 Vue.use(VueCurrencyFilter, {
