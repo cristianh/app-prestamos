@@ -30,7 +30,7 @@
         minlength=7
         pattern="[0-9]{7,10}"
         error-message="Solo numeros y minimo 7 maximo 10 caracteres"
-        @input="identificacion=$event.target.value"
+        @input="form.usuario.identificacion=$event.target.value"
       ></f7-list-input>
 
       <f7-list-input
@@ -92,7 +92,7 @@
         pattern="[0-9]{7,10}"
         error-message="Solo numeros y minimo 7 maximo 10 caracteres "
         :error-message-force="false"
-        @input="telefono=$event.target.value"
+        @input="form.usuario.telefono=$event.target.value"
       ></f7-list-input>
       
        <f7-list-input
@@ -151,7 +151,7 @@
         validate
         pattern="[0-9]*"
         error-message="Solo numeros"
-        @input="telefonoNegocio=$event.target.value"
+        @input="form.usuario.telefono=$event.target.value"
       ></f7-list-input>
 
       <f7-list-input
@@ -246,7 +246,7 @@
     
     <f7-col>
         
-      <f7-button fill large small :disabled="validar_campos" @click="onGuardarCliente" color="green">GUARDAR</f7-button>
+      <f7-button fill large small :disabled="false" @click="onGuardarCliente" color="green">GUARDAR</f7-button>
           
     </f7-col>
       <!-- <f7-col v-if="geoHabilitado">
@@ -344,28 +344,28 @@ export default {
          console.log(value.length);
         if(value.length<10){
             // this.error_form='El celular no esta completo.';
-            this.validar_campos=true;
+            // this.validar_campos=true;
         }else{
            this.error_form='';
            this.form.usuario.telefono=this.telefono;
-            this.validar_campos=false;
+            // this.validar_campos=false;
         }
       },
       telefonoNegocio(value){
          console.log(value.length);
         if(value.length<10){
             // this.error_form='El telefono del negocio no esta completo.';
-            this.validar_campos=true;
+            // this.validar_campos=true;
         }else{
            this.error_form='';
            this.form.negocio.telefono=this.telefono;
-           this.validar_campos=false;
+          //  this.validar_campos=false;
         }
       },
       identificacion(value){
           if(value.length<=9){
             this.error_form='La cedula tiene pocos numeros.';
-            this.validar_campos=true;
+            // this.validar_campos=true;
           } else {
             this.error_form='';
             if(this.clientes.filter(x=>x.data.usuario.identificacion==value).length>0){
@@ -482,7 +482,7 @@ export default {
            console.log(Number(filtro_contador_campos_negocio));
            console.log(sumaacampos);
           if(sumaacampos==0 || sumaacampos==1){
-              this.validar_campos=false;
+              // this.validar_campos=false;
         let config = {
                      headers: { 'content-type': 'application/json; utf-8' },
                   method: 'POST'
@@ -491,8 +491,9 @@ export default {
      const self = this;
         self.$f7.dialog.preloader('Guardando...');
      let ui_cobrador=localStorage.getItem("uid");
+     let idmpresa=localStorage.getItem("empresa");
      this.form.posicion=Number(this.$store.getters.getContadorClientes)+1;
-      this.cobradoresClientesService.guardarClienteCobrador(this.idad,ui_cobrador,this.form).then( (response) =>  {
+      this.cobradoresClientesService.guardarClienteCobrador(this.idad,idmpresa,ui_cobrador,this.form).then( (response) =>  {
       
        self.$f7.dialog.close();
        let data={

@@ -43,6 +43,7 @@ exports.InformacionParaCobradores = functions.https.onRequest(async(request, res
 
     try {
         let infocobrador = {
+            collecciones: [],
             empresa: [],
             zonas: [],
             cobrador: [],
@@ -52,9 +53,16 @@ exports.InformacionParaCobradores = functions.https.onRequest(async(request, res
         const info_empresa = await db.collection('usuarios').doc(request.query.idadmin).collection('empresas').doc(request.query.doc);
         const collections_clientes_cobrador = await db.collection('usuarios').doc(request.query.idadmin).collection('empresas').doc(request.query.doc);
         const collectionIds = collections.map(col => col.id);
-        const collections_zona = await db.collection('usuarios').doc(request.query.idadmin).collection('empresas').doc(request.query.doc).collection(collectionIds[0]);
-        const collections_parametros_cobro = await db.collection('usuarios').doc(request.query.idadmin).collection('empresas').doc(request.query.doc).collection(collectionIds[3]);
-        const collections_cobradores = await db.collection('usuarios').doc(request.query.idadmin).collection('empresas').doc(request.query.doc).collection(collectionIds[1]).doc(request.query.idcobrador);
+        infocobrador.collecciones = collectionIds;
+
+        const collections_zona = await db.collection('usuarios').doc(request.query.idadmin).collection('empresas').doc(request.query.doc).collection('Zonas');
+        const collections_parametros_cobro = await db.collection('usuarios').doc(request.query.idadmin).collection('empresas').doc(request.query.doc).collection('parametros_cobros');
+        const collections_cobradores = await db.collection('usuarios').doc(request.query.idadmin).collection('empresas').doc(request.query.doc).collection('cobradores').doc(request.query.idcobrador);
+
+
+
+
+
         let restultadoConsultazonasempresa = collections_zona.where("empresa", "==", request.query.doc).get()
             .then((querySnapshot) => {
                 querySnapshot.forEach((doc) => {
@@ -298,7 +306,7 @@ exports.CobradoresGuardarClientes = functions.https.onRequest(async(request, res
     response.set('Access-Control-Allow-Headers', 'Content-Length,Content-Range');
     response.set('Access-Control-Allow-Headers', 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization');
     try {
-        await db.collection('usuarios').doc(request.query.idadmin).collection('cobradores').doc(request.query.doc).collection('clientes').add(request.body).then((res) => {
+        await db.collection('usuarios').doc(request.query.idadmin).collection('empresas').doc(request.query.doc).collection('cobradores').doc(request.query.subdoc).collection('clientes').add(request.body).then((res) => {
             return response.status(200).send(res.id);
         });
     } catch (error) {

@@ -184,20 +184,7 @@
         console.log(window.navigator);
         
         if (typeof cordovaApp !== 'undefined') {
-            if (navigator.app) {
-                navigator.app.exitApp();
-                 console.log('app exit');
-            }
-            else if (navigator.device) {
-                navigator.device.exitApp();
-                  console.log('device exit');
-            }
-        } else {
-            window.close();
-            $timeout(function () {
-              console.log('showCloseMessage exit');
-                self.showCloseMessage = true;  //since the browser can't be closed (otherwise this line would never run), ask the user to close the window
-            });
+            cordovaApp.closeApp();
         }
       }
     },
@@ -238,6 +225,7 @@
         // Init cordova APIs (see cordova-app.js)
         if (Device.cordova) {
           cordovaApp.init(f7);
+          alert(cordovaApp);
            
   
         }

@@ -16,6 +16,7 @@
     
     
                 <f7-link icon-ios="f7:menu" icon-aurora="f7:menu" icon-md="material:menu" panel-open="left"></f7-link>
+                <!-- <f7-link external href="https://api.whatsapp.com/send?phone=0573127083365&text=hola">wp</f7-link> -->
     
     
     
@@ -221,23 +222,31 @@ export default {
         let zona;
         let empresa=localStorage.getItem("empresa");
         self.$f7.dialog.preloader("Cargando informacion...");
+        // console.log(this.uid);
         axios.get(`https://us-central1-manifest-life-279516.cloudfunctions.net/InformacionParaCobradores?idadmin=${this.idad}&doc=${empresa}&idcobrador=${this.uid}`).then((resp)=>{
-            console.log(resp.data);
+           
+            if(resp.data.collecciones.find(x=>x==="parametros_cobros")){
+                // alert('la empresa no a dfinico los paramtros de cobro');
+                
+            }else{
+                self.$f7.dialog.alert("La empresa no a definido los parametros de los prestamos,contacte al administrador.","Atencion!");
+            }
+            
+            // console.log(resp.data);
             
             this.mensaje_bienvenida = resp.data.empresa[0].Mensaje;
             this.balance_empresa = resp.data.empresa[0].Balance;
             //this.isLoadRutas= true;
             this.isLoadBalnces = true;
             localStorage.setItem("empresa", empresa);
+            // localStorage.setItem("empresa", empresa);
 
             
-            
-            resp.data.cobrador.forEach(element => {
-                console.log(this.uid);
-                console.log(element.id);
+             console.log(resp.data);
+            resp.data.cobrador.forEach(element => {    
                 let buscarZonaCobrador=resp.data.zonas.filter(x=>x.id==element.Zona);
                 if(buscarZonaCobrador.length>=1){
-                console.log(buscarZonaCobrador);
+              
                 localStorage.setItem("zona", buscarZonaCobrador[0].id);
                 this.$store.commit('setBalanceZona', buscarZonaCobrador[0].balance);
                 localStorage.setItem("saldo_zona", buscarZonaCobrador[0].balance);

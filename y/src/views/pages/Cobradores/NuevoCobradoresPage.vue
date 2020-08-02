@@ -235,8 +235,8 @@ export default {
             var user = firebase.auth().currentUser;
 console.log(this.usuario);
         this.cobradorservice.guardarCobrador(this.usuarioOnLogin,this.usuario.empresa,this.usuario).then( (response) =>  {
-                console.log(response);
-                var id =response.data;
+                console.log(response.data.id);
+                var id =response.data.id;
                 user.updateProfile({
                       displayName:this.usuario.nombre +" "+this.usuario.apellido+'-'+id+'-'+this.usuarioOnLogin+'-'+this.usuario.empresa
                     }).then(function() {

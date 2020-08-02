@@ -8,8 +8,8 @@ export default class ClientesService {
         return axios.post(`actualizarPosicionClienteLista?idadmin=${id_admin}&doc=${id_cobrador}&subdoc=${id_cliente}`, data).then(response => response);
     }
 
-    guardarClienteCobrador(id_admin, ui_cobrador, data) {
-        return axios.post(`CobradoresGuardarClientes?idadmin=${id_admin}&doc=${ui_cobrador}`, data).then(response => response);
+    guardarClienteCobrador(id_admin, id_empresa, ui_cobrador, data) {
+        return axios.post(`CobradoresGuardarClientes?idadmin=${id_admin}&doc=${id_empresa}&subdoc=${ui_cobrador}`, data).then(response => response);
     }
 
     actualizarClienteCobrador(id_admin, id_cobrador, id_cliente, data) {
