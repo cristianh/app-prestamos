@@ -103,13 +103,13 @@
        
         :badge="`${cliente.data.prestamos.length==0 || cliente.data.prestamos==undefined? 'NA':Number(cliente.data.prestamos[0].dias_con_mora)>=1?'Mora: '+Number(cliente.data.prestamos[0].dias_con_mora)+' dia':'Mora: '+Number(cliente.data.prestamos[0].dias_con_mora)+' dias'}`"
         :badge-color="`${cliente.data.prestamos.length==0 || cliente.data.prestamos==undefined? 'NA':Number(cliente.data.prestamos[0].dias_con_mora)>=1?'red':''}`"
-        :class="{'pendiente':cliente.data.prestamos[0].estado_pendiente_prestamo_ruta,'normal':cliente.data.prestamos[0].estado_pago_ruta==0,'pago':cliente.data.prestamos[0].estado_pago_ruta==1,'no-pago':cliente.data.prestamos[0].estado_pago_ruta==2}"  
+        :class="{'pendiente':cliente.data.prestamos[0].estado_pendiente_prestamo_ruta,'normal':cliente.data.prestamos[0].estado_pago_ruta==0,'pago':getEstadosPrestamos[index].pago,'no-pago':getEstadosPrestamos[index].nopago}"  
         :subtitle="`Cedula: ${cliente.data.usuario.identificacion}`"   
-        :id=cliente.id
+        :id=cliente.data.id
         :key=key
         :title="`${cliente.data.usuario.nombre}-${cliente.data.usuario.apellido}`" 
         :footer="`${calculoTotalPagoHoy[index]!=undefined ? 'Saldo pago hoy: '+calculoTotalPagoHoy[index]:'NA'}`"  
-        @click="onClickClientePaginaDetalles(cliente.id,calculoTotalPagoHoy[index])"
+        @click="onClickClientePaginaDetalles(cliente.data.id,calculoTotalPagoHoy[index])"
         >
         <f7-swipeout-actions right>
         <!-- <f7-swipeout-button close overswipe color="green" @click="onReply(cliente,cliente.data.usuario.nombre+cliente.data.usuario.apellido)">Seleccionar</f7-swipeout-button> -->
@@ -284,7 +284,7 @@ export default {
       // alert('pendiente');
       console.log(cliente);
        let data_pendiente={
-            id: cliente.id,
+            id: cliente.data.id,
             pagopendiente:true
           };
       this.$store.commit('setEstadoPrestamoPendiente',data_pendiente);
@@ -327,9 +327,11 @@ export default {
       if(this.jornada_cobrador.balance_final_manual==this.$store.getters.getCobrosTotalCobrado){
           let guardando= this.$f7.dialog.preloader('Guardando...');
        let ui_cobrador=localStorage.getItem("uid");
+      let id_admin=localStorage.getItem("iad");
       let id_jornadacobrador=localStorage.getItem("idjornadacobrador");
+      let id_empresa=localStorage.getItem("empresa");
       this.jornada_cobrador.balance_final=localStorage.getItem("saldo_zona");
-      this.corbradorService.actualizarJornadaCobrador(ui_cobrador,id_jornadacobrador,this.jornada_cobrador).then(response =>{
+      this.corbradorService.actualizarJornadaCobrador(id_admin,id_empresa,ui_cobrador,id_jornadacobrador,this.jornada_cobrador).then(response =>{
                 this.$f7.dialog.close();
               this.$f7.dialog.alert('Jornada cerrada correctamente!','Correcto',()=>{
                 setTimeout(()=>{
@@ -352,8 +354,12 @@ export default {
        const app = this.$f7;
         // app.dialog.alert(id);
         console.log(this.$store.getters.getCobrosPendientes);
-        if(this.$store.getters.getCobrosPendientes==0){
-          app.dialog.confirm('Seguro desea terminar la ruta!','Terminar ruta', () => {
+        if(this.$store.getters.getCobrosPendientes>0){
+          app.dialog.confirm('Hay cobros pendientes','Atencion');
+         
+        }
+        else{
+           app.dialog.confirm('Seguro desea terminar la ruta!','Terminar ruta', () => {
         
           this.$store.commit('sethoraFinalJornada',this.$moment(new Date).format("hh:mm:ss"));
           this.$store.commit('setfechaFinalJornada',new Date().toISOString().slice(0,10));
@@ -363,20 +369,21 @@ export default {
           // this.$f7.sheet.open('.mensaje_final-sheet');
         
         });
-        }
-        else{
-           app.dialog.confirm('Hay cobros pendientes','Atencion');
+
+          
         }
 
     },
     onGenerarListaJornadaPago(){
         const self = this;
+        let id_empresa=localStorage.getItem("empresa");
         self.$f7.dialog.preloader('Creando lista...');
         this.$store.commit('setfechInicialJornada',new Date().toISOString().slice(0,10));
         this.$store.commit('sethoraInicialJornada',this.$moment(new Date).format("hh:mm:ss"));
          let ui_cobrador=localStorage.getItem("uid");
-             this.corbradorService.guardarJornadaCobrador(ui_cobrador,this.jornada_cobrador).then(response =>{
-                 console.log(response);
+         let id_admin=localStorage.getItem("iad");
+             this.corbradorService.guardarJornadaCobrador(id_admin,id_empresa,ui_cobrador,this.jornada_cobrador).then(response =>{
+                 console.log("................response",response);
                  this.isComienzoRuta=true;
                  this.estado_lista_prestamos_clientes=true;
                  localStorage.setItem("idjornadacobrador",response.data.id);

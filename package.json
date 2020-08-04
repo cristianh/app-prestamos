@@ -46,6 +46,7 @@
     "vee-validate": "^3.3.7",
     "vue": "^2.6.11",
     "vue-currency-filter": "^5.1.0",
+    "vue-currency-input": "^1.20.3",
     "vue-firebase": "^1.0.8",
     "vue-firestore": "^0.3.30",
     "vue-moment": "^4.1.0",

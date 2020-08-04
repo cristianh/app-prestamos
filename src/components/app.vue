@@ -194,11 +194,14 @@
       }
     },
     created(){
+      // localStorage.clear();
     let idCobrador=localStorage.getItem('uid');
     this.idad=localStorage.getItem("iad");
    
       let idempresa=localStorage.getItem("empresa");
-      let idzona=localStorage.getItem("zona")
+      let idzona=localStorage.getItem("zona");
+      console.log(idempresa);
+      console.log(idzona);
     // db.collection("usuarios").doc(this.idad).collection("empresas").doc(idempresa).collection('Transferencias').doc('nueva_transaccion')
     // .onSnapshot({includeMetadataChanges: false},(doc) => {
     //       console.log(doc);

@@ -17,13 +17,13 @@ const fieldValue = admin.firestore.FieldValue;
  * @function Funcion para actualizar el estado del usuario en la lista de cobros.
  */
 exports.updateEstadoUsuario = functions.firestore
-    .document('usuarios/{usuarioId}/cobradores/{cobradorId}/Clientes/{clienteId}')
+    .document('usuarios/{usuarioId}/empresas/{empresaId}/cobradores/{cobradorId}/Clientes/{clienteId}')
     .onUpdate((change, context) => {
         // Get an object representing the document
         // e.g. {'name': 'Marie', 'age': 66}
         // ...or the previous value before this update
         const previousValue = change.before.data().activo;
-        db.collection('usuarios').doc(context.params.usuarioId).collection('cobradores').doc(context.params.cobradorId).collection('clientes').doc(context.params.clienteId).set({
+        db.collection('usuarios').doc(context.params.usuarioId).collection('empresas').doc(context.params.empresaId).collection('cobradores').doc(context.params.cobradorId).collection('clientes').doc(context.params.clienteId).set({
             activo: true
         }, { merge: true });
     });
@@ -47,17 +47,19 @@ exports.InformacionParaCobradores = functions.https.onRequest(async(request, res
             empresa: [],
             zonas: [],
             cobrador: [],
+            clientes: [],
             parametros_cobros: []
         };
         const collections = await db.collection('usuarios').doc(request.query.idadmin).collection('empresas').doc(request.query.doc).listCollections();
         const info_empresa = await db.collection('usuarios').doc(request.query.idadmin).collection('empresas').doc(request.query.doc);
-        const collections_clientes_cobrador = await db.collection('usuarios').doc(request.query.idadmin).collection('empresas').doc(request.query.doc);
+        // const collections_clientes_cobrador = await db.collection('usuarios').doc(request.query.idadmin).collection('empresas').doc(request.query.doc);
         const collectionIds = collections.map(col => col.id);
         infocobrador.collecciones = collectionIds;
 
         const collections_zona = await db.collection('usuarios').doc(request.query.idadmin).collection('empresas').doc(request.query.doc).collection('Zonas');
         const collections_parametros_cobro = await db.collection('usuarios').doc(request.query.idadmin).collection('empresas').doc(request.query.doc).collection('parametros_cobros');
         const collections_cobradores = await db.collection('usuarios').doc(request.query.idadmin).collection('empresas').doc(request.query.doc).collection('cobradores').doc(request.query.idcobrador);
+        const collections_cobradores_clientes = await db.collection('usuarios').doc(request.query.idadmin).collection('empresas').doc(request.query.doc).collection('cobradores').doc(request.query.idcobrador).collection('clientes');
 
 
 
@@ -118,7 +120,19 @@ exports.InformacionParaCobradores = functions.https.onRequest(async(request, res
                 });
                 return true;
             });
-        Promise.all([restultadoConsultazonasempresa, restultadoConsultacobradoressempresa, restultadoConsultainfoempresa, restultadoConsultaparametroscobros]).then(values => {
+
+        let restultadoConsultaClientesCobrador = collections_cobradores_clientes.get()
+            .then((querySnapshot) => {
+                querySnapshot.forEach((doc) => {
+                    let id_clientes = doc.id;
+                    let datacobradores_clientes = doc.data();
+                    datacobradores_clientes.id = id_clientes;
+                    infocobrador.clientes.push({ data: datacobradores_clientes });
+                });
+                return true;
+            });
+
+        Promise.all([restultadoConsultazonasempresa, restultadoConsultacobradoressempresa, restultadoConsultainfoempresa, restultadoConsultaparametroscobros, restultadoConsultaClientesCobrador]).then(values => {
             return response.status(200).send(infocobrador);
         }).catch((error) => {
             return response.status(500).send(error);
@@ -162,7 +176,7 @@ exports.CobradoresGuardarCobros = functions.https.onRequest(async(request, respo
     response.set('Access-Control-Allow-Headers', 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization');
 
     try {
-        await db.collection('usuarios').doc(request.query.idadmin).collection('cobradores').doc(request.query.doc).collection('clientes').doc(request.query.sub).update({
+        await db.collection('usuarios').doc(request.query.idadmin).collection('empresas').doc(request.query.id_empresa).collection('cobradores').doc(request.query.doc).collection('clientes').doc(request.query.sub).update({
             cobros: fieldValue.arrayUnion(request.body)
         });
         return response.send('Cobro registrado.');
@@ -183,7 +197,7 @@ exports.ClienteEliminarPrestamosPago = functions.https.onRequest(async(request, 
     response.set('Access-Control-Allow-Headers', 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization');
 
     try {
-        await db.collection('usuarios').doc(request.query.idadmin).collection('cobradores').doc(request.query.doc).collection('clientes').doc(request.query.sub).update({
+        await db.collection('usuarios').doc(request.query.idadmin).collection('empresas').doc(request.query.id_empresa).collection('cobradores').doc(request.query.doc).collection('clientes').doc(request.query.sub).update({
             prestamos: fieldValue.arrayRemove(request.body)
         });
         return response.send('Cobro registrado.');
@@ -204,7 +218,7 @@ exports.CobradoresGuardarObservacionNoPago = functions.https.onRequest(async(req
     response.set('Access-Control-Allow-Headers', 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization');
 
     try {
-        await db.collection('usuarios').doc(request.query.idadmin).collection('cobradores').doc(request.query.doc).collection('clientes').doc(request.query.sub).update({
+        await db.collection('usuarios').doc(request.query.idadmin).collection('empresas').doc(request.query.id_empresa).collection('cobradores').doc(request.query.doc).collection('clientes').doc(request.query.sub).update({
             observaciones: fieldValue.arrayUnion(request.body)
         });
         return response.send('Cobro registrado.');
@@ -326,7 +340,7 @@ exports.CobradoresClientesUpdate = functions.https.onRequest(async(request, resp
     response.set('Access-Control-Allow-Headers', 'Content-Length,Content-Range');
     response.set('Access-Control-Allow-Headers', 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization');
     try {
-        await db.collection('usuarios').doc(request.query.idadmin).collection('cobradores').doc(request.query.doc).collection('clientes').doc(request.query.subdoc).set(request.body, { merge: true }).then(() => {
+        await db.collection('usuarios').doc(request.query.idadmin).collection('empresas').doc(request.query.id_empresa).collection('cobradores').doc(request.query.doc).collection('clientes').doc(request.query.subdoc).set(request.body, { merge: true }).then(() => {
             return response.status(200).send({ mensaje: 'Actualizado' });
         });
     } catch (error) {
@@ -345,7 +359,7 @@ exports.CobradoresClientesBuscar = functions.https.onRequest(async(request, resp
     response.set('Access-Control-Allow-Headers', 'Content-Length,Content-Range');
     response.set('Access-Control-Allow-Headers', 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization');
     let datasubcolltion = [];
-    const docRef = await db.collection('usuarios').doc(request.query.idadmin).collection('cobradores').doc(request.query.doc).collection('clientes').doc(request.query.subdoc).get().then(doc => {
+    const docRef = await db.collection('usuarios').doc(request.query.idadmin).collection('empresas').doc(request.query.id_empresa).collection('cobradores').doc(request.query.doc).collection('clientes').doc(request.query.subdoc).get().then(doc => {
             if (!doc.exists) {
 
                 return response.send('Not Found')
@@ -395,7 +409,7 @@ exports.CobradoresGuardarPrestamos = functions.https.onRequest(async(request, re
     response.set('Access-Control-Allow-Headers', 'Content-Length,Content-Range');
     response.set('Access-Control-Allow-Headers', 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization');
     // await db.collection('cobradores').doc(request.query.doc).collection('Clientes').doc(request.query.subid).collection(request.query.sub).add(request.body).then(() => {
-    await db.collection('usuarios').doc(request.query.idadmin).collection('cobradores').doc(request.query.doc).collection('clientes').doc(request.query.sub).update({
+    await db.collection('usuarios').doc(request.query.idadmin).collection('empresas').doc(request.query.id_empresa).collection('cobradores').doc(request.query.doc).collection('clientes').doc(request.query.sub).update({
         prestamos: fieldValue.arrayUnion(request.body)
     }).then(() => {
         return response.send('Prestamo registrado.');
@@ -416,7 +430,7 @@ exports.CobradoresActualizarPrestamos = functions.https.onRequest(async(request,
     response.set('Access-Control-Allow-Headers', 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization');
     // return response.send(request.body);
     let data = request.body.toString();
-    await db.collection('usuarios').doc(request.query.idadmin).collection('cobradores').doc(request.query.doc).collection('clientes').doc(request.query.sub).set({
+    await db.collection('usuarios').doc(request.query.idadmin).collection('empresas').doc(request.query.id_empresa).collection('cobradores').doc(request.query.doc).collection('clientes').doc(request.query.sub).set({
         prestamos: fieldValue.arrayUnion(request.body, { merge: true })
     }).then(() => {
         return response.send('Prestamo registrado.');
@@ -435,7 +449,7 @@ exports.CobradoresGuardarRutas = functions.https.onRequest(async(request, respon
     response.set('Access-Control-Allow-Headers', 'Content-Type');
     response.set('Access-Control-Allow-Headers', 'Content-Length,Content-Range');
     response.set('Access-Control-Allow-Headers', 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization');
-    await db.collection('usuarios').doc(request.query.idadmin).collection('cobradores').doc(request.query.doc).collection(request.query.sub).add(request.body).then((result) => {
+    await db.collection('usuarios').doc(request.query.idadmin).collection('empresas').doc(request.query.id_empresa).collection('cobradores').doc(request.query.doc).collection(request.query.sub).add(request.body).then((result) => {
         return response.send(result.id);
     }).catch((error) => {
         return response.status(500).send(error);
@@ -454,7 +468,7 @@ exports.CobradoresGuardarClientesRutas = functions.https.onRequest(async(request
     response.set('Access-Control-Allow-Headers', 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization');
 
 
-    await db.collection('usuarios').doc(request.query.idadmin).collection('cobradores').doc(request.query.doc).collection('Rutas').doc(request.query.sub).update({
+    await db.collection('usuarios').doc(request.query.idadmin).collection('empresas').doc(request.query.id_empresa).collection('cobradores').doc(request.query.doc).collection('Rutas').doc(request.query.sub).update({
         clientes: request.body
     }, { merge: true }).then((result) => {
         return response.send(result.id);
@@ -467,7 +481,7 @@ exports.CobradoresGuardarClientesRutas = functions.https.onRequest(async(request
  * @function Funcion para guardar los gastos de los cobradores.
  */
 exports.CobradoresGuardarGastos = functions.https.onRequest(async(request, response, body) => {
-    await db.collection('usuarios').doc(request.query.idadmin).collection('cobradores').doc(request.query.doc).collection(request.query.sub).add({
+    await db.collection('usuarios').doc(request.query.idadmin).collection('empresas').doc(request.query.id_empresa).collection('cobradores').doc(request.query.doc).collection(request.query.sub).add({
         Descripcion: request.body.descripcion,
         Valor_gasto: request.body.valor_gasto,
         fecha_creacion: request.body.fecha_creacion
@@ -1109,7 +1123,7 @@ exports.guardarJornadaInfoRuta = functions.https.onRequest(async(request, respon
     response.set('Access-Control-Allow-Headers', 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization');
 
     try {
-        await db.collection('usuarios').doc(request.query.idadmin).collection('cobradores').doc(request.query.doc).collection('Jornada_Ruta').add(request.body).then(res => {
+        await db.collection('usuarios').doc(request.query.idadmin).collection('empresas').doc(request.query.id_empresa).collection('cobradores').doc(request.query.doc).collection('Jornada_Ruta').add(request.body).then(res => {
             return response.status(200).send(JSON.stringify({ mensaje: 'Rornada_Ruta.', id: res.id })).end();
         }).catch((error) => {
             return response.status(500).send(error);
@@ -1131,7 +1145,7 @@ exports.actualizarJornadaRutaDia = functions.https.onRequest(async(request, resp
     response.set('Access-Control-Allow-Headers', 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization');
 
     try {
-        const snashop = await db.collection('usuarios').doc(request.query.idadmin).collection('cobradores').doc(request.query.doc).collection('Jornada_Ruta').doc(request.query.subdoc);
+        const snashop = await db.collection('usuarios').doc(request.query.idadmin).collection('empresas').doc(request.query.id_empresa).collection('cobradores').doc(request.query.doc).collection('Jornada_Ruta').doc(request.query.subdoc);
         // return response.status(200).send(JSON.stringify(snashop)).end();
         snashop.set(request.body, { merge: true }).then(res => {
             return response.status(200).send(JSON.stringify({ mensaje: 'Jornada terminada y actualizada.', id: res.id })).end();
@@ -1156,7 +1170,7 @@ exports.actualizarPosicionClienteLista = functions.https.onRequest(async(request
     response.set('Access-Control-Allow-Headers', 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization');
 
     try {
-        await db.collection('usuarios').doc(request.query.idadmin).collection('cobradores').doc(request.query.doc).collection('clientes').doc(request.query.subdoc)
+        await db.collection('usuarios').doc(request.query.idadmin).collection('empresas').doc(request.query.id_empresa).collection('cobradores').doc(request.query.doc).collection('clientes').doc(request.query.subdoc)
             .update({ posicion: Number(request.body.posicion_inicial) }, { merge: true })
             .then(res => {
                 return response.status(200).send(JSON.stringify({ mensaje: 'Posicion Guardada', id: res.id })).end();

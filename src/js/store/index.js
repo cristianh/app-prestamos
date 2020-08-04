@@ -50,7 +50,10 @@ export default new Vuex.Store({
             state.contador_transferencias++;
         },
         setDisminuyeContadorTransferencias(state) {
-            state.contador_transferencias--;
+            if (state.contador_transferencias >= 0) {
+                state.contador_transferencias--;
+            }
+
         },
         setfechInicialJornada(state, fecha_inicial_jornada) {
             state.jornada_cobrador.fecha_inicial = fecha_inicial_jornada;
@@ -82,6 +85,8 @@ export default new Vuex.Store({
         setQuitar_cobros_pendientesJornada(state) {
             if (state.jornada_cobrador.numero_cobros_pendientes != 0) {
                 state.jornada_cobrador.numero_cobros_pendientes--;
+            } else {
+                state.jornada_cobrador.numero_cobros_pendientes = 0;
             }
 
         },
@@ -135,31 +140,45 @@ export default new Vuex.Store({
         setEstadoRuta(state, newEstado) {
             state.estado_ruta = newEstado;
         },
-        setEstadoPrestamoRuta(state, data) {
-            let posicion = state.clientes_prestamos.findIndex(x => x.id == data.id);
+        setEstadoPrestamoRutaPago(state, data) {
+            let posicion = state.clientes_prestamos.findIndex(x => x.data.id == data.id);
 
-            state.clientes_prestamos[posicion].data.prestamos[0].estado_pago_ruta = data.estadopagoruta;
-            // console.log(data.estadopagoruta)
+            state.clientes_prestamos[posicion].data.prestamos[0].estado_pago_prestamo.pago = data.estadopagoruta;
+
+        },
+        setEstadoPrestamoRutaNoPago(state, data) {
+            let posicion = state.clientes_prestamos.findIndex(x => x.data.id == data.id);
+
+
+            state.clientes_prestamos[posicion].data.prestamos[0].estado_pago_prestamo.nopago = data.estadopagoruta;
+
         },
         setEstadoPrestamoPendiente(state, data) {
-            let posicion = state.clientes_prestamos.findIndex(x => x.id == data.id);
-
+            let posicion = state.clientes_prestamos.findIndex(x => x.data.id == data.id);
+            console.log(data.id);
+            console.log("estadte", state.clientes_prestamos[posicion]);
+            console.log("posicion", posicion);
+            console.log("data.estadopagoruta", data.estadopagoruta);
             state.clientes_prestamos[posicion].data.prestamos[0].estado_pendiente_prestamo_ruta = data.pagopendiente;
         },
         setEstadoDiasMora(state, data) {
-            let posicion = state.clientes_prestamos.findIndex(x => x.id == data.id);
+            let posicion = state.clientes_prestamos.findIndex(x => x.data.id == data.id);
             state.clientes_prestamos[posicion].data.prestamos[0].dias_con_mora = data.dias_mora;
         },
         cobroClientePendiente(state, clientePendiente) {
             state.cobros_pendientes.unshift(clientePendiente.cliente);
+
             state.jornada_cobrador.numero_cobros_pendientes++;
+
+
+
         },
         eliminarClientePrestamoDiario(state, Idcliente) {
-            let posicion = state.clientes_prestamos.findIndex(x => x.id == Idcliente);
+            let posicion = state.clientes_prestamos.findIndex(x => x.data.id == Idcliente);
             state.clientes_prestamos.splice(posicion, 1);
         },
         setEstadoTotalAPagar(state, data) {
-            let posicion = state.clientes_prestamos.findIndex(x => x.id == data.Idcliente);
+            let posicion = state.clientes_prestamos.findIndex(x => x.data.id == data.Idcliente);
             state.saldo_pago_dia[posicion] = data.pagototalhoy;
         }
 
@@ -237,7 +256,8 @@ export default new Vuex.Store({
             for (const key in state.clientes_prestamos) {
                 if (state.clientes_prestamos.hasOwnProperty(key)) {
                     const element = state.clientes_prestamos[key];
-                    state.estados_prestamos_ruta.push(element.data.prestamos[0].estado_prestamo_ruta);
+                    console.log("....elementstore", element);
+                    state.estados_prestamos_ruta.push(element.data.prestamos[0].estado_pago_prestamo);
                 }
             }
             return state.estados_prestamos_ruta;

@@ -56,6 +56,16 @@
         label="Valor"
         type="text"
         placeholder="valor de la transaccion"
+         v-currency="{
+          locale: 'de-DE',
+          currency: null,
+          valueAsInteger: true,
+          distractionFree: false,
+          precision:0,
+          autoDecimalMode: true,
+          valueRange: { min: 0 },
+          allowNegative: false
+        }"
         @input="form_transaccion.valor=$event.target.value"
       ></f7-list-input>
 
@@ -86,7 +96,7 @@
   <f7-row>
     
     <f7-col>
-      <f7-button fill large small @click="onGuardarTransaccion" color="green">REALIZAR TRANSACION</f7-button>
+      <f7-button fill large small :disabled="estadobotonTransaccion" @click="onGuardarTransaccion" color="green">REALIZAR TRANSACION</f7-button>
           
     </f7-col>
     
@@ -122,7 +132,8 @@ export default {
           fecha:new Date().toISOString().slice(0,10),
           hora: this.$moment(new Date()).format("hh:mm:ss"),
           mensaje:''
-          }
+          },
+          estadobotonTransaccion:false
         }
     },
     beforeMount(){
@@ -156,10 +167,20 @@ batch.update(sfRef, {"balance": this.balance_zona});
 batch.commit().then( () =>{
     // ...
     console.log('balance actualizado');
+     
               this.$f7.dialog.close();
               this.$f7.dialog.alert('Nuevo saldo '+this.balance_zona,'Saldo actualizado!',()=>{
               // this.identificacion=''
               this.$f7router.back();
+          this.form_transaccion.mensaje='';
+          this.form_transaccion.idEmpresa='';
+          this.form_transaccion.idCobrador_recibe='';
+          this.form_transaccion.Envia='';
+          this.form_transaccion.idCobrador_envia='';
+          this.form_transaccion.valor='';
+          this.form_transaccion.estado_transaccion=new Date().toISOString().slice(0,10);
+          this.form_transaccion.estado_transaccion=this.$moment(new Date()).format("hh:mm:ss");
+          
              
 
         }); 
@@ -184,10 +205,14 @@ batch.commit().then( () =>{
       onGuardarTransaccion() {
         // Sort data
          let balance_actual_zona=this.$store.getters.getBalance;
-        if(Number(this.form_transaccion.valor)>Number(balance_actual_zona)){
+         let valos_sin_puntos=0;
+         valos_sin_puntos=this.form_transaccion.valor;
+         valos_sin_puntos=valos_sin_puntos.replace('.', "");
+        this.estadobotonTransaccion=true;
+        if(Number(valos_sin_puntos)>Number(balance_actual_zona)){
           this.$f7.dialog.alert('No se puede realizar la transaccion, el monto de la transaccion es superior al saldo de la zona','Atencion!');
         } 
-        else if(this.form_transaccion.valor==0 || this.form_transaccion.valor==''){
+        else if(valos_sin_puntos==0 || valos_sin_puntos==''){
           this.$f7.dialog.alert('No se puede realizar la transaccion, debe ingresar un valor','Atencion!');
         }
         else if(balance_actual_zona==0){
@@ -205,7 +230,8 @@ batch.commit().then( () =>{
            db.collection("usuarios").doc(this.idad).collection("empresas").doc(this.id_empresa).collection("Transferencias").doc('nueva_transaccion').set(this.form_transaccion)
     .then(() =>{
         console.log("Document successfully written!");
-     let nuevo_balance_zona=Number(balance_actual_zona)-Number(this.form_transaccion.valor);
+        this.estadobotonTransaccion=false;
+     let nuevo_balance_zona=Number(balance_actual_zona)-Number(valos_sin_puntos);
      this.balance_zona=nuevo_balance_zona;
      this.$store.commit('setBalanceZona',nuevo_balance_zona);
         this.$f7.dialog.close();
@@ -219,7 +245,8 @@ batch.commit().then( () =>{
             db.collection("usuarios").doc(this.idad).collection("empresas").doc(this.id_empresa).collection("Zonas").doc(this.form_transaccion.idCobrador_recibe).collection("Transferencias").doc('nueva_transaccion').set(this.form_transaccion)
     .then(() =>{
         console.log("Document successfully written!");
-     let nuevo_balance_zona=Number(balance_actual_zona)-Number(this.form_transaccion.valor);
+        this.estadobotonTransaccion=false;
+     let nuevo_balance_zona=Number(balance_actual_zona)-Number(valos_sin_puntos);
      this.balance_zona=nuevo_balance_zona;
      this.$store.commit('setBalanceZona',nuevo_balance_zona);
         this.$f7.dialog.close();

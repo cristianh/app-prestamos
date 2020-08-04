@@ -61,11 +61,16 @@ Vue.use({ dbrealtime });
 Vue.use(require('vue-moment'));
 Vue.component('Message', Message);
 
+import VueCurrencyInput from 'vue-currency-input'
+
+
+Vue.use(VueCurrencyInput)
+
 
 import VueCurrencyFilter from 'vue-currency-filter'
 Vue.use(VueCurrencyFilter, {
         symbol: '$', // El símbolo, por ejemplo €
-        thousandsSeparator: ',', // Separador de miles
+        thousandsSeparator: '.', // Separador de miles
         fractionCount: 0, // ¿Cuántos decimales mostrar?
         fractionSeparator: '.', // Separador de decimales
         symbolPosition: 'front', // Posición del símbolo. Puede ser al inicio ('front') o al final ('') es decir, si queremos que sea al final, en lugar de front ponemos una cadena vacía ''

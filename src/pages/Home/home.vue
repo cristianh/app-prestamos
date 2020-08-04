@@ -127,12 +127,12 @@
                     </f7-list-item>
     
     
+                    <!-- :after="getBalanceZona!=0 || getBalanceZona!=''?getBalanceZona:'0'" -->
+                    <f7-list-item title="Saldo Zona" >
     
-                    <f7-list-item title="Saldo Zona" :after="getBalanceZona!=0 || getBalanceZona!=''?getBalanceZona:'0'">
+                        {{getBalanceZona!=0 || getBalanceZona!=''?getBalanceZona:'0'|currency}}
     
-    
-    
-                        <f7-icon ios="f7:local_atm" aurora="f7:local_atm" md="material:local_atm"></f7-icon>
+                        <!-- <f7-icon ios="f7:local_atm" aurora="f7:local_atm" md="material:local_atm"></f7-icon> -->
     
     
     
@@ -218,13 +218,15 @@ export default {
 
         this.profile_name = 'Bienvenido ' + localStorage.getItem("name") + '.';
         this.lastActivity = localStorage.getItem("lastactivity");
+        this.uid=localStorage.getItem("uid");
+        console.log(this.uid);
 
         let zona;
         let empresa=localStorage.getItem("empresa");
         self.$f7.dialog.preloader("Cargando informacion...");
         // console.log(this.uid);
         axios.get(`https://us-central1-manifest-life-279516.cloudfunctions.net/InformacionParaCobradores?idadmin=${this.idad}&doc=${empresa}&idcobrador=${this.uid}`).then((resp)=>{
-           
+          
             if(resp.data.collecciones.find(x=>x==="parametros_cobros")){
                 // alert('la empresa no a dfinico los paramtros de cobro');
                 
@@ -241,10 +243,13 @@ export default {
             localStorage.setItem("empresa", empresa);
             // localStorage.setItem("empresa", empresa);
 
+              console.log("buscarZonaCobrador",resp.data.zonas);
+                console.log("buscarZonaCobrador",resp.data.cobrador);  
             
-             console.log(resp.data);
-            resp.data.cobrador.forEach(element => {    
-                let buscarZonaCobrador=resp.data.zonas.filter(x=>x.id==element.Zona);
+            resp.data.cobrador.forEach(element => { 
+                console.log(element.zona);
+                let buscarZonaCobrador=resp.data.zonas.filter(x=>x.id===element.zona);
+                console.log("buscarZonaCobrador",buscarZonaCobrador);
                 if(buscarZonaCobrador.length>=1){
               
                 localStorage.setItem("zona", buscarZonaCobrador[0].id);
@@ -255,7 +260,7 @@ export default {
                 }
             });
             
-                 let tazaseinteres = resp.data.parametros_cobros;
+         let tazaseinteres = resp.data.parametros_cobros;
             for (const key in tazaseinteres) {
                 if (tazaseinteres.hasOwnProperty(key)) {
                     const element = tazaseinteres[key];
@@ -267,6 +272,34 @@ export default {
 
                 }
             }
+
+            let clientes_cobrador = resp.data.clientes;
+            
+            for (const key in clientes_cobrador) {
+                if (clientes_cobrador.hasOwnProperty(key)) {
+                    const element = clientes_cobrador[key];
+                    console.log(element);
+                    //this.clientes.push(element);
+                    this.$store.state.clientes.unshift(element);
+
+                    if (element.data.prestamos.length > 0 && element.data.prestamos[0].estado_prestamo != true) {
+                        this.$store.state.clientes_prestamos.unshift(element);
+                    }
+                }
+            }
+
+            // for (const key in clintes_cobrador) {
+            //     if (clintes_cobrador.hasOwnProperty(key)) {
+            //         const element = clintes_cobrador[key];
+            //         console.log(element);
+            //         //this.clientes.push(element);
+            //         this.$store.state.tasaseinteres.unshift(element);
+
+            //         ///this.clientes_nombres.push(element.data.usuario.nombre);
+
+            //     }
+            // }
+            self.$f7.dialog.close();
             
         });
 
@@ -298,21 +331,10 @@ export default {
         //             self.$f7.dialog.alert(error, "Error al cargar la informacion de la cobrador...");
         //         });
                 
-        this.ClientesCobradoresService.getAllClientesCobradores(this.idad, this.uid).then(response => {
-            self.$f7.dialog.close();
+        // this.ClientesCobradoresService.getAllClientesCobradores(this.idad, this.uid).then(response => {
+        //     self.$f7.dialog.close();
             // self.$f7.dialog.preloader("Cargando Informacion de los clientes...");
-            let cl = response.data;
-            for (const key in cl) {
-                if (cl.hasOwnProperty(key)) {
-                    const element = cl[key];
-                    //this.clientes.push(element);
-                    this.$store.state.clientes.unshift(element);
-
-                    if (element.data.prestamos.length > 0 && element.data.prestamos[0].estado_prestamo != true) {
-                        this.$store.state.clientes_prestamos.unshift(element);
-                    }
-                }
-            }
+          
 
         //     // axios.get(`https://us-central1-manifest-life-279516.cloudfunctions.net/Cobradores?doc=${}&sub=Rutas`)
         //     // this.CobradoresService.getZonaCobrador(this.idad, this.uid).then((response) => {
@@ -335,12 +357,12 @@ export default {
         //     //     self.$f7.dialog.close();
         //     // });
 
-        self.$f7.dialog.close();
+        // self.$f7.dialog.close();
 
-        }).catch(error => {
-            self.$f7.dialog.close();
-            self.$f7.dialog.alert(error, "Error al cargar los clientes...");
-        });
+        // }).catch(error => {
+        //     self.$f7.dialog.close();
+        //     self.$f7.dialog.alert(error, "Error al cargar los clientes...");
+        // });
 
 
         //  this.empresaService.getAllInfoEmpresaZona(this.idad, empresa, zona).then((datazona) => {

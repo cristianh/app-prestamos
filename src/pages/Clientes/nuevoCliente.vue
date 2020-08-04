@@ -29,8 +29,9 @@
         maxlength=10
         minlength=7
         pattern="[0-9]{7,10}"
-        error-message="Solo numeros y minimo 7 maximo 10 caracteres"
+        error-message="Solo numeros (7-10) caracteres"
         @input="form.usuario.identificacion=$event.target.value"
+        :onValidate=onValidatedInput
       ></f7-list-input>
 
       <f7-list-input
@@ -44,6 +45,7 @@
         pattern="[A-Za-z]*"
         error-message="Solo letras"
         @input="form.usuario.nombre=$event.target.value"
+        :onValidate=onValidatedInput
       ></f7-list-input>
 
       <f7-list-input
@@ -57,6 +59,7 @@
         pattern="[A-Za-z]*"
         error-message="Solo letras"
         @input="form.usuario.apellido=$event.target.value"
+        :onValidate=onValidatedInput
       ></f7-list-input>
       
 
@@ -69,6 +72,7 @@
         required
         validate
         @input="form.usuario.direccion1=$event.target.value"
+        :onValidate=onValidatedInput
       ></f7-list-input>
 
       <f7-list-input
@@ -92,6 +96,7 @@
         pattern="[0-9]{7,10}"
         error-message="Solo numeros y minimo 7 maximo 10 caracteres "
         :error-message-force="false"
+        :onValidate=onValidatedInput
         @input="form.usuario.telefono=$event.target.value"
       ></f7-list-input>
       
@@ -105,6 +110,7 @@
         validate
         pattern="[A-Za-z]*"
         error-message="Solo letras"
+        :onValidate=onValidatedInput
         @input="form.usuario.oficio=$event.target.value"
       ></f7-list-input>
 
@@ -127,6 +133,7 @@
         validate
         pattern="[A-Za-z]*"
         error-message="Solo letras"
+        :onValidate=onValidatedInput
         @input="form.negocio.nombre_negocio=$event.target.value"
       ></f7-list-input>
 
@@ -138,6 +145,7 @@
         placeholder="Direccion"
         required
         validate
+        :onValidate=onValidatedInput
         @input="form.negocio.direccion=$event.target.value"
       ></f7-list-input>
 
@@ -151,6 +159,7 @@
         validate
         pattern="[0-9]*"
         error-message="Solo numeros"
+        :onValidate=onValidatedInput
         @input="form.usuario.telefono=$event.target.value"
       ></f7-list-input>
 
@@ -164,6 +173,7 @@
         validate
         pattern="[A-Za-z]*"
         error-message="Solo letras"
+        :onValidate=onValidatedInput
         @input="form.negocio.ciudad=$event.target.value"
       ></f7-list-input>     
     </f7-list>
@@ -246,7 +256,7 @@
     
     <f7-col>
         
-      <f7-button fill large small :disabled="false" @click="onGuardarCliente" color="green">GUARDAR</f7-button>
+      <f7-button fill large small :disabled="validar_campos" @click="onGuardarCliente" color="green">GUARDAR</f7-button>
           
     </f7-col>
       <!-- <f7-col v-if="geoHabilitado">
@@ -296,7 +306,7 @@ export default {
            cobradoresClientesService:null,
            contador_cobros_efectivos:0,
            contador_cobros_no_efectivos:0,
-           validar_campos:true,
+           validar_campos:false,
            clientes:[],
             form:{
                 posicion:0,
@@ -424,7 +434,7 @@ export default {
     },
     methods:{
      onValidatedInput(isValid){
-       alert(isValid);
+      
      },
       onVolverACargarGeo(){
         navigator.geolocation.getCurrentPosition(this.onSuccessGeolocalizacion, this.onErrorGeolocalizacio);
@@ -470,26 +480,43 @@ export default {
           localStorage.setItem("cobros_no_efectivos",this.contador_cobros_no_efectivos++);
         },
         onGuardarCliente(){
+        
+          if(this.form.usuario.identificacion==''){
+               this.$f7.dialog.alert('Falta el campo identificacion en usuario.','Atencion!');
+          } else if(this.form.usuario.nombre==''){
+              this.$f7.dialog.alert('Falta el campo nombre en usuario.','Atencion!');
+          }
+          else if(this.form.usuario.apellido==''){
+              this.$f7.dialog.alert('Falta el campo apellido en usuario.','Atencion!');
+          }
+           else if(this.form.usuario.direccion1==''){
+              this.$f7.dialog.alert('Falta el campo direccion1 en usuario.','Atencion!');
+          }
+           else if(this.form.usuario.telefono==''){
+              this.$f7.dialog.alert('Falta el campo telefono en usuario.','Atencion!');
+          }
+          else if(this.form.usuario.oficio==''){
+              this.$f7.dialog.alert('Falta el campo oficio en usuario.','Atencion!');
+          }
          
-          let campos_usuario=Object.values(this.form.usuario);
-          let campos_negocio=Object.values(this.form.negocio);
-          let filtro_contador_campos_usuario=campos_usuario.filter(x=>x=="").length;
-          let filtro_contador_campos_negocio=campos_negocio.filter(x=>x=="").length;
-         
-         
-          let sumaacampos=Number(filtro_contador_campos_usuario)+Number(filtro_contador_campos_negocio);
-           console.log(Number(filtro_contador_campos_usuario));
-           console.log(Number(filtro_contador_campos_negocio));
-           console.log(sumaacampos);
-          if(sumaacampos==0 || sumaacampos==1){
+           else if(this.form.negocio.nombre_negocio==''){
+              this.$f7.dialog.alert('Falta el campo nombre en negocio.','Atencion!');
+          }
+           else if(this.form.negocio.direccion==''){
+              this.$f7.dialog.alert('Falta el campo direccion en negocio.','Atencion!');
+          }
+           else if(this.form.negocio.telefono==''){
+              this.$f7.dialog.alert('Falta el campo telefono en negocio.','Atencion!');
+          }
+          else if(this.form.negocio.ciudad==''){
+              this.$f7.dialog.alert('Falta el campo ciudad en negocio.','Atencion!');
+          }
+          else{
               // this.validar_campos=false;
-        let config = {
-                     headers: { 'content-type': 'application/json; utf-8' },
-                  method: 'POST'
-          };
+       
 
      const self = this;
-        self.$f7.dialog.preloader('Guardando...');
+     self.$f7.dialog.preloader('Guardando...');
      let ui_cobrador=localStorage.getItem("uid");
      let idmpresa=localStorage.getItem("empresa");
      this.form.posicion=Number(this.$store.getters.getContadorClientes)+1;
@@ -512,14 +539,6 @@ export default {
         console.log(error);
     }); 
           }
-          else{
-
-            this.$f7.dialog.confirm('La informacion del usuario y el negocio son requeridas, por favor verifique los campos he intentelo nuevamente.','Atencio!');
-            
-  
-          }
-
-    
         }
     }
 }

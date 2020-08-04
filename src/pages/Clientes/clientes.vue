@@ -55,7 +55,7 @@
           :text="`Cedula: ${cliente.data.usuario.identificacion}`" 
           :title="`${cliente.data.usuario.nombre} ${cliente.data.usuario.apellido}`" 
           :subtitle="cliente.data.usuario.direccion1==''?cliente.data.usuario.direccion2:cliente.data.usuario.direccion1" 
-          :link="`/cliente_detalles/${cliente.id}/`" 
+          :link="`/cliente_detalles/${cliente.data.id}/`" 
           :badge="cliente.nuevo?'nuevo':''" 
           :badge-color="cliente.nuevo?'green':''"
           :footer="`${cliente.data.prestamos.length>0?'Prestamo: '+cliente.data.prestamos[0].valor:'Prestamo: NA'}`"
@@ -63,7 +63,7 @@
           <!-- `:after=""Telefono: ${cliente.data.usuario.telefono}` -->
            <f7-swipeout-actions right>
              <f7-swipeout-button close color="green" @click="onLlamar(cliente.data.usuario.telefono)">Llamar</f7-swipeout-button>
-        <f7-swipeout-button close overswipe color="blue" @click="onSeleccionarCliente(cliente.id,cliente.data.usuario.nombre+cliente.data.usuario.apellido)">Prestamo</f7-swipeout-button>
+        <f7-swipeout-button close overswipe color="blue" @click="onSeleccionarCliente(cliente.data.id,cliente.data.usuario.nombre+cliente.data.usuario.apellido)">Prestamo</f7-swipeout-button>
         </f7-swipeout-actions>
          <!-- <f7-link v-if="cliente.data.usuario.telefono" style="margin-left:12px;font-size:14px" external  :href="`tel:${cliente.data.usuario.telefono}`"><f7-icon material="settings_phone"></f7-icon>{{cliente.data.usuario.telefono}}</f7-link> -->
           </f7-list-item>
@@ -102,12 +102,22 @@
         <f7-list inset>
             <f7-list-input
         label="Pago:"
-        type="number"
+        type="text"
         :value="info_prestamo.valor"
         min=0
         placeholder="0"
         clear-button
         @input.capture="info_prestamo.valor=$event.target.value"
+         v-currency="{
+          locale: 'de-DE',
+          currency: null,
+          valueAsInteger: true,
+          distractionFree: false,
+          precision:0,
+          autoDecimalMode: true,
+          valueRange: { min: 0 },
+          allowNegative: false
+        }"
         ></f7-list-input>
             <f7-list-input
     label="Plan"
@@ -140,12 +150,12 @@
   </f7-card-content>
    <f7-card-footer>
     <f7-link>Saldo de la zona</f7-link>
-    <f7-link>{{balance_zona}}</f7-link>
+    <f7-link>{{balance_zona|currency}}</f7-link>
   </f7-card-footer>
 </f7-card>
         <div class="display-flex padding justify-content-space-between align-items-center">
           <div style="font-size: 18px"><b>Total:</b></div>
-          <div style="font-size: 22px"><b><span>{{info_prestamo.valor==0?0:info_prestamo.valor|currency}}</span></b></div>
+          <div style="font-size: 22px"><b><span>$ {{info_prestamo.valor==0?0:info_prestamo.valor}}</span></b></div>
         </div>
         <div class="padding-horizontal padding-bottom">
           <f7-button large fill @click="onConfirmarPago" >CONFIRMAR</f7-button>
@@ -200,6 +210,10 @@ export default {
               dias_plazo:'',
               dias_con_mora:0,
               estado_prestamo:false,
+              estado_pago_prestamo:{
+                pago:false,
+                nopago:false
+              },
               estado_pendiente_prestamo_ruta:false,
               saldo_pendiente:0,
               saldo_pago_dia:0
@@ -349,7 +363,7 @@ batch.update(sfRef, {"balance": this.balance_zona});
 // Commit the batch
 batch.commit().then( ()=> {
     // ...
-   info_prestamo={
+   this.info_prestamo={
               valor:0,
               // fecha:this.$moment(new Date).format("DD/MM/YYYY"), 
               fecha:new Date().toISOString().slice(0,10), 
@@ -375,18 +389,18 @@ batch.commit().then( ()=> {
       console.log("Pendiente"+usuario);
     },
     onSeleccionarCliente(id,nombrecompleto) {
-        const app = this.$f7;
+        
         this.cliente_seleccionado=id;
         // app.dialog.alert(id);
-        app.dialog.confirm('Confirmar usuario',nombrecompleto, () => {
-          
-           let elemento = this.clientes.findIndex(x=>x.id==id);
-          // console.log(this.cliente_seleccionado);
+        this.$f7.dialog.confirm('Confirmar usuario',nombrecompleto, () => {
+           
+           let elemento = this.clientes.findIndex(x=>x.data.id==id);
+           console.log(elemento);
            if(this.clientes[elemento].data.prestamos.length>0){
   // && this.clientes[elemento].data.prestamos.estado_prestamo!=true
-            app.dialog.alert('No se puede realizar el prestamo, el cliente tiene un saldo por pagar.',nombrecompleto);
+           this.$f7.dialog.alert('No se puede realizar el prestamo, el cliente tiene un saldo por pagar.',nombrecompleto);
           }else{
-          app.dialog.alert(nombrecompleto,'Confirmado!',()=>{
+          this.$f7.dialog.alert(nombrecompleto,'Confirmado!',()=>{
             this.$f7.sheet.open('.demo-sheet-swipe-to-step');
           });
           
@@ -400,7 +414,7 @@ batch.commit().then( ()=> {
 
       if(this.cliente_seleccionado==='' || this.cliente_seleccionado==null){
          
-         app.dialog.alert('Debe seleccionar un Cliente!');
+         this.$f7.dialog.alert('Debe seleccionar un Cliente!');
       }
       else{
       
@@ -414,6 +428,7 @@ batch.commit().then( ()=> {
           // fecha_hora
           // fecha_inicio
           let saldo_actual_zona=  localStorage.getItem("saldo_zona");
+          this.info_prestamo.valor=this.info_prestamo.valor.replace('.', "");
           if(Number(this.info_prestamo.valor)>saldo_actual_zona || saldo_actual_zona==0){
              const app = this.$f7;
         // app.dialog.alert(id);
@@ -427,8 +442,8 @@ batch.commit().then( ()=> {
           let ui_cobrador=localStorage.getItem("uid");
           self.$f7.dialog.preloader('Guardando pago...');
           this.info_prestamo.cliente=this.cliente_seleccionado;
-       
-      
+          let id_empresa=localStorage.getItem("empresa");
+          this.info_prestamo.valor=this.info_prestamo.valor.replace('.', "");
           let valor_prestamo=this.info_prestamo.valor;
           let taza_seleccionada_interes= this.tazaseleccionada;
           let plazo_dias= this.planseleccionado;
@@ -441,8 +456,9 @@ batch.commit().then( ()=> {
           this.info_prestamo.plan_seleccionado=this.planseleccionado;
           this.info_prestamo.dias_plazo=Number(this.planseleccionado);
 
-          this.abonoService.guardarAbonosPrestamos(this.idad,ui_cobrador,this.info_prestamo.cliente,this.info_prestamo).then( (response) =>  {
+          this.abonoService.guardarAbonosPrestamos(this.idad,id_empresa,ui_cobrador,this.info_prestamo.cliente,this.info_prestamo).then( (response) =>  {
           let saldo_actual=  localStorage.getItem("saldo_zona");
+          this.info_prestamo.valor=this.info_prestamo.valor.replace('.', "");
           let saldo_valor=   this.info_prestamo.valor;
           let descuentosaldozona=Number(saldo_actual)-Number(saldo_valor);
           localStorage.setItem("saldo_zona", descuentosaldozona);
@@ -450,7 +466,7 @@ batch.commit().then( ()=> {
           this.$store.commit('setBalanceZona',Number(descuentosaldozona));
           this.total_prestado=Number(this.total_prestado)+Number(this.info_prestamo.valor)
           localStorage.setItem("total_prestado",this.total_prestado);
-          let elemento = this.clientes.findIndex(x=>x.id==this.cliente_seleccionado);
+          let elemento = this.clientes.findIndex(x=>x.data.id==this.cliente_seleccionado);
           this.clientes[elemento].data.prestamos.push(this.info_prestamo);
           
           this.updateBalanceValor();
