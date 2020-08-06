@@ -29,8 +29,8 @@
          Dias de mora: {{prestamos.dias_con_mora}}<br>
          Dias de plazo: {{prestamos.dias_plazo}}<br>
          Fecha del prestamo: {{prestamos.fecha}}<br>
-         Valor del prestamo: {{prestamos.valor}}<br>
-         Total a pagar: {{prestamos.total_apagar}}<br>
+         Valor del prestamo: {{prestamos.valor|currency}}<br>
+         Total a pagar: {{prestamos.total_apagar|currency}}<br>
          Plan seleccionado: {{prestamos.plan_seleccionado}}</h5>
          </f7-block>
          <f7-block-title>Usuario</f7-block-title>
@@ -88,13 +88,13 @@
         <f7-list inset>
         <f7-list-input
         label="Pago:"
-        type="number"
+        type="text"
         :value.sync="informacion_pago.valor"
         min=0
         autofocus
         placeholder="0"
         clear-button
-        @input.capture="informacion_pago.valor_pago=$event.target.value"
+        @input.capture="valor_sin_puntos=$event.target.value"
          v-currency="{
           locale: 'de-DE',
           currency: null,
@@ -141,7 +141,7 @@
 </f7-card>
         <div class="display-flex padding justify-content-space-between align-items-center">
           <div style="font-size: 18px"><b>Total:</b></div>
-          <div style="font-size: 22px"><b><span>$ {{informacion_pago.valor_pago==0?0:informacion_pago.valor_pago}}</span></b></div>
+          <div style="font-size: 22px"><b><span>$ {{this.valor_sin_puntos==0?0:this.valor_sin_puntos}}</span></b></div>
         </div>
         <div class="padding-horizontal padding-bottom">
           <f7-button large fill @click="onConfirmarPago" >CONFIRMAR</f7-button>
@@ -230,6 +230,7 @@ import CobradorService from '../Services/CobradoresServices.js';
             total_apagar:'',
             plan_seleccionado:''
             },
+            valor_sin_puntos:0,
             mensajeSaldo: `Saldo a pagar: ${this.$f7route.params.saldo_apagar}`,
             abonoService:null,
             clientesService:null,
@@ -396,15 +397,18 @@ batch.commit().then(function () {
       const app = this.$f7;
       let ui_cobrador=localStorage.getItem("uid");
       let elemento = this.clientes_info;
-      let valor_sin_puntos;
+       this.valor_sin_puntos;
 
       //Verificamos que el valor ingresado a pagar no sea mayor al valor del prestamo realizado
-            valor_sin_puntos=this.informacion_pago.valor_pago;
-            valor_sin_puntos=valor_sin_puntos.replace('.', "");
+            // this.valor_sin_puntos=;
+           
+            this.informacion_pago.valor_pago=this.valor_sin_puntos.split('.').join('');
+           
+          
 
-      if(Number(valor_sin_puntos>Number(elemento.prestamos[0].valor))){
+      if(Number(this.informacion_pago.valor_pago>Number(elemento.prestamos[0].valor))){
           this.$f7.dialog.alert('El valor a pagar es mayor al total del prestamo,revise por favor.','Atencion!');
-          valor_sin_puntos=0;
+          this.valor_sin_puntos=0;
       }else{
           
           this.$f7.dialog.preloader('Guardando pago...');
@@ -414,7 +418,7 @@ batch.commit().then(function () {
           this.abonoService.guardarAbonosCobros(this.idad,id_empresa,ui_cobrador,this.id,this.informacion_pago).then( (response) =>  {
           let saldo_actual=  localStorage.getItem("saldo_zona");
           // this.informacion_pago.valor_pago=this.informacion_pago.valor_pago.replace('.', "");
-          let saldo_valor=   valor_sin_puntos;
+          let saldo_valor=    this.informacion_pago.valor_pago;
           this.$store.commit('setEstadoRuta',false);
           // this.jornada_cobrador.catidad_cobrosefectivos=Number(this.jornada_cobrador.catidad_cobrosefectivos)+1;
 
@@ -425,8 +429,8 @@ batch.commit().then(function () {
           let numero_de_clientes_prestamo=this.$store.getters.getClientesPrestamo;
     
           let descuentosaldozona=Number(saldo_actual)+Number(saldo_valor);
-          let total_cobrado=Number( this.$store.getters.getCobrosTotalCobrado)+Number(valor_sin_puntos);
-          this.mensajeSaldo=`Nuevo saldo ${this.saldo_a_pagar-valor_sin_puntos}`;
+          let total_cobrado=Number( this.$store.getters.getCobrosTotalCobrado)+Number(this.informacion_pago.valor_pago);
+          this.mensajeSaldo=`Saldo ${this.saldo_a_pagar- this.informacion_pago.valor_pago}`;
           this.$store.commit('setTotalCobros',total_cobrado);
           
           localStorage.setItem("saldo_zona", descuentosaldozona);
@@ -438,13 +442,13 @@ batch.commit().then(function () {
           
          
       
-         if(Number(valor_sin_puntos)===Number(this.saldo_a_pagar)){
+         if(Number(this.informacion_pago.valor_pago)===Number(this.saldo_a_pagar)){
             
 
           //  elemento.prestamos[0].saldo_pendiente=0;
           // this.informacion_pago.valor_pago=this.informacion_pago.valor_pago.replace('.', "");
-          elemento.prestamos[0].saldo_pendiente=Number(this.saldo_a_pagar)-Number(valor_sin_puntos);
-          elemento.prestamos[0].total_apagar=Number(elemento.prestamos[0].total_apagar)-Number(valor_sin_puntos);
+          elemento.prestamos[0].saldo_pendiente=Number(this.saldo_a_pagar)-Number(this.informacion_pago.valor_pago);
+          elemento.prestamos[0].total_apagar=Number(elemento.prestamos[0].total_apagar)-Number(this.informacion_pago.valor_pago);
           // elemento.prestamos[0].dias_plazo=Number(elemento.prestamos[0].dias_plazo)-1;
           
           if(elemento.prestamos[0].dias_con_mora!=0){
@@ -475,7 +479,7 @@ batch.commit().then(function () {
        this.$store.commit('setQuitar_cobros_pendientesJornada');
         this.clientesService.actualizarClienteCobrador(this.idad,ui_cobrador,this.id,elemento).then( (response) =>  {
               this.informacion_pago.valor_pago=0;  
-               valor_sin_puntos=0;  
+               this.valor_sin_puntos=0;  
                 this.$f7.sheet.close();
           this.$f7.dialog.close();
           this.updateValor();    
@@ -483,9 +487,9 @@ batch.commit().then(function () {
          }
          else {
           
-          elemento.prestamos[0].saldo_pendiente=Number(this.saldo_a_pagar)-Number(valor_sin_puntos);
+          elemento.prestamos[0].saldo_pendiente=Number(this.saldo_a_pagar)-Number(this.informacion_pago.valor_pago);
           // console.log(elemento.prestamos[0].saldo_pendiente);
-          elemento.prestamos[0].total_apagar=Number(elemento.prestamos[0].total_apagar)-Number(valor_sin_puntos);
+          elemento.prestamos[0].total_apagar=Number(elemento.prestamos[0].total_apagar)-Number(this.informacion_pago.valor_pago);
            if(elemento.prestamos[0].dias_con_mora>=0){
             
             elemento.prestamos[0].dias_con_mora=Number(elemento.prestamos[0].dias_con_mora)+1;
@@ -511,7 +515,7 @@ batch.commit().then(function () {
         
           
          
-          if(Number(this.saldo_a_pagar)-Number(valor_sin_puntos)<=0){
+          if(Number(this.saldo_a_pagar)-Number(this.informacion_pago.valor_pago)<=0){
             //Pendiente de comprobacion
              //this.$store.commit('eliminarClientePrestamoDiario',this.id);
            }
@@ -542,7 +546,7 @@ batch.commit().then(function () {
            
           this.clientesService.actualizarClienteCobrador(this.idad,ui_cobrador,this.id,elemento).then( (response) =>  {
               this.informacion_pago.valor_pago=0; 
-              valor_sin_puntos=0;   
+              this.valor_sin_puntos=0;   
                 this.$f7.sheet.close();
           this.$f7.dialog.close();
           this.updateValor();  
@@ -563,7 +567,7 @@ batch.commit().then(function () {
        let ui_cobrador=localStorage.getItem("uid");
           this.cobradoresService.getCobradoresClientesBuscar(this.idad,idempresa,ui_cobrador,this.$f7route.params.id).then( (response) =>  {
               this.clientes_info=response.data;
-              console.log("datossss...getCobradoresClientesBuscar",response);
+              
               this.isLoadUsers= true;
           }).catch(error => {
               console.log(error);

@@ -11,6 +11,7 @@ import PickList from 'primevue/picklist';
 import Button from 'primevue/button';
 import ToastService from 'primevue/toastservice';
 import Toast from 'primevue/toast';
+import VueCurrencyInput from 'vue-currency-input'
 
 
 
@@ -27,6 +28,7 @@ Vue.component('PickList', PickList);
 Vue.component('Toast', Toast);
 Vue.component('Button', Button);
 Vue.use(require('vue-moment'));
+Vue.use(VueCurrencyInput)
 
 
 

@@ -9,4 +9,8 @@ export default class TransaccionService {
         return axios.post(`guardarHistorialTransaccion?idadmin=${id_admin}&doc=${id_empresa}`, data).then(response => response);
     }
 
+    getTransaccionesPendiente(id_admin, id_empresa, id_zona) {
+        return axios.get(`transaccionesPendientes?idadmin=${id_admin}&doc=${id_empresa}&subdoc=${id_zona}`).then(response => response);
+    }
+
 }

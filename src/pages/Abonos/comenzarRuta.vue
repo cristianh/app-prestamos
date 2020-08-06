@@ -361,8 +361,11 @@ export default {
         else{
            app.dialog.confirm('Seguro desea terminar la ruta!','Terminar ruta', () => {
         
-          this.$store.commit('sethoraFinalJornada',this.$moment(new Date).format("hh:mm:ss"));
-          this.$store.commit('setfechaFinalJornada',new Date().toISOString().slice(0,10));
+        axios.get('http://worldtimeapi.org/api/timezone/America/Bogota').then((res)=>{
+          this.$store.commit('sethoraFinalJornada',this.$moment(res.datetime).format("hh:mm:ss"));
+          this.$store.commit('setfechaFinalJornada',this.$moment(res.datetime).format("MM/DD/YYYY"));
+        });
+          
           this.$store.commit('setEstadoRuta',false);
 
           this.isComienzoRuta=false;

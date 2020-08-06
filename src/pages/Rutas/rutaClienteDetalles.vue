@@ -50,7 +50,7 @@
           axios.get(`https://us-central1-manifest-life-279516.cloudfunctions.net/CobradoresClientesBuscar?doc=${ui_cobrador}&sub=clientes&subdoc=${this.$f7route.params.id}`)
           .then( (response) =>  {
               this.clientes_info=response.data;
-              console.log("datossss...",response);
+             
               this.isLoadUsers= true;
           }).catch(error => {
               console.log(error);

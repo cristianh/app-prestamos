@@ -74,7 +74,7 @@ import CobradorService from '../Services/CobradoresServices.js';
      this.$f7.dialog.preloader("Buscando Informacion...");
           this.cobradoresService.getCobradoresClientesBuscar(this.idad,id_empresa,ui_cobrador,this.$f7route.params.id).then( (response) =>  {
               this.clientes_info=response.data;
-              console.log("datossss...",response);
+              
               this.isLoadUsers= true;
               this.$f7.dialog.close();
           }).catch(error => {

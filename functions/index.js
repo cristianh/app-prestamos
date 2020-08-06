@@ -28,6 +28,18 @@ exports.updateEstadoUsuario = functions.firestore
         }, { merge: true });
     });
 
+// exports.detectarTransferencia = functions.firestore
+//     .document('usuarios/{usuarioId}/empresas/{empresaId}/Zonas/{zonaId}/Transferencias/{transferenciasId}')
+//     .onCreate((change, context) => {
+//         // Get an object representing the document
+//         // e.g. {'name': 'Marie', 'age': 66}
+//         // ...or the previous value before this update
+//         const previousValue = change.before.data().activo;
+//         db.collection('usuarios').doc(context.params.usuarioId).collection('empresas').doc(context.params.empresaId).collection('Zonas').doc(context.params.zonaId).collection('Transferencias').doc(context.params.transferenciasId).set({
+//             activo: true
+//         }, { merge: true });
+//     });
+
 
 
 /**
@@ -60,10 +72,6 @@ exports.InformacionParaCobradores = functions.https.onRequest(async(request, res
         const collections_parametros_cobro = await db.collection('usuarios').doc(request.query.idadmin).collection('empresas').doc(request.query.doc).collection('parametros_cobros');
         const collections_cobradores = await db.collection('usuarios').doc(request.query.idadmin).collection('empresas').doc(request.query.doc).collection('cobradores').doc(request.query.idcobrador);
         const collections_cobradores_clientes = await db.collection('usuarios').doc(request.query.idadmin).collection('empresas').doc(request.query.doc).collection('cobradores').doc(request.query.idcobrador).collection('clientes');
-
-
-
-
 
         let restultadoConsultazonasempresa = collections_zona.where("empresa", "==", request.query.doc).get()
             .then((querySnapshot) => {
@@ -699,13 +707,9 @@ exports.Empresas = functions.https.onRequest(async(request, response, body) => {
                         return response.send('Not Found');
                     } else {
                         snapshot.forEach(doc => {
-                            let id = doc.id;
-                            let datadocument = {
-                                'id': id,
-                                'Nombre': doc.data().Nombre,
-                                'Balance': doc.data().Balance,
-                                'Mensaje': doc.data().Mensaje
-                            };
+                            // let id = doc.id;
+                            let datadocument = doc.data();
+                            datadocument.id = doc.id
                             empresas.push(datadocument);
                             // users.push({
                             //         id: doc.id,
@@ -1206,6 +1210,40 @@ exports.EliminarTransaccion = functions.https.onRequest(async(request, response,
 
 });
 
+/**
+ * @function Funcion para buscar las trasacciones pendientes.
+ */
+exports.transaccionesPendientes = functions.https.onRequest(async(request, response, body) => {
+    response.set('Access-Control-Allow-Origin', '*');
+    response.set('Access-Control-Allow-Credentials', 'true'); // vital
+    response.set('Access-Control-Allow-Methods', 'GET', 'POST', 'PUT', 'DELETE', 'OPTIONS');
+    response.set('Access-Control-Allow-Headers', 'Content-Type');
+    response.set('Access-Control-Allow-Headers', 'Content-Length,Content-Range');
+    response.set('Access-Control-Allow-Headers', 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization');
+
+    try {
+
+        await db.collection('usuarios').doc(request.query.idadmin).collection('empresas').doc(request.query.doc).collection('Zonas').doc(request.query.subdoc).collection('Transferencias').where("estado_transaccion", "==", false).get()
+            .then(snapshot => {
+                let prestamos_pendientes = [];
+                if (snapshot.empty) {
+                    datadocumnts.push('No matching documents.');
+                }
+                snapshot.forEach(doc => {
+                    // let id = doc.id;
+                    let data = doc.data();
+                    data.id = doc.id;
+                    prestamos_pendientes.push(data);
+                });
+                return response.status(200).send(prestamos_pendientes);
+            });
+
+    } catch (error) {
+        return response.status(500).send(error);
+    }
+
+});
+
 
 /**
  * @function Funcion para Eliminar las transacciones.
@@ -1227,6 +1265,52 @@ exports.EliminarTransaccionEmpresa = functions.https.onRequest(async(request, re
     }
 
 });
+
+/**
+ * @function Funcion para Eliminar las transacciones.
+ */
+exports.actualizarEstadoTransaccion = functions.https.onRequest(async(request, response, body) => {
+    response.set('Access-Control-Allow-Origin', '*');
+    response.set('Access-Control-Allow-Credentials', 'true'); // vital
+    response.set('Access-Control-Allow-Methods', 'GET', 'POST', 'PUT', 'DELETE', 'OPTIONS');
+    response.set('Access-Control-Allow-Headers', 'Content-Type');
+    response.set('Access-Control-Allow-Headers', 'Content-Length,Content-Range');
+    response.set('Access-Control-Allow-Headers', 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization');
+
+    try {
+
+        await db.collection('usuarios').doc(request.query.idadmin).collection('empresas').doc(request.query.doc).collection('Transferencias').doc(request.query.subdoc).update({ estado_transaccion: true }, { merge: true }).then((resp) => {
+            return response.status(200).send('Transaccion actualizada');
+        });
+        // });
+    } catch (error) {
+        return response.status(500).send(error);
+    }
+
+});
+
+/**
+ * @function Funcion para guardar los prestamos de los guardar el historial de transacciones.
+ */
+exports.guardarTransaccionPendiente = functions.https.onRequest(async(request, response, body) => {
+    response.set('Access-Control-Allow-Origin', '*');
+    response.set('Access-Control-Allow-Credentials', 'true'); // vital
+    response.set('Access-Control-Allow-Methods', 'GET', 'POST', 'PUT', 'DELETE', 'OPTIONS');
+    response.set('Access-Control-Allow-Headers', 'Content-Type');
+    response.set('Access-Control-Allow-Headers', 'Content-Length,Content-Range');
+    response.set('Access-Control-Allow-Headers', 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization');
+    try {
+        const snapshot = await db.collection('usuarios').doc(request.query.idadmin).collection('empresas').doc(request.query.doc).collection('Zonas').doc(request.query.subdoc).collection('Transacciones_pendientes').add(request.body).then(() => {
+            return response.status(200).send(JSON.stringify({ mensaje: 'Transaccion PendienteGuardada.' })).end();
+        }).catch((error) => {
+            return response.status(500).send(error);
+        });
+
+    } catch (error) {
+        return response.send('Error getting document', error).end();
+    }
+});
+
 
 /**
  * @function Funcion para guardar los prestamos de los guardar el historial de transacciones.
@@ -1279,6 +1363,36 @@ exports.getHistorialTransacciones = functions.https.onRequest(async(request, res
                 historialTrasacciones.push(data);
             });
             return response.status(200).send(JSON.stringify(historialTrasacciones));
+        }
+    } catch (error) {
+        return response.status(500).send(error);
+    }
+
+});
+
+/**
+ * @function Funcion que devuelve todas la tazas de interes.
+ */
+exports.getTransacciones = functions.https.onRequest(async(request, response, body) => {
+    response.set('Access-Control-Allow-Origin', '*');
+    response.set('Access-Control-Allow-Credentials', 'true'); // vital
+    response.set('Access-Control-Allow-Methods', 'GET', 'POST', 'PUT', 'DELETE', 'OPTIONS');
+    response.set('Access-Control-Allow-Headers', 'Content-Type');
+    response.set('Access-Control-Allow-Headers', 'Content-Length,Content-Range');
+    response.set('Access-Control-Allow-Headers', 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization');
+
+    try {
+        let Trasacciones = [];
+        const snapshot = await db.collection('usuarios').doc(request.query.idadmin).collection('empresas').doc(request.query.doc).collection('Transferencias').get();
+        if (snapshot.empty) {
+            return response.send('Not Found');
+        } else {
+            snapshot.forEach(doc => {
+                let data = doc.data();
+                data.id = doc.id;
+                Trasacciones.push(data);
+            });
+            return response.status(200).send(JSON.stringify(Trasacciones));
         }
     } catch (error) {
         return response.status(500).send(error);

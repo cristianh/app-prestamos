@@ -41,10 +41,20 @@
               />
         <CInput
                   label="Valor"
-                  append=".000"
+                  :value=form_transaccion.valor
                   description="Ingresa el valor de la transferencia"
                   prepend="$"
-                  v-model="form_transaccion.valor"
+                   v-currency="{
+                    locale: 'de-DE',
+                    currency: null,
+                    valueAsInteger: true,
+                    distractionFree: false,
+                    precision:0,
+                    autoDecimalMode: true,
+                    valueRange: { min: 0 },
+                    allowNegative: false
+                  }"
+                  v-model="valor_sin_puntos"
          />
          </CCardBody>
           <CCardFooter align="right">
@@ -55,7 +65,58 @@
            </CCard>
         
       </CCol>
-      
+      <CCol>
+        <DataTable :value="items" :loading="loading" :resizableColumns="true" :reorderableColumns="true" columnResizeMode="fit | expand" :paginator="true" :rows="10">
+          <template #loading>
+              Cargando transacciones
+          </template>
+          <Column field="envia" header="Realizada por"></Column>
+          <!-- <Column field="mensaje" header="Mensaje"></Column> -->
+          <Column field="nombre_zona_envia" header="Zona"></Column>
+          <Column field="idCobrador_recibe" header="Recibe" headerStyle="width: 24%"></Column>
+          <Column field="fecha" header="Fecha"  headerStyle="width: 14%"></Column>
+          <Column field="hora" header="Hora"></Column>
+          <Column field="estado_transaccion" header="Estado"></Column>
+          <Column>
+        <template #body="slotProps">
+          <!-- @click="editProduct(slotProps.data)" -->
+          <!-- @click="confirmDeleteProduct(slotProps.data)"  -->
+            <Button icon="pi pi-pencil" class="p-button-rounded p-button-success p-mr-2" @click="editProduct(slotProps.data)"  />
+            <Button icon="pi pi-trash" class="p-button-rounded p-button-warning" />
+        </template>
+        </Column>
+          <!-- <Column field="year" header="Year"></Column> -->
+    <!-- <Column field="brand" header="Brand"></Column>
+    <Column field="color" header="Color"></Column> -->
+      </DataTable>
+         <!-- <CCard>
+    <CCardHeader>
+      <slot name="header">
+        <CIcon name="cil-grid"/> {{caption}}
+      </slot>
+    </CCardHeader>
+    <CCardBody>
+      <CDataTable
+        :hover="hover"
+        :striped="striped"
+        :bordered="bordered"
+        :small="small"
+        :fixed="fixed"
+        :items="items"
+        :fields="fields"
+        :items-per-page="small ? 10 : 5"
+        :dark="dark"
+        pagination
+      >
+        <template #status="{item}">
+          <td>
+            <CBadge :color="getBadge(item.status)">{{item.status}}</CBadge>
+          </td>
+        </template>
+      </CDataTable>
+    </CCardBody>
+  </CCard> -->
+      </CCol>
     
     </CRow>
     {{nuevo_balanceempresa}}
@@ -64,11 +125,22 @@
 </template>
 
 <script>
+import DataTable from 'primevue/datatable';
+import Column from 'primevue/column';
+import ColumnGroup from 'primevue/columngroup';
 import ZonaService from '../Zonas/Services/ZonaService.js';
 import EmpresaService from '../Empresa/Services/EmpresasService.js';
+
 export default {
+  components: {
+    DataTable,
+    Column,
+    ColumnGroup
+  },
     data() {
         return {
+          loading: false,
+             items:[],
             zonaService:null,
             empresaService:null,
             isEnabled:true,
@@ -79,7 +151,7 @@ export default {
             empresa:''
             },
           form_transaccion:{
-          Envia:'', 
+          envia:'', 
           valor:0,
           estado_transaccion:false,
           fecha:new Date().toISOString().slice(0,10),
@@ -90,7 +162,8 @@ export default {
           },
           idSeleccionadaEmpresa:'',
           idSeleccionadaZona:'',
-          nuevo_balanceempresa:0
+          nuevo_balanceempresa:0,
+          valor_sin_puntos:0
         }
     },
       created() {
@@ -98,7 +171,31 @@ export default {
         this.empresaService= new EmpresaService();
     },
     beforeMount(){
+      this.loading = true;
       this.usuarioOnLogin=localStorage.getItem('id');
+
+      let datos= this.$store.getters.getDatosTransferencia;
+      console.log(datos);
+      if(datos!=''){
+                this.items=Object.values(datos);
+                 this.loading = false;
+              }else{
+                this.items=[];
+        }
+
+      // axios.get(`https://us-central1-manifest-life-279516.cloudfunctions.net/getTransacciones?idadmin=${ this.usuarioOnLogin}&doc=hQPTik3wZ0yK2i5y6tdX`).then((resp)=>{
+      //   console.log(resp);
+      //   // this.items=resp.data;
+      //   this.loading = false;
+      //   if(resp.data!='Not Found'){
+      //           this.items=Object.values(resp.data);
+      //         }else{
+      //           this.items=[];
+      //   }
+      // })
+
+
+      
       let tamporal_empresas=[];
       this.empresaService.getAllEmpresas(this.usuarioOnLogin).then((result)=>{
         
@@ -117,13 +214,20 @@ export default {
         });
     },
     methods: {
+        getBadge (status) {
+      return status === 'Active' ? 'success'
+        : status === 'Inactive' ? 'secondary'
+          : status === 'Pending' ? 'warning'
+            : status === 'Banned' ? 'danger' : 'primary'
+    },
         onGuardarTransaccion(){
-    this.form_transaccion.Envia='Empresa';
+    this.form_transaccion.envia='Empresa';
     var sfRef = db.collection("usuarios").doc(this.usuarioOnLogin).collection("empresas").doc(this.idSeleccionadaEmpresa);
 
 sfRef.get().then((doc)=>{
- 
+
     this.nuevo_balanceempresa=doc.data().Balance;
+    this.form_transaccion.valor=this.valor_sin_puntos.split('.').join('');
    
 if(this.form_transaccion.valor==0 ||this.form_transaccion.valor==''){
   this.$toast.add({severity:'error', summary: 'Atencion', detail:'La transaccion no se puede realizar, ingrese el saldo a transferir', life: 3000});    

@@ -219,7 +219,7 @@ export default {
         this.profile_name = 'Bienvenido ' + localStorage.getItem("name") + '.';
         this.lastActivity = localStorage.getItem("lastactivity");
         this.uid=localStorage.getItem("uid");
-        console.log(this.uid);
+        // console.log(this.uid);
 
         let zona;
         let empresa=localStorage.getItem("empresa");
@@ -240,16 +240,16 @@ export default {
             this.balance_empresa = resp.data.empresa[0].Balance;
             //this.isLoadRutas= true;
             this.isLoadBalnces = true;
+            this.$store.commit('setZonasEmpresas',resp.data.zonas)
             localStorage.setItem("empresa", empresa);
             // localStorage.setItem("empresa", empresa);
 
-              console.log("buscarZonaCobrador",resp.data.zonas);
-                console.log("buscarZonaCobrador",resp.data.cobrador);  
+  
             
             resp.data.cobrador.forEach(element => { 
-                console.log(element.zona);
+               
                 let buscarZonaCobrador=resp.data.zonas.filter(x=>x.id===element.zona);
-                console.log("buscarZonaCobrador",buscarZonaCobrador);
+                
                 if(buscarZonaCobrador.length>=1){
               
                 localStorage.setItem("zona", buscarZonaCobrador[0].id);
@@ -264,7 +264,7 @@ export default {
             for (const key in tazaseinteres) {
                 if (tazaseinteres.hasOwnProperty(key)) {
                     const element = tazaseinteres[key];
-                    console.log(element);
+                   
                     //this.clientes.push(element);
                     this.$store.state.tasaseinteres.unshift(element);
 
@@ -278,7 +278,7 @@ export default {
             for (const key in clientes_cobrador) {
                 if (clientes_cobrador.hasOwnProperty(key)) {
                     const element = clientes_cobrador[key];
-                    console.log(element);
+                    
                     //this.clientes.push(element);
                     this.$store.state.clientes.unshift(element);
 
@@ -300,6 +300,8 @@ export default {
             //     }
             // }
             self.$f7.dialog.close();
+
+               this.onDetectarTransacciones();
             
         });
 
@@ -398,7 +400,62 @@ export default {
         //     self.$f7.dialog.alert(error, "Error al cargar las tazas de interes...");
 
         // });
+     
 
+    },
+    methods: {
+    onDetectarTransacciones(){
+        let idCobrador=localStorage.getItem('uid');
+        let idad=localStorage.getItem("iad");
+        let idempresa=localStorage.getItem("empresa");
+        let idzona=localStorage.getItem("zona");
+
+        console.log(idCobrador);
+        console.log(idad);
+        console.log(idempresa);
+        console.log(idzona);
+    
+    // db.collection("usuarios").doc(this.idad).collection("empresas").doc(idempresa).collection('Transferencias').doc('nueva_transaccion')
+    // .onSnapshot({includeMetadataChanges: false},(doc) => {
+    //       console.log(doc);
+    //   if(doc.exists!=false){
+    //     this.$f7.dialog.alert('Tiene una nueva transferencia de empresa!','Atencion!');
+    //     console.log("Current data: ", doc.data());
+    //      this.$store.commit('setAumentaContadorTransferencias');
+    //      this.$store.commit('setDatosTransferencia',doc.data());
+    //   }
+    // });
+      let transferencia= db.collection("usuarios").doc(this.idad).collection("empresas").doc(idempresa).collection('Transferencias')
+      transferencia.where("transaccion_nueva", "==", true)
+      transferencia.where("idCobrador_recibe", "==", idzona)
+      .onSnapshot((snapshot)=> {
+        
+       console.log( snapshot.docChanges());
+
+   if(snapshot.docChanges().length>=1){
+     this.$f7.dialog.alert('Tiene una nueva transferencia de zona!','Atencion!');
+   }
+
+       console.log( snapshot);
+        snapshot.docChanges().forEach((change)=> {
+            
+            if (change.type === "added") {
+                
+                
+                this.$store.commit('setAumentaContadorTransferencias');
+                this.$store.commit('setDatosTransferencia',change.doc.data());
+                // this.$store.commit('setDatosTransferenciaPendientes',this.form_transaccion);
+                console.log("New: ", change.doc.data());
+            }
+            if (change.type === "modified") {
+                console.log("Modified city: ", change.doc.data());
+            }
+            if (change.type === "removed") {
+                console.log("Removed city: ", change.doc.data());
+            }
+        });
+    });
+      },
     },
     created() {
         // Acceder a datos almacenados

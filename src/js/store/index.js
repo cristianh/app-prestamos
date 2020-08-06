@@ -7,6 +7,7 @@ export default new Vuex.Store({
     state: {
         contador_transferencias: 0,
         datos_transeferencia: [],
+        datos_transeferencia_pendientes: [],
         saldo_pago_dia: [],
         estados_prestamos_ruta: [],
         jornada_cobrador: {
@@ -29,6 +30,7 @@ export default new Vuex.Store({
         temporal2: '',
         cobros_pendientes: [],
         zonas: [],
+        zonas_empresa: [],
         tasaseinteres: [],
         contador: 0,
         estado_ruta: false,
@@ -37,6 +39,18 @@ export default new Vuex.Store({
 
     },
     mutations: {
+        setActualizarDatosTransferenciaPendiente(state, databusqueda) {
+            let posicion = state.datos_transeferencia_pendientes.findIndex(x => x.valor === databusqueda.valor && x.hora === databusqueda.hora && x.fecha === databusqueda.fecha);
+            console.log(posicion);
+            console.log(state.datos_transeferencia_pendientes[posicion]);
+            state.datos_transeferencia_pendientes[posicion].estado_transaccion = databusqueda.estado_transaccion
+        },
+        setDatosTransferenciaPendientes(state, data_transferencia) {
+            state.datos_transeferencia_pendientes.push(data_transferencia)
+        },
+        setEliminarDatosTransferenciaPendiente(state) {
+            state.datos_transeferencia_pendientes = []
+        },
         setDatosTransferencia(state, data_transferencia) {
             state.datos_transeferencia.push(data_transferencia)
         },
@@ -118,6 +132,12 @@ export default new Vuex.Store({
 
             state.zonas.unshift(zonanueva)
         },
+        setZonasEmpresas(state, zonas) {
+            // mutate state
+            //console.log(clientenuevo);
+
+            state.zonas_empresas = zonas;
+        },
         getSetNuevoClientes(state, posicion) {
             state.clientes[posicion].nuevo = false
         },
@@ -185,6 +205,9 @@ export default new Vuex.Store({
 
     },
     getters: {
+        getDatosTransferenciaPendiente: state => {
+            return state.datos_transeferencia_pendientes;
+        },
         getDatosTransferencia: state => {
             return state.datos_transeferencia;
         },
@@ -300,6 +323,9 @@ export default new Vuex.Store({
         },
         getZonas: state => {
             return state.zonas
+        },
+        getZonasEmpresa: state => {
+            return state.zonas_empresas
         },
         getContador: state => {
             return state.contador

@@ -43,7 +43,6 @@ export default {
         self.$f7.dialog.preloader('Guardando...');
              axios.post(`https://us-central1-manifest-life-279516.cloudfunctions.net/CobradoresGuardarClientesRutas?doc=${ui_cobrador}&sub=${this.id_ruta}`,this.usuarios_seleccionados)
     .then( (response) =>  {
-      console.log("................id",response);
        self.$f7.dialog.close();
        
        this.$f7router.back()

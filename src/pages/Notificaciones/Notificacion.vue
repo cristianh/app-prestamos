@@ -37,7 +37,7 @@
     
     <f7-row>
       <f7-col style="text-align:center">
-        <span><b>Envia:</b><br> {{transferencia.Envia}}</span>
+        <span><b>Envia:</b><br> {{transferencia.envia}}</span>
         
       </f7-col>
       <f7-col style="text-align:center">
@@ -116,7 +116,8 @@ export default {
       }
     },
     methods: {
-         updateValorZona(){
+
+      updateValorZona(){
          
        let zona= localStorage.getItem("zona");
        let empresa= localStorage.getItem("empresa");
@@ -134,7 +135,7 @@ batch.update(sfRef, {"balance": this.balance_zona});
 // Commit the batch
 batch.commit().then( () =>{
     // ...
-    console.log('balance actualizado');
+    
      
               this.transacccionservice.elminiarTransaccion(this.idad,this.id_empresa,this.id_zona);
               this.transacccionservice.guardarHistorialTransaccion(this.idad,this.id_empresa,this.datos_transaccion[0]).then(()=>{
@@ -158,6 +159,8 @@ batch.commit().then( () =>{
      this.id_empresa=localStorage.getItem("empresa");
      this.id_zona = localStorage.getItem("zona")
      this.$store.commit('setEstadoTransferencia',true);
+
+    //  axios.get('')
      
      this.datos_transaccion= this.$store.getters.getDatosTransferencia;
      let balance_actual_zona=this.$store.getters.getBalance;
@@ -170,8 +173,8 @@ batch.commit().then( () =>{
      
    },
    onCancelarTransaccion(tranferencia){
-    if(tranferencia.Envia=='Empresa'){
-       console.log(".....................",tranferencia);
+    if(tranferencia.envia=='Empresa'){
+       
      let uid = localStorage.getItem("uid");
      this.id_empresa=localStorage.getItem("empresa");
      this.id_zona = localStorage.getItem("zona")
@@ -192,14 +195,14 @@ batch.commit().then( () =>{
 var sfRef = db.collection("usuarios").doc(this.idad).collection("empresas").doc(empresa);
 
 sfRef.get().then((doc)=>{
-  console.log(doc.data().Balance);
+  
     this.saldoActualEmpresa=doc.data().Balance;
            // Get a new write batch
 var batch = db.batch();
-console.log(this.saldoActualEmpresa);
+
 
 this.saldoActualEmpresa=Number(this.saldoActualEmpresa)+ Number(tranferencia.valor)
-console.log(this.saldoActualEmpresa);
+
 
 batch.update(sfRef, {"Balance": this.saldoActualEmpresa });
 
@@ -208,7 +211,7 @@ batch.update(sfRef, {"Balance": this.saldoActualEmpresa });
 // Commit the batch
       batch.commit().then( () =>{
           // ...
-           this.$store.commit('setDisminuyeContadorTransferencias');
+          this.$store.commit('setDisminuyeContadorTransferencias');
           this.transacccionservice.elminiarTransaccion(this.idad,this.id_empresa,this.id_zona);
           this.$store.commit('setEliminarDatosTransferencia');  
           this.$f7router.back();
@@ -221,7 +224,7 @@ batch.update(sfRef, {"Balance": this.saldoActualEmpresa });
       });
     }
     else{
-       console.log(".....................",tranferencia);
+      
      let uid = localStorage.getItem("uid");
      this.id_empresa=localStorage.getItem("empresa");
      this.id_zona = localStorage.getItem("zona")
@@ -242,14 +245,14 @@ batch.update(sfRef, {"Balance": this.saldoActualEmpresa });
 var sfRef = db.collection("usuarios").doc(this.idad).collection("empresas").doc(empresa).collection("Zonas").doc(zona);
 
 sfRef.get().then((doc)=>{
-  console.log(doc.data().balance);
+  
     this.saldoActualZona=doc.data().balance;
            // Get a new write batch
 var batch = db.batch();
-console.log(this.saldoActualEmpresa);
+
 
 this.saldoActualZona=Number(this.saldoActualZona)+ Number(tranferencia.valor)
-console.log(this.saldoActualZona);
+
 
 batch.update(sfRef, {"balance": this.saldoActualZona });
 

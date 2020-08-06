@@ -27,7 +27,7 @@
     </CRow>
     <CRow>
       <!-- @change="onSelectdEmpresa" -->
-      <CCol sm="4">
+      <CCol sm="6">
          <CSelect
                   label="Pais"
                   :options="paises"
@@ -38,9 +38,28 @@
        
         
       </CCol>
-
+       <CCol sm="6">
+        <CInput
+                  label="Balance"
+                  description="Ingresa del balance inicial"
+                  prepend="$"
+                  :value=empresa_form.Balance
+                   v-currency="{
+                    locale: 'de-DE',
+                    currency: null,
+                    valueAsInteger: true,
+                    distractionFree: false,
+                    precision:0,
+                    autoDecimalMode: true,
+                    valueRange: { min: 0 },
+                    allowNegative: false
+                  }"
+                  v-model="valor_sin_puntos"
+         />
+        
+      </CCol>
       <!-- @change="onSelectdEmpresa" -->
-      <CCol sm="4">
+      <!-- <CCol sm="4">
          <CSelect
                   label="Departamento"
                   :options="departamentos"
@@ -59,21 +78,9 @@
                 />
        
         
-      </CCol>
+      </CCol> -->
     </CRow>
-     <CRow>
-      <!-- @change="onSelectdEmpresa" -->
-      <CCol sm="12">
-        <CInput
-                  label="Balance"
-                  append=".000"
-                  description="Ingresa del balance inicial"
-                  prepend="$"
-                  v-model="empresa_form.Balance"
-         />
-        
-      </CCol>
-    </CRow>
+     
      <CRow>
       <CCol sm="12">
       <CInput
@@ -202,9 +209,10 @@ export default {
       paises:[{ value: 'Seleccione', label: 'Seleccione' }],
       departamentos:[{ value: 'Seleccione', label: 'Seleccione' }],
       ciudades:[{ value: 'Seleccione', label: 'Seleccione' }],
+      valor_sin_puntos:0,
       empresa_form:{
           Nombre:'',
-          Balance:'',
+          Balance:0,
           Mensaje:'',
           Pais:'',
           Departamento:'',
@@ -338,6 +346,7 @@ export default {
     onGuardarEmpresa(){
      
       //this.empresaService.guardarEmpresa(this.empresa_form).then(rsp=>{
+        this.empresa_form.Balance=this.valor_sin_puntos.split('.').join('');
         this.empresaService.guardarEmpresa(this.usuarioOnLogin,this.empresa_form).then(rsp=>{
         console.log(rsp);
         localStorage.setItem('empresa',rsp.id);

@@ -1,4 +1,40 @@
 const CiudadesData = [{
+        'ciudades_principales': [
+            'Leticia',
+            'Medellín',
+            'Arauca',
+            'Barranquilla',
+            'Cartagena de Indias',
+            'Tunja',
+            'Manizales',
+            'Florencia',
+            'Yopal',
+            'Popayán',
+            'Valledupar',
+            'Quibdó',
+            'Montería',
+            'Bogotá',
+            'Inírida',
+            'San José del Guaviare',
+            'Neiva',
+            'Riohacha',
+            'Santa Marta',
+            'Villavicencio',
+            'Pasto',
+            'Cúcuta',
+            'Mocoa',
+            'Armenia',
+            'Pereira',
+            'San Andrés',
+            'Bucaramanga',
+            'Sincelejo',
+            'Ibagué',
+            'Cali',
+            'Mitú',
+            'Puerto Carreño'
+        ]
+    },
+    {
         "id": 0,
         "departamento": "Amazonas",
         "ciudades": [
@@ -1007,18 +1043,18 @@ const CiudadesData = [{
         "id": 23,
         "departamento": "Quind\u00edo",
         "ciudades": [
-            "Armenia"
-            // "Buenavista",
-            // "Calarc\u00e1",
-            // "Circasia",
-            // "C\u00f3rdoba",
-            // "Filandia",
-            // "G\u00e9nova",
-            // "La Tebaida",
-            // "Montenegro",
-            // "Pijao",
-            // "Quimbaya",
-            // "Salento"
+            "Armenia",
+            "Buenavista",
+            "Calarc\u00e1",
+            "Circasia",
+            "C\u00f3rdoba",
+            "Filandia",
+            "G\u00e9nova",
+            "La Tebaida",
+            "Montenegro",
+            "Pijao",
+            "Quimbaya",
+            "Salento"
         ]
     },
     {
@@ -1294,6 +1330,7 @@ const CiudadesData = [{
             "Santa Rosal\u00eda"
         ]
     }
+
 ]
 
 export default CiudadesData

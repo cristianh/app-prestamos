@@ -89,7 +89,7 @@
           var token = result.credential.accessToken;
           // The signed-in user info.
           var user = result.user;
-          console.log(user);
+         
 });
       },
       signInGoogle() {
@@ -100,7 +100,7 @@
             var token = result.credential.accessToken;
             // The signed-in user info.
             var user = result.user;
-            console.log(user);
+            
             this.userGooglename=user.displayName;
             this.$f7router.navigate('/home/', {
             props: {
@@ -118,8 +118,7 @@
             var email = error.email;
             // The firebase.auth.AuthCredential type that was used.
             var credential = error.credential;
-            console.log(errorCode);
-            console.log(errorMessage);
+            
             // ...
             });
             
@@ -156,6 +155,7 @@
             const self = this;
             const app = self.$f7;
             const router = self.$f7router;
+            this.onDetectarTransacciones();
            
             // ...
             }).catch((error)=> {

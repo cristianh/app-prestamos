@@ -55,14 +55,14 @@
           :text="`Cedula: ${cliente.data.usuario.identificacion}`" 
           :title="`${cliente.data.usuario.nombre} ${cliente.data.usuario.apellido}`" 
           :subtitle="cliente.data.usuario.direccion1==''?cliente.data.usuario.direccion2:cliente.data.usuario.direccion1" 
-          :link="`/cliente_detalles/${cliente.data.id}/`" 
+        
           :badge="cliente.nuevo?'nuevo':''" 
           :badge-color="cliente.nuevo?'green':''"
           :footer="`${cliente.data.prestamos.length>0?'Prestamo: '+cliente.data.prestamos[0].valor:'Prestamo: NA'}`"
-           >
+          @click="onClickClientePaginaDetalles(cliente.data.id)">
           <!-- `:after=""Telefono: ${cliente.data.usuario.telefono}` -->
            <f7-swipeout-actions right>
-             <f7-swipeout-button close color="green" @click="onLlamar(cliente.data.usuario.telefono)">Llamar</f7-swipeout-button>
+             <f7-swipeout-button close color="green" v-if="cliente.data.usuario.telefono!=''" @click="onLlamar(cliente.data.usuario.telefono)">Llamar</f7-swipeout-button>
         <f7-swipeout-button close overswipe color="blue" @click="onSeleccionarCliente(cliente.data.id,cliente.data.usuario.nombre+cliente.data.usuario.apellido)">Prestamo</f7-swipeout-button>
         </f7-swipeout-actions>
          <!-- <f7-link v-if="cliente.data.usuario.telefono" style="margin-left:12px;font-size:14px" external  :href="`tel:${cliente.data.usuario.telefono}`"><f7-icon material="settings_phone"></f7-icon>{{cliente.data.usuario.telefono}}</f7-link> -->
@@ -107,7 +107,7 @@
         min=0
         placeholder="0"
         clear-button
-        @input.capture="info_prestamo.valor=$event.target.value"
+        @input.capture="valor_sin_puntos=$event.target.value"
          v-currency="{
           locale: 'de-DE',
           currency: null,
@@ -155,7 +155,7 @@
 </f7-card>
         <div class="display-flex padding justify-content-space-between align-items-center">
           <div style="font-size: 18px"><b>Total:</b></div>
-          <div style="font-size: 22px"><b><span>$ {{info_prestamo.valor==0?0:info_prestamo.valor}}</span></b></div>
+          <div style="font-size: 22px"><b><span>$ {{valor_sin_puntos==0?0:valor_sin_puntos}}</span></b></div>
         </div>
         <div class="padding-horizontal padding-bottom">
           <f7-button large fill @click="onConfirmarPago" >CONFIRMAR</f7-button>
@@ -217,13 +217,13 @@ export default {
               estado_pendiente_prestamo_ruta:false,
               saldo_pendiente:0,
               saldo_pago_dia:0
-            }
+            },
+            valor_sin_puntos:0
         }
     },
     watch: {
     UploadClientes(newValue,oldvalue){
-      console.log(newValue);
-      console.log(oldvalue);
+  
       this.clientes=this.$store.getters.getClientes;
     }
   },
@@ -255,6 +255,9 @@ export default {
  
     },
     methods: {
+      onClickClientePaginaDetalles(clienteId){
+      this.$f7router.navigate(`/cliente_detalles/${clienteId}/`);
+    },
       onLlamar(telefono){
         window.location.href = "tel:"+telefono;
       },
@@ -266,27 +269,27 @@ export default {
         this.mensaje_ordenar='LISTO';
              
       }else{
-        console.log('2');
-      
         this.mensaje_ordenar='ORDENAR';
       }
       },
       onSort(data) {
          let ui_cobrador=localStorage.getItem("uid");
+         let id_empresa=localStorage.getItem("empresa");
+         
           this.$f7.dialog.preloader('Guardando lista...');
         let distancia=data.to-data.from;
         
          if(distancia==1){
                // https://us-central1-manifest-life-279516.cloudfunctions.net/actualizarPosicionClienteLista?doc=zEAF3BMDDj9IXGwYOBXO&subdoc=Js46FGqf1w9yvPhjKeJ9
-        this.clientesservices.actualizarPosicionCliente(this.idad,ui_cobrador,this.clientes[data.to].id,{posicion_inicial:Number(data.from)}).then(()=>{     
-           this.clientesservices.actualizarPosicionCliente(this.idad,ui_cobrador,this.clientes[data.from].id,{posicion_inicial:Number(data.to)}).then(()=>{
+        this.clientesservices.actualizarPosicionCliente(this.idad,id_empresa,ui_cobrador,this.clientes[data.to].data.id,{posicion_inicial:Number(data.from)}).then(()=>{     
+           this.clientesservices.actualizarPosicionCliente(this.idad,id_empresa,ui_cobrador,this.clientes[data.from].data.id,{posicion_inicial:Number(data.to)}).then(()=>{
                 this.$f7.dialog.close();
            })
         });
          }else{
                // https://us-central1-manifest-life-279516.cloudfunctions.net/actualizarPosicionClienteLista?doc=zEAF3BMDDj9IXGwYOBXO&subdoc=Js46FGqf1w9yvPhjKeJ9
-        this.clientesservices.actualizarPosicionCliente(this.idad,ui_cobrador,this.clientes[data.to].id,{posicion_inicial:Number(data.from)}).then(()=>{     
-           this.clientesservices.actualizarPosicionCliente(this.idad,ui_cobrador,this.clientes[data.from].id,{posicion_inicial:Number(data.to)+1}).then(()=>{
+        this.clientesservices.actualizarPosicionCliente(this.idad,id_empresa,ui_cobrador,this.clientes[data.to].data.id,{posicion_inicial:Number(data.from)}).then(()=>{     
+           this.clientesservices.actualizarPosicionCliente(this.idad,id_empresa,ui_cobrador,this.clientes[data.from].data.id,{posicion_inicial:Number(data.to)}).then(()=>{
                 this.$f7.dialog.close();
            })
         });
@@ -386,7 +389,7 @@ batch.commit().then( ()=> {
     },
     onCobroPendiente(usuario){
       this.$store.commit('cobroPendiente',usuario);
-      console.log("Pendiente"+usuario);
+      
     },
     onSeleccionarCliente(id,nombrecompleto) {
         
@@ -395,7 +398,7 @@ batch.commit().then( ()=> {
         this.$f7.dialog.confirm('Confirmar usuario',nombrecompleto, () => {
            
            let elemento = this.clientes.findIndex(x=>x.data.id==id);
-           console.log(elemento);
+           
            if(this.clientes[elemento].data.prestamos.length>0){
   // && this.clientes[elemento].data.prestamos.estado_prestamo!=true
            this.$f7.dialog.alert('No se puede realizar el prestamo, el cliente tiene un saldo por pagar.',nombrecompleto);
@@ -428,7 +431,8 @@ batch.commit().then( ()=> {
           // fecha_hora
           // fecha_inicio
           let saldo_actual_zona=  localStorage.getItem("saldo_zona");
-          this.info_prestamo.valor=this.info_prestamo.valor.replace('.', "");
+          this.info_prestamo.valor=this.valor_sin_puntos.split('.').join('');
+          // this.info_prestamo.valor=this.info_prestamo.valor.replace('.', "");
           if(Number(this.info_prestamo.valor)>saldo_actual_zona || saldo_actual_zona==0){
              const app = this.$f7;
         // app.dialog.alert(id);
@@ -443,22 +447,22 @@ batch.commit().then( ()=> {
           self.$f7.dialog.preloader('Guardando pago...');
           this.info_prestamo.cliente=this.cliente_seleccionado;
           let id_empresa=localStorage.getItem("empresa");
-          this.info_prestamo.valor=this.info_prestamo.valor.replace('.', "");
+          // this.info_prestamo.valor=this.info_prestamo.valor.replace('.', "");
           let valor_prestamo=this.info_prestamo.valor;
           let taza_seleccionada_interes= this.tazaseleccionada;
           let plazo_dias= this.planseleccionado;
           let total_apagar=Number(valor_prestamo)*Number(taza_seleccionada_interes)+Number(valor_prestamo);
           console.log( this.info_prestamo);
           let pago=Number(total_apagar)/Number(plazo_dias)
-          console.log(pago);
+        
           this.info_prestamo.total_apagar=total_apagar;
-          console.log( this.info_prestamo);
+         
           this.info_prestamo.plan_seleccionado=this.planseleccionado;
           this.info_prestamo.dias_plazo=Number(this.planseleccionado);
 
           this.abonoService.guardarAbonosPrestamos(this.idad,id_empresa,ui_cobrador,this.info_prestamo.cliente,this.info_prestamo).then( (response) =>  {
           let saldo_actual=  localStorage.getItem("saldo_zona");
-          this.info_prestamo.valor=this.info_prestamo.valor.replace('.', "");
+          // this.info_prestamo.valor=this.info_prestamo.valor.replace('.', "");
           let saldo_valor=   this.info_prestamo.valor;
           let descuentosaldozona=Number(saldo_actual)-Number(saldo_valor);
           localStorage.setItem("saldo_zona", descuentosaldozona);

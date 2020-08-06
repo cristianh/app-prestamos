@@ -244,7 +244,7 @@ export default {
           let ui_cobrador=localStorage.getItem("uid"); 
       axios.post(`https://us-central1-manifest-life-279516.cloudfunctions.net/CobradoresGuardarRutas?doc=${ui_cobrador}&sub=Rutas`,this.form_rutas)
     .then( (response) =>  {
-      console.log("................id",response);
+      
        self.$f7.dialog.close();
        let data={
          'id':response.data,

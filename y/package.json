@@ -44,6 +44,7 @@
     "primeicons": "^4.0.0",
     "primevue": "^2.0.0-rc.1",
     "vue": "~2.6.11",
+    "vue-currency-input": "^1.20.3",
     "vue-loading-overlay": "^3.3.2",
     "vue-mapbox": "^0.4.1",
     "vue-moment": "^4.1.0",

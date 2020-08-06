@@ -110,11 +110,11 @@ export default {
     methods: {
       onSort(data) {
         // Sort data
-        console.log(data);
+       
       },
       seletectClientes(){
       
-        console.log(smartSelectOptions);
+        
       },
       usuariosseleccionados(){
         window.alert('cerro');

@@ -131,7 +131,7 @@
         placeholder="Nombre Negocio"
         required
         validate
-        pattern="[A-Za-z]*"
+        pattern="[a-zA-Z\s]+"
         error-message="Solo letras"
         :onValidate=onValidatedInput
         @input="form.negocio.nombre_negocio=$event.target.value"
@@ -351,7 +351,7 @@ export default {
     },
     watch: {
        telefono(value){
-         console.log(value.length);
+        
         if(value.length<10){
             // this.error_form='El celular no esta completo.';
             // this.validar_campos=true;
@@ -362,7 +362,7 @@ export default {
         }
       },
       telefonoNegocio(value){
-         console.log(value.length);
+       
         if(value.length<10){
             // this.error_form='El telefono del negocio no esta completo.';
             // this.validar_campos=true;
