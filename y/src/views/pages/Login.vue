@@ -105,7 +105,9 @@ export default {
                     //this.$store.commit('setUsurioLogin',usuario_login);
             
                     if(info[2]=='administrador'){
+                         this.oneDetectarTransacciones();
                          this.$router.push('home/dashboard');
+                         
                     }else{
                        this.error='No tiene privilegios para ingresar a eta pagina.';
                        this.$toast.add({severity:'error', summary: 'Error', detail:this.error, life: 3000});  

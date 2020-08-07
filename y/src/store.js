@@ -26,16 +26,30 @@ const mutations = {
         state.usuario_login = usuarioLogin
     },
     setAumentaContadorTransacciones(state) {
+
         state.contador_transacciones++
+
     },
     setDisminuyeContadorTransacciones(state) {
-        state.contador_transacciones--
+        if (state.contador_transacciones == 0) {
+
+        } else {
+            state.contador_transacciones--
+        }
+
+    },
+    setReiniciarContadorTransacciones(state) {
+        state.contador_transacciones = 0
     },
     setDatosTransferencia(state, data_transferencia) {
         state.datos_transeferencia.push(data_transferencia)
     },
     setEliminarDatosTransferencia(state) {
         state.datos_transeferencia = []
+    },
+    setEliminarDatoTransferencia(state, id) {
+        let posicion = state.datos_transeferencia.findIndex(x => x.data.id == id)
+        state.datos_transeferencia.splice(posicion, 1)
     },
     setEstadoTransferencia(state, estadotransferencia) {
         state.datos_transeferencia[0].estado_transaccion = estadotransferencia

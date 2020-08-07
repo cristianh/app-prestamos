@@ -1258,7 +1258,28 @@ exports.EliminarTransaccionEmpresa = functions.https.onRequest(async(request, re
 
     try {
 
-        await db.collection('usuarios').doc(request.query.idadmin).collection('empresas').doc(request.query.doc).collection('Transferencias').doc('nueva_transaccion').delete();
+        await db.collection('usuarios').doc(request.query.idadmin).collection('empresas').doc(request.query.doc).collection('Transferencias').doc(request.query.subdoc).delete();
+        // });
+    } catch (error) {
+        return response.status(500).send(error);
+    }
+
+});
+
+/**
+ * @function Funcion para Eliminar las transacciones.
+ */
+exports.EliminarTransaccionEmpresaZona = functions.https.onRequest(async(request, response, body) => {
+    response.set('Access-Control-Allow-Origin', '*');
+    response.set('Access-Control-Allow-Credentials', 'true'); // vital
+    response.set('Access-Control-Allow-Methods', 'GET', 'POST', 'PUT', 'DELETE', 'OPTIONS');
+    response.set('Access-Control-Allow-Headers', 'Content-Type');
+    response.set('Access-Control-Allow-Headers', 'Content-Length,Content-Range');
+    response.set('Access-Control-Allow-Headers', 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization');
+
+    try {
+
+        await db.collection('usuarios').doc(request.query.idadmin).collection('empresas').doc(request.query.doc).collection('Zona').doc(request.query.idzona).collection('Transferencias').doc(request.query.subdoc).delete();
         // });
     } catch (error) {
         return response.status(500).send(error);
@@ -1279,7 +1300,10 @@ exports.actualizarEstadoTransaccion = functions.https.onRequest(async(request, r
 
     try {
 
-        await db.collection('usuarios').doc(request.query.idadmin).collection('empresas').doc(request.query.doc).collection('Transferencias').doc(request.query.subdoc).update({ estado_transaccion: true }, { merge: true }).then((resp) => {
+        await db.collection('usuarios').doc(request.query.idadmin).collection('empresas').doc(request.query.doc).collection('Transferencias').doc(request.query.subdoc).update({
+            estado_transaccion: true,
+            transaccion_nueva: true
+        }, { merge: true }).then((resp) => {
             return response.status(200).send('Transaccion actualizada');
         });
         // });

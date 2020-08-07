@@ -65,82 +65,20 @@
            </CCard>
         
       </CCol>
-      <CCol>
-        <DataTable :value="items" :loading="loading" :resizableColumns="true" :reorderableColumns="true" columnResizeMode="fit | expand" :paginator="true" :rows="10">
-          <template #loading>
-              Cargando transacciones
-          </template>
-          <Column field="envia" header="Realizada por"></Column>
-          <!-- <Column field="mensaje" header="Mensaje"></Column> -->
-          <Column field="nombre_zona_envia" header="Zona"></Column>
-          <Column field="idCobrador_recibe" header="Recibe" headerStyle="width: 24%"></Column>
-          <Column field="fecha" header="Fecha"  headerStyle="width: 14%"></Column>
-          <Column field="hora" header="Hora"></Column>
-          <Column field="estado_transaccion" header="Estado"></Column>
-          <Column>
-        <template #body="slotProps">
-          <!-- @click="editProduct(slotProps.data)" -->
-          <!-- @click="confirmDeleteProduct(slotProps.data)"  -->
-            <Button icon="pi pi-pencil" class="p-button-rounded p-button-success p-mr-2" @click="editProduct(slotProps.data)"  />
-            <Button icon="pi pi-trash" class="p-button-rounded p-button-warning" />
-        </template>
-        </Column>
-          <!-- <Column field="year" header="Year"></Column> -->
-    <!-- <Column field="brand" header="Brand"></Column>
-    <Column field="color" header="Color"></Column> -->
-      </DataTable>
-         <!-- <CCard>
-    <CCardHeader>
-      <slot name="header">
-        <CIcon name="cil-grid"/> {{caption}}
-      </slot>
-    </CCardHeader>
-    <CCardBody>
-      <CDataTable
-        :hover="hover"
-        :striped="striped"
-        :bordered="bordered"
-        :small="small"
-        :fixed="fixed"
-        :items="items"
-        :fields="fields"
-        :items-per-page="small ? 10 : 5"
-        :dark="dark"
-        pagination
-      >
-        <template #status="{item}">
-          <td>
-            <CBadge :color="getBadge(item.status)">{{item.status}}</CBadge>
-          </td>
-        </template>
-      </CDataTable>
-    </CCardBody>
-  </CCard> -->
-      </CCol>
-    
+      
     </CRow>
-    {{nuevo_balanceempresa}}
+    
      <Toast  autoZIndex position="bottomright" />
     </div>
 </template>
 
 <script>
-import DataTable from 'primevue/datatable';
-import Column from 'primevue/column';
-import ColumnGroup from 'primevue/columngroup';
 import ZonaService from '../Zonas/Services/ZonaService.js';
 import EmpresaService from '../Empresa/Services/EmpresasService.js';
 
 export default {
-  components: {
-    DataTable,
-    Column,
-    ColumnGroup
-  },
     data() {
         return {
-          loading: false,
-             items:[],
             zonaService:null,
             empresaService:null,
             isEnabled:true,
@@ -173,29 +111,6 @@ export default {
     beforeMount(){
       this.loading = true;
       this.usuarioOnLogin=localStorage.getItem('id');
-
-      let datos= this.$store.getters.getDatosTransferencia;
-      console.log(datos);
-      if(datos!=''){
-                this.items=Object.values(datos);
-                 this.loading = false;
-              }else{
-                this.items=[];
-        }
-
-      // axios.get(`https://us-central1-manifest-life-279516.cloudfunctions.net/getTransacciones?idadmin=${ this.usuarioOnLogin}&doc=hQPTik3wZ0yK2i5y6tdX`).then((resp)=>{
-      //   console.log(resp);
-      //   // this.items=resp.data;
-      //   this.loading = false;
-      //   if(resp.data!='Not Found'){
-      //           this.items=Object.values(resp.data);
-      //         }else{
-      //           this.items=[];
-      //   }
-      // })
-
-
-      
       let tamporal_empresas=[];
       this.empresaService.getAllEmpresas(this.usuarioOnLogin).then((result)=>{
         
@@ -234,7 +149,7 @@ if(this.form_transaccion.valor==0 ||this.form_transaccion.valor==''){
 }else if(this.form_transaccion.valor>this.nuevo_balanceempresa || this.nuevo_balanceempresa==0){
    this.$toast.add({severity:'error', summary: 'Atencion', detail:'La transaccion no se puede realizar, el valor a transferir es mayor al saldo de la empresa o no cuenta con saldo.', life: 3000});    
 }else{
-   db.collection("usuarios").doc(this.usuarioOnLogin).collection("empresas").doc(this.idSeleccionadaEmpresa).collection("Zonas").doc(this.idSeleccionadaZona).collection("Transferencias").doc('nueva_transaccion').set(this.form_transaccion)
+   db.collection("usuarios").doc(this.usuarioOnLogin).collection("empresas").doc(this.idSeleccionadaEmpresa).collection("Zonas").doc(this.idSeleccionadaZona).collection("Transferencias").add(this.form_transaccion)
     .then(() =>{
         
         this.$toast.add({severity:'success', summary: 'Correcto', detail:'Transaccion Realizada en espera de aprobacion', life: 3000});    
@@ -264,8 +179,8 @@ else{
 // Commit the batch
       batch.commit().then( () =>{
           // ...
-          // this.transacccionservice.elminiarTransaccion(this.idad,this.id_empresa,this.id_zona);
-          // this.$store.commit('setEliminarDatosTransferencia');  
+          //this.transacccionservice.elminiarTransaccion(this.idad,this.id_empresa,this.id_zona);
+          
           // this.$f7router.back();
       });
     })

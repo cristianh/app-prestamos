@@ -8,13 +8,13 @@
       <f7-nav-title sliding>Nueva Transacion</f7-nav-title>
        <f7-subnavbar >
       <f7-segmented sliding raised>
-        <f7-button tab-link="#Transaccion" tab-link-active>Transaccion</f7-button>
+        <f7-button tab-link="#Transferencias" tab-link-active>Transferencias</f7-button>
         <f7-button tab-link="#Pendientes" @click="onDetectarTrasccionesPendientes">Pendientes</f7-button>
       </f7-segmented>
     </f7-subnavbar>
     </f7-navbar>
     <f7-tabs>
-    <f7-tab id="Transaccion" tab-active >
+    <f7-tab id="Transferencias" tab-active >
     <f7-list ref="select_enviar" no-hairlines-md inset>
       <f7-list-input
     label="Enviar a:"
@@ -139,10 +139,11 @@
          <div v-else>
             <f7-block> 
            <f7-list media-list>
+             {{getDatosTransferenciaPendientes}}
              <f7-list-item
              v-for="(transferencia_pendiente,index,key) in getDatosTransferenciaPendientes" :key="key"
-             :title="`Enviado a: ${transferencia_pendiente.nombre_zona_envia}`"
-             :text="`Enviado por: ${transferencia_pendiente.envia}`"
+             :title="`Enviado a: ${transferencia_pendiente.nombre_zona_recibe}`"
+             :text="`Enviado por: ${transferencia_pendiente.enviado_por}`"
              :subtitle="`Valor: ${transferencia_pendiente.valor}`"
              :badge="transferencia_pendiente.estado_transaccion==false?'pendiente':'aceptado'" 
              :badge-color="transferencia_pendiente.estado_transaccion==false?'orange':'green'"
@@ -224,15 +225,16 @@ export default {
           form_transaccion:{
           idEmpresa:'',  
           idCobrador_recibe:'',
-          nombre_zona_envia:'',
-          envia:'',
+          idEmpresa_cobrador:'',
+          nombre_zona_recibe:'',
+          enviado_por:'',
           idCobrador_envia:'',  
           valor:0,
           estado_transaccion:false,
           fecha:new Date().toISOString().slice(0,10),
           hora: this.$moment(new Date()).format("hh:mm:ss"),
           mensaje:'',
-          transaccion_nueva:true
+          transaccion_nueva:false
           },
           estadobotonTransaccion:false,
           valor_sin_puntos:0,
@@ -255,15 +257,16 @@ export default {
        this.form_transaccion={
           idEmpresa:'',  
           idCobrador_recibe:'',
-          envia:'',
+          idEmpresa_cobrador:'',
+          enviado_por:'',
           idCobrador_envia:'', 
-          nombre_zona_envia:'', 
+          nombre_zona_recibe:'', 
           valor:'',
           estado_transaccion:false,
           fecha:new Date().toISOString().slice(0,10),
           hora: this.$moment(new Date()).format("hh:mm:ss"),
           mensaje:'',
-          transaccion_nueva:true
+          transaccion_nueva:false
           }
           this.valor_sin_puntos=0
           this.empresa_zonas=[{ value: 'Seleccione', label: 'Seleccione' }]
@@ -284,15 +287,16 @@ export default {
        this.form_transaccion={
           idEmpresa:'',  
           idCobrador_recibe:'',
-          envia:'',
+          idEmpresa_cobrador:'',
+          enviado_por:'',
           idCobrador_envia:'',
-          nombre_zona_envia:'',  
+          nombre_zona_recibe:'',  
           valor:'',
           estado_transaccion:false,
           fecha:new Date().toISOString().slice(0,10),
           hora: this.$moment(new Date()).format("hh:mm:ss"),
           mensaje:'',
-          transaccion_nueva:true
+          transaccion_nueva:false
           }
           this.valor_sin_puntos=0;
           this.opcionseleccionada=0;
@@ -321,15 +325,16 @@ batch.commit().then( () =>{
           this.form_transaccion={
           idEmpresa:'',  
           idCobrador_recibe:'',
-          envia:'',
+          idEmpresa_cobrador:'',
+          enviado_por:'',
           idCobrador_envia:'',  
           valor:'',
-          nombre_zona_envia:'',
+          nombre_zona_recibe:'',
           estado_transaccion:false,
           fecha:new Date().toISOString().slice(0,10),
           hora: this.$moment(new Date()).format("hh:mm:ss"),
           mensaje:'',
-          transaccion_nueva:true
+          transaccion_nueva:false
           }
           this.valor_sin_puntos=0;
           this.empresa_zonas=[{ value: 'Seleccione', label: 'Seleccione' }]
@@ -357,7 +362,7 @@ batch.commit().then( () =>{
        let id_empresa=localStorage.getItem('empresa');
       //  this.$f7.dialog.preloader('Cargando informacion...');
        this.form_transaccion.idCobrador_recibe=this.opcionseleccionadazona;
-       this.form_transaccion.nombre_zona_envia=nombre_zona;
+       this.form_transaccion.nombre_zona_recibe=nombre_zona;
       //  this.cobradorservice.buscarCobradorPorZona(usuarioOnLogin,id_empresa,this.opcionseleccionadazona).then((response)=>{
         
       //    this.$f7.dialog.close();
@@ -425,7 +430,8 @@ batch.commit().then( () =>{
         }else{
         
         this.form_transaccion.idCobrador_envia=localStorage.getItem('uid');
-        this.form_transaccion.envia=localStorage.getItem('name');
+        this.form_transaccion.enviado_por=localStorage.getItem('name');
+        this.form_transaccion.idEmpresa_cobrador=localStorage.getItem('empresa');
         
       
       this.$f7.dialog.confirm('Desea realizar la transaccion','Seguro!', () => {
@@ -439,9 +445,7 @@ batch.commit().then( () =>{
       let datosHistorialPendiente={}
         datosHistorialPendiente.idZonaRecibe=this.form_transaccion.idCobrador_recibe;
         datosHistorialPendiente.idTransaccion=rsp.id;
-         axios.post(`https://us-central1-manifest-life-279516.cloudfunctions.net/guardarTransaccionPendiente?idadmin=${this.idad}&doc=${this.id_empresa}&subdoc=${idZona}`,datosHistorialPendiente).then((resp)=>{
-           console.log(resp);
-        });
+     
          this.$store.commit('setDatosTransferenciaPendientes',this.form_transaccion);
         this.estadobotonTransaccion=false;
         this.select_zona_acive=false;
@@ -463,9 +467,7 @@ batch.commit().then( () =>{
         let datosHistorialPendiente={}
         datosHistorialPendiente.idZonaRecibe=this.form_transaccion.idCobrador_recibe
         datosHistorialPendiente.idTransaccion=rsp.id;
-         axios.post(`https://us-central1-manifest-life-279516.cloudfunctions.net/guardarTransaccionPendiente?idadmin=${this.idad}&doc=${this.id_empresa}&subdoc=${idZona}`,datosHistorialPendiente).then((resp)=>{
-           console.log(resp);
-        });
+      
         this.$store.commit('setDatosTransferenciaPendientes',this.form_transaccion);
         this.estadobotonTransaccion=false;
         this.select_zona_acive=false;
@@ -480,6 +482,8 @@ batch.commit().then( () =>{
     });
         }
      
+      },()=>{
+        this.estadobotonTransaccion=false;
       });
         } 
   },
@@ -492,11 +496,6 @@ batch.commit().then( () =>{
         let idempresa=localStorage.getItem("empresa");
         let idzona=localStorage.getItem("zona");
 
-        console.log(idCobrador);
-        console.log(idad);
-        console.log(idempresa);
-        console.log(idzona);
-    
     // db.collection("usuarios").doc(this.idad).collection("empresas").doc(idempresa).collection('Transferencias').doc('nueva_transaccion')
     // .onSnapshot({includeMetadataChanges: false},(doc) => {
     //       console.log(doc);

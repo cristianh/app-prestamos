@@ -36,12 +36,16 @@
   <f7-card-content>
     
     <f7-row>
-      <f7-col style="text-align:center">
-        <span><b>Envia:</b><br> {{transferencia.envia}}</span>
+      <f7-col v-if="transferencia.data.enviado_por" style="text-align:center">
+        <span><b>Envia:</b><br> {{transferencia.data.enviado_por}}</span>
+        
+      </f7-col>
+      <f7-col  v-if="transferencia.data.envia" style="text-align:center">
+        <span><b>Envia:</b><br> {{transferencia.data.envia}}</span>
         
       </f7-col>
       <f7-col style="text-align:center">
-         <span><b>Mensaje:</b><br>{{transferencia.mensaje}}</span>
+         <span><b>Mensaje:</b><br>{{transferencia.data.mensaje}}</span>
       </f7-col>
     </f7-row>
      
@@ -49,8 +53,8 @@
   </f7-card-content>
   <f7-card-footer>
     
-    <div class="demo-facebook-name">Fecha y hora:<br> {{transferencia.fecha}} {{transferencia.hora}}</div>
-    <div class="demo-facebook-name">Valor:<br> {{transferencia.valor}}</div>
+    <div class="demo-facebook-name">Fecha y hora:<br> {{transferencia.data.fecha}} {{transferencia.data.hora}}</div>
+    <div class="demo-facebook-name">Valor:<br> {{transferencia.data.valor}}</div>
     <!-- <f7-link>Id cobrador: </f7-link>
     <f7-link>Valor: </f7-link> -->
   </f7-card-footer>
@@ -61,7 +65,7 @@
   <f7-row>
     
     <f7-col >
-      <f7-button fill large small @click="onAceptarTransaccion(transferencia.valor)" color="green">ACEPTAR</f7-button>
+      <f7-button fill large small @click="onAceptarTransaccion(transferencia)" color="green">ACEPTAR</f7-button>
           
     </f7-col>
       <f7-col >
@@ -96,7 +100,7 @@ export default {
               nombreCobradorEnvia:'',
               idCobrador_envia:'',  
               valor:'',
-              estado_transaccion:true,
+              estado_transaccion:false,
               fecha:new Date().toISOString().slice(0,10),
               hora: this.$moment(new Date()).format("hh:mm:ss"),
               mensaje:''
@@ -117,7 +121,7 @@ export default {
     },
     methods: {
 
-      updateValorZona(){
+      updateValorZona(idTransaccion){
          
        let zona= localStorage.getItem("zona");
        let empresa= localStorage.getItem("empresa");
@@ -134,10 +138,8 @@ batch.update(sfRef, {"balance": this.balance_zona});
 
 // Commit the batch
 batch.commit().then( () =>{
-    // ...
     
-     
-              this.transacccionservice.elminiarTransaccion(this.idad,this.id_empresa,this.id_zona);
+              this.transacccionservice.elminiarTransaccion(this.idad,this.id_empresa,idTransaccion);
               this.transacccionservice.guardarHistorialTransaccion(this.idad,this.id_empresa,this.datos_transaccion[0]).then(()=>{
               this.$store.commit('setEliminarDatosTransferencia');  
               this.$f7.dialog.close();
@@ -164,16 +166,17 @@ batch.commit().then( () =>{
      
      this.datos_transaccion= this.$store.getters.getDatosTransferencia;
      let balance_actual_zona=this.$store.getters.getBalance;
-     let nuevo_balance_zona=Number(balance_actual_zona)+Number(valor_transaccion);
+     let nuevo_balance_zona=Number(balance_actual_zona)+Number(valor_transaccion.data.valor);
      this.balance_zona=nuevo_balance_zona
      this.$store.commit('setBalanceZona',nuevo_balance_zona);
      this.$store.commit('setDisminuyeContadorTransferencias');
      this.$f7.dialog.preloader("Actualizando saldo...");
-     this.updateValorZona();
+     console.log(".....................",valor_transaccion);
+     this.updateValorZona(valor_transaccion.id);
      
    },
    onCancelarTransaccion(tranferencia){
-    if(tranferencia.envia=='Empresa'){
+    if(tranferencia.data.envia=='Empresa'){
        
      let uid = localStorage.getItem("uid");
      this.id_empresa=localStorage.getItem("empresa");
@@ -201,7 +204,7 @@ sfRef.get().then((doc)=>{
 var batch = db.batch();
 
 
-this.saldoActualEmpresa=Number(this.saldoActualEmpresa)+ Number(tranferencia.valor)
+this.saldoActualEmpresa=Number(this.saldoActualEmpresa)+ Number(tranferencia.data.valor)
 
 
 batch.update(sfRef, {"Balance": this.saldoActualEmpresa });
@@ -251,7 +254,7 @@ sfRef.get().then((doc)=>{
 var batch = db.batch();
 
 
-this.saldoActualZona=Number(this.saldoActualZona)+ Number(tranferencia.valor)
+this.saldoActualZona=Number(this.saldoActualZona)+ Number(tranferencia.data.valor)
 
 
 batch.update(sfRef, {"balance": this.saldoActualZona });

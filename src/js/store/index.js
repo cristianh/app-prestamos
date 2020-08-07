@@ -64,7 +64,9 @@ export default new Vuex.Store({
             state.contador_transferencias++;
         },
         setDisminuyeContadorTransferencias(state) {
-            if (state.contador_transferencias >= 0) {
+            if (state.contador_transferencias == 0) {
+
+            } else {
                 state.contador_transferencias--;
             }
 
