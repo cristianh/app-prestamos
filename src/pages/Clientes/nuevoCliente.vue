@@ -42,7 +42,7 @@
         placeholder="Nombre"
         required
         validate
-        pattern="[A-Za-z]*"
+        pattern="[a-zA-ZñÑáéíóúÁÉÍÓÚ\s]+"
         error-message="Solo letras"
         @input="form.usuario.nombre=$event.target.value"
         :onValidate=onValidatedInput
@@ -56,7 +56,7 @@
         placeholder="Apellido"
         required
         validate
-        pattern="[A-Za-z]*"
+        pattern="[A-Za-z\s]*"
         error-message="Solo letras"
         @input="form.usuario.apellido=$event.target.value"
         :onValidate=onValidatedInput
@@ -131,7 +131,7 @@
         placeholder="Nombre Negocio"
         required
         validate
-        pattern="[a-zA-Z\s]+"
+        pattern="[a-zA-Z0-9ñÑáéíóúÁÉÍÓÚ\s]+"
         error-message="Solo letras"
         :onValidate=onValidatedInput
         @input="form.negocio.nombre_negocio=$event.target.value"
@@ -157,10 +157,12 @@
         placeholder="Telefono"
         required
         validate
-        pattern="[0-9]*"
-        error-message="Solo numeros"
+        maxlength=10
+        minlength=7
+        pattern="[0-9]{7,10}"
+        error-message="Solo numeros y minimo 7 maximo 10 caracteres "
         :onValidate=onValidatedInput
-        @input="form.usuario.telefono=$event.target.value"
+        @input="form.negocio.telefono=$event.target.value"
       ></f7-list-input>
 
       <f7-list-input
@@ -211,21 +213,21 @@
         placeholder="Telefono Codeudor 1"
         pattern="[0-9]*"
         error-message="Solo numeros"
-        @input="form.codeudor.telefeno1=$event.target.value"
+        @input="form.codeudor.telefono1=$event.target.value"
       ></f7-list-input>
 
       <f7-list-input
         outline
         floating-label
-        label="Telefono Codeudor 2"
+        label="Telefono Codeudor 2 (opcional)"
         type="text"
         placeholder="Telefono Codeudor 2"
          pattern="[0-9]*"
         error-message="Solo numeros"
-        @input="form.codeudor.telefeno2=$event.target.value"
+        @input="form.codeudor.telefono2=$event.target.value"
       ></f7-list-input> 
 
-      <f7-list-input
+      <!-- <f7-list-input
         outline
         floating-label
         label="Telefono Codeudor 3 (opcional)"
@@ -233,7 +235,17 @@
         placeholder="Telefono Codeudor 3"
          pattern="[0-9]*"
         error-message="Solo numeros"
-        @input="form.codeudor.telefeno3=$event.target.value"
+        @input="form.codeudor.telefono3=$event.target.value"
+      ></f7-list-input>  -->
+       <f7-list-input
+        outline
+        floating-label
+        label="Direccion"
+        type="text"
+        placeholder="Direccion"
+        pattern="[A-Za-z]*"
+        error-message="Solo letras"
+        @input="form.codeudor.direccion=$event.target.value"
       ></f7-list-input> 
 
       <f7-list-input
@@ -270,7 +282,7 @@
 
 </f7-block>
 <div v-if="cargarGps"> 
-  <Message  severity="success"  :sticky="true" :life="1500">Localizacion optenida</Message>
+  <Message  severity="success"  :sticky="true" :life="1500">Localizacion obtenida</Message>
 </div>
 <div v-else>
   <Message  severity="error"  :sticky="true" :life="1500">No se ha podido tener informacion de la localizacion, revise el gps y vuelva a intentarlo.</Message>
@@ -323,15 +335,15 @@ export default {
                 negocio:{
                   nombre_negocio:'',
                   direccion:'',
-                  telefeno:'',
+                  telefono:'',
                   ciudad:''
                 },
                 codeudor:{
                   nombre_codeudor:'',
                   documento_codeudor:'',
-                  telefeno1:'',
-                  telefeno2:'',
-                  telefeno3:'',
+                  telefono1:'',
+                  telefono2:'',
+                  direccion:'',
                   ciudad:''
                 },
                 prestamos:[],
@@ -404,15 +416,15 @@ export default {
                 negocio:{
                   nombre_negocio:'',
                   direccion:'',
-                  telefeno:'',
+                  telefono:'',
                   ciudad:''
                 },
                 codeudor:{
                   nombre_codeudor:'',
                   documento_codeudor:'',
-                  telefeno1:'',
-                  telefeno2:'',
-                  telefeno3:'',
+                  telefono1:'',
+                  telefono2:'',
+                  direccion:'',
                   ciudad:''
                 },
                 prestamos:[],
@@ -524,11 +536,10 @@ export default {
       
        self.$f7.dialog.close();
        let data={
-         'id':response.data,
          'data':this.form,
          'nuevo':true
        }
-       
+       data.data.id=response.data,
        this.$store.commit('addNewClientes',data);
        localStorage.setItem("cobros_efectivos",this.contador_cobros_efectivos++);
      

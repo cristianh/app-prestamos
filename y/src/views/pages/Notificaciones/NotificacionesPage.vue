@@ -14,7 +14,7 @@
           <!-- <Column field="data.idCobrador_recibe" header="Recibe" headerStyle="width: 24%"></Column> -->
           <Column field="data.fecha" header="Fecha"  headerStyle="width: 14%"></Column>
           <Column field="data.hora" header="Hora"></Column>
-          <Column field="data.estado_transaccion" header="Estado"></Column>
+          <Column field="data.mensaje" header="Mensaje"></Column>
             <Column field="data.valor" header="Valor"></Column>
           <Column>
         <template #body="items">
@@ -23,7 +23,7 @@
             <!-- <Button icon="pi pi-pencil" class="p-button-rounded p-button-success p-mr-2" @click="editProduct(slotProps.data)"  />
             <Button icon="pi pi-trash" class="p-button-rounded p-button-warning" /> -->
             <CButton size="sm" class="m-2" @click="onActuaizarstadoTransaccion(items)" color="success">ACEPTAR</CButton>
-            <CButton size="sm" class="m-2"  color="warning">ABORTAR</CButton>
+            <CButton size="sm" class="m-2"  @click="onAbortarTransaccion(items)"  onAbortarTransaccion color="warning">ABORTAR</CButton>
         </template>
         </Column>
           <!-- <Column field="year" header="Year"></Column> -->
@@ -131,6 +131,14 @@ export default {
      
     },
     methods: {
+      stockClass(data) {
+            return [
+                {
+                    'status-false': data.estado_transaccion === false,
+                    'status-tru': data.estado_transaccion === true
+                 }
+            ];
+        },
   updateValorBalance(idEmpresa,saldoActualEmpresa,saldoTransaccion,transaccionDatos){
        let id_admin= localStorage.getItem('id');
        let nuevoSaldoEmpresa=Number(saldoActualEmpresa)+Number(saldoTransaccion)
@@ -157,27 +165,72 @@ batch.commit().then( () =>{
    });
   
     },
+    onAbortarTransaccion(itemsInfo){
+        console.log("---------------",itemsInfo);
+        if(itemsInfo.data.data.idEmpresa==""){
+      //   let id_admin= localStorage.getItem('id');
+          
+      //  let nuevoSaldoEmpresa=Number(saldoActualEmpresa)+Number(saldoTransaccion)
+       
+
+      //         // Get a new write batch
+      //   var batch = db.batch();
+
+      //   // Update the population of 'SF'
+      //   // /usuarios/Nf05nKycByv8CrjrzfL6/empresas/mhVF3FZqPlNAx1sV9c0o/Zonas/SmhRYXL86AUXG2JBZaNU
+      //   var sfRef = db.collection("usuarios").doc(id_admin).collection("empresas").doc(itemsInfo);
+      //   batch.update(sfRef, {"Balance": nuevoSaldoEmpresa});
+
+
+
+      //   // Commit the batch
+      //   batch.commit().then( () =>{
+      //       // ...
+      //       console.log('balance actualizado');
+      //           // this.transaccionservice.elminiarTransaccionEmpresa(id_admin,idEmpresa);
+      //           transaccionDatos.estado_transaccion=true;
+      //           this.transaccionservice.guardarHistorialTransaccion(id_admin,idEmpresa,transaccionDatos);
+      //           this.estado_transaccion='success'
+      //     });
+        let posicion=this.items.findIndex(x=>x.data.id==itemsInfo.data.data.id);
+        this.items.splice(posicion,1);
+        this.$store.commit('setDisminuyeContadorTransacciones');
+        this.$store.commit('setEliminarDatoTransferencia',itemsInfo.data.data.id);
+       
+        }
+    },
      onActuaizarstadoTransaccion(itemsInfo){
-         console.log(itemsInfo);
-           let id_admin= localStorage.getItem('id');
+         console.log("---------------",itemsInfo);
+        if(itemsInfo.data.data.idEmpresa==""){
+            let id_admin= localStorage.getItem('id');
         axios.get(`https://us-central1-manifest-life-279516.cloudfunctions.net/actualizarEstadoTransaccion?idadmin=${id_admin}&doc=${itemsInfo.data.data.idEmpresa_cobrador}&subdoc=${itemsInfo.data.id}`).then((resp)=>{
         console.log(resp);
         this.$store.commit('setDisminuyeContadorTransacciones');
         console.log(this.items);
-        let posicion=this.items.findIndex(x=>x.data.id==itemsInfo.data.id);
-        this.items.splice(posicion,1);
-        this.$store.commit('setEliminarDatoTransferencia',itemsInfo.data.id); 
+        //No
+        // let posicion=this.items.findIndex(x=>x.data.id==itemsInfo.data.data.id);
+        // this.items.splice(posicion,1);
+        // this.$store.commit('setEliminarDatoTransferencia',itemsInfo.data.data.id); 
+        
         
          })
-      },
-        onAceptarTransferencia(){
-            let id_infotransferencia= this.$store.getters.getDatosTransferencia;
+        }else{
+        // let id_infotransferencia= this.$store.getters.getDatosTransferencia;
             let id_admin= localStorage.getItem('id');
            
-            this.empresaservice.getEmpresaPorId(id_admin,id_infotransferencia[0].idEmpresa).then((response)=>{
-                console.log(response.data.Balance);
-                this.updateValorBalance(id_infotransferencia[0].idEmpresa,response.data.Balance,id_infotransferencia[0].valor,id_infotransferencia[0]);
+            this.empresaservice.getEmpresaPorId(id_admin,itemsInfo.data.data.idEmpresa).then((response)=>{
+                console.log(response.data);
+                this.$store.commit('setDisminuyeContadorTransacciones');
+                let posicion=this.items.findIndex(x=>x.data.id==itemsInfo.data.data.id);
+                this.items.splice(posicion,1);
+                this.$store.commit('setEliminarDatoTransferencia',itemsInfo.data.data.id); 
+                this.updateValorBalance(itemsInfo.data.data.idEmpresa,response.data.Balance,itemsInfo.data.data.valor,itemsInfo.data);
             })
+        }
+         
+      },
+        onAceptarTransferencia(){
+           
         }
     },
     computed: {
@@ -187,3 +240,12 @@ batch.commit().then( () =>{
     },
 }
 </script>
+
+<style lang="less" scoped>
+.status-false{
+background-color: red;
+}
+.status-true{
+background-color: green;
+}
+</style>

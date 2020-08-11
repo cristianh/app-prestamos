@@ -58,12 +58,12 @@
         
           :badge="cliente.nuevo?'nuevo':''" 
           :badge-color="cliente.nuevo?'green':''"
-          :footer="`${cliente.data.prestamos.length>0?'Prestamo: '+cliente.data.prestamos[0].valor:'Prestamo: NA'}`"
+          :footer="`${cliente.data.prestamos.length>0?'Prestamo: '+Number(cliente.data.prestamos[0].valor).toLocaleString('es-CO',{style: 'currency',currency: 'COP',minimumSignificantDigits:1}):'Prestamo: NA'}`"
           @click="onClickClientePaginaDetalles(cliente.data.id)">
           <!-- `:after=""Telefono: ${cliente.data.usuario.telefono}` -->
            <f7-swipeout-actions right>
              <f7-swipeout-button close color="green" v-if="cliente.data.usuario.telefono!=''" @click="onLlamar(cliente.data.usuario.telefono)">Llamar</f7-swipeout-button>
-        <f7-swipeout-button close overswipe color="blue" @click="onSeleccionarCliente(cliente.data.id,cliente.data.usuario.nombre+cliente.data.usuario.apellido)">Prestamo</f7-swipeout-button>
+        <f7-swipeout-button close overswipe color="blue" @click="onSeleccionarCliente(cliente.data.id,cliente.data.usuario.nombre+' '+cliente.data.usuario.apellido)">Prestamo</f7-swipeout-button>
         </f7-swipeout-actions>
          <!-- <f7-link v-if="cliente.data.usuario.telefono" style="margin-left:12px;font-size:14px" external  :href="`tel:${cliente.data.usuario.telefono}`"><f7-icon material="settings_phone"></f7-icon>{{cliente.data.usuario.telefono}}</f7-link> -->
           </f7-list-item>
@@ -101,7 +101,7 @@
       <f7-col md="12"> 
         <f7-list inset>
             <f7-list-input
-        label="Pago:"
+        label="Valor:"
         type="text"
         :value="info_prestamo.valor"
         min=0

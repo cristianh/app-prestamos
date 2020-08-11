@@ -108,7 +108,7 @@
         :id=cliente.data.id
         :key=key
         :title="`${cliente.data.usuario.nombre}-${cliente.data.usuario.apellido}`" 
-        :footer="`${calculoTotalPagoHoy[index]!=undefined ? 'Saldo pago hoy: '+calculoTotalPagoHoy[index]:'NA'}`"  
+        :footer="`${calculoTotalPagoHoy[index]!=undefined ? 'Saldo pago hoy: '+Number(calculoTotalPagoHoy[index]).toLocaleString('es-CO',{style: 'currency',currency: 'COP',minimumSignificantDigits:1}):'NA'}`"  
         @click="onClickClientePaginaDetalles(cliente.data.id,calculoTotalPagoHoy[index])"
         >
         <f7-swipeout-actions right>

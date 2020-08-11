@@ -105,7 +105,7 @@ export default {
                     //this.$store.commit('setUsurioLogin',usuario_login);
             
                     if(info[2]=='administrador'){
-                         this.oneDetectarTransacciones();
+                        //  this.oneDetectarTransacciones();
                          this.$router.push('home/dashboard');
                          
                     }else{
@@ -120,6 +120,8 @@ export default {
                     
                     //var errorCode = error.code;
                   //  var errorMessage = error.message;
+                  // console.log();
+                  console.log(error.message);
                   switch (error.code) {
               case 'auth/user-not-found':
                  this.error= 'No hay ningún registro de usuario que corresponda a este identificador o usuario puede haber sido eliminado.';

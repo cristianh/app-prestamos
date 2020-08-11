@@ -1278,14 +1278,43 @@ exports.EliminarTransaccionEmpresaZona = functions.https.onRequest(async(request
     response.set('Access-Control-Allow-Headers', 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization');
 
     try {
-
-        await db.collection('usuarios').doc(request.query.idadmin).collection('empresas').doc(request.query.doc).collection('Zona').doc(request.query.idzona).collection('Transferencias').doc(request.query.subdoc).delete();
+        // /usuarios/rPmEcBvQTRjJZrgmpqJ2/empresas/hQPTik3wZ0yK2i5y6tdX/Zonas/4rPV9a3klSx6WQCxpNBO/Transferencias/QHS7AH4NicEKSwuRRtu3
+        await db.collection('usuarios').doc(request.query.idadmin).collection('empresas').doc(request.query.doc).collection('Zonas').doc(request.query.idzona).collection('Transferencias').doc(request.query.idtransaccion).delete().then((resp) => {
+            return response.status(200).send('Transaccion eliminada');
+        });
         // });
     } catch (error) {
         return response.status(500).send(error);
     }
 
 });
+
+/**
+ * @function Funcion para Eliminar las transacciones.
+ */
+exports.actualizarEstadoTransaccion = functions.https.onRequest(async(request, response, body) => {
+    response.set('Access-Control-Allow-Origin', '*');
+    response.set('Access-Control-Allow-Credentials', 'true'); // vital
+    response.set('Access-Control-Allow-Methods', 'GET', 'POST', 'PUT', 'DELETE', 'OPTIONS');
+    response.set('Access-Control-Allow-Headers', 'Content-Type');
+    response.set('Access-Control-Allow-Headers', 'Content-Length,Content-Range');
+    response.set('Access-Control-Allow-Headers', 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization');
+
+    try {
+
+        await db.collection('usuarios').doc(request.query.idadmin).collection('empresas').doc(request.query.doc).collection('Transferencias').doc(request.query.subdoc).update({
+            estado_transaccion: true,
+            transaccion_nueva: true
+        }, { merge: true }).then((resp) => {
+            return response.status(200).send('Transaccion actualizada');
+        });
+        // });
+    } catch (error) {
+        return response.status(500).send(error);
+    }
+
+});
+
 
 /**
  * @function Funcion para Eliminar las transacciones.

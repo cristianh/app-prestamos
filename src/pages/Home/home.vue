@@ -409,40 +409,40 @@ export default {
         let idad=localStorage.getItem("iad");
         let idempresa=localStorage.getItem("empresa");
         let idzona=localStorage.getItem("zona");
-        let idTransacciones=[];
+        
     
     let transferenciaEmpresa= db.collection("usuarios").doc(this.idad).collection("empresas").doc(idempresa).collection("Zonas").doc(idzona).collection('Transferencias')
     transferenciaEmpresa.where("envia", "==", "Empresa")
     .onSnapshot({includeMetadataChanges: false},(snapshot) => {
-         
+         let idTransacciones=[];
     //   if(doc.exists!=false){
     //     this.$f7.dialog.alert('Tiene una nueva transferencia de empresa!','Atencion!');
     //     console.log("Current data: ", doc);
     //     //  this.$store.commit('setAumentaContadorTransferencias');
     //     //  this.$store.commit('setDatosTransferencia',doc.data());
     //   }
-      snapshot.docs.forEach(element => {
-         idTransacciones.push(element.id);
-      });
+    //   snapshot.docs.forEach(element => {
+    //      idTransacciones.push(element.id);
+    //   });
 
 //    if(snapshot.docChanges().length>=1){
 //      this.$f7.dialog.alert('Tiene una nueva transferencia de zona!','Atencion!');
 //    }
-         let contador=0;
+        //  let contador=0;
 
         snapshot.docChanges().forEach((change)=> {
             
             if (change.type === "added") {
                 this.$f7.dialog.alert('Tiene una nueva transferencia de empresa!','Atencion!');
                   let data_transacciones={
-                  id:idTransacciones[contador],
+                  id:change.doc.id,
                   data:change.doc.data()
                 }
                 console.log(data_transacciones);
                 this.$store.commit('setAumentaContadorTransferencias');
                 this.$store.commit('setDatosTransferencia',data_transacciones);
                 console.log("Modified city: ", change.doc.data());
-                 contador++
+               
             }
             if (change.type === "modified") {
                  
@@ -452,11 +452,61 @@ export default {
             }
         });
     });
+    
       let transferencia= db.collection("usuarios").doc(this.idad).collection("empresas").doc(idempresa).collection('Transferencias')
       transferencia.where("transaccion_nueva", "==", true)
       transferencia.where("idCobrador_recibe", "==", idzona)
       .onSnapshot((snapshot)=> {
-        
+    
+         let mensaje_visible=false;
+
+        snapshot.docChanges().forEach((change)=> {
+            
+            if (change.type === "added") {
+            //    if(mensaje_visible==false){
+            //         this.$f7.dialog.alert('Tiene '+(contador+1)+' transferencia de zona!','Atencion!');
+            //          mensaje_visible=true;
+            //         }
+                
+            //     this.$store.commit('setDatosTransferenciaPendientes',this.form_transaccion);
+            //        let data_transacciones={
+            //       id:idTransacciones[contador],
+            //       data:change.doc.data()
+            //     }
+            //     console.log(data_transacciones);
+            //     this.$store.commit('setAumentaContadorTransferencias');
+            //     this.$store.commit('setDatosTransferencia',data_transacciones);
+               
+                //  contador++
+                // console.log("New: ", change.doc.data());
+            }
+            if (change.type === "modified") {
+                   if(mensaje_visible==false){
+                    this.$f7.dialog.alert('Tiene '+(snapshot.docChanges().length)+' transferencia de zona!','Atencion!');
+                     mensaje_visible=true;
+                    }
+                  let data_transacciones={
+                  id:change.doc.id,
+                  data:change.doc.data()
+                }
+                console.log(data_transacciones);
+                this.$store.commit('setAumentaContadorTransferencias');
+                this.$store.commit('setDatosTransferencia',data_transacciones);
+                console.log("Modified city: ", change.doc.data());
+                
+            }
+            if (change.type === "removed") {
+                console.log("Removed city: ", change.doc.data());
+            }
+        });
+    });
+
+     let transferenciaNuevasAprobadas= db.collection("usuarios").doc(this.idad).collection("empresas").doc(idempresa).collection('Transferencias')
+      transferenciaNuevasAprobadas.where("idCobrador_recibe", "==", idzona)
+      transferenciaNuevasAprobadas.where("transaccion_nueva", "==", true)
+      transferenciaNuevasAprobadas.where("estado_trasaccion", "==", true)
+      .onSnapshot((snapshot)=> {
+        let idTransacciones=[];
         snapshot.docs.forEach(element => {
          idTransacciones.push(element.id);
       });
@@ -465,37 +515,34 @@ export default {
 //      this.$f7.dialog.alert('Tiene una nueva transferencia de zona!','Atencion!');
 //    }
          let contador=0;
+         let mensaje_visible=false;
 
         snapshot.docChanges().forEach((change)=> {
             
             if (change.type === "added") {
-               
-                // // this.$store.commit('setDatosTransferenciaPendientes',this.form_transaccion);
-                //    let data_transacciones={
-                //   id:idTransacciones[contador],
-                //   data:change.doc.data()
-                // }
-                // console.log(data_transacciones);
-                // this.$store.commit('setAumentaContadorTransferencias');
-                // this.$store.commit('setDatosTransferencia',data_transacciones);
-                // console.log("Modified city: ", change.doc.data());
-                //  contador++
-                // console.log("New: ", change.doc.data());
-            }
-            if (change.type === "modified") {
-                 this.$f7.dialog.alert('Tiene una nueva transferencia de zona!','Atencion!');
-                  let data_transacciones={
+               if(mensaje_visible==false){
+                    this.$f7.dialog.alert('Tienes '+(contador+1)+' transferencia nueva aprobada de zona!','Atencion!');
+                     mensaje_visible=true;
+                    }
+                
+                this.$store.commit('setDatosTransferenciaPendientes',this.form_transaccion);
+                   let data_transacciones={
                   id:idTransacciones[contador],
                   data:change.doc.data()
                 }
                 console.log(data_transacciones);
                 this.$store.commit('setAumentaContadorTransferencias');
                 this.$store.commit('setDatosTransferencia',data_transacciones);
-                console.log("Modified city: ", change.doc.data());
+               
                  contador++
+                // console.log("New: ", change.doc.data());
+            }
+            if (change.type === "modified") {
+                  
             }
             if (change.type === "removed") {
                 console.log("Removed city: ", change.doc.data());
+                
             }
         });
     });

@@ -223,6 +223,7 @@ export default {
           opciones:[{value: 'empresa', label: 'Empresa' },{value: 'zona', label: 'Zona' }],
           empresa_zonas:[{ value: 'Seleccione', label: 'Seleccione' }],
           form_transaccion:{
+          id_transaccion:Date.now(),
           idEmpresa:'',  
           idCobrador_recibe:'',
           idEmpresa_cobrador:'',
@@ -231,6 +232,7 @@ export default {
           idCobrador_envia:'',  
           valor:0,
           estado_transaccion:false,
+          notificado:false,
           fecha:new Date().toISOString().slice(0,10),
           hora: this.$moment(new Date()).format("hh:mm:ss"),
           mensaje:'',
@@ -255,6 +257,7 @@ export default {
     },
     destroyed() {
        this.form_transaccion={
+          id_transaccion:Date.now(),
           idEmpresa:'',  
           idCobrador_recibe:'',
           idEmpresa_cobrador:'',
@@ -263,6 +266,7 @@ export default {
           nombre_zona_recibe:'', 
           valor:'',
           estado_transaccion:false,
+          notificado:false,
           fecha:new Date().toISOString().slice(0,10),
           hora: this.$moment(new Date()).format("hh:mm:ss"),
           mensaje:'',
@@ -285,6 +289,7 @@ export default {
     },
     beforeCreate(){
        this.form_transaccion={
+          id_transaccion:Date.now(),
           idEmpresa:'',  
           idCobrador_recibe:'',
           idEmpresa_cobrador:'',
@@ -293,6 +298,7 @@ export default {
           nombre_zona_recibe:'',  
           valor:'',
           estado_transaccion:false,
+          notificado:false,
           fecha:new Date().toISOString().slice(0,10),
           hora: this.$moment(new Date()).format("hh:mm:ss"),
           mensaje:'',
@@ -323,6 +329,7 @@ batch.update(sfRef, {"balance": this.balance_zona});
 batch.commit().then( () =>{
     // ...
           this.form_transaccion={
+          id_transaccion:Date.now(),  
           idEmpresa:'',  
           idCobrador_recibe:'',
           idEmpresa_cobrador:'',
@@ -331,6 +338,7 @@ batch.commit().then( () =>{
           valor:'',
           nombre_zona_recibe:'',
           estado_transaccion:false,
+          notificado:false,
           fecha:new Date().toISOString().slice(0,10),
           hora: this.$moment(new Date()).format("hh:mm:ss"),
           mensaje:'',
@@ -438,6 +446,7 @@ batch.commit().then( () =>{
         this.$f7.dialog.preloader('Guardando...');
         if(this.opcionseleccionada=='empresa'){
           this.form_transaccion.idEmpresa=this.id_empresa;
+          this.form_transaccion.nombre_zona_recibe="empresa";
            db.collection("usuarios").doc(this.idad).collection("empresas").doc(this.id_empresa).collection("Transferencias").add(this.form_transaccion)
     .then((rsp) =>{
         console.log("Document successfully written!");

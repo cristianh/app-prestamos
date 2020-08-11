@@ -57,6 +57,10 @@ export default new Vuex.Store({
         setEliminarDatosTransferencia(state) {
             state.datos_transeferencia = []
         },
+        setEliminarDatoTransferencia(state, id) {
+            let posicion = state.datos_transeferencia.findIndex(x => x.data.id == id)
+            state.datos_transeferencia.splice(posicion, 1)
+        },
         setEstadoTransferencia(state, estadotransferencia) {
             state.datos_transeferencia[0].estado_transaccion = estadotransferencia
         },

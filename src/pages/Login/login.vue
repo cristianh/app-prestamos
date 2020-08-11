@@ -155,7 +155,7 @@
             const self = this;
             const app = self.$f7;
             const router = self.$f7router;
-            this.onDetectarTransacciones();
+            // this.onDetectarTransacciones();
            
             // ...
             }).catch((error)=> {

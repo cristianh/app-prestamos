@@ -546,74 +546,8 @@ export default {
   },
    beforeMount() {
     // this.oneDetectarTransacciones();
-    this.idad=localStorage.getItem('id');
-      console.log('created');
-    let idTransacciones=[];
-    this.$store.commit('setEliminarDatosTransferencia');
-    this.$store.commit('setReiniciarContadorTransacciones');
-    db.collection("usuarios").doc(this.idad).collection("empresas").get().then((querySnapshot)=> {
-    querySnapshot.forEach((doc)=> {
-        // doc.data() is never undefined for query doc snapshots
-        // console.log(doc.id, " => ", doc.data());
-            let transferencia= db.collection("usuarios").doc(this.idad).collection("empresas").doc(doc.id).collection('Transferencias')
-      transferencia.where("transaccion_nueva", "==", true)
-      transferencia.where("estado_transaccion", "==", false)
-      .onSnapshot((snapshot)=> {
-      
-      snapshot.docs.forEach(element => {
-         idTransacciones.push(element.id);
-      });
-    
-   if(snapshot.docChanges().length>=1){
-     this.$toast.add({severity:'info', summary: 'Atencion!', detail: 'Tiene un nueva transaccion.', life: 6000});  
-   }
-      let contador=0;
-      //  console.log(typeof(snapshot.t.docs))
-        snapshot.docChanges().forEach((change)=> {
-            let idT=idTransacciones[contador]
-            
-            if (change.type === "added") {
-                let data_transacciones={
-                  id:idTransacciones[contador],
-                  data:change.doc.data()
-                }
-                console.log(data_transacciones);
-                this.$store.commit('setAumentaContadorTransacciones');
-                this.$store.commit('setDatosTransferencia',data_transacciones);
-                
-                // this.$store.commit('setAumentaContadorTransferencias');
-                // this.$store.commit('setDatosTransferencia',change.doc.data());
-                // this.$store.commit('setDatosTransferenciaPendientes',this.form_transaccion);
-                // console.log("New: ", change.doc.data());
-                contador++
-            }
-            if (change.type === "modified") {
-                console.log("Modified city: ", change.doc.data());
-            }
-            if (change.type === "removed") {
-                console.log("Removed city: ", change.doc.data());
-            }
-        });
-    });
-        
-    //  db.collection("usuarios").doc(this.idad).collection("empresas").doc(doc.id).collection('Transferencias').doc('nueva_transaccion').onSnapshot({includeMetadataChanges: false},(doc) => {
-    //       // console.log(doc);
-    //  if(doc.exists!=false){
-       
-    //     console.log("Current data: ", doc.data());
-    //     
-    //     this.$store.commit('setAumentaContadorTransacciones');
-    //     this.$store.commit('setDatosTransferencia',doc.data());
-    //  }
-
-    // });
-    });
-   });
-   },
+       },
   methods: {
-        oneDetectarTransacciones(){
-       
-    },
     color (value) {
       let $color
       if (value <= 25) {
