@@ -5,8 +5,8 @@ export default class TransaccionService {
         return axios.get(`EliminarTransaccion?idadmin=${id_admin}&doc=${id_empresa}&subdoc=${id_zona}`).then(response => response);
     }
 
-    elminiarTransaccionEmpresa(id_admin, id_empresa) {
-        return axios.get(`EliminarTransaccionEmpresa?idadmin=${id_admin}&doc=${id_empresa}`).then(response => response);
+    elminiarTransaccionEmpresa(id_admin, id_empresa, id_transaccion) {
+        return axios.get(`EliminarTransaccionEmpresa?idadmin=${id_admin}&doc=${id_empresa}&subdoc=${id_transaccion}`).then(response => response);
     }
 
     guardarHistorialTransaccion(id_admin, id_empresa, data) {
@@ -16,5 +16,11 @@ export default class TransaccionService {
     getHistorialTransaccion(id_admin, id_empresa) {
         return axios.get(`getHistorialTransacciones?idadmin=${id_admin}&doc=${id_empresa}`).then(response => response);
     }
+
+    actualizarEstadoTransaccion(id_admin, id_empresa, id_trasaccion, estado_trasaccion) {
+        return axios.get(`actualizarEstadoTransaccion?idadmin=${id_admin}&doc=${id_empresa}&subdoc=${id_trasaccion}&estado_transaccion=${estado_trasaccion}`).then(response => response);
+    }
+
+
 
 }

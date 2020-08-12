@@ -55,6 +55,8 @@ const Listar_clientes = () =>
 //Tazas interes
 const Taza_Interes = () =>
     import ('@/views/pages/TazaInteres/TazaDeInteresPage')
+const Taza_Interes_lista = () =>
+    import ('@/views/pages/TazaInteres/TazasListaPage')
 
 //Tazas interes
 const Map_users = () =>
@@ -307,12 +309,11 @@ function configRoutes() {
                             path: '/nueva_plan',
                             name: 'Nueva plan',
                             component: Taza_Interes
-                        }
-                        // {
-                        //   path: '/editar_cobrador',
-                        //   name: 'Editar cobrador',
-                        //   component: Empresa_Editar
-                        // },
+                        }, {
+                            path: '/listar_planes',
+                            name: 'Listar planes',
+                            component: Taza_Interes_lista
+                        },
                         // {
                         //   path: '/borrar_cobrador',
                         //   name: 'Eliminr cobrador',

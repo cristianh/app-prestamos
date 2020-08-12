@@ -59,6 +59,8 @@ export default new Vuex.Store({
         },
         setEliminarDatoTransferencia(state, id) {
             let posicion = state.datos_transeferencia.findIndex(x => x.data.id == id)
+            console.log(state.datos_transeferencia[posicion]);
+            console.log(state.datos_transeferencia);
             state.datos_transeferencia.splice(posicion, 1)
         },
         setEstadoTransferencia(state, estadotransferencia) {
@@ -181,10 +183,7 @@ export default new Vuex.Store({
         },
         setEstadoPrestamoPendiente(state, data) {
             let posicion = state.clientes_prestamos.findIndex(x => x.data.id == data.id);
-            console.log(data.id);
-            console.log("estadte", state.clientes_prestamos[posicion]);
-            console.log("posicion", posicion);
-            console.log("data.estadopagoruta", data.estadopagoruta);
+
             state.clientes_prestamos[posicion].data.prestamos[0].estado_pendiente_prestamo_ruta = data.pagopendiente;
         },
         setEstadoDiasMora(state, data) {

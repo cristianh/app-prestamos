@@ -12,7 +12,7 @@
          title=" No hay notificaciones">
            
          </f7-card>
-        
+       
        </f7-block> 
        <div v-for="(transferencia,index,key) in getDatosTransferencia" :key="key">
          <div v-if="getDatosTransferencia.length===0">
@@ -36,6 +36,7 @@
   <f7-card-content>
     
     <f7-row>
+       <pre>{{getDatosTransferencia}}</pre>
       <f7-col v-if="transferencia.data.enviado_por" style="text-align:center">
         <span><b>Envia:</b><br> {{transferencia.data.enviado_por}}</span>
         
@@ -65,11 +66,11 @@
   <f7-row>
     
     <f7-col >
-      <f7-button fill large small @click="onAceptarTransaccion(transferencia)" color="green">ACEPTAR</f7-button>
+      <f7-button fill large small @click="onAceptarTransaccion(transferencia.id)" color="green">ACEPTAR</f7-button>
           
     </f7-col>
       <f7-col >
-      <f7-button fill large small @click="onCancelarTransaccion(transferencia)" color="red">CANCELAR</f7-button>
+      <f7-button fill large small @click="onCancelarTransaccion(transferencia.id)" color="red">CANCELAR</f7-button>
           
     </f7-col>
     
@@ -140,14 +141,17 @@ export default {
           // Commit the batch
           batch.commit().then( () =>{
               console.log(Transaccion);
-              this.transacccionservice.eliminarTransaccionEmpresaZona(this.idad,empresa,zona,Transaccion.id);
+              
               this.transacccionservice.guardarHistorialTransaccion(this.idad,this.id_empresa,Transaccion.data).then(()=>{
               this.$store.commit('setEliminarDatoTransferencia',Transaccion.id);  
               this.$f7.dialog.close();
-              this.$f7.dialog.alert('Nuevo saldo '+this.balance_zona,'Saldo actualizado!',()=>{
-              // this.identificacion=''
-              this.$f7router.back();
-            
+              this.$f7.dialog.alert('Nuevo saldo '+Number(this.balance_zona).toLocaleString('es-CO',{style: 'currency',currency: 'COP',minimumSignificantDigits:1}),'Saldo actualizado!',()=>{
+              alert('Borrando');
+              // this.transacccionservice.eliminarTransaccionEmpresaZona(this.idad,empresa,zona,Transaccion.id)
+              // db.collection('usuarios').doc(this.idad).collection('empresas').doc(empresa).collection('Zonas').doc(zona).collection('Transferencias').doc(Transaccion.id).delete()
+               this.transacccionservice.eliminarTransaccionEmpresaZona(this.idad,empresa,zona,Transaccion.id).then(()=>{
+                 alert('Borrando');
+              });
 
           }); 
               });
@@ -161,13 +165,20 @@ export default {
           // Commit the batch
           batch.commit().then( () =>{
               console.log(Transaccion);
-              this.transacccionservice.eliminarTransaccionEmpresa(this.idad,empresa,Transaccion.id);
+              
               this.transacccionservice.guardarHistorialTransaccion(this.idad,this.id_empresa,Transaccion.data).then(()=>{
-              this.$store.commit('setEliminarDatoTransferencia',Transaccion.id);  
+              this.$store.commit('setEliminarDatoTransferencia',Transaccion.id);
+               
               this.$f7.dialog.close();
-              this.$f7.dialog.alert('Nuevo saldo '+this.balance_zona,'Saldo actualizado!',()=>{
+              this.$f7.dialog.alert('Nuevo saldo '+Number(this.balance_zona).toLocaleString('es-CO',{style: 'currency',currency: 'COP',minimumSignificantDigits:1}),'Saldo actualizado!',()=>{
               // this.identificacion=''
-              this.$f7router.back();
+             
+             console.log(Transaccion.id);
+              // this.transacccionservice.eliminarTransaccionEmpresa(this.idad,empresa,Transaccion.id).
+              // db.collection('usuarios').doc(this.idad).collection('empresas').doc(empresa).collection('Transferencias').doc(Transaccion.id).delete()
+              this.transacccionservice.eliminarTransaccionEmpresa(this.idad,empresa,Transaccion.id).then(()=>{
+                 alert('Borrando');
+              });
             
 
           }); 
@@ -177,16 +188,21 @@ export default {
     } 
   
     },
-   onAceptarTransaccion(transaccion) {
-     console.log(transaccion);
+   onAceptarTransaccion(Idtransaccion) {
+     this.datos_transaccion= this.$store.getters.getDatosTransferencia;
+     console.log(".........................this.datos_transaccion",this.datos_transaccion);
+    let posicion = this.datos_transaccion.findIndex(x => x.id == Idtransaccion);
+    // this.datos_transaccion.splice(posicion,1)  
+     console.log(".........................posicion",posicion);
+     let transaccion= this.datos_transaccion[posicion];
+     console.log(".........................transaccion",transaccion);
+    
      let uid = localStorage.getItem("uid");
      this.id_empresa=localStorage.getItem("empresa");
      this.id_zona = localStorage.getItem("zona")
      this.$store.commit('setEstadoTransferencia',true);
-
-    //  axios.get('')
+    
      
-     this.datos_transaccion= this.$store.getters.getDatosTransferencia;
      let balance_actual_zona=this.$store.getters.getBalance;
      let nuevo_balance_zona=Number(balance_actual_zona)+Number(transaccion.data.valor);
      this.balance_zona=nuevo_balance_zona

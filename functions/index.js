@@ -1075,19 +1075,19 @@ exports.getTazaseInteres = functions.https.onRequest(async(request, response, bo
     response.set('Access-Control-Allow-Headers', 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization');
 
     let cobradores = [];
-    const snapshot = await db.collection('usuarios').doc(request.query.idadmin).collection('parametros_cobros').get();
+    const snapshot = await db.collection('usuarios').doc(request.query.idadmin).collection('empresas').doc(request.query.doc).collection('parametros_cobros').get();
     if (snapshot.empty) {
         return response.send('Not Found');
     } else {
         snapshot.forEach(doc => {
-            // let id = doc.id;
-            // let datadocument = doc.data();
-            // datadocument.id=id;
-            // cobradores.push(datadocument);
-            cobradores.push({
-                id: doc.id,
-                data: doc.data()
-            });
+            let id = doc.id;
+            let datadocument = doc.data();
+            datadocument.id = id;
+            cobradores.push(datadocument);
+            // cobradores.push({
+            //     id: doc.id,
+            //     data: doc.data()
+            // });
         });
         return response.status(200).send(JSON.stringify(cobradores));
     }
@@ -1289,8 +1289,10 @@ exports.EliminarTransaccionEmpresaZona = functions.https.onRequest(async(request
 
 });
 
+
+
 /**
- * @function Funcion para Eliminar las transacciones.
+ * @function Funcion para actualizar el estado de la transaccion.
  */
 exports.actualizarEstadoTransaccion = functions.https.onRequest(async(request, response, body) => {
     response.set('Access-Control-Allow-Origin', '*');
@@ -1301,41 +1303,14 @@ exports.actualizarEstadoTransaccion = functions.https.onRequest(async(request, r
     response.set('Access-Control-Allow-Headers', 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization');
 
     try {
-
+        // return response.status(200).send(request.query.estado_transaccion);
         await db.collection('usuarios').doc(request.query.idadmin).collection('empresas').doc(request.query.doc).collection('Transferencias').doc(request.query.subdoc).update({
-            estado_transaccion: true,
+            estado_transaccion: Number(request.query.estado_transaccion),
             transaccion_nueva: true
         }, { merge: true }).then((resp) => {
             return response.status(200).send('Transaccion actualizada');
+            // });
         });
-        // });
-    } catch (error) {
-        return response.status(500).send(error);
-    }
-
-});
-
-
-/**
- * @function Funcion para Eliminar las transacciones.
- */
-exports.actualizarEstadoTransaccion = functions.https.onRequest(async(request, response, body) => {
-    response.set('Access-Control-Allow-Origin', '*');
-    response.set('Access-Control-Allow-Credentials', 'true'); // vital
-    response.set('Access-Control-Allow-Methods', 'GET', 'POST', 'PUT', 'DELETE', 'OPTIONS');
-    response.set('Access-Control-Allow-Headers', 'Content-Type');
-    response.set('Access-Control-Allow-Headers', 'Content-Length,Content-Range');
-    response.set('Access-Control-Allow-Headers', 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization');
-
-    try {
-
-        await db.collection('usuarios').doc(request.query.idadmin).collection('empresas').doc(request.query.doc).collection('Transferencias').doc(request.query.subdoc).update({
-            estado_transaccion: true,
-            transaccion_nueva: true
-        }, { merge: true }).then((resp) => {
-            return response.status(200).send('Transaccion actualizada');
-        });
-        // });
     } catch (error) {
         return response.status(500).send(error);
     }

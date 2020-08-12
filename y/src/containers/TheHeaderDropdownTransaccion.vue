@@ -48,7 +48,7 @@ export default {
       console.log(this.$router.currentRouter);
     this.$router.replace('/notificaciones');
     },
-    oneDetectarTransacciones(){
+    onDetectarTransacciones(){
           this.idad=localStorage.getItem('id');
       console.log('created');
     
@@ -61,7 +61,7 @@ export default {
         // console.log(doc.id, " => ", doc.data());
     let transferencia= db.collection("usuarios").doc(this.idad).collection("empresas").doc(doc.id).collection('Transferencias')
       transferencia.where("transaccion_nueva", "==", true)
-      transferencia.where("estado_transaccion", "==", false)
+      transferencia.where("estado_transaccion", "==", 0)
       .onSnapshot((snapshot)=> {
     
    if(snapshot.docChanges().length>=1){
@@ -83,7 +83,8 @@ export default {
                 // this.$store.commit('setAumentaContadorTransferencias');
                 // this.$store.commit('setDatosTransferencia',change.doc.data());
                 // this.$store.commit('setDatosTransferenciaPendientes',this.form_transaccion);
-                // console.log("New: ", change.doc.data());
+                console.log("New: ", change.doc.data());
+                // ok
                 
             }
             if (change.type === "modified") {
@@ -108,7 +109,7 @@ export default {
 
      let transferenciaAceptada= db.collection("usuarios").doc(this.idad).collection("empresas").doc(doc.id).collection('Transferencias')
       transferenciaAceptada.where("transaccion_nueva", "==", true)
-      transferenciaAceptada.where("estado_transaccion", "==", true)
+      transferenciaAceptada.where("estado_transaccion", "==",1 )
       .onSnapshot((snapshot)=> {
     
   //  if(snapshot.docChanges().length>=1){
@@ -163,7 +164,7 @@ export default {
   },
    beforeMount() {
       this.idad=localStorage.getItem('id');
-      this.oneDetectarTransacciones();
+      this.onDetectarTransacciones();
       
    }
 }

@@ -22,8 +22,8 @@
           <!-- @click="confirmDeleteProduct(slotProps.data)"  -->
             <!-- <Button icon="pi pi-pencil" class="p-button-rounded p-button-success p-mr-2" @click="editProduct(slotProps.data)"  />
             <Button icon="pi pi-trash" class="p-button-rounded p-button-warning" /> -->
-            <CButton size="sm" class="m-2" @click="onActuaizarstadoTransaccion(items)" color="success">ACEPTAR</CButton>
-            <CButton size="sm" class="m-2"  @click="onAbortarTransaccion(items)"  onAbortarTransaccion color="warning">ABORTAR</CButton>
+            <CButton size="sm" class="m-2" @click="onActuaizarEstadoTransaccion(items.data.id)" color="success">ACEPTAR</CButton>
+            <CButton size="sm" class="m-2"  @click="onAbortarTransaccion(items.data.id)"  onAbortarTransaccion color="warning">ABORTAR</CButton>
         </template>
         </Column>
           <!-- <Column field="year" header="Year"></Column> -->
@@ -154,59 +154,91 @@ batch.update(sfRef, {"Balance": nuevoSaldoEmpresa});
 
 
 
+
+
 // Commit the batch
 batch.commit().then( () =>{
     // ...
     console.log('balance actualizado');
-        // this.transaccionservice.elminiarTransaccionEmpresa(id_admin,idEmpresa);
+        
         transaccionDatos.estado_transaccion=true;
         this.transaccionservice.guardarHistorialTransaccion(id_admin,idEmpresa,transaccionDatos);
         this.estado_transaccion='success'
    });
   
     },
-    onAbortarTransaccion(itemsInfo){
-        console.log("---------------",itemsInfo);
-        if(itemsInfo.data.data.idEmpresa==""){
-      //   let id_admin= localStorage.getItem('id');
-          
-      //  let nuevoSaldoEmpresa=Number(saldoActualEmpresa)+Number(saldoTransaccion)
+    onAbortarTransaccion(IdTransaferencia){
+        // console.log("---------------",itemsInfo);
+        let id_admin= localStorage.getItem('id');
+         let posicion_transacciones=this.items.findIndex(x=>x.id==IdTransaferencia)
+         console.log(posicion_transacciones);
+         let itemsInfo=this.items[posicion_transacciones]
+        if(itemsInfo.data.idEmpresa==""){
+
+        
+
+        this.transaccionservice.actualizarEstadoTransaccion(id_admin,itemsInfo.data.idEmpresa_cobrador,itemsInfo.id,3).then((resp)=>{
+        // console.log(resp);
+        // this.$store.commit('setDisminuyeContadorTransacciones');
+      
+        //No
+        // let posicion=this.items.findIndex(x=>x.data.id==itemsInfo.data.data.id);
+        // this.items.splice(posicion,1);
+        // this.$store.commit('setEliminarDatoTransferencia',itemsInfo.data.data.id); 
+            itemsInfo.data.estado_cancelado=true;
+            this.transaccionservice.guardarHistorialTransaccion(id_admin,itemsInfo.data.idEmpresa_cobrador,itemsInfo.data).then(()=>{
+            this.transaccionservice.elminiarTransaccionEmpresa(id_admin,itemsInfo.data.idEmpresa_cobrador,itemsInfo.id);
+            let posicion=this.items.findIndex(x=>x.id==itemsInfo.id);
+            this.items.splice(posicion,1);
+            this.$store.commit('setDisminuyeContadorTransacciones');
+            this.$store.commit('setEliminarDatoTransferencia',itemsInfo.id);
+            });
+           
+           
+        
+         })
+        
        
+        }else{
 
-      //         // Get a new write batch
-      //   var batch = db.batch();
-
-      //   // Update the population of 'SF'
-      //   // /usuarios/Nf05nKycByv8CrjrzfL6/empresas/mhVF3FZqPlNAx1sV9c0o/Zonas/SmhRYXL86AUXG2JBZaNU
-      //   var sfRef = db.collection("usuarios").doc(id_admin).collection("empresas").doc(itemsInfo);
-      //   batch.update(sfRef, {"Balance": nuevoSaldoEmpresa});
-
-
-
-      //   // Commit the batch
-      //   batch.commit().then( () =>{
-      //       // ...
-      //       console.log('balance actualizado');
-      //           // this.transaccionservice.elminiarTransaccionEmpresa(id_admin,idEmpresa);
-      //           transaccionDatos.estado_transaccion=true;
-      //           this.transaccionservice.guardarHistorialTransaccion(id_admin,idEmpresa,transaccionDatos);
-      //           this.estado_transaccion='success'
-      //     });
-        let posicion=this.items.findIndex(x=>x.data.id==itemsInfo.data.data.id);
-        this.items.splice(posicion,1);
-        this.$store.commit('setDisminuyeContadorTransacciones');
-        this.$store.commit('setEliminarDatoTransferencia',itemsInfo.data.data.id);
-       
+        this.transaccionservice.actualizarEstadoTransaccion(id_admin,itemsInfo.data.idEmpresa,itemsInfo.id,3).then((resp)=>{
+        // console.log(resp);
+        // this.$store.commit('setDisminuyeContadorTransacciones');
+      
+        //No
+        // let posicion=this.items.findIndex(x=>x.data.id==itemsInfo.data.data.id);
+        // this.items.splice(posicion,1);
+        // this.$store.commit('setEliminarDatoTransferencia',itemsInfo.data.data.id); 
+            itemsInfo.data.estado_cancelado=true;
+            this.transaccionservice.guardarHistorialTransaccion(id_admin,itemsInfo.data.idEmpresa,itemsInfo.data).then(()=>{
+            this.transaccionservice.elminiarTransaccionEmpresa(id_admin,itemsInfo.data.idEmpresa,itemsInfo.id);
+            let posicion=this.items.findIndex(x=>x.id==itemsInfo.id);
+            this.items.splice(posicion,1);
+            this.$store.commit('setDisminuyeContadorTransacciones');
+            this.$store.commit('setEliminarDatoTransferencia',itemsInfo.id);
+            });
+           
+           
+        
+         })
+         
         }
     },
-     onActuaizarstadoTransaccion(itemsInfo){
-         console.log("---------------",itemsInfo);
-        if(itemsInfo.data.data.idEmpresa==""){
+     onActuaizarEstadoTransaccion(IdTransaferencia){
+         console.log(this.items);
+         let posicion_transacciones=this.items.findIndex(x=>x.id==IdTransaferencia)
+         console.log(posicion_transacciones);
+         let itemsInfo=this.items[posicion_transacciones]
+         console.log("--------------------------onActuaizarEstadoTransaccion",itemsInfo);
+        if(itemsInfo.data.idEmpresa==""){
             let id_admin= localStorage.getItem('id');
-        axios.get(`https://us-central1-manifest-life-279516.cloudfunctions.net/actualizarEstadoTransaccion?idadmin=${id_admin}&doc=${itemsInfo.data.data.idEmpresa_cobrador}&subdoc=${itemsInfo.data.id}`).then((resp)=>{
-        console.log(resp);
+           
+          this.transaccionservice.actualizarEstadoTransaccion(id_admin,itemsInfo.data.idEmpresa_cobrador,itemsInfo.id,1).then((resp)=>{
+        // console.log(resp);
+        let posicion=this.items.findIndex(x=>x.id==IdTransaferencia);
+        this.items.splice(posicion,1);
         this.$store.commit('setDisminuyeContadorTransacciones');
-        console.log(this.items);
+      
         //No
         // let posicion=this.items.findIndex(x=>x.data.id==itemsInfo.data.data.id);
         // this.items.splice(posicion,1);
@@ -217,15 +249,24 @@ batch.commit().then( () =>{
         }else{
         // let id_infotransferencia= this.$store.getters.getDatosTransferencia;
             let id_admin= localStorage.getItem('id');
-           
-            this.empresaservice.getEmpresaPorId(id_admin,itemsInfo.data.data.idEmpresa).then((response)=>{
+          //  console.log(itemsInfo.data);
+          //  console.log(this.items);
+            let posicion_transacciones=this.items.findIndex(x=>x.id==IdTransaferencia)
+              console.log(posicion_transacciones);
+              let itemsInfo=this.items[posicion_transacciones]
+                
+                this.$store.commit('setEliminarDatoTransferencia',itemsInfo.id); 
+           this.transaccionservice.actualizarEstadoTransaccion(id_admin,itemsInfo.data.idEmpresa_cobrador,itemsInfo.id,1).then((resp)=>{
+            this.empresaservice.getEmpresaPorId(id_admin,itemsInfo.data.idEmpresa).then((response)=>{
                 console.log(response.data);
                 this.$store.commit('setDisminuyeContadorTransacciones');
-                let posicion=this.items.findIndex(x=>x.data.id==itemsInfo.data.data.id);
-                this.items.splice(posicion,1);
-                this.$store.commit('setEliminarDatoTransferencia',itemsInfo.data.data.id); 
-                this.updateValorBalance(itemsInfo.data.data.idEmpresa,response.data.Balance,itemsInfo.data.data.valor,itemsInfo.data);
+                this.transaccionservice.guardarHistorialTransaccion(id_admin,itemsInfo.data.idEmpresa,itemsInfo.data).then(()=>{
+                this.transaccionservice.elminiarTransaccionEmpresa(id_admin,itemsInfo.data.idEmpresa,itemsInfo.id);
+                this.items.splice(posicion_transacciones,1);
+                this.updateValorBalance(itemsInfo.data.idEmpresa,response.data.Balance,itemsInfo.data.valor,itemsInfo.data);
             })
+           })
+          })  
         }
          
       },

@@ -15,7 +15,7 @@
     </f7-navbar>
     <f7-tabs>
     <f7-tab id="Transferencias" tab-active >
-    <f7-list ref="select_enviar" no-hairlines-md inset>
+    <f7-list no-hairlines-md inset>
       <f7-list-input
     label="Enviar a:"
     type="select"
@@ -27,7 +27,7 @@
     validate
   >
    <option value="0">Seleccione</option>
-  <option v-for="(opciones,index,key) in opciones" :id=opciones.label :key="key"  :selected="opcionseleccionada" :value="`${opciones.value}`">{{opciones.label}}</option>
+  <option v-for="(opciones,index,key) in opciones" :id=opciones.label :key="key" :selected="opcionresetseleccionada" :value="`${opciones.value}`">{{opciones.label}}</option>
        </f7-list-input>
             <f7-list-input
     v-show="select_zona_acive"
@@ -145,56 +145,13 @@
              :title="`Enviado a: ${transferencia_pendiente.nombre_zona_recibe}`"
              :text="`Enviado por: ${transferencia_pendiente.enviado_por}`"
              :subtitle="`Valor: ${transferencia_pendiente.valor}`"
-             :badge="transferencia_pendiente.estado_transaccion==false?'pendiente':'aceptado'" 
-             :badge-color="transferencia_pendiente.estado_transaccion==false?'orange':'green'"
+             :badge="onEstado_trasaccionTexto(transferencia_pendiente.estado_transaccion)" 
+             :badge-color="onEstado_trasaccionColor(transferencia_pendiente.estado_transaccion)"
              :footer="`Fecha y hora: ${transferencia_pendiente.fecha}-${transferencia_pendiente.hora}`">
              </f7-list-item>
            </f7-list>
             </f7-block>
-           
-               <!-- <f7-card> -->
-  <!-- <f7-card-header class="title-card-text">
-  <div>Nueva transferencia</div>
-  </f7-card-header>
-  <f7-card-content>
-    
-    <f7-row>
-      <f7-col style="text-align:center">
-        <span><b>Envia:</b><br> {{transferencia.Envia}}</span>
-        
-      </f7-col>
-      <f7-col style="text-align:center">
-         <span><b>Mensaje:</b><br>{{transferencia.mensaje}}</span>
-      </f7-col>
-    </f7-row>
-     
-   
-  </f7-card-content>
-  <f7-card-footer>
-    
-    <div class="demo-facebook-name">Fecha y hora:<br> {{transferencia.fecha}} {{transferencia.hora}}</div>
-    <div class="demo-facebook-name">Valor:<br> {{transferencia.valor}}</div>
-    <!-- <f7-link>Id cobrador: </f7-link>
-    <f7-link>Valor: </f7-link> -->
-  <!-- </f7-card-footer>
-</f7-card>  -->
          </div>
-  <!-- <f7-block>
-
-  <f7-row>
-    
-    <f7-col >
-      <f7-button fill large small  color="green">ACEPTAR</f7-button>
-          
-    </f7-col>
-      <f7-col >
-      <f7-button fill large small color="red">CANCELAR</f7-button>
-          
-    </f7-col>
-    
-  </f7-row>
- 
-</f7-block> -->
   </div>
       
     </f7-tab>
@@ -213,6 +170,7 @@ export default {
           id_zona:'',
           id_empresa:'',
           balance_zona:0,
+          opcionresetseleccionada:0,
           opcionseleccionada:0,
           opcionseleccionadazona:'',
           isHabilitadoInput:'',
@@ -227,14 +185,16 @@ export default {
           idEmpresa:'',  
           idCobrador_recibe:'',
           idEmpresa_cobrador:'',
+          idZona_envia:'',
+          idZona_recibe:'',
           nombre_zona_recibe:'',
           enviado_por:'',
           idCobrador_envia:'',  
           valor:0,
-          estado_transaccion:false,
+          estado_transaccion:0,
           notificado:false,
           fecha:new Date().toISOString().slice(0,10),
-          hora: this.$moment(new Date()).format("hh:mm:ss"),
+          hora:'',
           mensaje:'',
           transaccion_nueva:false
           },
@@ -261,18 +221,22 @@ export default {
           idEmpresa:'',  
           idCobrador_recibe:'',
           idEmpresa_cobrador:'',
+          idZona_envia:'',
+          idZona_recibe:'',
           enviado_por:'',
           idCobrador_envia:'', 
           nombre_zona_recibe:'', 
           valor:'',
-          estado_transaccion:false,
+          estado_transaccion:0,
           notificado:false,
           fecha:new Date().toISOString().slice(0,10),
-          hora: this.$moment(new Date()).format("hh:mm:ss"),
+          fecha:'',
           mensaje:'',
           transaccion_nueva:false
           }
           this.valor_sin_puntos=0
+          this.opcionseleccionada=0;
+          this.opcionresetseleccionada=0
           this.empresa_zonas=[{ value: 'Seleccione', label: 'Seleccione' }]
     },
     computed:{
@@ -292,24 +256,59 @@ export default {
           id_transaccion:Date.now(),
           idEmpresa:'',  
           idCobrador_recibe:'',
+          idZona_envia:'',
+          idZona_recibe:'',
           idEmpresa_cobrador:'',
           enviado_por:'',
           idCobrador_envia:'',
           nombre_zona_recibe:'',  
           valor:'',
-          estado_transaccion:false,
+          estado_transaccion:0,
           notificado:false,
           fecha:new Date().toISOString().slice(0,10),
-          hora: this.$moment(new Date()).format("hh:mm:ss"),
+          hora: '',
           mensaje:'',
           transaccion_nueva:false
           }
           this.valor_sin_puntos=0;
           this.opcionseleccionada=0;
+          this.opcionresetseleccionada=0;
           this.opciones=[{value: 'empresa', label: 'Empresa' },{value: 'zona', label: 'Zona' }]
           this.empresa_zonas=[{ value: 'Seleccione', label: 'Seleccione' }]
     },
     methods: {
+       onEstado_trasaccionColor(transaccionEstate){
+         switch (transaccionEstate) {
+           case 0:
+             return 'orange'
+             break;
+           case 1:
+             return 'green'
+             break;
+           case 3:
+             return 'red'
+             break;
+         
+           default:
+             break;
+         }
+       },
+       onEstado_trasaccionTexto(transaccionEstate){
+         switch (transaccionEstate) {
+           case 0:
+             return 'Pendiente'
+             break;
+           case 1:
+             return 'Aprobado'
+             break;
+           case 3:
+             return 'Cancelado'
+             break;
+         
+           default:
+             break;
+         }
+       },
        updateValorBalance(){
          
        let zona= localStorage.getItem("zona");
@@ -328,28 +327,13 @@ batch.update(sfRef, {"balance": this.balance_zona});
 // Commit the batch
 batch.commit().then( () =>{
     // ...
-          this.form_transaccion={
-          id_transaccion:Date.now(),  
-          idEmpresa:'',  
-          idCobrador_recibe:'',
-          idEmpresa_cobrador:'',
-          enviado_por:'',
-          idCobrador_envia:'',  
-          valor:'',
-          nombre_zona_recibe:'',
-          estado_transaccion:false,
-          notificado:false,
-          fecha:new Date().toISOString().slice(0,10),
-          hora: this.$moment(new Date()).format("hh:mm:ss"),
-          mensaje:'',
-          transaccion_nueva:false
-          }
+          
           this.valor_sin_puntos=0;
           this.empresa_zonas=[{ value: 'Seleccione', label: 'Seleccione' }]
           this.opciones=[{value: 'empresa', label: 'Empresa' },{value: 'zona', label: 'Zona' }]   
           this.opcionseleccionada=0;  
               this.$f7.dialog.close();
-              this.$f7.dialog.alert('Nuevo saldo '+this.balance_zona,'Saldo actualizado!',()=>{
+              this.$f7.dialog.alert('Nuevo saldo '+Number(this.balance_zona).toLocaleString('es-CO',{style: 'currency',currency: 'COP',minimumSignificantDigits:1}),'Saldo actualizado!',()=>{
               // this.identificacion=''
               this.$f7router.back();
              
@@ -357,6 +341,24 @@ batch.commit().then( () =>{
              
 
         }); 
+        this.form_transaccion={
+          id_transaccion:Date.now(),  
+          idEmpresa:'',  
+          idCobrador_recibe:'',
+          idZona_envia:'',
+          idZona_recibe:'',
+          idEmpresa_cobrador:'',
+          enviado_por:'',
+          idCobrador_envia:'',  
+          valor:'',
+          nombre_zona_recibe:'',
+          estado_transaccion:0,
+          notificado:false,
+          fecha:new Date().toISOString().slice(0,10),
+          hora:'',
+          mensaje:'',
+          transaccion_nueva:false
+          }
               });
   
     },
@@ -387,14 +389,17 @@ batch.commit().then( () =>{
     },
     onSelectPlan($event){
       console.log($event.target.value);
-      this.opcionseleccionada=$event.target.value;
-      if(this.opcionseleccionada=="empresa"){
+     
+      if($event.target.value=="empresa"){
+        this.opcionseleccionada=$event.target.value;
         this.isHabilitadoInput=true;
         this.select_zona_acive=false;
         this.form_transaccion.idCobrador_recibe=this.id_empresa;
-      }else if(this.opcionseleccionada=='0'){
+      }else if($event.target.value=='0'){
+        // this.opcionseleccionada=$event.target.value;
         this.select_zona_acive=false;
-      }else if(this.opcionseleccionada=='zona'){
+      }else if($event.target.value=='zona'){
+        this.opcionseleccionada=$event.target.value;
          this.isHabilitadoInput=true;
          this.select_zona_acive=true;
            let zonas= this.$store.getters.getZonasEmpresa;
@@ -421,8 +426,10 @@ batch.commit().then( () =>{
         // Sort data
          let balance_actual_zona=this.$store.getters.getBalance;
         
-        this.form_transaccion.valor= this.valor_sin_puntos.split('.').join('');
-       
+        this.form_transaccion.valor= this.valor_sin_puntos.split('.').join('')
+        this.form_transaccion.hora=this.$moment(new Date()).format("hh:mm:ss")
+        this.form_transaccion.idZona_recibe=this.opcionseleccionadazona
+        this.form_transaccion.idZona_envia=localStorage.getItem('zona')
         this.estadobotonTransaccion=true;
         if(Number(this.form_transaccion.valor)>Number(balance_actual_zona)){
           this.estadobotonTransaccion=false;
@@ -450,6 +457,7 @@ batch.commit().then( () =>{
            db.collection("usuarios").doc(this.idad).collection("empresas").doc(this.id_empresa).collection("Transferencias").add(this.form_transaccion)
     .then((rsp) =>{
         console.log("Document successfully written!");
+        this.opcionresetseleccionada=undefined;
         let idZona=localStorage.getItem("zona");
       let datosHistorialPendiente={}
         datosHistorialPendiente.idZonaRecibe=this.form_transaccion.idCobrador_recibe;
@@ -472,6 +480,7 @@ batch.commit().then( () =>{
         db.collection("usuarios").doc(this.idad).collection("empresas").doc(this.id_empresa).collection("Transferencias").add(this.form_transaccion)
     .then((rsp) =>{
         console.log("Document successfully written!");
+        this.opcionresetseleccionada=undefined
           let idZona=localStorage.getItem("zona");
         let datosHistorialPendiente={}
         datosHistorialPendiente.idZonaRecibe=this.form_transaccion.idCobrador_recibe

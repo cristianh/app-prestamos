@@ -52,8 +52,8 @@ const mutations = {
         state.datos_transeferencia.splice(posicion, 1)
     },
     setEliminarDatoTransferenciaPorId(state, idTransaccion) {
-            let posicion = state.datos_transeferencia.findIndex(x => x.data.id_transaccion == idTransaccion)
-            state.datos_transeferencia.splice(posicion, 1)
+        let posicion = state.datos_transeferencia.findIndex(x => x.data.id_transaccion == idTransaccion)
+        state.datos_transeferencia.splice(posicion, 1)
     },
     setEstadoTransferencia(state, estadotransferencia) {
         state.datos_transeferencia[0].estado_transaccion = estadotransferencia

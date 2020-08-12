@@ -46,10 +46,10 @@ export default [{
                     icon: 'cil-plus'
 
                 },
-                // {
-                //   name: 'Listar Empresas',
-                //   to: '/editar_empresa',
-                // }
+                {
+                    name: 'Listar planes',
+                    to: '/listar_planes',
+                }
                 // {
                 //   name: 'MEnsaje',
                 //   to: '/borrar_empresa',
