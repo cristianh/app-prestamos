@@ -99,7 +99,7 @@ export default {
   },
   data() {
       return {
-      usuarioOnLogin:'',
+       usuarioOnLogin:'',
        isLoading: false,
        fullPage: true,
        loading:'Cargando...',
@@ -109,6 +109,7 @@ export default {
        zonaservice:null,
        cobradorservice:null,   
        items:[],    
+       empresaseleccionada:'',
        usuario:{
             empresa:'',
             zona:''
@@ -168,7 +169,8 @@ export default {
      onCancel() {
               console.log('User cancelled the loader.')
      },
-     onSelectdEmpresa(){
+     onSelectdEmpresa($event){
+            this.empresaseleccionada=$event.target.value
             this.isEnabled=false;
             this.zonas=[{ value: 'Seleccione', label: 'Seleccione' }];
             let tamporal_Zonas=[];
@@ -187,15 +189,15 @@ export default {
              
         });
      },
-     onSelectedZona(){
+     onSelectedZona($event){
          let tamporal_Clientes=[];
             this.cobradores=[{ value: 'Seleccione', label: 'Seleccione' }];
              this.isLoading = true;
             console.log("...",this.usuario.zonas);
-            let empresa=localStorage.getItem('empresa');
-            this.cobradorservice.buscarCobradorPorZona(this.usuarioOnLogin,empresa,{zona:this.usuario.zonas}).then((response)=>{ 
+            // let empresa=localStorage.getItem('empresa');
+            this.cobradorservice.buscarCobradorPorZona(this.usuarioOnLogin,this.empresaseleccionada,this.usuario.zonas).then((response)=>{ 
               console.log(response);
-              this.clienteservices.getAllClientesCobradores(this.usuarioOnLogin,response.data).then((response)=>{
+              this.clienteservices.getAllClientesCobradores(this.usuarioOnLogin,this.empresaseleccionada,response.data.id).then((response)=>{
               console.log(response);
               this.isLoading = false;
             // tamporal_Clientes=response;

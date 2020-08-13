@@ -34,11 +34,16 @@
         :dark="dark"
         pagination
       >
-        <template #status="{item}">
+        <template #estado_transaccion="{item}">
           <td>
-            <CBadge :color="getBadge(item.status)">{{item.status}}</CBadge>
+            <CBadge :color="getBadge(item.estado_transaccion)">{{item.estado_transaccion==1?'Aprobado':'Cancelado'}}</CBadge>
           </td>
         </template>
+        <!-- <template #dias_con_mora="{item}">
+          <td style="text-aling:center">
+            <CBadge :color="getBadge(item.dias_con_mora)">{{item.dias_con_mora==undefined?'NA':item.dias_con_mora}}</CBadge>
+          </td>
+        </template> -->
       </CDataTable>
     </CCardBody>
   </CCard>
@@ -55,6 +60,7 @@
 import Loading from 'vue-loading-overlay';
 import TransaccionesService from '../Transferencias/Services/TransaccionServices.js';
 import EmpresaService from '../Empresa/Services/EmpresasService.js';
+import 'vue-loading-overlay/dist/vue-loading.css';
 export default {
   name: 'Table',
    components: {
@@ -80,7 +86,7 @@ export default {
     fields: {
       type: Array,
       default () {
-        return ['Envia','mensaje', 'estado_transaccion', 'fecha', 'hora','valor']
+        return ['enviado_por','mensaje', 'estado_transaccion', 'fecha', 'hora','valor']
       }
     },
     caption: {
@@ -144,10 +150,9 @@ export default {
           
      },
     getBadge (status) {
-      return status === 'Active' ? 'success'
-        : status === 'Inactive' ? 'secondary'
-          : status === 'Pending' ? 'warning'
-            : status === 'Banned' ? 'danger' : 'primary'
+      return status === 1 ? 'success'
+        : status === 3 ? 'secondary'
+            : status === 0 ? 'info' : 'primary'
     }
   }
 }

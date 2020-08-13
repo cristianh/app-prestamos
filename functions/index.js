@@ -516,13 +516,15 @@ exports.buscarCobradorZona = functions.https.onRequest(async(request, response, 
         let idFind = '';
         let query = cobradoresCollection.where('zona', '==', request.query.zona).get()
             .then((snapshot) => {
-                if (snapshot.empty) {
+                if (!snapshot.empty) {
+                    snapshot.forEach(doc => {
+                        idFind = { id: doc.id };
+                    });
+
+                } else {
                     idFind = { id: "No hay coincidencias" };
                 }
 
-                snapshot.forEach(doc => {
-                    idFind = { id: doc.id };
-                });
                 return response.status(200).send(idFind);
             })
             .catch(err => {
@@ -614,10 +616,10 @@ exports.Cobradores = functions.https.onRequest(async(request, response, body) =>
                     if (request.query.sub) {
                         let datasubcolltion = [];
 
-                        const collections = await db.collection('usuarios').doc(request.query.idadmin).collection('cobradores').doc(request.query.doc).listCollections();
+                        const collections = await db.collection('usuarios').doc(request.query.idadmin).collection('empresas').doc(request.query.doc).collection('cobradores').doc(request.query.subdoc).listCollections();
                         const collectionIds = collections.map(col => col.id);
 
-                        const docRef = await db.collection('usuarios').doc(request.query.idadmin).collection('empresas').doc(request.query.doc).collection('cobradores').doc(request.query.doc).collection(request.query.sub).get()
+                        const docRef = await db.collection('usuarios').doc(request.query.idadmin).collection('empresas').doc(request.query.doc).collection('cobradores').doc(request.query.subdoc).collection(request.query.sub).get()
                             .then(snapshot => {
                                 snapshot.forEach(doc => {
                                     let id = doc.id;
@@ -641,7 +643,7 @@ exports.Cobradores = functions.https.onRequest(async(request, response, body) =>
                             });
                     } else {
 
-                        const docRef = await db.collection('usuarios').doc(request.query.idadmin).collection('empresas').doc(request.query.doc).collection('cobradores').doc(request.query.doc).get()
+                        const docRef = await db.collection('usuarios').doc(request.query.idadmin).collection('empresas').doc(request.query.doc).collection('cobradores').doc(request.query.subdoc).get()
                             .then(doc => {
                                 if (!doc.exists) {
 
@@ -1091,6 +1093,55 @@ exports.getTazaseInteres = functions.https.onRequest(async(request, response, bo
         });
         return response.status(200).send(JSON.stringify(cobradores));
     }
+});
+
+
+exports.actualizarTazaseInteres = functions.https.onRequest(async(request, response, body) => {
+    response.set('Access-Control-Allow-Origin', '*');
+    response.set('Access-Control-Allow-Credentials', 'true'); // vital
+    response.set('Access-Control-Allow-Methods', 'GET', 'POST', 'PUT', 'DELETE', 'OPTIONS');
+    response.set('Access-Control-Allow-Headers', 'Content-Type');
+    response.set('Access-Control-Allow-Headers', 'Content-Length,Content-Range');
+    response.set('Access-Control-Allow-Headers', 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization');
+
+    try {
+
+
+        // return response.status(200).send(request.body).end();
+        const snapshot = await db.collection('usuarios').doc(request.query.idadmin).collection('empresas').doc(request.query.doc).collection('parametros_cobros').doc(request.query.subdoc).update({ nombre: request.body.nombre, plazo: request.body.plazo, interes: request.body.interes }, { merge: true })
+            .then(res => {
+                return response.status(200).send(JSON.stringify({ mensaje: 'Plan de pago actualizado', id: res.id })).end();
+            }).catch((error) => {
+                return response.status(500).send(error);
+            });
+    } catch (error) {
+        return response.status(500).send(error);
+    }
+
+
+});
+
+
+
+/**
+ * @function Funcion para Eliminar las plan cobro.
+ */
+exports.EliminarPlanCobro = functions.https.onRequest(async(request, response, body) => {
+    response.set('Access-Control-Allow-Origin', '*');
+    response.set('Access-Control-Allow-Credentials', 'true'); // vital
+    response.set('Access-Control-Allow-Methods', 'GET', 'POST', 'PUT', 'DELETE', 'OPTIONS');
+    response.set('Access-Control-Allow-Headers', 'Content-Type');
+    response.set('Access-Control-Allow-Headers', 'Content-Length,Content-Range');
+    response.set('Access-Control-Allow-Headers', 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization');
+
+    try {
+
+        await db.collection('usuarios').doc(request.query.idadmin).collection('empresas').doc(request.query.doc).collection('parametros_cobros').doc(request.query.subdoc).delete();
+        // });
+    } catch (error) {
+        return response.status(500).send(error);
+    }
+
 });
 
 /**

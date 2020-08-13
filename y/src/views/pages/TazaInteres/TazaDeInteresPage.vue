@@ -61,7 +61,7 @@
     </CRow>
     </CCardBody>
      </CCard>
-       {{planpago_form}}
+       <!-- {{planpago_form}} -->
      <Toast  autoZIndex position="bottomright" />
     </div>
 </template>

@@ -42,7 +42,7 @@ const mutations = {
         state.contador_transacciones = 0
     },
     setDatosTransferencia(state, data_transferencia) {
-        state.datos_transeferencia.push(data_transferencia)
+        state.datos_transeferencia.unshift(data_transferencia)
     },
     setEliminarDatosTransferencia(state) {
         state.datos_transeferencia = []
@@ -71,7 +71,14 @@ const getters = {
         return state.contador_transacciones
     },
     getDatosTransferencia: state => {
-        return state.datos_transeferencia;
+        let transacciones = [];
+        for (const key in state.datos_transeferencia) {
+            if (state.datos_transeferencia.hasOwnProperty(key)) {
+                const element = { id: state.datos_transeferencia[key].id, data: state.datos_transeferencia[key].data };
+                transacciones.push(element)
+            }
+        }
+        return transacciones;
     }
 
 }

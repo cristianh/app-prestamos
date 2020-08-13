@@ -12,3 +12,4 @@ export default class CobradoresService {
         return axios.get(`buscarCobradorZona?idadmin=${id_admin}&doc=${idEmpresa}&zona=${data_zona}`).then(response => response).catch(error => { return error });
     }
 }
+// https://us-central1-manifest-life-279516.cloudfunctions.net/buscarCobradorZona?idadmin=rPmEcBvQTRjJZrgmpqJ2&doc=hQPTik3wZ0yK2i5y6tdX&zona=4rPV9a3klSx6WQCxpNBO

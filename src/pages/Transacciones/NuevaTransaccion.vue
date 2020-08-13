@@ -366,7 +366,7 @@ batch.commit().then( () =>{
        let id_zona=$event.target.value.split("-")[0]
        let nombre_zona=$event.target.value.split("-")[1]
        this.opcionseleccionadazona=id_zona;
-      //  console.log($event.target.value.split("-"));
+       console.log(nombre_zona);
        
        let usuarioOnLogin=localStorage.getItem('iad');
        let id_empresa=localStorage.getItem('empresa');
@@ -477,6 +477,10 @@ batch.commit().then( () =>{
     });
         }
         else{
+          console.log(this.idad);
+          console.log(this.id_empresa);
+          console.log(this.form_transaccion);
+
         db.collection("usuarios").doc(this.idad).collection("empresas").doc(this.id_empresa).collection("Transferencias").add(this.form_transaccion)
     .then((rsp) =>{
         console.log("Document successfully written!");

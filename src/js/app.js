@@ -83,7 +83,8 @@ window.db = db;
 
 axios.defaults.baseURL = 'https://us-central1-manifest-life-279516.cloudfunctions.net/';
 // axios.defaults.baseURL = 'http://localhost:4001/manifest-life-279516/us-central1/';
-axios.defaults.headers.post['Content-Type'] = 'multipart/form-data';
+// axios.defaults.headers.post['Content-Type'] = 'multipart/form-data';
+// axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded';
 axios.defaults.headers.post['Content-Type'] = '"Access-Control-Allow-Origin", "*"';
 axios.defaults.headers.get['Content-Type'] = '"Access-Control-Allow-Origin", "*"';
 // axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded';

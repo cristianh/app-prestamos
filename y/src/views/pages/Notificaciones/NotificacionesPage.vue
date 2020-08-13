@@ -3,6 +3,7 @@
         <CRow>
     <CCol>
         <!-- <pre>{{items}}</pre> -->
+        <!-- <pre>{{getDatosTransferencia}}</pre> -->
         <DataTable :value="items" :loading="loading"  :paginator="items.length==0?estadopaginado=false:estadopaginado=true" :rows="5">
           <template #loading>
               Cargando transacciones
@@ -23,70 +24,24 @@
             <!-- <Button icon="pi pi-pencil" class="p-button-rounded p-button-success p-mr-2" @click="editProduct(slotProps.data)"  />
             <Button icon="pi pi-trash" class="p-button-rounded p-button-warning" /> -->
             <CButton size="sm" class="m-2" @click="onActuaizarEstadoTransaccion(items.data.id)" color="success">ACEPTAR</CButton>
-            <CButton size="sm" class="m-2"  @click="onAbortarTransaccion(items.data.id)"  onAbortarTransaccion color="warning">ABORTAR</CButton>
+            <CButton size="sm" class="m-2"  @click="onAbortarTransaccion(items.data.id)" color="warning">ABORTAR</CButton>
         </template>
         </Column>
           <!-- <Column field="year" header="Year"></Column> -->
     <!-- <Column field="brand" header="Brand"></Column>
     <Column field="color" header="Color"></Column> -->
       </DataTable>
-         <!-- <CCard>
-    <CCardHeader>
-      <slot name="header">
-        <CIcon name="cil-grid"/> {{caption}}
-      </slot>
-    </CCardHeader>
-    <CCardBody>
-      <CDataTable
-        :hover="hover"
-        :striped="striped"
-        :bordered="bordered"
-        :small="small"
-        :fixed="fixed"
-        :items="items"
-        :fields="fields"
-        :items-per-page="small ? 10 : 5"
-        :dark="dark"
-        pagination
-      >
-        <template #status="{item}">
-          <td>
-            <CBadge :color="getBadge(item.status)">{{item.status}}</CBadge>
-          </td>
-        </template>
-      </CDataTable>
-    </CCardBody>
-  </CCard> -->
+     
       </CCol>
     
     </CRow>
-         <!-- <CCard v-for="(notificacion,index,key) in getDatosTransferencia" :key="key">
-           <CCardHeader>
-        <strong>Transaccion realizada por:</strong>
      
-      </CCardHeader>
-        <CCardBody>
-          <CAlert show :color="estado_transaccion">
-            <h4 class="alert-heading">{{notificacion.nombreCobradorEnvia}}</h4>
-            <h6 class="alert-heading">Fecha: {{notificacion.fecha}}- Hora: {{notificacion.hora}} </h6>
-            <p>
-             Mensaje: {{notificacion.mensaje}}
-            </p>
-            <hr>
-            <p class="mb-0">
-             Saldo de la transaccion: <b>${{notificacion.valor}}</b>
-            </p>
-          </CAlert>
-        </CCardBody>
-            <CCardFooter>
-      <CRow>
-       <CCol col="4" sm="4" md="2" xl class="mb-3 mb-xl-0">
-            <CButton type="submit" size="sm" @click="onAceptarTransferencia" color="success" >ACEPTAR</CButton>
-          </CCol>
-    </CRow>
-    </CCardFooter>
-      </CCard> -->
         <!-- {{getDatosTransferencia}} -->
+         <loading :active.sync="isLoading" 
+        :can-cancel="true"
+        color='#007BFF' 
+        :on-cancel="onCancel"
+        :is-full-page="fullPage"></loading>
     </div>
 </template>
 
@@ -96,14 +51,19 @@ import Column from 'primevue/column';
 import ColumnGroup from 'primevue/columngroup';
 import EmpresaService from '../Empresa/Services/EmpresasService.js';
 import TransaccionesService from '../Transferencias/Services/TransaccionServices.js';
+import Loading from 'vue-loading-overlay';
+import 'vue-loading-overlay/dist/vue-loading.css';
 export default {
     components: {
     DataTable,
     Column,
-    ColumnGroup
+    ColumnGroup,
+    Loading
   },
     data() {
         return {
+          isLoading: false,
+          fullPage: true,
             loading: false,
             estadopaginado:true,
             items:[],
@@ -117,20 +77,30 @@ export default {
         this.empresaservice=new EmpresaService();
         this.transaccionservice=new TransaccionesService();
              let datos= this.$store.getters.getDatosTransferencia;
+             this.loading = true;
       console.log(datos);
       if(datos!=''){
                 // this.items=Object.values(datos);
                 // datos.filter(x=>x.estado_transaccion!==true)
                 this.items=datos;
-                 this.loading = false;
+                 
               }else{
                 this.items=[];
         }
+        this.loading = false;
     },
+   
     beforeMount() {
-     
+      this.$store.watch(() => this.$store.getters.getDatosTransferencia, Transacciones => { 
+        console.log('watched: ', Transacciones) 
+        this.items=Transacciones
+        })
+
     },
     methods: {
+     onCancel() {
+              console.log('User cancelled the loader.')
+     },
       stockClass(data) {
             return [
                 {
@@ -164,10 +134,12 @@ batch.commit().then( () =>{
         transaccionDatos.estado_transaccion=true;
         this.transaccionservice.guardarHistorialTransaccion(id_admin,idEmpresa,transaccionDatos);
         this.estado_transaccion='success'
+         this.isLoading=false;
    });
   
     },
     onAbortarTransaccion(IdTransaferencia){
+       this.isLoading=true;
         // console.log("---------------",itemsInfo);
         let id_admin= localStorage.getItem('id');
          let posicion_transacciones=this.items.findIndex(x=>x.id==IdTransaferencia)
@@ -225,9 +197,10 @@ batch.commit().then( () =>{
         }
     },
      onActuaizarEstadoTransaccion(IdTransaferencia){
-         console.log(this.items);
+        //  console.log(this.items);
+        this.isLoading=true;
          let posicion_transacciones=this.items.findIndex(x=>x.id==IdTransaferencia)
-         console.log(posicion_transacciones);
+        //  console.log(posicion_transacciones);
          let itemsInfo=this.items[posicion_transacciones]
          console.log("--------------------------onActuaizarEstadoTransaccion",itemsInfo);
         if(itemsInfo.data.idEmpresa==""){
@@ -235,6 +208,7 @@ batch.commit().then( () =>{
            
           this.transaccionservice.actualizarEstadoTransaccion(id_admin,itemsInfo.data.idEmpresa_cobrador,itemsInfo.id,1).then((resp)=>{
         // console.log(resp);
+        this.isLoading=false;
         let posicion=this.items.findIndex(x=>x.id==IdTransaferencia);
         this.items.splice(posicion,1);
         this.$store.commit('setDisminuyeContadorTransacciones');

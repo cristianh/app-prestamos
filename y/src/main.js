@@ -48,9 +48,9 @@ firebase.initializeApp(firebaseConfig);
 var db = firebase.firestore();
 
 axios.defaults.baseURL = 'https://us-central1-manifest-life-279516.cloudfunctions.net/';
-// axios.defaults.headers.post['Content-Type'] = 'multipart/form-data';
+axios.defaults.headers.post['Content-Type'] = 'multipart/form-data';
 axios.defaults.headers.post['Content-Type'] = '"Access-Control-Allow-Origin", "*"';
-// axios.defaults.headers.post['Accept'] = 'application/json';
+axios.defaults.headers.post['Accept'] = 'application/json';
 
 
 

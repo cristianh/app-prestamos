@@ -24,7 +24,7 @@
         label="Identificacion"
         type="text"
         placeholder="Identificacion"
-        require
+        required
         validate
         maxlength=10
         minlength=7
@@ -71,6 +71,7 @@
         placeholder="Direccion 1"
         required
         validate
+        pattern="[A-Za-z0-9\s]*"
         @input="form.usuario.direccion1=$event.target.value"
         :onValidate=onValidatedInput
       ></f7-list-input>
@@ -81,7 +82,11 @@
         label="Direccion 2 (opcional)"
         type="text"
         placeholder="Direccion 2"
+        validate
+        pattern="[A-Za-z\s]*"
+        error-message="Solo letras"
         @input="form.usuario.direccion2=$event.target.value"
+        :onValidate=onValidatedInput
       ></f7-list-input>
       <f7-list-input
         outline
@@ -189,19 +194,25 @@
         label="Nombre Codeudor"
         type="text"
         placeholder="Nombre Codeudor"
-        pattern="[A-Za-z]*"
+        pattern="[A-Za-zñÑáéíóúÁÉÍÓÚ\s]+"
         error-message="Solo letras"
+        validate
+        :onValidate=onValidatedInput
         @input="form.codeudor.nombre_codeudor=$event.target.value"
       ></f7-list-input>
 
       <f7-list-input
         outline
         floating-label
-        label="Documento Codeudor"
+        label="Identificacion Codeudor"
         type="text"
-        placeholder="Documento Codeudor"
-        pattern="[A-Za-z]*"
-        error-message="Solo letras"
+        placeholder="Identificacion Codeudor"
+        maxlength=10
+        minlength=7
+        pattern="[0-9]{7,10}"
+        error-message="Solo numeros (7-10) caracteres"
+        validate
+        :onValidate=onValidatedInput
         @input="form.codeudor.documento_codeudor=$event.target.value"
       ></f7-list-input>
 
@@ -213,6 +224,8 @@
         placeholder="Telefono Codeudor 1"
         pattern="[0-9]*"
         error-message="Solo numeros"
+        :onValidate=onValidatedInput
+        validate
         @input="form.codeudor.telefono1=$event.target.value"
       ></f7-list-input>
 
@@ -224,6 +237,8 @@
         placeholder="Telefono Codeudor 2"
          pattern="[0-9]*"
         error-message="Solo numeros"
+          validate
+        :onValidate=onValidatedInput
         @input="form.codeudor.telefono2=$event.target.value"
       ></f7-list-input> 
 
@@ -243,8 +258,10 @@
         label="Direccion"
         type="text"
         placeholder="Direccion"
-        pattern="[A-Za-z]*"
+        pattern="[A-Za-z0-9\s]*"
         error-message="Solo letras"
+          validate
+        :onValidate=onValidatedInput
         @input="form.codeudor.direccion=$event.target.value"
       ></f7-list-input> 
 
@@ -256,6 +273,8 @@
         placeholder="Ciudad"
         pattern="[A-Za-z]*"
         error-message="Solo letras"
+          validate
+        :onValidate=onValidatedInput
         @input="form.codeudor.ciudad=$event.target.value"
       ></f7-list-input>  
     </f7-list>
@@ -446,7 +465,7 @@ export default {
     },
     methods:{
      onValidatedInput(isValid){
-      
+      this.validar_campos=!isValid
      },
       onVolverACargarGeo(){
         navigator.geolocation.getCurrentPosition(this.onSuccessGeolocalizacion, this.onErrorGeolocalizacio);

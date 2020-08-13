@@ -36,7 +36,7 @@
   <f7-card-content>
     
     <f7-row>
-       <pre>{{getDatosTransferencia}}</pre>
+       <!-- <pre>{{getDatosTransferencia}}</pre> -->
       <f7-col v-if="transferencia.data.enviado_por" style="text-align:center">
         <span><b>Envia:</b><br> {{transferencia.data.enviado_por}}</span>
         
