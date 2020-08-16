@@ -225,7 +225,7 @@
 </template>
 
 <script>
-
+import qs from 'qs';
 export default {
     data() {
         return {
@@ -242,7 +242,10 @@ export default {
          const self = this;
         self.$f7.dialog.preloader('Guardando...');
           let ui_cobrador=localStorage.getItem("uid"); 
-      axios.post(`https://us-central1-manifest-life-279516.cloudfunctions.net/CobradoresGuardarRutas?doc=${ui_cobrador}&sub=Rutas`,this.form_rutas)
+      axios.post(`https://us-central1-manifest-life-279516.cloudfunctions.net/CobradoresGuardarRutas?doc=${ui_cobrador}&sub=Rutas`,qs.stringify(this.form_rutas), {
+            method: 'POST',
+            headers: { 'content-type': 'application/x-www-form-urlencoded' },
+        })
     .then( (response) =>  {
       
        self.$f7.dialog.close();

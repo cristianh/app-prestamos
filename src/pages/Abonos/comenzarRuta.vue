@@ -3,18 +3,19 @@
   <f7-navbar   :sliding="false">
      <f7-nav-left>
         <f7-link icon-ios="f7:menu" icon-aurora="f7:menu" icon-md="material:menu" panel-open="left"></f7-link>
+        <f7-nav-title sliding>Ruta</f7-nav-title>
       </f7-nav-left>
     <f7-nav-right>
-      <f7-link class="searchbar-enable" data-searchbar=".searchbar-ruta" icon-ios="f7:search" icon-aurora="f7:search" icon-md="material:search"></f7-link>
+      <!-- <f7-link class="searchbar-enable" data-searchbar=".searchbar-ruta" icon-ios="f7:search" icon-aurora="f7:search" icon-md="material:search"></f7-link> -->
     </f7-nav-right>
-    <f7-searchbar
+    <!-- <f7-searchbar
       expandable
       class="searchbar-ruta"
       search-container=".search-list-ruta"
       search-in=".item-subtitle"
       :disable-button="!$theme.aurora"
       placeholder="Buscar por cedula..."
-    ></f7-searchbar>
+    ></f7-searchbar> -->
      <!-- <f7-nav-title sliding>Abonos</f7-nav-title>
       <f7-nav-title-large>Abonos</f7-nav-title-large> -->
   </f7-navbar>
@@ -47,9 +48,9 @@
           Cobros realizados hoy: {{getCantidadCobrosEfectivos}}<br>
           Cobros no realizados hoy: {{getCantidadCobrosNoRealizados}}<br>
           Cobros Pendientes: {{getCatidadCobrosPendientes}}<br>
-          Balance inicial de la zona: {{this.balance_zona}}<br>
-          Balance final de la zona: {{getBalanceFinal}}<br>
-          Total dinero recogido hoy: ${{getTotalCobros}}
+          Balance inicial de la zona: {{this.balance_zona|currency}}<br>
+          Balance final de la zona: {{getBalanceFinal|currency}}<br>
+          Total dinero recogido hoy: {{getTotalCobros|currency}}
           </f7-card-content>
           <f7-row v-if="!ruta_terminada">
           <f7-col md="12">
@@ -62,8 +63,18 @@
               placeholder="Por favor ingrese el saldo."
               required
               validate
-              pattern="[0-9]*"
+              pattern="[0-9.]*"
               error-message="Solo numeros"
+               v-currency="{
+          locale: 'de-DE',
+          currency: null,
+          valueAsInteger: true,
+          distractionFree: false,
+          precision:0,
+          autoDecimalMode: true,
+          valueRange: { min: 0 },
+          allowNegative: false
+        }"
               @input="jornada_cobrador.balance_final_manual=$event.target.value"
             ></f7-list-input>
             <f7-button large :disabled="ruta_terminada" @click="onConfirmarJornada" >CONFIRMAR</f7-button>
@@ -103,7 +114,7 @@
        
         :badge="`${cliente.data.prestamos.length==0 || cliente.data.prestamos==undefined? 'NA':Number(cliente.data.prestamos[0].dias_con_mora)>=1?'Mora: '+Number(cliente.data.prestamos[0].dias_con_mora)+' dia':'Mora: '+Number(cliente.data.prestamos[0].dias_con_mora)+' dias'}`"
         :badge-color="`${cliente.data.prestamos.length==0 || cliente.data.prestamos==undefined? 'NA':Number(cliente.data.prestamos[0].dias_con_mora)>=1?'red':''}`"
-        :class="{'pendiente':cliente.data.prestamos[0].estado_pendiente_prestamo_ruta,'normal':cliente.data.prestamos[0].estado_pago_ruta==0,'pago':getEstadosPrestamos[index].pago,'no-pago':getEstadosPrestamos[index].nopago}"  
+        :class="{'pendiente':cliente.data.prestamos[0].estado_pendiente_prestamo_ruta==true,'normal':cliente.data.prestamos[0].estado_pago_ruta,'pago':cliente.data.prestamos[0].estado_pago_prestamo.pago==true,'no-pago':cliente.data.prestamos[0].estado_pago_prestamo.nopago==true}"  
         :subtitle="`Cedula: ${cliente.data.usuario.identificacion}`"   
         :id=cliente.data.id
         :key=key
@@ -116,7 +127,11 @@
         <f7-swipeout-button close color="blue" @click="onCobroPendiente(cliente)">Pendiente</f7-swipeout-button>
         <f7-swipeout-button confirm-text="Desea eliminar este cliente de la lista!" confirm-title="Seguro!" color="red" delete>Eliminar</f7-swipeout-button>
         </f7-swipeout-actions>
-        
+         <!-- {{getEstadosPrestamos}} -->
+         <!-- {{index}}-{{getEstadosPrestamos[index]}}
+         {{index}}
+         {{key}} -->
+        <!--{{cliente.data.prestamos[0].estado_pendiente_prestamo_ruta}} -->
         </f7-list-item>
         </f7-list>
         </f7-block>
@@ -158,7 +173,25 @@
         
       </f7-page-content>
     </f7-sheet>
-
+ <f7-toolbar top >
+                <f7-list style="width: 100%;" >
+        
+        <f7-list-input
+        wrap
+        type="number"
+        placeholder="Buscar por cedula..."
+        clear-button
+        
+        validate
+        maxlength=10
+        minlength=7
+        pattern="[0-9]"
+        error-message="Solo numeros"
+        @input="busqueda=$event.target.value"
+      
+      ></f7-list-input>
+ </f7-list>
+  </f7-toolbar>
 </f7-page>
 </template>
 
@@ -172,6 +205,7 @@ import ClientesService from '../Services/ClientesService.js';
 export default {
   data() {
     return {
+      busqueda:'',
     // estado_peniente:false,
     ruta_terminada:false,
     sheetOpened: false,
@@ -240,7 +274,20 @@ export default {
         this.balance_zona=localStorage.getItem("saldo_zona");
     },
     getTodosClientesPrestamo(){
-      return this.$store.getters.getClientesListaPrestamo
+
+      let temporarlistaclientesprestamos=this.$store.getters.getClientesListaPrestamo;
+      if(this.busqueda==""){
+        return this.$store.getters.getClientesListaPrestamo
+      }else{
+         return temporarlistaclientesprestamos.filter(cliente => {
+        return cliente.data.usuario.identificacion.toLowerCase().includes(this.busqueda.toLowerCase())
+      //  return 
+       }); 
+      }
+      // return .filter(cliente => {
+      //   return cliente.data.usuario.identificacion.toLowerCase().includes(this.busqueda.toLowerCase())
+      // // return this.$store.getters.getClientesListaPrestamo
+      // });
     },
     getEstadosPrestamos(){
       return this.$store.getters.getEstadoPrestamoRuta
@@ -324,7 +371,7 @@ export default {
       
     },
     onConfirmarJornada(){
-      if(this.jornada_cobrador.balance_final_manual==this.$store.getters.getCobrosTotalCobrado){
+      if(Number(this.jornada_cobrador.balance_final_manual.split('.').join(''))==Number(this.$store.getters.getCobrosTotalCobrado)){
           let guardando= this.$f7.dialog.preloader('Guardando...');
        let ui_cobrador=localStorage.getItem("uid");
       let id_admin=localStorage.getItem("iad");

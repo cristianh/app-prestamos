@@ -226,6 +226,7 @@ export default {
    let tamporal_empresas=[];
       this.empresaservice.getAllEmpresas(this.usuarioOnLogin).then((result)=>{
         this.isLoading=false
+        if(result.data!='Not Found'){
         tamporal_empresas=result.data;
         console.log(tamporal_empresas);
           for (const key in tamporal_empresas) {
@@ -237,6 +238,7 @@ export default {
                 
             }
          }
+        }
         
         });
    

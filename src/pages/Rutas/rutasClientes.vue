@@ -19,6 +19,7 @@
 </template>
 
 <script>
+import qs from 'qs';
 export default {
     data() {
         return {
@@ -41,7 +42,10 @@ export default {
               let ui_cobrador=localStorage.getItem("uid");
                    const self = this;
         self.$f7.dialog.preloader('Guardando...');
-             axios.post(`https://us-central1-manifest-life-279516.cloudfunctions.net/CobradoresGuardarClientesRutas?doc=${ui_cobrador}&sub=${this.id_ruta}`,this.usuarios_seleccionados)
+             axios.post(`https://us-central1-manifest-life-279516.cloudfunctions.net/CobradoresGuardarClientesRutas?doc=${ui_cobrador}&sub=${this.id_ruta}`,qs.stringify(this.usuarios_seleccionados), {
+            method: 'POST',
+            headers: { 'content-type': 'application/x-www-form-urlencoded' },
+        })
     .then( (response) =>  {
        self.$f7.dialog.close();
        

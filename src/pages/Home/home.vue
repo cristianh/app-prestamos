@@ -283,10 +283,12 @@ export default {
                     
                     //this.clientes.push(element);
                     this.$store.state.clientes.unshift(element);
-
-                    if (element.data.prestamos.length > 0 && element.data.prestamos[0].estado_prestamo != true) {
+                    if(element.data.hasOwnProperty('prestamos')){
+                        if (element.data.prestamos.length > 0 && element.data.prestamos[0].estado_prestamo != true) {
                         this.$store.state.clientes_prestamos.unshift(element);
                     }
+                    }
+                    
                 }
             }
 
@@ -665,10 +667,10 @@ onDetectarTransaccionesCanceladas(idCobrador,idad,idempresa,idzona){
                 // this.$store.commit('setDatosTransferenciaPendientes',change.doc.data());
                 console.log(change.doc);
                     if(change.doc.data().estado_transaccion==1){
-                        // if(snapshot.docs.length>=1 && mensaje==false){
-                    this.$f7.dialog.alert('Tienes transferencias nuevas aprobadas de zona!','Atencion!');
-                    // mensaje=true
-                // }
+                        if(snapshot.docs.length>=1 && mensaje==false){
+                    this.$f7.dialog.alert(`Tienes ${snapshot.docs.length} transferencias nuevas aprobadas de zona!`,'Atencion!');
+                    mensaje=true
+                }
                 //  this.$f7.dialog.alert('Tienes '+(contador+1)+' transferencia nueva aprobada de zona!','Atencion!');
                     
                  let data_transacciones={
@@ -694,10 +696,10 @@ onDetectarTransaccionesCanceladas(idCobrador,idad,idempresa,idzona){
                  console.log(change.doc);
                     if(change.doc.data().estado_transaccion==1 && change.doc.data().transaccion_nueva==true){
                  
-                    // if(snapshot.docs.length>=1 && mensaje==false){
-                    this.$f7.dialog.alert('Tienes transferencias nuevas aprobadas de zona!','Atencion!');
-                    // mensaje=true
-                // }
+                    if(snapshot.docs.length>=1 && mensaje==false){
+                    this.$f7.dialog.alert(`Tienes ${snapshot.docs.length} transferencias nuevas aprobadas de zona!`,'Atencion!');
+                    mensaje=true
+                }
                  let data_transacciones={
                   id:change.doc.id,
                   data:change.doc.data()

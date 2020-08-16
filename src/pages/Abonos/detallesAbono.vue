@@ -89,7 +89,7 @@
         <f7-list-input
         label="Pago:"
         type="text"
-        :value.sync="informacion_pago.valor"
+        :value.sync="valor_sin_puntos"
         min=0
         autofocus
         placeholder="0"
@@ -405,14 +405,20 @@ batch.commit().then(function () {
             this.informacion_pago.valor_pago=this.valor_sin_puntos.split('.').join('');
            
           
-
-      if(Number(this.informacion_pago.valor_pago>Number(elemento.prestamos[0].valor))){
+  console.log(Number(this.informacion_pago.valor_pago))
+   console.log(Number(elemento.prestamos[0].valor));
+      if(Number(this.informacion_pago.valor_pago)>Number(elemento.prestamos[0].valor)){
           this.$f7.dialog.alert('El valor a pagar es mayor al total del prestamo,revise por favor.','Atencion!');
           this.valor_sin_puntos=0;
       }else{
           
           this.$f7.dialog.preloader('Guardando pago...');
-          elemento.cobros.push(this.informacion_pago);
+          if(elemento.hasOwnProperty('cobros')){
+             elemento.cobros.push(this.informacion_pago);
+          }else{
+             elemento.cobros=new Array(this.informacion_pago);
+          }
+         
           this.informacion_pago.cliente=this.id;
            let id_empresa=localStorage.getItem("empresa");
           this.abonoService.guardarAbonosCobros(this.idad,id_empresa,ui_cobrador,this.id,this.informacion_pago).then( (response) =>  {

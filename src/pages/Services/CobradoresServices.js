@@ -1,3 +1,4 @@
+import qs from 'qs';
 export default class CobradorServices {
 
     getAllInfoCobradores(id_admin, id) {
@@ -13,12 +14,18 @@ export default class CobradorServices {
     }
 
     guardarJornadaCobrador(id_admin, id_empresa, ui_cobrador, data) {
-        return axios.post(`guardarJornadaInfoRuta?idadmin=${id_admin}&id_empresa=${id_empresa}&doc=${ui_cobrador}`, data).then(response => response);
+        return axios.post(`guardarJornadaInfoRuta?idadmin=${id_admin}&id_empresa=${id_empresa}&doc=${ui_cobrador}`, qs.stringify(data), {
+            method: 'POST',
+            headers: { 'content-type': 'application/x-www-form-urlencoded' },
+        }).then(response => response);
     }
 
     actualizarJornadaCobrador(id_admin, id_empresa, ui_rutacobrador, id_rutajornada, data) {
-        console.table(id_admin, id_empresa, ui_rutacobrador, id_rutajornada);
-        return axios.post(`actualizarJornadaRutaDia?idadmin=${id_admin}&id_empresa=${id_empresa}&doc=${ui_rutacobrador}&subdoc=${id_rutajornada}`, data).then(response => response);
+
+        return axios.post(`actualizarJornadaRutaDia?idadmin=${id_admin}&id_empresa=${id_empresa}&doc=${ui_rutacobrador}&subdoc=${id_rutajornada}`, qs.stringify(data), {
+            method: 'POST',
+            headers: { 'content-type': 'application/x-www-form-urlencoded' },
+        }).then(response => response);
     }
 
     buscarCobradorPorZona(id_admin, idEmpresa, data_zona) {

@@ -83,7 +83,7 @@
         type="text"
         placeholder="Direccion 2"
         validate
-        pattern="[A-Za-z\s]*"
+        pattern="[A-Za-z0-9\s]*"
         error-message="Solo letras"
         @input="form.usuario.direccion2=$event.target.value"
         :onValidate=onValidatedInput
@@ -365,8 +365,8 @@ export default {
                   direccion:'',
                   ciudad:''
                 },
-                prestamos:[],
-                cobros:[],
+                prestamos:new Array(),
+                cobros:new Array(),
                 geolocalizacion:{}
             },
             lat:'',
@@ -446,8 +446,8 @@ export default {
                   direccion:'',
                   ciudad:''
                 },
-                prestamos:[],
-                cobros:[],
+                prestamos:new Array(),
+                cobros:new Array(),
                 geolocalizacion:{}
             },
             this.lat='',

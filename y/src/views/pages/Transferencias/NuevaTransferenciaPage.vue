@@ -93,7 +93,7 @@ export default {
           valor:0,
           estado_transaccion:false,
           fecha:new Date().toISOString().slice(0,10),
-          hora: this.$moment(new Date()).format("hh:mm:ss"),
+          hora: '',
           mensaje:'',
           idEnvia:'',
           idRecibe:''
@@ -113,9 +113,9 @@ export default {
       this.usuarioOnLogin=localStorage.getItem('id');
       let tamporal_empresas=[];
       this.empresaService.getAllEmpresas(this.usuarioOnLogin).then((result)=>{
-        
-        tamporal_empresas=result.data;
-        console.log(tamporal_empresas);
+        if(result.data!='Not Found'){
+          tamporal_empresas=result.data;
+        // console.log(tamporal_empresas);
           for (const key in tamporal_empresas) {
             if (tamporal_empresas.hasOwnProperty(key)) {
                  let element={ value: tamporal_empresas[key].id, label: tamporal_empresas[key].Nombre };
@@ -125,6 +125,8 @@ export default {
                 
             }
          }
+        }
+        
         
         });
     },
@@ -136,7 +138,8 @@ export default {
             : status === 'Banned' ? 'danger' : 'primary'
     },
         onGuardarTransaccion(){
-    this.form_transaccion.envia='Empresa';
+    this.form_transaccion.envia='Empresa'
+    this.hora=this.$moment(new Date()).format("hh:mm:ss")
     var sfRef = db.collection("usuarios").doc(this.usuarioOnLogin).collection("empresas").doc(this.idSeleccionadaEmpresa);
 
 sfRef.get().then((doc)=>{
@@ -164,7 +167,7 @@ if(this.form_transaccion.valor==0 ||this.form_transaccion.valor==''){
 
 this.nuevo_balanceempresa=Number(this.nuevo_balanceempresa)-Number(this.form_transaccion.valor);
 
- console.log(this.nuevo_balanceempresa);
+//  console.log(this.nuevo_balanceempresa);
 if(this.nuevo_balanceempresa>0 || this.nuevo_balanceempresa==0){
   batch.update(sfRef, {"Balance": this.nuevo_balanceempresa });
  
@@ -222,7 +225,7 @@ else{
       },
       onZonaSeleccionada($event){
           this.idSeleccionadaZona=$event.target.value;
-          console.log(this.idSeleccionadaEmpresa);
+          // console.log(this.idSeleccionadaEmpresa);
 
       }
     },   

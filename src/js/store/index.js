@@ -151,8 +151,22 @@ export default new Vuex.Store({
         },
         SetPosicionListaClientes(state, data_posicion) {
 
+
+
+            state.clientes.splice(data_posicion.data.to, 1, data_posicion.elm.el1);
+            state.clientes.splice(data_posicion.data.from, 1, data_posicion.elm.el2);
+            // state.clientes[data_posicion.data.from].data.posicion = data_posicion.data.to
+            // state.clientes[data_posicion.data.to].data.posicion = data_posicion.data.from
+
+        },
+        SetPosicionElementoClientes(state, data_posicion) {
+
+
+
             state.clientes.splice(data_posicion.data.from, 1, data_posicion.elm.el1);
             state.clientes.splice(data_posicion.data.to, 1, data_posicion.elm.el2);
+            // state.clientes[data_posicion.data.from].data.posicion = data_posicion.data.to
+            // state.clientes[data_posicion.data.to].data.posicion = data_posicion.data.from
 
         },
 
@@ -277,15 +291,23 @@ export default new Vuex.Store({
             return state.jornada_cobrador.catidad_cobrosenofectivos;
         },
         getClientesPrestamo: state => {
-            let element_count = state.clientes.filter(x => x.data.prestamos.length > 0 && x.data.prestamos[0].estado_prestamo != true);
+            let element_count = state.clientes_prestamos.filter(x => x.data.prestamos.length > 0 && x.data.prestamos[0].estado_prestamo != true);
             return element_count.length;
         },
         getEstadoPrestamoRuta: state => {
+            console.log(state.clientes_prestamos);
             for (const key in state.clientes_prestamos) {
-                if (state.clientes_prestamos.hasOwnProperty(key)) {
-                    const element = state.clientes_prestamos[key];
-                    console.log("....elementstore", element);
-                    state.estados_prestamos_ruta.push(element.data.prestamos[0].estado_pago_prestamo);
+
+                if (state.clientes_prestamos[key].data.hasOwnProperty('prestamos')) {
+                    console.log("....elementstore", state.clientes_prestamos[key].data.prestamos[0].estado_pago_prestamo);
+                    let element = state.clientes_prestamos[key].data.prestamos[0].estado_pago_prestamo
+                    state.estados_prestamos_ruta.push(element);
+                    // for (const key2 in state.clientes_prestamos[key].data.prestamos) {
+                    //     const element2 = state.clientes_prestamos[key2].estado_pago_prestamo;
+                    //     console.log("....elementstore", element2);
+                    //     // 
+                    // }
+
                 }
             }
             return state.estados_prestamos_ruta;
