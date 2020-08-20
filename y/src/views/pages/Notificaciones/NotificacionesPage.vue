@@ -2,6 +2,14 @@
     <div>
         <CRow>
     <CCol>
+       <CCard>
+    <CCardHeader>
+      <slot name="header">
+        <CIcon name="cil-grid"/> Transacciones
+      </slot>
+    </CCardHeader>
+    
+    <CCardBody>
         <!-- <pre>{{items}}</pre> -->
         <!-- <pre>{{getDatosTransferencia}}</pre> -->
         <DataTable :value="items" :loading="loading"  :paginator="items.length==0?estadopaginado=false:estadopaginado=true" :rows="5">
@@ -23,7 +31,7 @@
           <!-- @click="confirmDeleteProduct(slotProps.data)"  -->
             <!-- <Button icon="pi pi-pencil" class="p-button-rounded p-button-success p-mr-2" @click="editProduct(slotProps.data)"  />
             <Button icon="pi pi-trash" class="p-button-rounded p-button-warning" /> -->
-            <CButton size="sm" class="m-2" @click="onActuaizarEstadoTransaccion(items.data.id)" color="success">ACEPTAR</CButton>
+            <CButton size="sm" class="m-2" @click="onActualizarEstadoTransaccion(items.data.id)" color="success">ACEPTAR</CButton>
             <CButton size="sm" class="m-2"  @click="onAbortarTransaccion(items.data.id)" color="warning">ABORTAR</CButton>
         </template>
         </Column>
@@ -31,6 +39,8 @@
     <!-- <Column field="brand" header="Brand"></Column>
     <Column field="color" header="Color"></Column> -->
       </DataTable>
+    </CCardBody>
+       </CCard>
      
       </CCol>
     
@@ -157,13 +167,14 @@ batch.commit().then( () =>{
         // let posicion=this.items.findIndex(x=>x.data.id==itemsInfo.data.data.id);
         // this.items.splice(posicion,1);
         // this.$store.commit('setEliminarDatoTransferencia',itemsInfo.data.data.id); 
-            itemsInfo.data.estado_cancelado=true;
+            itemsInfo.data.estado_transaccion=3;
             this.transaccionservice.guardarHistorialTransaccion(id_admin,itemsInfo.data.idEmpresa_cobrador,itemsInfo.data).then(()=>{
             this.transaccionservice.elminiarTransaccionEmpresa(id_admin,itemsInfo.data.idEmpresa_cobrador,itemsInfo.id);
             let posicion=this.items.findIndex(x=>x.id==itemsInfo.id);
             this.items.splice(posicion,1);
             this.$store.commit('setDisminuyeContadorTransacciones');
             this.$store.commit('setEliminarDatoTransferencia',itemsInfo.id);
+            this.isLoading=false;
             });
            
            
@@ -181,13 +192,14 @@ batch.commit().then( () =>{
         // let posicion=this.items.findIndex(x=>x.data.id==itemsInfo.data.data.id);
         // this.items.splice(posicion,1);
         // this.$store.commit('setEliminarDatoTransferencia',itemsInfo.data.data.id); 
-            itemsInfo.data.estado_cancelado=true;
+            itemsInfo.data.estado_transaccion=3;
             this.transaccionservice.guardarHistorialTransaccion(id_admin,itemsInfo.data.idEmpresa,itemsInfo.data).then(()=>{
             this.transaccionservice.elminiarTransaccionEmpresa(id_admin,itemsInfo.data.idEmpresa,itemsInfo.id);
             let posicion=this.items.findIndex(x=>x.id==itemsInfo.id);
             this.items.splice(posicion,1);
             this.$store.commit('setDisminuyeContadorTransacciones');
             this.$store.commit('setEliminarDatoTransferencia',itemsInfo.id);
+            this.isLoading=false;
             });
            
            
@@ -196,7 +208,7 @@ batch.commit().then( () =>{
          
         }
     },
-     onActuaizarEstadoTransaccion(IdTransaferencia){
+     onActualizarEstadoTransaccion(IdTransaferencia){
         //  console.log(this.items);
         this.isLoading=true;
          let posicion_transacciones=this.items.findIndex(x=>x.id==IdTransaferencia)

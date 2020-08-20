@@ -49,6 +49,7 @@
           Cobros no realizados hoy: {{getCantidadCobrosNoRealizados}}<br>
           Cobros Pendientes: {{getCatidadCobrosPendientes}}<br>
           Balance inicial de la zona: {{this.balance_zona|currency}}<br>
+          Total Prestado hoy: {{getPrestamosRealiozadoshoy|currency}}<br>
           Balance final de la zona: {{getBalanceFinal|currency}}<br>
           Total dinero recogido hoy: {{getTotalCobros|currency}}
           </f7-card-content>
@@ -244,7 +245,7 @@ export default {
   },
   beforeMount(){
     this.balance_zona=localStorage.getItem("saldo_zona");
-    this.clientes=this.$store.getters.getClientesListaPrestamo;
+    
     this.corbradorService= new CobradorService();
     this.isComienzoRuta=this.$store.getters.getEstadoRuta;
     this.jornada_cobrador=this.$store.getters.getJornadaCobrador;
@@ -255,6 +256,9 @@ export default {
   
   },
   computed: {
+    getPrestamosRealiozadoshoy(){
+      return localStorage.getItem("total_prestado")
+    },
     getTotalCobros(){
      return this.$store.getters.getCobrosTotalCobrado
     },
@@ -342,7 +346,7 @@ export default {
    
   },
     onClickClientePaginaDetalles(clienteId,saldoAPagar){
-      console.log(clienteId,saldoAPagar);
+       console.log(this.contadorClientesSeleccionados);
       this.$f7router.navigate('/abonos_detalle/'+clienteId+'/'+saldoAPagar);
     },
     cambiarEstadoLista(){
@@ -401,7 +405,12 @@ export default {
        const app = this.$f7;
         // app.dialog.alert(id);
         console.log(this.$store.getters.getCobrosPendientes);
-        if(this.$store.getters.getCobrosPendientes>0){
+        let numero_de_clientes_prestamo=this.$store.getters.getContadorClientesPrestamo;
+        let numero_de_clientes_prestamos_realizados=this.$store.getters.getContadorListaClientesPrestamo;
+        if(numero_de_clientes_prestamos_realizados!=numero_de_clientes_prestamo){
+            app.dialog.confirm('Aun quedan cobros por realizar','Atencion!');
+        }
+        else if(this.$store.getters.getCobrosPendientes>0){
           app.dialog.confirm('Hay cobros pendientes','Atencion');
          
         }
@@ -426,6 +435,8 @@ export default {
     },
     onGenerarListaJornadaPago(){
         const self = this;
+        localStorage.setItem("listaClientesPrestamos",JSON.stringify(this.$store.getters.getClientesListaPrestamo));
+        this.clientes=JSON.parse(localStorage.getItem("listaClientesPrestamos"))
         let id_empresa=localStorage.getItem("empresa");
         self.$f7.dialog.preloader('Creando lista...');
         this.$store.commit('setfechInicialJornada',new Date().toISOString().slice(0,10));

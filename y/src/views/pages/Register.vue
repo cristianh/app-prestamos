@@ -64,6 +64,7 @@
 </template>
 
 <script>
+import qs from 'qs';
 export default {
   name: 'Register',
   data() {
@@ -95,7 +96,10 @@ export default {
 
         
 
-              axios.post('https://us-central1-manifest-life-279516.cloudfunctions.net/Usuarios',this.usuario).then( (response) =>  {
+              axios.post('https://us-central1-manifest-life-279516.cloudfunctions.net/Usuarios',qs.stringify(this.usuario),{
+            method: 'POST',
+            headers: { 'content-type': 'application/x-www-form-urlencoded' },
+        }).then( (response) =>  {
                 var id =response.data.id;
                 user.updateProfile({
                       displayName:this.usuario.username+'-'+id+'-'+this.usuario.rol

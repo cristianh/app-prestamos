@@ -36,7 +36,8 @@
       >
         <template #estado_transaccion="{item}">
           <td>
-            <CBadge :color="getBadge(item.estado_transaccion)">{{item.estado_transaccion==1?'Aprobado':'Cancelado'}}</CBadge>
+            <!-- {{item}} -->
+            <CBadge :color="getBadge(item.estado_transaccion)">{{getBadgeText(item.estado_transaccion)}}</CBadge>
           </td>
         </template>
         <!-- <template #dias_con_mora="{item}">
@@ -150,10 +151,15 @@ export default {
           
      },
     getBadge (status) {
-      return status === 1 ? 'success'
-        : status === 3 ? 'secondary'
-            : status === 0 ? 'info' : 'primary'
+      
+      return status == 1 ? 'success':'danger'
+        
+    },
+    getBadgeText (status) {
+      return status == 1 ? 'Aprobado' : 'Cancelado'
+        
     }
+    
   }
 }
 </script>

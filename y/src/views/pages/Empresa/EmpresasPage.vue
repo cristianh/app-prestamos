@@ -361,6 +361,7 @@ export default {
           Departamento:'',
           Ciudad:''
       }
+      this.valor_sin_puntos=0
       
       }).catch((error) => {
         //return response.status(500).send(error);

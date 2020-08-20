@@ -139,12 +139,13 @@
          <div v-else>
             <f7-block> 
            <f7-list media-list>
-             {{getDatosTransferenciaPendientes}}
+             <!-- {{getDatosTransferenciaPendientes}} -->
+             
              <f7-list-item
              v-for="(transferencia_pendiente,index,key) in getDatosTransferenciaPendientes" :key="key"
              :title="`Enviado a: ${transferencia_pendiente.nombre_zona_recibe}`"
              :text="`Enviado por: ${transferencia_pendiente.enviado_por}`"
-             :subtitle="`Valor: ${transferencia_pendiente.valor}`"
+             :subtitle="`Valor: ${Number(transferencia_pendiente.valor).toLocaleString('es-CO',{style: 'currency',currency: 'COP',minimumSignificantDigits:1})}`"
              :badge="onEstado_trasaccionTexto(transferencia_pendiente.estado_transaccion)" 
              :badge-color="onEstado_trasaccionColor(transferencia_pendiente.estado_transaccion)"
              :footer="`Fecha y hora: ${transferencia_pendiente.fecha}-${transferencia_pendiente.hora}`">

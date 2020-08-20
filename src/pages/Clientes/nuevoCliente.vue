@@ -56,7 +56,7 @@
         placeholder="Apellido"
         required
         validate
-        pattern="[A-Za-z\s]*"
+        pattern="[a-zA-ZñÑáéíóúÁÉÍÓÚ\s]+"
         error-message="Solo letras"
         @input="form.usuario.apellido=$event.target.value"
         :onValidate=onValidatedInput
@@ -71,7 +71,7 @@
         placeholder="Direccion 1"
         required
         validate
-        pattern="[A-Za-z0-9\s]*"
+        pattern="[A-Za-z0-9ñÑáéíóúÁÉÍÓÚ#-_\s]*"
         @input="form.usuario.direccion1=$event.target.value"
         :onValidate=onValidatedInput
       ></f7-list-input>
@@ -83,7 +83,7 @@
         type="text"
         placeholder="Direccion 2"
         validate
-        pattern="[A-Za-z0-9\s]*"
+        pattern="[A-Za-z0-9ñÑáéíóúÁÉÍÓÚ#-_\s]*"
         error-message="Solo letras"
         @input="form.usuario.direccion2=$event.target.value"
         :onValidate=onValidatedInput
@@ -150,6 +150,7 @@
         placeholder="Direccion"
         required
         validate
+        pattern="[A-Za-z0-9ñÑáéíóúÁÉÍÓÚ#-_\s]*"
         :onValidate=onValidatedInput
         @input="form.negocio.direccion=$event.target.value"
       ></f7-list-input>
@@ -258,9 +259,9 @@
         label="Direccion"
         type="text"
         placeholder="Direccion"
-        pattern="[A-Za-z0-9\s]*"
+        pattern="[A-Za-z0-9ñÑáéíóúÁÉÍÓÚ#-_\s]*"
         error-message="Solo letras"
-          validate
+        validate
         :onValidate=onValidatedInput
         @input="form.codeudor.direccion=$event.target.value"
       ></f7-list-input> 
@@ -300,6 +301,7 @@
   </f7-row>
 
 </f7-block>
+<f7-block inset>
 <div v-if="cargarGps"> 
   <Message  severity="success"  :sticky="true" :life="1500">Localizacion obtenida</Message>
 </div>
@@ -307,6 +309,7 @@
   <Message  severity="error"  :sticky="true" :life="1500">No se ha podido tener informacion de la localizacion, revise el gps y vuelva a intentarlo.</Message>
   
 </div>
+</f7-block>
 
   </f7-page>
 </template>
@@ -497,10 +500,8 @@ export default {
        onSuccessGeolocalizacion(position){
          this.geoHabilitado=false;
          this.cargarGps=true;
-          this.form.geolocalizacion={
-             log:position.coords.longitude,
-             lat:position.coords.latitude
-          }
+          this.form.geolocalizacion.lng=position.coords.longitude
+          this.form.geolocalizacion.lat=position.coords.latitude
         },
       getInfoGelocalitation(){
           return axios.get("https://ipinfo.io?token=3e5d1c9a59d8aa",  (response) => {

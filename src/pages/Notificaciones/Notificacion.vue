@@ -69,10 +69,10 @@
       <f7-button fill large small @click="onAceptarTransaccion(transferencia.id)" color="green">ACEPTAR</f7-button>
           
     </f7-col>
-      <f7-col >
+      <!-- <f7-col >
       <f7-button fill large small @click="onCancelarTransaccion(transferencia.id)" color="red">CANCELAR</f7-button>
           
-    </f7-col>
+    </f7-col> -->
     
   </f7-row>
  
@@ -132,7 +132,9 @@ export default {
           console.log(Transaccion.data.envia=="Empresa");
     if(Transaccion.data.envia=="Empresa"){
           // Update the population of 'SF'
-          // /usuarios/Nf05nKycByv8CrjrzfL6/empresas/mhVF3FZqPlNAx1sV9c0o/Zonas/SmhRYXL86AUXG2JBZaNU
+          console.log(this.idad);
+          console.log(empresa);
+          console.log(zona);
           var sfRef = db.collection("usuarios").doc(this.idad).collection("empresas").doc(empresa).collection('Zonas').doc(zona);
           batch.update(sfRef, {"balance": this.balance_zona});
 
@@ -146,11 +148,11 @@ export default {
               this.$store.commit('setEliminarDatoTransferencia',Transaccion.id);  
               this.$f7.dialog.close();
               this.$f7.dialog.alert('Nuevo saldo '+Number(this.balance_zona).toLocaleString('es-CO',{style: 'currency',currency: 'COP',minimumSignificantDigits:1}),'Saldo actualizado!',()=>{
-              alert('Borrando');
+              
               // this.transacccionservice.eliminarTransaccionEmpresaZona(this.idad,empresa,zona,Transaccion.id)
               // db.collection('usuarios').doc(this.idad).collection('empresas').doc(empresa).collection('Zonas').doc(zona).collection('Transferencias').doc(Transaccion.id).delete()
                this.transacccionservice.eliminarTransaccionEmpresaZona(this.idad,empresa,zona,Transaccion.id).then(()=>{
-                 alert('Borrando');
+                
               });
 
           }); 
@@ -177,7 +179,7 @@ export default {
               // this.transacccionservice.eliminarTransaccionEmpresa(this.idad,empresa,Transaccion.id).
               // db.collection('usuarios').doc(this.idad).collection('empresas').doc(empresa).collection('Transferencias').doc(Transaccion.id).delete()
               this.transacccionservice.eliminarTransaccionEmpresa(this.idad,empresa,Transaccion.id).then(()=>{
-                 alert('Borrando');
+                
               });
             
 
@@ -205,6 +207,7 @@ export default {
      
      let balance_actual_zona=this.$store.getters.getBalance;
      let nuevo_balance_zona=Number(balance_actual_zona)+Number(transaccion.data.valor);
+     localStorage.setItem("saldo_zona",nuevo_balance_zona);
      this.balance_zona=nuevo_balance_zona
      this.$store.commit('setBalanceZona',nuevo_balance_zona);
      this.$store.commit('setDisminuyeContadorTransferencias');

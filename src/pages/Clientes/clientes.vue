@@ -445,7 +445,7 @@ batch.commit().then( ()=> {
       
     },
     onSeleccionarCliente(id,nombrecompleto) {
-        
+        this.balance_zona=localStorage.getItem("saldo_zona");
         this.cliente_seleccionado=id;
         // app.dialog.alert(id);
         this.$f7.dialog.confirm('Confirmar usuario',nombrecompleto, () => {
@@ -477,7 +477,7 @@ batch.commit().then( ()=> {
          
          this.$f7.dialog.alert('Debe seleccionar un Cliente!','Atencion!');
       }
-      else if(this.planseleccionado==''){
+      else if(this.planseleccionado=='' || this.planseleccionado==undefined){
        this.$f7.dialog.alert('Debe seleccionar un plan!','Atencion!');
       }
       else if(this.valor_sin_puntos=='' || this.valor_sin_puntos==0){
@@ -507,7 +507,7 @@ batch.commit().then( ()=> {
             const self = this;
           const app = this.$f7;
           let ui_cobrador=localStorage.getItem("uid");
-          self.$f7.dialog.preloader('Guardando pago...');
+          self.$f7.dialog.preloader('Guardando prestamo...');
           this.info_prestamo.cliente=this.cliente_seleccionado;
           let id_empresa=localStorage.getItem("empresa");
           // this.info_prestamo.valor=this.info_prestamo.valor.replace('.', "");

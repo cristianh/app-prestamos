@@ -1,3 +1,5 @@
+import qs from 'qs';
+
 export default class CobradoresService {
 
     getAllCobradores(id_admin) {
@@ -5,7 +7,10 @@ export default class CobradoresService {
     }
 
     guardarCobrador(id_admin, idEmpresa, data_cobrador) {
-        return axios.post(`CobradoresGuardar?idadmin=${id_admin}&doc=${idEmpresa}`, data_cobrador).then(response => response).catch(error => { return error });
+        return axios.post(`CobradoresGuardar?idadmin=${id_admin}&doc=${idEmpresa}`, qs.stringify(data_cobrador), {
+            method: 'POST',
+            headers: { 'content-type': 'application/x-www-form-urlencoded' },
+        }).then(response => response).catch(error => { return error });
     }
 
     buscarCobradorPorZona(id_admin, idEmpresa, data_zona) {

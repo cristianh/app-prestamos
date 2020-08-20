@@ -5,6 +5,7 @@ Vue.use(Vuex);
 
 export default new Vuex.Store({
     state: {
+        contadorClientesSeleccionados: 0,
         contador_transferencias: 0,
         datos_transeferencia: [],
         datos_transeferencia_pendientes: [],
@@ -77,6 +78,17 @@ export default new Vuex.Store({
             }
 
         },
+        setAumentaContadorClientesListaPrestamos(state) {
+            state.contadorClientesSeleccionados++;
+        },
+        setDisminuyeContadorClientesListaPrestamos(state) {
+            if (state.contadorClientesSeleccionados == 0) {
+
+            } else {
+                state.contadorClientesSeleccionados--;
+            }
+
+        },
         setfechInicialJornada(state, fecha_inicial_jornada) {
             state.jornada_cobrador.fecha_inicial = fecha_inicial_jornada;
         },
@@ -132,6 +144,7 @@ export default new Vuex.Store({
         addClientesPrestamosList(state, clientenuevoprestamolist) {
             // mutate state
             //console.log(clientenuevo);
+            console.log(clientenuevoprestamolist);
             state.clientes_cobros.unshift(clientenuevoprestamolist)
         },
         addNewZona(state, zonanueva) {
@@ -173,6 +186,9 @@ export default new Vuex.Store({
         SetEliminarPosicionListaClientes(state, data_posicion) {
             state.clientes.splice(data_posicion.data.from, 1);
         },
+        SetEliminarClientesPrestamos(state, data_posicion) {
+            state.clientes_prestamos.splice(data_posicion, 1);
+        },
         setEstadoListaOrdenada(state, newstado) {
             state.cobrador_ordena_lista = newstado;
         },
@@ -186,6 +202,12 @@ export default new Vuex.Store({
             let posicion = state.clientes_prestamos.findIndex(x => x.data.id == data.id);
 
             state.clientes_prestamos[posicion].data.prestamos[0].estado_pago_prestamo.pago = data.estadopagoruta;
+
+        },
+        setEstadoPrestamoEstadoRuta(state, idClientePrestamo) {
+            let posicion = state.clientes_prestamos.findIndex(x => x.data.id == idClientePrestamo);
+
+            state.clientes_prestamos[posicion].data.activo = false;
 
         },
         setEstadoPrestamoRutaNoPago(state, data) {
@@ -233,6 +255,9 @@ export default new Vuex.Store({
         getContadorTransacciones: state => {
             return state.contador_transferencias;
         },
+        getContadorListaClientesPrestamo: state => {
+            return state.contadorClientesSeleccionados;
+        },
         getSaldoApagarHoy: state => {
             let valor_prestamo = 0;
             let taza_seleccionada_interes = 0;
@@ -241,7 +266,7 @@ export default new Vuex.Store({
             let pago = 0;
 
             state.clientes_prestamos.forEach(elementP => {
-                valor_prestamo = elementP.data.prestamos[0].valor;
+                valor_prestamo = elementP.data.prestamos[0].total_apagar;
                 taza_seleccionada_interes;
                 switch (elementP.data.prestamos[0].plan_seleccionado) {
                     case "10":
@@ -290,7 +315,7 @@ export default new Vuex.Store({
         getCobrosNoEfectivos: state => {
             return state.jornada_cobrador.catidad_cobrosenofectivos;
         },
-        getClientesPrestamo: state => {
+        getContadorClientesPrestamo: state => {
             let element_count = state.clientes_prestamos.filter(x => x.data.prestamos.length > 0 && x.data.prestamos[0].estado_prestamo != true);
             return element_count.length;
         },

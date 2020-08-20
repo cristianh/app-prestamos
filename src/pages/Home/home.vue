@@ -215,7 +215,8 @@ export default {
         }
     },
     beforeMount() {
-        this.idad = localStorage.getItem("iad");
+        localStorage.setItem("total_prestado",0)
+        this.idad = localStorage.getItem("iad")
         const self = this;
 
         this.profile_name = 'Bienvenido ' + localStorage.getItem("name") + '.';
@@ -284,9 +285,17 @@ export default {
                     //this.clientes.push(element);
                     this.$store.state.clientes.unshift(element);
                     if(element.data.hasOwnProperty('prestamos')){
-                        if (element.data.prestamos.length > 0 && element.data.prestamos[0].estado_prestamo != true) {
-                        this.$store.state.clientes_prestamos.unshift(element);
-                    }
+                       
+                            let fecha_prestamo = this.$moment(element.data.prestamos[0].fecha).format('YYYY-MM-DD');
+                            let fecha_anterior_hoy = this.$moment(new Date()).format('YYYY-MM-DD');
+
+                           
+                           
+                                //  if (element.data.prestamos.length > 0 && element.data.prestamos[0].estado_prestamo == false) {
+                            if(fecha_prestamo<fecha_anterior_hoy && element.data.prestamos.length >= 1 && element.data.prestamos[0].estado_prestamo == "false") {
+                                this.$store.state.clientes_prestamos.unshift(element);
+                            }
+                    // }
                     }
                     
                 }

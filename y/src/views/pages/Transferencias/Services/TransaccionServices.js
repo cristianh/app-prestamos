@@ -1,3 +1,4 @@
+import qs from 'qs';
 export default class TransaccionService {
 
 
@@ -10,7 +11,10 @@ export default class TransaccionService {
     }
 
     guardarHistorialTransaccion(id_admin, id_empresa, data) {
-        return axios.post(`guardarHistorialTransaccion?idadmin=${id_admin}&doc=${id_empresa}`, data).then(response => response);
+        return axios.post(`guardarHistorialTransaccion?idadmin=${id_admin}&doc=${id_empresa}`, qs.stringify(data), {
+            method: 'POST',
+            headers: { 'content-type': 'application/x-www-form-urlencoded' },
+        }).then(response => response);
     }
 
     getHistorialTransaccion(id_admin, id_empresa) {

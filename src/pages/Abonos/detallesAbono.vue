@@ -26,6 +26,7 @@
         <f7-block-title>Prestamo</f7-block-title>
         <f7-block>
          <h5>
+         Saldo pendiente: {{prestamos.saldo_pendiente|currency}}<br>
          Dias de mora: {{prestamos.dias_con_mora}}<br>
          Dias de plazo: {{prestamos.dias_plazo}}<br>
          Fecha del prestamo: {{prestamos.fecha}}<br>
@@ -170,7 +171,7 @@
         </f7-list-item>
       </f7-list>  -->
     </f7-sheet>
-    <f7-popover class="popover-menu" :closeOnEscape="false" :closeByOutsideClick="false" :closeByBackdropClick="false" >
+    <f7-popover class="popover-menu" :closeOnEscape="false" :closeByOutsideClick="true" :closeByBackdropClick="false" >
       <f7-block-header><span style="margin-left:25%">Motivo del no pago</span><f7-button fill @click="onCobroNoPago" color="orange">Confirmar</f7-button></f7-block-header>
    <f7-list>
   <f7-list-item  v-for="(opcion,index,key) in opcionesRadioNoPago" :key="key"
@@ -282,12 +283,13 @@ import CobradorService from '../Services/CobradoresServices.js';
           this.$f7.popover.close('.popover-menu');
         let elemento = this.clientes_info;
         this.$store.commit('setCatidad_cobrosenofectivosJornada');
-        
-        elemento.prestamos[0].dias_con_mora=Number(elemento.prestamos[0].dias_con_mora)+1
+        elemento.prestamos[0].saldo_pendiente=Number(elemento.prestamos[0].saldo_pendiente)+Number(this.saldo_a_pagar)+Number(this.informacion_pago.valor_pago);
+        elemento.prestamos[0].dias_con_mora=Number(elemento.prestamos[0].dias_con_mora)+1;
+        // elemento.prestamos[0].dias_con_mora=Number(elemento.prestamos[0].dias_con_mora)+1
         // console.log(elemento.prestamos[0].dias_con_mora);
         let ui_cobrador=localStorage.getItem("uid");
         let idempresa=localStorage.getItem("empresa");
-        elemento.prestamos[0].total_apagar=Number(elemento.prestamos[0].total_apagar)+Number(this.saldo_a_pagar);
+        // elemento.prestamos[0].total_apagar=Number(elemento.prestamos[0].total_apagar)+Number(this.saldo_a_pagar);
           let dataTotalAPagarHoy={
             Idcliente: this.id,
             pagototalhoy:Number(this.saldo_a_pagar)+Number(this.saldo_a_pagar)
@@ -317,7 +319,9 @@ import CobradorService from '../Services/CobradoresServices.js';
         }
         this.clientesService.guardarObservacionNoPago(this.idad,idempresa,ui_cobrador,this.id,informacionNoPago).then( (response) =>  {
            this.$store.commit('setQuitar_cobros_pendientesJornada');
+           this.$store.commit('setEstadoPrestamoEstadoRuta',elemento.prestamos[0].cliente);
             this.$f7.dialog.close();
+            this.$store.commit('setAumentaContadorClientesListaPrestamos');
             this.$f7router.back();
         });
               
@@ -329,11 +333,14 @@ import CobradorService from '../Services/CobradoresServices.js';
         let elemento = this.clientes_info;
         let idempresa=localStorage.getItem("empresa");
         this.$store.commit('setCatidad_cobrosenofectivosJornada');
+
+        elemento.prestamos[0].saldo_pendiente=Number(elemento.prestamos[0].saldo_pendiente)+Number(this.saldo_a_pagar)+Number(this.informacion_pago.valor_pago);
+        elemento.prestamos[0].dias_con_mora=Number(elemento.prestamos[0].dias_con_mora)+1;
         
-        elemento.prestamos[0].dias_con_mora=Number(elemento.prestamos[0].dias_con_mora)+1
+        // elemento.prestamos[0].dias_con_mora=Number(elemento.prestamos[0].dias_con_mora)+1
         // console.log(elemento.prestamos[0].dias_con_mora);
         let ui_cobrador=localStorage.getItem("uid");
-        elemento.prestamos[0].total_apagar=Number(elemento.prestamos[0].total_apagar)+Number(this.saldo_a_pagar);
+        // elemento.prestamos[0].total_apagar=Number(elemento.prestamos[0].total_apagar)+Number(this.saldo_a_pagar);
           let dataTotalAPagarHoy={
             Idcliente: this.id,
             pagototalhoy:Number(this.saldo_a_pagar)+Number(this.saldo_a_pagar)
@@ -363,7 +370,9 @@ import CobradorService from '../Services/CobradoresServices.js';
         }
         this.clientesService.guardarObservacionNoPago(this.idad,idempresa,ui_cobrador,this.id,informacionNoPago).then( (response) =>  {
            this.$store.commit('setQuitar_cobros_pendientesJornada');
+           this.$store.commit('setEstadoPrestamoEstadoRuta',elemento.prestamos[0].cliente);
             this.$f7.dialog.close();
+            this.$store.commit('setAumentaContadorClientesListaPrestamos');
             this.$f7router.back();
         });
               
@@ -396,22 +405,25 @@ batch.commit().then(function () {
     onConfirmarPago(){
       const app = this.$f7;
       let ui_cobrador=localStorage.getItem("uid");
+      let idempresa=localStorage.getItem("empresa");
+
       let elemento = this.clientes_info;
-       this.valor_sin_puntos;
+     
 
       //Verificamos que el valor ingresado a pagar no sea mayor al valor del prestamo realizado
             // this.valor_sin_puntos=;
-           
+          //Quitamos los putos del valor a pagar.
             this.informacion_pago.valor_pago=this.valor_sin_puntos.split('.').join('');
            
           
-  console.log(Number(this.informacion_pago.valor_pago))
-   console.log(Number(elemento.prestamos[0].valor));
+  
+   //Verificamos si el valor a pagar no es mayor al saldo pendiente por pagar del prestamo.
       if(Number(this.informacion_pago.valor_pago)>Number(elemento.prestamos[0].valor)){
           this.$f7.dialog.alert('El valor a pagar es mayor al total del prestamo,revise por favor.','Atencion!');
-          this.valor_sin_puntos=0;
+          // this.valor_sin_puntos=0;
+          this.informacion_pago.valor_pago
       }else{
-          
+    
           this.$f7.dialog.preloader('Guardando pago...');
           if(elemento.hasOwnProperty('cobros')){
              elemento.cobros.push(this.informacion_pago);
@@ -419,6 +431,7 @@ batch.commit().then(function () {
              elemento.cobros=new Array(this.informacion_pago);
           }
          
+          //guardamos el cobro realizado.
           this.informacion_pago.cliente=this.id;
            let id_empresa=localStorage.getItem("empresa");
           this.abonoService.guardarAbonosCobros(this.idad,id_empresa,ui_cobrador,this.id,this.informacion_pago).then( (response) =>  {
@@ -432,8 +445,8 @@ batch.commit().then(function () {
 
           this.$store.commit('setCatidad_cobrosefectivosJornada');
          
-          let numero_de_clientes_prestamo=this.$store.getters.getClientesPrestamo;
-    
+          
+          //Actualizamos el saldo de la zona.
           let descuentosaldozona=Number(saldo_actual)+Number(saldo_valor);
           let total_cobrado=Number( this.$store.getters.getCobrosTotalCobrado)+Number(this.informacion_pago.valor_pago);
           this.mensajeSaldo=`Saldo ${this.saldo_a_pagar- this.informacion_pago.valor_pago}`;
@@ -447,26 +460,78 @@ batch.commit().then(function () {
           this.$store.commit('setbalance_finalJornada',Number(descuentosaldozona));
           
          
-      
+          //Si el saldo es igual entre el valor pago y el valor a pagar.
          if(Number(this.informacion_pago.valor_pago)===Number(this.saldo_a_pagar)){
             
-
-          //  elemento.prestamos[0].saldo_pendiente=0;
-          // this.informacion_pago.valor_pago=this.informacion_pago.valor_pago.replace('.', "");
-          elemento.prestamos[0].saldo_pendiente=Number(this.saldo_a_pagar)-Number(this.informacion_pago.valor_pago);
           elemento.prestamos[0].total_apagar=Number(elemento.prestamos[0].total_apagar)-Number(this.informacion_pago.valor_pago);
-          // elemento.prestamos[0].dias_plazo=Number(elemento.prestamos[0].dias_plazo)-1;
           
-          if(elemento.prestamos[0].dias_con_mora!=0){
-            
-            elemento.prestamos[0].dias_con_mora=Number(elemento.prestamos[0].dias_con_mora)-1;
-            
+        //  alert(elemento.prestamos[0].total_apagar);
+         if(elemento.prestamos[0].total_apagar==0 || elemento.prestamos[0].total_apagar<0){
+       
+                this.$f7.sheet.close();
+          this.$f7.dialog.close();
+            this.$f7.dialog.alert('El prestamo ha sido pagado.','Atencion',()=>{
+                   
+         
+      
+          //  let posicion=.findIndex(x => {x.prestamos[0].cliente==elemento.prestamos[0].cliente});
+          
+          let posicion=this.$store.getters.getClientesListaPrestamo.findIndex(x => x.data.prestamos[0].cliente==elemento.prestamos[0].cliente);
+          console.log(posicion);
+           
+              this.$store.commit('SetEliminarClientesPrestamos',posicion);
+         
+      // elemento.prestamos[0].total_apagar=0;
+           
+           elemento.prestamos[0].estado_prestamo=true
+           elemento.prestamos[0].valor=0
+           elemento.prestamos[0].dias_plazo=0
+           elemento.prestamos[0].dias_con_mora=0
+           elemento.prestamos[0].plan_seleccionado=0
+           elemento.prestamos[0].total_apagar=0
+this.clientesService.actualizarClienteCobrador(this.idad,idempresa,ui_cobrador,this.id,elemento).then( (response) =>  {
+        
+              this.informacion_pago.valor_pago=0;  
+               this.valor_sin_puntos=0;  
+                this.$f7.sheet.close();
+          this.$f7.dialog.close();
+          
+          this.$store.commit('setAumentaContadorClientesListaPrestamos');
+          this.clientesService.eliminarPrestamoPago(this.idad,idempresa,ui_cobrador,this.id,elemento.prestamos[0]).then( (response) =>  {
+                this.$f7router.back();
+              });
+});
+       
+             });
+
           }
+          else{
+              //  elemento.prestamos[0].saldo_pendiente=0;
+          // this.informacion_pago.valor_pago=this.informacion_pago.valor_pago.replace('.', "");
+          //Descontamos el saldo pendiente del pago.
+          if(Number(elemento.prestamos[0].dias_con_mora)!=0){
+              
+             elemento.prestamos[0].dias_con_mora=Number(elemento.prestamos[0].dias_con_mora)-1;
+          }
+          if(Number(elemento.prestamos[0].saldo_pendiente)!=0){
+               elemento.prestamos[0].saldo_pendiente=Number(this.saldo_a_pagar)-Number(this.informacion_pago.valor_pago);
+            //  elemento.prestamos[0].dias_con_mora=Number(elemento.prestamos[0].dias_con_mora)-1;
+          }
+           
+            //  this.clientes_info.saldo_pendiente=elemento.prestamos[0].saldo_pendiente
+            //  this.clientes_info.dias_con_mora=elemento.prestamos[0].dias_con_mora
+          
+         
+                // elemento.prestamos[0].dias_plazo=Number(elemento.prestamos[0].dias_plazo)-1;
+          
+         //Cambiamos los estados en el store
+
           let dataTotalAPagarHoy={
             Idcliente: this.id,
             pagototalhoy:elemento.prestamos[0].saldo_pendiente
           };
           this.$store.commit('setEstadoTotalAPagar',dataTotalAPagarHoy);
+
            let data_ruta_bien={
             id: this.id,
             estadopagoruta:true
@@ -481,21 +546,64 @@ batch.commit().then(function () {
             id: this.id,
             pagopendiente:false
           };
+        
       this.$store.commit('setEstadoPrestamoPendiente',data_pendiente);
        this.$store.commit('setQuitar_cobros_pendientesJornada');
-        this.clientesService.actualizarClienteCobrador(this.idad,ui_cobrador,this.id,elemento).then( (response) =>  {
+       this.$store.commit('setEstadoPrestamoEstadoRuta',elemento.prestamos[0].cliente);
+        console.log("elemento actualizado....",elemento);
+
+            this.clientesService.actualizarClienteCobrador(this.idad,idempresa,ui_cobrador,this.id,elemento).then( (response) =>  {
               this.informacion_pago.valor_pago=0;  
                this.valor_sin_puntos=0;  
                 this.$f7.sheet.close();
           this.$f7.dialog.close();
+          this.$store.commit('setAumentaContadorClientesListaPrestamos');
           this.updateValor();    
           });
+
+          }
+      
          }
          else {
-          
-          elemento.prestamos[0].saldo_pendiente=Number(this.saldo_a_pagar)-Number(this.informacion_pago.valor_pago);
-          // console.log(elemento.prestamos[0].saldo_pendiente);
+            //Quitado el saldo a pagar
           elemento.prestamos[0].total_apagar=Number(elemento.prestamos[0].total_apagar)-Number(this.informacion_pago.valor_pago);
+         
+           if(elemento.prestamos[0].total_apagar==0 || elemento.prestamos[0].total_apagar<0){
+                 this.$f7.sheet.close();
+          this.$f7.dialog.close();
+            this.$f7.dialog.alert('El prestamo ha sido cancelado.','Atencion',()=>{
+           
+           
+           
+           let posicion=this.$store.getters.getClientesListaPrestamo.findIndex(x => x.data.prestamos[0].cliente==elemento.prestamos[0].cliente);
+           console.log(posicion);
+           
+              this.$store.commit('SetEliminarClientesPrestamos',posicion);
+            
+           elemento.prestamos[0].estado_prestamo=true
+           elemento.prestamos[0].valor=0
+           elemento.prestamos[0].dias_plazo=0
+           elemento.prestamos[0].dias_con_mora=0
+           elemento.prestamos[0].plan_seleccionado=0
+           elemento.prestamos[0].total_apagar=0
+          //  elemento.prestamos[0].total_apagar=0;
+             this.clientesService.actualizarClienteCobrador(this.idad,idempresa,ui_cobrador,this.id,elemento).then( (response) =>  {
+              this.informacion_pago.valor_pago=0; 
+              this.valor_sin_puntos=0;   
+                this.$f7.sheet.close();
+              this.$f7.dialog.close();
+              this.$store.commit('setAumentaContadorClientesListaPrestamos');
+              this.clientesService.eliminarPrestamoPago(this.idad,idempresa,ui_cobrador,this.id,elemento.prestamos[0]).then( (response) =>  {
+                this.$f7router.back();
+              });
+          });
+             });
+
+          }else{
+              
+            elemento.prestamos[0].saldo_pendiente=Number(this.saldo_a_pagar)-Number(this.informacion_pago.valor_pago);
+          // console.log(elemento.prestamos[0].saldo_pendiente);
+          
            if(elemento.prestamos[0].dias_con_mora>=0){
             
             elemento.prestamos[0].dias_con_mora=Number(elemento.prestamos[0].dias_con_mora)+1;
@@ -509,22 +617,7 @@ batch.commit().then(function () {
           //Verificamos si el saldo esta en 0.
 
            this.cliente_seleccionado='';    
-           if(elemento.prestamos[0].valor==0 || elemento.prestamos[0].total_apagar<=0){
-           elemento.prestamos=[];
-           elemento.cobros=[];
-           //Provisional mientras decide que hacer con el pago.
-          //  this.clientesService.eliminarPrestamoPago(ui_cobrador,this.id,this.informacion_pago).then( (response) =>  {
-          //     this.informacion_pago.valor_pago=0;
-          // });
-           } 
-
         
-          
-         
-          if(Number(this.saldo_a_pagar)-Number(this.informacion_pago.valor_pago)<=0){
-            //Pendiente de comprobacion
-             //this.$store.commit('eliminarClientePrestamoDiario',this.id);
-           }
            // elemento.prestamos[0].dias_plazo=Number(elemento.prestamos[0].dias_plazo)+1;
             let data_estado={
             id: this.id,
@@ -537,7 +630,7 @@ batch.commit().then(function () {
             dias_mora:elemento.prestamos[0].dias_con_mora
           };
           this.$store.commit('setEstadoDiasMora',data_mora);
-         }
+         
           let dataTotalAPagarHoy={
             Idcliente: this.id,
             pagototalhoy:elemento.prestamos[0].saldo_pendiente
@@ -549,14 +642,19 @@ batch.commit().then(function () {
           };
       this.$store.commit('setEstadoPrestamoPendiente',data_pendiente);
          this.$store.commit('setQuitar_cobros_pendientesJornada');
-           
-          this.clientesService.actualizarClienteCobrador(this.idad,ui_cobrador,this.id,elemento).then( (response) =>  {
+         this.$store.commit('setEstadoPrestamoEstadoRuta',elemento.prestamos[0].cliente);
+        //  alert(elemento.prestamos[0].total_apagar);
+            this.clientesService.actualizarClienteCobrador(this.idad,idempresa,ui_cobrador,this.id,elemento).then( (response) =>  {
               this.informacion_pago.valor_pago=0; 
               this.valor_sin_puntos=0;   
                 this.$f7.sheet.close();
           this.$f7.dialog.close();
+          this.$store.commit('setAumentaContadorClientesListaPrestamos');
           this.updateValor();  
           });
+          }
+          
+          }
         
         });
       }

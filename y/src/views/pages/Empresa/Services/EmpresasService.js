@@ -1,3 +1,4 @@
+import qs from 'qs';
 export default class EmpresaService {
 
     getAllEmpresas(id_admin) {
@@ -14,7 +15,10 @@ export default class EmpresaService {
 
     guardarEmpresa(id_admin, data) {
         // return axios.post('Empresas', data).then(response => response.data).catch(error => { return error });
-        return axios.post(`Empresas?idadmin=${id_admin}`, data).then(response => response.data).catch(error => { return error });
+        return axios.post(`Empresas?idadmin=${id_admin}`, qs.stringify(data), {
+            method: 'POST',
+            headers: { 'content-type': 'application/x-www-form-urlencoded' },
+        }).then(response => response.data).catch(error => { return error });
     }
 
     getAllTazaeInteres(id_admin, id_empresa) {
@@ -22,7 +26,10 @@ export default class EmpresaService {
     }
 
     guardarNuevoPlanEmpresa(id_admin, IdEmpresa, data) {
-        return axios.post(`GuardarNuevoPlanEmpresa?idadmin=${id_admin}&doc=${IdEmpresa}`, data).then(response => response.data).catch(error => { return error });
+        return axios.post(`GuardarNuevoPlanEmpresa?idadmin=${id_admin}&doc=${IdEmpresa}`, qs.stringify(data), {
+            method: 'POST',
+            headers: { 'content-type': 'application/x-www-form-urlencoded' },
+        }).then(response => response.data).catch(error => { return error });
     }
 
 }

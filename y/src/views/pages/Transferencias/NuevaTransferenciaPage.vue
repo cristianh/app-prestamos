@@ -181,6 +181,17 @@ else{
 
 // Commit the batch
       batch.commit().then( () =>{
+        this.form_transaccion={
+          envia:'', 
+          valor:0,
+          estado_transaccion:false,
+          fecha:new Date().toISOString().slice(0,10),
+          hora: '',
+          mensaje:'',
+          idEnvia:'',
+          idRecibe:''
+          }
+          this.valor_sin_puntos=0
           // ...
           //this.transacccionservice.elminiarTransaccion(this.idad,this.id_empresa,this.id_zona);
           
