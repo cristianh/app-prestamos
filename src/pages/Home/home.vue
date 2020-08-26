@@ -228,6 +228,8 @@ export default {
         let empresa=localStorage.getItem("empresa");
         self.$f7.dialog.preloader("Cargando informacion...");
         // console.log(this.uid);
+        // localStorage.setItem("listagenerada",false);
+        
         axios.get(`https://us-central1-manifest-life-279516.cloudfunctions.net/InformacionParaCobradores?idadmin=${this.idad}&doc=${empresa}&idcobrador=${this.uid}`).then((resp)=>{
           
             if(resp.data.collecciones.find(x=>x==="parametros_cobros")){
@@ -277,8 +279,8 @@ export default {
             }
 
             let clientes_cobrador = resp.data.clientes;
-            
-            for (const key in clientes_cobrador) {
+            let estadoListaCobro=[]
+                for (const key in clientes_cobrador) {
                 if (clientes_cobrador.hasOwnProperty(key)) {
                     const element = clientes_cobrador[key];
                     
@@ -293,25 +295,28 @@ export default {
                            
                                 //  if (element.data.prestamos.length > 0 && element.data.prestamos[0].estado_prestamo == false) {
                             if(fecha_prestamo<fecha_anterior_hoy && element.data.prestamos.length >= 1 && element.data.prestamos[0].estado_prestamo == "false") {
-                                this.$store.state.clientes_prestamos.unshift(element);
+                                this.$store.state.clientes_cobros.unshift(element);
+                                if(Boolean(localStorage.getItem("listagenerada"))==false || localStorage.getItem("listagenerada")=='false' ){
+                                estadoListaCobro.unshift({estado:0,id:element.data.id})
+                                
+                                }else{
+                                    
+                                    
+                                }
                             }
                     // }
                     }
                     
                 }
             }
-
-            // for (const key in clintes_cobrador) {
-            //     if (clintes_cobrador.hasOwnProperty(key)) {
-            //         const element = clintes_cobrador[key];
-            //         console.log(element);
-            //         //this.clientes.push(element);
-            //         this.$store.state.tasaseinteres.unshift(element);
-
-            //         ///this.clientes_nombres.push(element.data.usuario.nombre);
-
-            //     }
-            // }
+            if(Boolean(localStorage.getItem("listagenerada"))==false || localStorage.getItem("listagenerada")=='false' ){
+            localStorage.setItem('ListaEstadosCobro',JSON.stringify(estadoListaCobro))
+            // this.$store.commit('setEstadoPrestamosPendientes',JSON.parse(localStorage.getItem('ListaEstadosCobro')))
+            }else{
+                
+            }
+           
+           this.$store.commit('setEstadoCobrosLista',JSON.parse(localStorage.getItem('ListaEstadosCobro')))
             self.$f7.dialog.close();
 
                this.onDetectarTransacciones();

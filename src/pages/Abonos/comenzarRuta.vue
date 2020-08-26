@@ -78,7 +78,7 @@
         }"
               @input="jornada_cobrador.balance_final_manual=$event.target.value"
             ></f7-list-input>
-            <f7-button large :disabled="ruta_terminada" @click="onConfirmarJornada" >CONFIRMAR</f7-button>
+            <f7-button large :disabled="btn_ruta_terminada" @click="onConfirmarJornada" >CONFIRMAR</f7-button>
                 </f7-list>
                 
           </f7-col>
@@ -90,6 +90,8 @@
              </f7-block>
      </div>
       <div v-else>
+          <!-- {{getTodosClientesPrestamo}} -->
+       <!-- {{clientes}} -->
           <div v-if="clientes.length!=0 ">
             <!-- <f7-block inset>
               <f7-row>
@@ -98,11 +100,19 @@
                 </f7-col>
          </f7-row>
          </f7-block> -->
+          <f7-block>
+        <f7-row>
+        <f7-col>
+            <f7-button  fill color="red" @click="onCerrarRuta">Terminar Ruta <f7-icon material="cancel"></f7-icon></f7-button>
+        </f7-col>
+         </f7-row>
+        </f7-block>
          <f7-block>
        <!-- {{posiciones_lista_ordenada}} -->
           
          <f7-block-title >Clientes</f7-block-title>
        <!-- :link="`/cliente_detalles/${cliente.id}/`" -->
+     
         <f7-list  class="search-list-ruta searchbar-found">
                   
 <!-- :after="`${cliente.data.prestamos.length==0 || cliente.data.prestamos==undefined? 'NA':Number(cliente.data.prestamos[0].dias_con_mora)>=1?'Mora: '+Number(cliente.data.prestamos[0].dias_con_mora)+' dia':'Mora: '+Number(cliente.data.prestamos[0].dias_con_mora)+' dias'}`"  -->
@@ -110,38 +120,33 @@
         <f7-list-item  
         media-list
         swipeout  
-        :disabled="!cliente.data.activo" 
+        :disabled="getEstadoPrestamo[index].estado==1  || getEstadoPrestamo[index].estado==2"
         v-for="(cliente,index,key) in getTodosClientesPrestamo"
        
         :badge="`${cliente.data.prestamos.length==0 || cliente.data.prestamos==undefined? 'NA':Number(cliente.data.prestamos[0].dias_con_mora)>=1?'Mora: '+Number(cliente.data.prestamos[0].dias_con_mora)+' dia':'Mora: '+Number(cliente.data.prestamos[0].dias_con_mora)+' dias'}`"
         :badge-color="`${cliente.data.prestamos.length==0 || cliente.data.prestamos==undefined? 'NA':Number(cliente.data.prestamos[0].dias_con_mora)>=1?'red':''}`"
-        :class="{'pendiente':cliente.data.prestamos[0].estado_pendiente_prestamo_ruta==true,'normal':cliente.data.prestamos[0].estado_pago_ruta,'pago':cliente.data.prestamos[0].estado_pago_prestamo.pago==true,'no-pago':cliente.data.prestamos[0].estado_pago_prestamo.nopago==true}"  
+        :class="{'pago':getEstadoPrestamo[index].estado==1,'no-pago':getEstadoPrestamo[index].estado==2,'pendiente':getEstadoPrestamo[index].estado==3}"
         :subtitle="`Cedula: ${cliente.data.usuario.identificacion}`"   
         :id=cliente.data.id
         :key=key
         :title="`${cliente.data.usuario.nombre}-${cliente.data.usuario.apellido}`" 
-        :footer="`${calculoTotalPagoHoy[index]!=undefined ? 'Saldo pago hoy: '+Number(calculoTotalPagoHoy[index]).toLocaleString('es-CO',{style: 'currency',currency: 'COP',minimumSignificantDigits:1}):'NA'}`"  
+        :footer="`${calculoTotalPagoHoy[index]!=undefined ? calculoTotalPagoHoy[index]==0?'Pagado':'Saldo pago hoy: '+Number(calculoTotalPagoHoy[index]).toLocaleString('es-CO',{style: 'currency',currency: 'COP',minimumSignificantDigits:1}):'NA'}`"  
         @click="onClickClientePaginaDetalles(cliente.data.id,calculoTotalPagoHoy[index])"
         >
         <f7-swipeout-actions right>
         <!-- <f7-swipeout-button close overswipe color="green" @click="onReply(cliente,cliente.data.usuario.nombre+cliente.data.usuario.apellido)">Seleccionar</f7-swipeout-button> -->
-        <f7-swipeout-button close color="blue" @click="onCobroPendiente(cliente)">Pendiente</f7-swipeout-button>
+        <!-- <f7-swipeout-button close color="blue" >Pendiente</f7-swipeout-button> -->
         <f7-swipeout-button confirm-text="Desea eliminar este cliente de la lista!" confirm-title="Seguro!" color="red" delete>Eliminar</f7-swipeout-button>
         </f7-swipeout-actions>
-         <!-- {{getEstadosPrestamos}} -->
-         <!-- {{index}}-{{getEstadosPrestamos[index]}}
-         {{index}}
-         {{key}} -->
-        <!--{{cliente.data.prestamos[0].estado_pendiente_prestamo_ruta}} -->
+        <!-- {{cliente.data.prestamos[0].estado_pago_prestamo.pendiente}} -->
+        <!-- {{lista_cobros_realizados[index].estado}} -->
+         <!-- {{cliente.data.activo }}
+         {{cliente.data.prestamos[0].estado_pago_prestamo.pago}}
+         {{cliente.data.prestamos[0].estado_pago_prestamo.nopago}}
+         {{cliente.data.prestamos[0].estado_pago_prestamo.pendiente}} -->
+ 
         </f7-list-item>
         </f7-list>
-        </f7-block>
-        <f7-block>
-        <f7-row>
-        <f7-col>
-            <f7-button  fill color="red" @click="onCerrarRuta">Terminar Ruta <f7-icon material="cancel"></f7-icon></f7-button>
-        </f7-col>
-         </f7-row>
         </f7-block>
       </div>
             <div v-else>
@@ -203,11 +208,15 @@ import AbonoService from '../Services/AbonoServices.js';
 import CobradorService from '../Services/CobradoresServices.js';
 import ClientesService from '../Services/ClientesService.js';
 
+
 export default {
   data() {
     return {
+      lista_prestamos:[],
+      lista_cobros_realizados:[],
       busqueda:'',
     // estado_peniente:false,
+    btn_ruta_terminada:false,
     ruta_terminada:false,
     sheetOpened: false,
     posiciones_lista_ordenada:[],
@@ -218,6 +227,7 @@ export default {
     },
       numero_clientes:0,
       corbradorService:null,
+      clientesService:null,
       balance_zona:'',
       clientes:[],
       cliente_seleccionado:'',
@@ -235,6 +245,10 @@ export default {
       
     }
   },
+  created() {
+     this.corbradorService= new CobradorService();
+     this.clientesService= new ClientesService();
+  },
   watch: {
     // UploadClientes(newCliente,oldCliente){
     //   this.clientes=this.$store.getters.getClientes;
@@ -244,18 +258,65 @@ export default {
     // }
   },
   beforeMount(){
-    this.balance_zona=localStorage.getItem("saldo_zona");
     
-    this.corbradorService= new CobradorService();
-    this.isComienzoRuta=this.$store.getters.getEstadoRuta;
+    this.$store.watch(() => this.$store.getters.getEstadoPrestamoRuta, EstadosCobrosGuardados => { 
+        console.log('watched: ', EstadosCobrosGuardados) 
+        this.lista_cobros_realizados=EstadosCobrosGuardados
+    })
+    
+    this.balance_zona=localStorage.getItem("saldo_zona");
+   
+    this.clientes=this.$store.getters.getClientes
+    
     this.jornada_cobrador=this.$store.getters.getJornadaCobrador;
+    // this.isComienzoRuta=this.$store.getters.getEstadoRuta;
+    // alert("inicio ruta",this.isComienzoRuta)
+    
+    if(Boolean(localStorage.getItem("listagenerada"))==true || localStorage.getItem("listagenerada")=='true' ){
+       
+    // this.onComenzarFornada()
+    let estados=JSON.parse(localStorage.getItem('ListaEstadosCobro'))
+        for (const key in estados) {
+          if (estados.hasOwnProperty(key)) {
+            const element = estados[key];
+            if(element.estado==1 || element.estado==2){
+              // element.estado==1
+              // setAumentaContadorClientesListaPrestamos
+              this.$store.commit('setAumentaContadorClientesListaPrestamos');
+            }
+
+            
+          }
+        }
+      this.isComienzoRuta=true;
+    }else{
+      // alert("false",localStorage.getItem("listagenerada"))
+      this.isComienzoRuta=false;
+    }
     
   },
   beforeCreate(){
- 
+   if(Boolean(localStorage.getItem("listagenerada"))==true || localStorage.getItem("listagenerada")=='true' ){
+       
+    //  alert("true",localStorage.getItem("listagenerada"))
+      
+      // this.onComenzarFornada()
+      this.$store.commit('setEstadoListaCobrosRealizados')
+   }
   
   },
   computed: {
+     getEstadoPrestamo(){
+      // console.log(state.clientes_cobros);
+            // let estados = JSON.parse(localStorage.getItem('ListaEstadosCobro'))
+            // return estados[data] == 1 ?
+            //     'pago' : estados[data] == 2 ?
+            //     'no-pago' : estados[data] == 3 ?
+            //     'pendiente' : 'normal'
+      return this.$store.getters.getEstadoPrestamoRuta
+      // 'pendiente'? data.estado_pendiente_prestamo_ruta:
+      // 'pago'cliente.data.prestamos[0].estado_pago_prestamo.pago==true,'no-pago':Boolean(cliente.data.prestamos[0].estado_pago_prestamo.nopago)==true}
+    },
     getPrestamosRealiozadoshoy(){
       return localStorage.getItem("total_prestado")
     },
@@ -279,7 +340,8 @@ export default {
     },
     getTodosClientesPrestamo(){
 
-      let temporarlistaclientesprestamos=this.$store.getters.getClientesListaPrestamo;
+      let temporarlistaclientesprestamos=this.$store.getters.getClientesListaPrestamo
+      console.log("temporarlistaclientesprestamos",temporarlistaclientesprestamos);
       if(this.busqueda==""){
         return this.$store.getters.getClientesListaPrestamo
       }else{
@@ -288,10 +350,7 @@ export default {
       //  return 
        }); 
       }
-      // return .filter(cliente => {
-      //   return cliente.data.usuario.identificacion.toLowerCase().includes(this.busqueda.toLowerCase())
-      // // return this.$store.getters.getClientesListaPrestamo
-      // });
+    
     },
     getEstadosPrestamos(){
       return this.$store.getters.getEstadoPrestamoRuta
@@ -331,20 +390,6 @@ export default {
     }
   },
   methods:{
-    onCobroPendiente(cliente){
-      // alert('pendiente');
-      console.log(cliente);
-       let data_pendiente={
-            id: cliente.data.id,
-            pagopendiente:true
-          };
-      this.$store.commit('setEstadoPrestamoPendiente',data_pendiente);
-      this.$f7.dialog.alert('Marcado como pendiente','Correcto');
-      this.$store.commit('cobroClientePendiente',cliente);
-     
-    // this.onCambiarEstadoRuta();
-   
-  },
     onClickClientePaginaDetalles(clienteId,saldoAPagar){
        console.log(this.contadorClientesSeleccionados);
       this.$f7router.navigate('/abonos_detalle/'+clienteId+'/'+saldoAPagar);
@@ -425,6 +470,12 @@ export default {
           this.$store.commit('setEstadoRuta',false);
 
           this.isComienzoRuta=false;
+          this.btn_ruta_terminada=false;
+          this.estado_lista_prestamos_clientes=true;
+          localStorage.removeItem("listagenerada")
+          localStorage.removeItem("listaClientesCobros")
+          localStorage.removeItem("ListaEstadosCobro")
+          this.$store.state.estados_prestamos_ruta=[]
           // this.$f7.sheet.open('.mensaje_final-sheet');
         
         });
@@ -434,25 +485,36 @@ export default {
 
     },
     onGenerarListaJornadaPago(){
-        const self = this;
-        localStorage.setItem("listaClientesPrestamos",JSON.stringify(this.$store.getters.getClientesListaPrestamo));
-        this.clientes=JSON.parse(localStorage.getItem("listaClientesPrestamos"))
+        
+        localStorage.setItem("listagenerada",true);
+        // localStorage.setItem("listaClientesPrestamos",JSON.stringify(this.$store.getters.getClientesListaPrestamo));
+        // this.clientes=JSON.parse(localStorage.getItem("listaClientesPrestamos"))
+        // this.clientes=this.$store.getters.getClientesListaPrestamo
+        
         let id_empresa=localStorage.getItem("empresa");
-        self.$f7.dialog.preloader('Creando lista...');
+        this.$f7.dialog.preloader('Creando lista...');
         this.$store.commit('setfechInicialJornada',new Date().toISOString().slice(0,10));
         this.$store.commit('sethoraInicialJornada',this.$moment(new Date).format("hh:mm:ss"));
          let ui_cobrador=localStorage.getItem("uid");
          let id_admin=localStorage.getItem("iad");
-             this.corbradorService.guardarJornadaCobrador(id_admin,id_empresa,ui_cobrador,this.jornada_cobrador).then(response =>{
+        this.corbradorService.guardarJornadaCobrador(id_admin,id_empresa,ui_cobrador,this.jornada_cobrador).then(response =>{
                  console.log("................response",response);
                  this.isComienzoRuta=true;
-                 this.estado_lista_prestamos_clientes=true;
+                 this.btn_ruta_terminada=true;
+                 
                  localStorage.setItem("idjornadacobrador",response.data.id);
                  this.$store.commit('setEstadoRuta',true);
-                 self.$f7.dialog.close();
+                 this.$f7.dialog.close();
              }).catch(error =>{
                 console.log(error);
-             })
+         })
+        // this.onComenzarFornada()
+
+        
+    },
+    onComenzarFornada(){
+        
+
     }
 }
 }

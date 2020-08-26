@@ -455,7 +455,9 @@ import ClientesService from '../Services/ClientesService.js';
             clienteservice:null,
             coordenadas:{lat: 1.38, lng: 103.8},
             lat:'',
-            log:''
+            log:'',
+            mensajeErrorGelocalizacion:'',
+            geoHabilitado:false
        }
    },
    filters: {
@@ -471,6 +473,7 @@ import ClientesService from '../Services/ClientesService.js';
   },
   methods: {
     onActualizarClienteCobrador(){
+      this.$f7.dialog.preloader('Actualizando Informacion...');
     this.idad=localStorage.getItem("iad");
      let ui_cobrador=localStorage.getItem("uid"); 
      let id_empresa=localStorage.getItem("empresa"); 
@@ -500,12 +503,18 @@ import ClientesService from '../Services/ClientesService.js';
               this.clientes_info.geolocalizacion.lng= this.form.geolocalizacion.lng
               this.clientes_info.geolocalizacion.lat= this.form.geolocalizacion.lat
               }
+              let nuevaInfo={
+                id:this.id,
+                info:this.clientes_info
+              }
+      this.$store.commit('setActualizarInformacionClientes',nuevaInfo)
 
       this.clienteservice.actualizarClienteCobrador(this.idad,id_empresa,ui_cobrador,this.id,this.clientes_info).then( (response) =>  {
               // this.informacion_pago.valor_pago=0;
-               this.$f7.dialog.confirm(response.data.mensaje,"Correcto");
+               this.$f7.dialog.confirm("Informacion Actualizada","Correcto");
                this.$f7.popup.close();
-                // this.$f7router.back();
+                this.$f7.dialog.close();
+                this.$f7router.back();
       });
     },
     onValidatedInput(isValid){

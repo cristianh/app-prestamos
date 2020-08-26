@@ -229,7 +229,6 @@ export default {
             tazasdeinteres:[],
             abonoService:null,
             balance_zona:'',
-        
             cliente_seleccionado:'',
             effect:'blink',
             tipo_seleccionado:'',
@@ -243,11 +242,6 @@ export default {
               dias_plazo:'',
               dias_con_mora:0,
               estado_prestamo:false,
-              estado_pago_prestamo:{
-                pago:false,
-                nopago:false
-              },
-              estado_pendiente_prestamo_ruta:false,
               saldo_pendiente:0,
               saldo_pago_dia:0
             },
@@ -267,10 +261,10 @@ export default {
     getClientesLista(){
       let temporarlistaclientes=this.$store.getters.getOrdenarClientes;
       if(this.busqueda==""){
-        return this.$store.getters.getOrdenarClientes
+        return temporarlistaclientes
       }else{
          return temporarlistaclientes.filter(cliente => {
-        return cliente.data.usuario.identificacion.toLowerCase().includes(this.busqueda.toLowerCase())
+         return cliente.data.usuario.identificacion.toLowerCase().includes(this.busqueda.toLowerCase())
       //  return 
        }); 
       }
@@ -426,9 +420,9 @@ batch.commit().then( ()=> {
               estado_prestamo:false,
               estado_pago_prestamo:{
                 pago:false,
-                nopago:false
+                nopago:false,
+                pendiente:false
               },
-              estado_pendiente_prestamo_ruta:false,
               saldo_pendiente:0,
               saldo_pago_dia:0
             }

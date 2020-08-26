@@ -162,6 +162,11 @@ export default new Vuex.Store({
         getSetNuevoClientes(state, posicion) {
             state.clientes[posicion].nuevo = false
         },
+        setActualizarInformacionClientes(state, data) {
+            let posicion = state.clientes.findIndex(x => x.data.id == data.id);
+            state.clientes[posicion].data = data.info
+            state.clientes[posicion].data.id = data.id
+        },
         SetPosicionListaClientes(state, data_posicion) {
 
 
@@ -199,32 +204,38 @@ export default new Vuex.Store({
             state.estado_ruta = newEstado;
         },
         setEstadoPrestamoRutaPago(state, data) {
-            let posicion = state.clientes_prestamos.findIndex(x => x.data.id == data.id);
+            let posicion = state.clientes_cobros.findIndex(x => x.data.id == data.id);
 
-            state.clientes_prestamos[posicion].data.prestamos[0].estado_pago_prestamo.pago = data.estadopagoruta;
+            state.estados_prestamos_ruta[posicion].estado = data.estadopagoruta;
 
         },
         setEstadoPrestamoEstadoRuta(state, idClientePrestamo) {
-            let posicion = state.clientes_prestamos.findIndex(x => x.data.id == idClientePrestamo);
-
-            state.clientes_prestamos[posicion].data.activo = false;
+            console.log(",.,.,.", typeof(idClientePrestamo))
+            console.log(state.clientes_cobros)
+            let posicion = state.clientes_cobros.findIndex(x => x.data.id == idClientePrestamo);
+            if (posicion != -1) {
+                state.clientes_cobros[posicion].data.activo = false;
+            } else {
+                console.log('elemento no encontrado');
+            }
 
         },
         setEstadoPrestamoRutaNoPago(state, data) {
-            let posicion = state.clientes_prestamos.findIndex(x => x.data.id == data.id);
+            let posicion = state.clientes_cobros.findIndex(x => x.data.id == data.id);
 
 
-            state.clientes_prestamos[posicion].data.prestamos[0].estado_pago_prestamo.nopago = data.estadopagoruta;
+            state.estados_prestamos_ruta[posicion].estado = data.estadopagoruta;
 
         },
-        setEstadoPrestamoPendiente(state, data) {
-            let posicion = state.clientes_prestamos.findIndex(x => x.data.id == data.id);
+        setEstadoPendiente(state, data) {
+            let posicion = state.clientes_cobros.findIndex(x => x.data.id == data.id);
 
-            state.clientes_prestamos[posicion].data.prestamos[0].estado_pendiente_prestamo_ruta = data.pagopendiente;
+
+            state.estados_prestamos_ruta[posicion].estado = data.estadopagoruta;
         },
         setEstadoDiasMora(state, data) {
-            let posicion = state.clientes_prestamos.findIndex(x => x.data.id == data.id);
-            state.clientes_prestamos[posicion].data.prestamos[0].dias_con_mora = data.dias_mora;
+            let posicion = state.clientes_cobros.findIndex(x => x.data.id == data.id);
+            state.clientes_cobros[posicion].data.dias_con_mora = data.dias_mora;
         },
         cobroClientePendiente(state, clientePendiente) {
             state.cobros_pendientes.unshift(clientePendiente.cliente);
@@ -235,15 +246,52 @@ export default new Vuex.Store({
 
         },
         eliminarClientePrestamoDiario(state, Idcliente) {
-            let posicion = state.clientes_prestamos.findIndex(x => x.data.id == Idcliente);
-            state.clientes_prestamos.splice(posicion, 1);
+            let posicion = state.clientes_cobros.findIndex(x => x.data.id == Idcliente);
+            state.clientes_cobros.splice(posicion, 1);
+        },
+        setEstadoCobrosLista(state, data) {
+            state.estados_prestamos_ruta = data
+        },
+        setEstadoCobrosRuta(state, data) {
+            state.estados_prestamos_ruta = data
         },
         setEstadoTotalAPagar(state, data) {
-            let posicion = state.clientes_prestamos.findIndex(x => x.data.id == data.Idcliente);
+            let posicion = state.clientes_cobros.findIndex(x => x.data.id == data.Idcliente);
             state.saldo_pago_dia[posicion] = data.pagototalhoy;
+        },
+        setEstadoLocalListaCobros(state, data) {
+
+
+            if (Boolean(localStorage.getItem("listagenerada")) == true || localStorage.getItem("listagenerada") == 'true') {
+                let estadolista = JSON.parse(localStorage.getItem("listaClientesCobros"));
+                for (const key in estadolista) {
+                    if (estadolista.hasOwnProperty(key)) {
+                        // const element = estadolista[key];
+                        if (estadolista[key].prestamos[0].cliente == data.cliente_id) {
+                            // delete element.prestamos[0].estado_pago_prestamo
+                            estadolista[key].estado_pago_prestamo.pago = data.estado_pago_prestamo.pago
+                        }
+                    }
+                }
+                // let elemento = estadolista.filter(x => x.data.prestamos[0].cliente == data.cliente_id)
+                // let posicion_elemento = estadolista.findIndex(x => x.data.prestamos[0].cliente == data.cliente_id)
+                // console.log(estadolista);
+                // console.log(elemento);
+                // console.log(posicion_elemento);
+                localStorage.setItem("listaClientesCobros", JSON.stringify(estadolista));
+            } else {
+                localStorage.removeItem('listagenerada');
+            }
+        },
+        setEstadoListaCobrosRealizados(state) {
+            if (Boolean(localStorage.getItem("listagenerada")) == true || localStorage.getItem("listagenerada") == 'true') {
+
+                //  alert("true",localStorage.getItem("listagenerada"))
+
+                // this.onComenzarFornada()
+
+            }
         }
-
-
     },
     getters: {
         getDatosTransferenciaPendiente: state => {
@@ -265,7 +313,7 @@ export default new Vuex.Store({
             let total_apagar = 0;
             let pago = 0;
 
-            state.clientes_prestamos.forEach(elementP => {
+            state.clientes_cobros.forEach(elementP => {
                 valor_prestamo = elementP.data.prestamos[0].total_apagar;
                 taza_seleccionada_interes;
                 switch (elementP.data.prestamos[0].plan_seleccionado) {
@@ -316,29 +364,15 @@ export default new Vuex.Store({
             return state.jornada_cobrador.catidad_cobrosenofectivos;
         },
         getContadorClientesPrestamo: state => {
-            let element_count = state.clientes_prestamos.filter(x => x.data.prestamos.length > 0 && x.data.prestamos[0].estado_prestamo != true);
+            let element_count = state.clientes_cobros.filter(x => x.data.prestamos.length > 0 && x.data.prestamos[0].estado_prestamo != true);
             return element_count.length;
         },
         getEstadoPrestamoRuta: state => {
-            console.log(state.clientes_prestamos);
-            for (const key in state.clientes_prestamos) {
-
-                if (state.clientes_prestamos[key].data.hasOwnProperty('prestamos')) {
-                    console.log("....elementstore", state.clientes_prestamos[key].data.prestamos[0].estado_pago_prestamo);
-                    let element = state.clientes_prestamos[key].data.prestamos[0].estado_pago_prestamo
-                    state.estados_prestamos_ruta.push(element);
-                    // for (const key2 in state.clientes_prestamos[key].data.prestamos) {
-                    //     const element2 = state.clientes_prestamos[key2].estado_pago_prestamo;
-                    //     console.log("....elementstore", element2);
-                    //     // 
-                    // }
-
-                }
-            }
+            console.log("---------------------", state.estados_prestamos_ruta);
             return state.estados_prestamos_ruta;
         },
         getClientesListaPrestamo: state => {
-            return state.clientes_prestamos.sort(function(a, b) {
+            return state.clientes_cobros.sort((a, b) => {
                 if (a.data.posicion < b.data.posicion) {
                     return 1;
                 }
@@ -392,7 +426,7 @@ export default new Vuex.Store({
             return state.estado_ruta
         },
         getOrdenarClientes: state => {
-            return state.clientes.sort(function(a, b) {
+            return state.clientes.sort((a, b) => {
                 if (a.data.posicion > b.data.posicion) {
                     return 1;
                 }

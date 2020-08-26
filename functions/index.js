@@ -1,6 +1,7 @@
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
-const util = require('util')
+const util = require('util');
+const { Console } = require('console');
 const cors = require('cors')({ origin: true });
 
 
@@ -355,6 +356,66 @@ exports.CobradoresClientesUpdate = functions.https.onRequest(async(request, resp
         return response.status(500).send(error);
     }
 });
+
+
+
+
+/**
+ * @function Funcion para actualiza los clientes de los cobradores.
+ */
+exports.CobradoresGuardarListaDia = functions.https.onRequest(async(request, response, body) => {
+    response.set('Access-Control-Allow-Origin', '*');
+    response.set('Access-Control-Allow-Credentials', 'true'); // vital
+    response.set('Access-Control-Allow-Methods', 'GET', 'POST', 'PUT', 'DELETE', 'OPTIONS');
+    response.set('Access-Control-Allow-Headers', 'Content-Type');
+    response.set('Access-Control-Allow-Headers', 'Content-Length,Content-Range');
+    response.set('Access-Control-Allow-Headers', 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization');
+    try {
+        await db.collection('usuarios').doc(request.query.idadmin).collection('empresas').doc(request.query.id_empresa).collection('cobradores').doc(request.query.doc).collection('lista_jornada_dia').add(request.body).then((resp) => {
+            return response.status(200).send({ mensaje: 'Lista guardada', id: resp.id });
+        });
+    } catch (error) {
+        return response.status(500).send(error);
+    }
+});
+
+/**
+ * @function Funcion para actualiza los clientes de los cobradores.
+ */
+exports.CobradoresConsultarLista = functions.https.onRequest(async(request, response, body) => {
+    response.set('Access-Control-Allow-Origin', '*');
+    response.set('Access-Control-Allow-Credentials', 'true'); // vital
+    response.set('Access-Control-Allow-Methods', 'GET', 'POST', 'PUT', 'DELETE', 'OPTIONS');
+    response.set('Access-Control-Allow-Headers', 'Content-Type');
+    response.set('Access-Control-Allow-Headers', 'Content-Length,Content-Range');
+    response.set('Access-Control-Allow-Headers', 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization');
+    try {
+        let datasubcolltion = []
+        await db.collection('usuarios').doc(request.query.idadmin).collection('empresas').doc(request.query.id_empresa).collection('cobradores').doc(request.query.doc).collection('lista_jornada_dia').doc(request.query.subdoc).get()
+            .then(doc => {
+                // snapshot.forEach(doc => {
+                //     let id = doc.id;
+                //     let datadocument = doc.data();
+                //     datadocument.id = id;
+                //     datasubcolltion.push(datadocument);
+
+
+
+                // });
+
+
+
+                return response.status(200).send(doc.data());
+            })
+
+        // await db.collection('usuarios').doc(request.query.idadmin).collection('empresas').doc(request.query.id_empresa).collection('cobradores').doc(request.query.doc).collection('lista_jornada_dia').add(request.body).then(() => {
+        //     return response.status(200).send({ mensaje: 'Lista guardada' });
+        // });
+    } catch (error) {
+        return response.status(500).send(error);
+    }
+});
+
 
 /**
  * @function Funcion para buscar el cliente del cobrador.

@@ -99,7 +99,7 @@
         maxlength=10
         minlength=7
         pattern="[0-9]{7,10}"
-        error-message="Solo numeros y minimo 7 maximo 10 caracteres "
+        error-message="Solo numeros (7-10) caracteres"
         :error-message-force="false"
         :onValidate=onValidatedInput
         @input="form.usuario.telefono=$event.target.value"
@@ -166,7 +166,7 @@
         maxlength=10
         minlength=7
         pattern="[0-9]{7,10}"
-        error-message="Solo numeros y minimo 7 maximo 10 caracteres "
+        error-message="Solo numeros (7-10) caracteres"
         :onValidate=onValidatedInput
         @input="form.negocio.telefono=$event.target.value"
       ></f7-list-input>
@@ -370,13 +370,18 @@ export default {
                 },
                 prestamos:new Array(),
                 cobros:new Array(),
-                geolocalizacion:{}
+                geolocalizacion:{},
+                 estado_pago_prestamo:{
+                pago:false,
+                nopago:false,
+                pendiente:false
+              },
             },
             lat:'',
             log:'',
             mensajeErrorGelocalizacion:'',
             geoHabilitado:false,
-            error_form:'',
+            error_form:''
             
         }
     },
@@ -494,8 +499,7 @@ export default {
             break;
         }
 
-        const self = this;
-        self.$f7.dialog.alert(this.mensajeErrorGelocalizacion,'Importante');
+        this.$f7.dialog.alert(this.mensajeErrorGelocalizacion,'Importante');
        },
        onSuccessGeolocalizacion(position){
          this.geoHabilitado=false;
