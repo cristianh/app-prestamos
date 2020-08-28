@@ -126,16 +126,14 @@ export default {
       updateValorZona(Transaccion){
           let zona= localStorage.getItem("zona");
           let empresa= localStorage.getItem("empresa");
-          console.log(this.idad);
+       
           // Get a new write batch
           var batch = db.batch();
           console.log(Transaccion.data.envia=="Empresa");
     if(Transaccion.data.envia=="Empresa"){
           // Update the population of 'SF'
-          console.log(this.idad);
-          console.log(empresa);
-          console.log(zona);
-          var sfRef = db.collection("usuarios").doc(this.idad).collection("empresas").doc(empresa).collection('Zonas').doc(zona);
+          
+          var sfRef = db.collection("usuarios").doc(localStorage.getItem("iad")).collection("empresas").doc(empresa).collection('Zonas').doc(zona);
           batch.update(sfRef, {"balance": this.balance_zona});
 
 
@@ -144,14 +142,14 @@ export default {
           batch.commit().then( () =>{
               console.log(Transaccion);
               
-              this.transacccionservice.guardarHistorialTransaccion(this.idad,this.id_empresa,Transaccion.data).then(()=>{
+              this.transacccionservice.guardarHistorialTransaccion(localStorage.getItem("iad"),this.id_empresa,Transaccion.data).then(()=>{
               this.$store.commit('setEliminarDatoTransferencia',Transaccion.id);  
               this.$f7.dialog.close();
               this.$f7.dialog.alert('Nuevo saldo '+Number(this.balance_zona).toLocaleString('es-CO',{style: 'currency',currency: 'COP',minimumSignificantDigits:1}),'Saldo actualizado!',()=>{
               
               // this.transacccionservice.eliminarTransaccionEmpresaZona(this.idad,empresa,zona,Transaccion.id)
               // db.collection('usuarios').doc(this.idad).collection('empresas').doc(empresa).collection('Zonas').doc(zona).collection('Transferencias').doc(Transaccion.id).delete()
-               this.transacccionservice.eliminarTransaccionEmpresaZona(this.idad,empresa,zona,Transaccion.id).then(()=>{
+               this.transacccionservice.eliminarTransaccionEmpresaZona(localStorage.getItem("iad"),empresa,zona,Transaccion.id).then(()=>{
                 
               });
 
@@ -159,7 +157,7 @@ export default {
               });
           });
     }else {
-        var sfRef = db.collection("usuarios").doc(this.idad).collection("empresas").doc(empresa).collection('Zonas').doc(zona);
+        var sfRef = db.collection("usuarios").doc(localStorage.getItem("iad")).collection("empresas").doc(empresa).collection('Zonas').doc(zona);
           batch.update(sfRef, {"balance": this.balance_zona});
 
 
@@ -168,7 +166,7 @@ export default {
           batch.commit().then( () =>{
               console.log(Transaccion);
               
-              this.transacccionservice.guardarHistorialTransaccion(this.idad,this.id_empresa,Transaccion.data).then(()=>{
+              this.transacccionservice.guardarHistorialTransaccion(localStorage.getItem("iad"),this.id_empresa,Transaccion.data).then(()=>{
               this.$store.commit('setEliminarDatoTransferencia',Transaccion.id);
                
               this.$f7.dialog.close();
@@ -178,7 +176,7 @@ export default {
              console.log(Transaccion.id);
               // this.transacccionservice.eliminarTransaccionEmpresa(this.idad,empresa,Transaccion.id).
               // db.collection('usuarios').doc(this.idad).collection('empresas').doc(empresa).collection('Transferencias').doc(Transaccion.id).delete()
-              this.transacccionservice.eliminarTransaccionEmpresa(this.idad,empresa,Transaccion.id).then(()=>{
+              this.transacccionservice.eliminarTransaccionEmpresa(localStorage.getItem("iad"),empresa,Transaccion.id).then(()=>{
                 
               });
             

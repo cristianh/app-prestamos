@@ -1,24 +1,22 @@
 <template>
   <f7-page name="ClientesDetalles">
     <f7-navbar title="Usuario" back-link="Back"></f7-navbar>
-    <!-- <f7-block-title>Usuario id: {{id}}</f7-block-title> -->
+    
     <f7-card>
       <f7-row>
       <f7-col>
-        <!-- {{[0]}} -->
+  
       <f7-button fill large small popup-open=".demo-popup" color="green">EDITAR</f7-button>
     </f7-col>
       </f7-row>
     </f7-card>
-  <!-- <pre>{{clientes_info}}</pre> -->
+  
     <f7-block strong>
       <f7-block-title >Usuario</f7-block-title>
       <f7-list>
       <f7-list-item v-for="(usuario,index,keyus) in clientes_info.usuario" :id="index" :key="keyus">
         <span>{{index.replace('_',' ') | capitalize}}:</span>{{usuario}}
-        <!-- {{keyus}} -->
-        <!-- {{index}}
-        {{keyus}} -->
+       
       </f7-list-item>
       </f7-list>
     </f7-block>

@@ -215,7 +215,7 @@ export default {
         }
     },
     beforeMount() {
-        localStorage.setItem("total_prestado",0)
+        // localStorage.setItem("total_prestado",0)
         this.idad = localStorage.getItem("iad")
         const self = this;
 
@@ -260,6 +260,7 @@ export default {
                 localStorage.setItem("zona", buscarZonaCobrador[0].id);
                 this.$store.commit('setBalanceZona', buscarZonaCobrador[0].balance);
                 localStorage.setItem("saldo_zona", buscarZonaCobrador[0].balance);
+                localStorage.setItem("saldo_inicial_zona", buscarZonaCobrador[0].balance);
                 this.balance_zona = this.$store.getters.getBalance;
                
                 }

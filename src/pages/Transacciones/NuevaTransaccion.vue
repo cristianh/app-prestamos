@@ -535,6 +535,7 @@ batch.commit().then( () =>{
       .onSnapshot((snapshot)=> {
         
        console.log( snapshot.docChanges());
+       if(!snapshot.empty){
 
    if(snapshot.docChanges().length>=1){
     //  this.$f7.dialog.alert('Tiene una nueva transferencia de zona!','Atencion!');
@@ -562,6 +563,7 @@ batch.commit().then( () =>{
                 console.log("Removed city: ", change.doc.data());
             }
         });
+       }
     });
       },
 

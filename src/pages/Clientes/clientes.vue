@@ -527,8 +527,14 @@ batch.commit().then( ()=> {
           localStorage.setItem("saldo_zona", descuentosaldozona);
           this.balance_zona= localStorage.getItem("saldo_zona");
           this.$store.commit('setBalanceZona',Number(descuentosaldozona));
-          this.total_prestado=Number(this.total_prestado)+Number(this.info_prestamo.valor)
-          localStorage.setItem("total_prestado",this.total_prestado);
+          if(localStorage.getItem("total_prestado")){
+            this.total_prestado=Number(this.total_prestado)+Number(this.info_prestamo.valor)+Number(localStorage.getItem("total_prestado"))
+            localStorage.setItem("total_prestado",this.total_prestado);
+          }else{
+            this.total_prestado=Number(this.total_prestado)+Number(this.info_prestamo.valor)
+            localStorage.setItem("total_prestado",this.total_prestado);
+          }
+          
           let elemento = this.clientes.findIndex(x=>x.data.id==this.cliente_seleccionado);
           if(this.clientes[elemento].data.hasOwnProperty('prestamos')){
           this.clientes[elemento].data.prestamos.push(this.info_prestamo);
