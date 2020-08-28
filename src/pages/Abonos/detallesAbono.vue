@@ -269,6 +269,7 @@ import CobradorService from '../Services/CobradoresServices.js';
             estadopagoruta:3
           };
       this.$store.commit('setEstadoPendiente',data);
+      
       this.$f7router.back();
   },
   onCobroListaPendiente(){
@@ -325,7 +326,7 @@ import CobradorService from '../Services/CobradoresServices.js';
         //  elemento.estado_pago_prestamo.pendiente=false
        
         this.$store.commit('setCatidad_cobrosenofectivosJornada');
-        elemento.prestamos[0].saldo_pendiente=Number(elemento.prestamos[0].saldo_pendiente)+Number(this.saldo_a_pagar)+Number(this.informacion_pago.valor_pago);
+        elemento.prestamos[0].saldo_pendiente=Number(elemento.prestamos[0].saldo_pendiente)-Number(this.saldo_a_pagar)-Number(this.informacion_pago.valor_pago);
         elemento.prestamos[0].dias_con_mora=Number(elemento.prestamos[0].dias_con_mora)+1;
         // elemento.prestamos[0].dias_con_mora=Number(elemento.prestamos[0].dias_con_mora)+1
         // console.log(elemento.prestamos[0].dias_con_mora);

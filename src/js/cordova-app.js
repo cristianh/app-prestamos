@@ -149,19 +149,10 @@ var cordovaApp = {
     },
     closeApp: function() {
         // alert(JSON.stringify(window.navigator.app));
-        window.navigator.app.exitApp();
-        // if (navigator.app) {
-        //     navigator.app.exitApp();
-        //     alert('app exit');
-        // } else if (navigator.device) {
-        //     navigator.app.exitApp();
-        //     navigator.device.exitApp();
-        //     window.navigator.close();
-        //     alert('device exit');
-        // } else {
-
-        //     // navigator.app;
-        // }
+        // window.navigator.app.exitApp();
+        console.log(window.navigator.app.exitApp());
+        console.log(window.cordova);
+        alert(cordova.plugins);
     }
 };
 

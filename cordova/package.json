@@ -22,7 +22,8 @@
     "cordova-plugin-splashscreen": "^5.0.4",
     "cordova-plugin-statusbar": "^2.4.3",
     "cordova-plugin-wkwebview-engine": "^1.2.1",
-    "cordova-plugin-wkwebview-file-xhr": "^2.1.4"
+    "cordova-plugin-wkwebview-file-xhr": "^2.1.4",
+    "cordova.plugins.diagnostic": "^6.0.2"
   },
   "cordova": {
     "plugins": {
@@ -33,7 +34,10 @@
       "cordova-plugin-whitelist": {},
       "kr.co.joycorp.cordova.exitapp": {},
       "cordova-plugin-geolocation": {},
-      "cordova-plugin-app-exit": {}
+      "cordova-plugin-app-exit": {},
+      "cordova.plugins.diagnostic": {
+        "ANDROIDX_VERSION": "1.+"
+      }
     },
     "platforms": [
       "ios",

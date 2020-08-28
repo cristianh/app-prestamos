@@ -1,5 +1,8 @@
 import Vue from "vue";
 import Vuex from "vuex";
+import createPersistedState from 'vuex-persistedstate';
+
+//   plugins: [createPersistedState()],
 
 Vue.use(Vuex);
 
@@ -109,12 +112,11 @@ export default new Vuex.Store({
         },
         setCatidad_cobrosefectivosJornada(state) {
             state.jornada_cobrador.catidad_cobrosefectivos++;
+            localStorage.setItem('cobros_efectivos', state.jornada_cobrador.catidad_cobrosefectivos)
         },
         setCatidad_cobrosenofectivosJornada(state) {
             state.jornada_cobrador.catidad_cobrosenofectivos++;
-        },
-        setNumero_cobros_pendientesJornada(state) {
-            state.jornada_cobrador.numero_cobros_pendientes++;
+            localStorage.setItem('cobros_nofectivos', state.jornada_cobrador.catidad_cobrosenofectivos)
         },
         setQuitar_cobros_pendientesJornada(state) {
             if (state.jornada_cobrador.numero_cobros_pendientes != 0) {
@@ -126,6 +128,7 @@ export default new Vuex.Store({
         },
         setTotalCobros(state, numeroCobros) {
             state.jornada_cobrador.total_cobros_realizados = numeroCobros;
+            localStorage.setItem('total_cobros_realizados', state.jornada_cobrador.total_cobros_realizados)
         },
         addTasaseInteres(state, tazas) {
             state.tasaseinteres.unshift(tazas)
@@ -210,8 +213,7 @@ export default new Vuex.Store({
 
         },
         setEstadoPrestamoEstadoRuta(state, idClientePrestamo) {
-            console.log(",.,.,.", typeof(idClientePrestamo))
-            console.log(state.clientes_cobros)
+
             let posicion = state.clientes_cobros.findIndex(x => x.data.id == idClientePrestamo);
             if (posicion != -1) {
                 state.clientes_cobros[posicion].data.activo = false;
@@ -229,18 +231,19 @@ export default new Vuex.Store({
         },
         setEstadoPendiente(state, data) {
             let posicion = state.clientes_cobros.findIndex(x => x.data.id == data.id);
-
-
             state.estados_prestamos_ruta[posicion].estado = data.estadopagoruta;
+
         },
         setEstadoDiasMora(state, data) {
             let posicion = state.clientes_cobros.findIndex(x => x.data.id == data.id);
-            state.clientes_cobros[posicion].data.dias_con_mora = data.dias_mora;
+            // alert(posicion)
+            state.clientes_cobros[posicion].data.prestamos[0].dias_con_mora = data.dias_mora;
         },
         cobroClientePendiente(state, clientePendiente) {
             state.cobros_pendientes.unshift(clientePendiente.cliente);
 
             state.jornada_cobrador.numero_cobros_pendientes++;
+            localStorage.setItem('cobro_pendiente', state.jornada_cobrador.numero_cobros_pendientes)
 
 
 
@@ -313,45 +316,69 @@ export default new Vuex.Store({
             let total_apagar = 0;
             let pago = 0;
 
+            let estados = JSON.parse(localStorage.getItem('ListaEstadosCobro'))
+            console.log(typeof(estados))
+            let posicion = null
+
             state.clientes_cobros.forEach(elementP => {
-                valor_prestamo = elementP.data.prestamos[0].total_apagar;
-                taza_seleccionada_interes;
-                switch (elementP.data.prestamos[0].plan_seleccionado) {
-                    case "10":
-                        taza_seleccionada_interes = 0.10
-                        break
-                    case "15":
-                        taza_seleccionada_interes = 0.15
-                        break
-                    case "20":
-                        taza_seleccionada_interes = 0.20
-                        break
-                }
+                posicion = state.clientes_cobros.findIndex(x => x.data.id == elementP.data.id)
+                console.log((estados[posicion].estado))
+                    // console.log(posicion)
+                if (estados[posicion].estado == 1) {
 
-                plazo_dias = Number(elementP.data.prestamos[0].dias_plazo) + Number(elementP.data.prestamos[0].dias_con_mora)
+                    state.saldo_pago_dia[posicion] = 0;
 
-                total_apagar = (Number(valor_prestamo) * taza_seleccionada_interes) + Number(valor_prestamo);
-                console.log(total_apagar);
 
-                if (Number(plazo_dias) <= 0) {
-                    pago = 0;
+
                 } else {
+                    valor_prestamo = elementP.data.prestamos[0].total_apagar;
+                    taza_seleccionada_interes;
+                    switch (elementP.data.prestamos[0].plan_seleccionado) {
+                        case "10":
+                            taza_seleccionada_interes = 0.10
+                            break
+                        case "15":
+                            taza_seleccionada_interes = 0.15
+                            break
+                        case "20":
+                            taza_seleccionada_interes = 0.20
+                            break
+                    }
 
-                }
+                    plazo_dias = Number(elementP.data.prestamos[0].dias_plazo) + Number(elementP.data.prestamos[0].dias_con_mora)
 
-                pago = Math.round(Number(total_apagar) / Number(plazo_dias));
-                if (elementP.data.prestamos[0].saldo_pendiente > 0) {
-                    pago = Number(elementP.data.prestamos[0].saldo_pendiente) + Number(pago);
+                    total_apagar = (Number(valor_prestamo) * taza_seleccionada_interes) + Number(valor_prestamo);
+                    console.log(total_apagar);
+
+                    if (Number(plazo_dias) <= 0) {
+                        pago = 0;
+                    } else {
+
+                    }
+
+                    pago = Math.round(Number(total_apagar) / Number(plazo_dias));
+                    if (elementP.data.prestamos[0].saldo_pendiente > 0) {
+                        pago = Number(elementP.data.prestamos[0].saldo_pendiente) + Number(pago);
+                    }
+                    state.saldo_pago_dia.push(pago);
                 }
-                state.saldo_pago_dia.push(pago);
 
             });
+            // }
+
+
+
             return state.saldo_pago_dia;
         },
         getBalanceFinalZona: state => {
             return state.jornada_cobrador.balance_final
         },
         getCobrosTotalCobrado: state => {
+
+            return state.jornada_cobrador.total_cobros_realizados;
+
+        },
+        getCobrosNoralizados: state => {
             return state.jornada_cobrador.total_cobros_realizados;
         },
         getCobrosPendientes: state => {

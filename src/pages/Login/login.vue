@@ -12,14 +12,14 @@
       <f7-list-input
         label="Username"
         type="text"
-        placeholder="Your username"
+        placeholder="username"
         :value="username"
         @input="username = $event.target.value"
       ></f7-list-input>
       <f7-list-input
         label="Password"
         type="password"
-        placeholder="Your password"
+        placeholder="password"
         :value="password"
         @input="password = $event.target.value"
       ></f7-list-input>
@@ -136,8 +136,12 @@
         // app.dialog.alert(`Username: ${self.username}<br>Password: ${self.password}`, () => {
         //   router.back();
         // });
+      
+        this.$f7.dialog.preloader('Ingresando...');
+        
             firebase.auth().signInWithEmailAndPassword(this.username, this.password).then((response)=> {
             console.log(response);
+             this.$f7.dialog.close();
             const username = response.user;
             const id= response.user.displayName.split("-");
             localStorage.setItem("uid", id[1]);
@@ -159,6 +163,14 @@
            
             // ...
             }).catch((error)=> {
+              this.$f7.dialog.close();
+
+            localStorage.removeItem("uid");
+            localStorage.removeItem("email");
+            localStorage.removeItem("name");
+            localStorage.removeItem("iad");
+            localStorage.removeItem("empresa");
+            localStorage.removeItem("lastactivity");
             // Handle Errors here.
              
             // var errorCode = error.code;

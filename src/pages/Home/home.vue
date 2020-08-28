@@ -300,7 +300,27 @@ export default {
                                 estadoListaCobro.unshift({estado:0,id:element.data.id})
                                 
                                 }else{
+                                     if(localStorage.getItem('cobro_pendiente')){
+                                         
+                                         this.$store.state.jornada_cobrador.numero_cobros_pendientes=Number(localStorage.getItem('cobro_pendiente'))
+                                           
+            // catidad_cobrosenofectivos: 0,
+            
+                                     }
+                                     if(localStorage.getItem('cobros_efectivos')){
+                                        this.$store.state.jornada_cobrador.catidad_cobrosefectivos=Number(localStorage.getItem('cobros_efectivos'))
+                                     }
                                     
+                                     if(localStorage.getItem('cobros_nofectivos')){
+                                        this.$store.state.jornada_cobrador.catidad_cobrosenofectivos=Number(localStorage.getItem('cobros_nofectivos'))
+                                     }
+
+                                     if(localStorage.getItem('total_cobros_realizados')){
+                                         this.$store.state.jornada_cobrador.total_cobros_realizados=Number(localStorage.getItem('total_cobros_realizados'))
+                                     }
+
+                                      
+                                    // localStorage.removeItem('cobros_nofectivos')
                                     
                                 }
                             }

@@ -32,37 +32,86 @@
     </f7-col>
     </f7-row>
   </f7-list>
+ 
      <div v-if="!this.isComienzoRuta" > 
          <f7-block  inset>
             <f7-row>
             <f7-col lg="12" md="12">
-                <f7-button fill  :disabled="ruta_terminada" @click="onGenerarListaJornadaPago">Comenzar<f7-icon material="swap_vert"></f7-icon></f7-button>
+                <f7-button fill  :disabled="btn_comenzar_ruta" @click="onGenerarListaJornadaPago">Comenzar<f7-icon material="swap_vert"></f7-icon></f7-button>
             </f7-col>
             </f7-row>
             </f7-block>
-             <f7-block>
+            
                <div v-if="estado_lista_prestamos_clientes"> <f7-card>
           <f7-card-content>
-            <f7-card>
-          <f7-card-content>
-          Cobros realizados hoy: {{getCantidadCobrosEfectivos}}<br>
-          Cobros no realizados hoy: {{getCantidadCobrosNoRealizados}}<br>
-          Cobros Pendientes: {{getCatidadCobrosPendientes}}<br>
+           <!-- Final:{{getBalanceFinal}}
+           Realizados hoy p:{{getPrestamosRealiozadoshoy}}
+           Total cobros:{{getTotalCobros}} -->
+          Cobros pagos: {{getCantidadCobrosEfectivos}}<br>
+          Cobros no pagos: {{getCantidadCobrosNoRealizados}}<br>
+          <!-- Cobros pendientes: {{getCatidadCobrosPendientes}}<br> -->
           Balance inicial de la zona: {{this.balance_zona|currency}}<br>
-          Total Prestado hoy: {{getPrestamosRealiozadoshoy|currency}}<br>
-          Balance final de la zona: {{getBalanceFinal|currency}}<br>
-          Total dinero recogido hoy: {{getTotalCobros|currency}}
-          </f7-card-content>
+          Total Prestado: {{getPrestamosRealiozadoshoy|currency}}<br>
+          Balance final de la zona: {{getBalanceFinal!=0?Number(getBalanceFinal)+Number(getPrestamosRealiozadoshoy):Number(this.balance_zona)-Number(getPrestamosRealiozadoshoy)|currency}}<br>
+          Total dinero recogido: {{getTotalCobros|currency}} 
+          <!-- <f7-block>
+         <table border="1">
+          <tr>
+            <th>
+            Cobros pagos
+            </th>
+             <th>
+            Cobros no pagos
+            </th>
+             <th>
+            Balance inicial de la zona
+            </th>
+             <th>
+               Total Prestado
+            </th>
+             <th>
+              Balance final de la zona
+            </th>
+             <th>
+             Total dinero recogido
+            </th>
+            <tr>
+           <tr>
+            <td>
+              {{getCantidadCobrosEfectivos}}
+              </td>
+              <td>
+                {{getCantidadCobrosNoRealizados}}
+              </td>
+              <td>
+                {{this.balance_zona|currency}}
+                </td>
+                <td>
+                  {{getPrestamosRealiozadoshoy|currency}}
+                  </td>
+                <td>
+                  {{getBalanceFinal!=0?Number(getBalanceFinal)+Number(getPrestamosRealiozadoshoy)+Number(getTotalCobros):Number(this.balance_zona)-Number(getPrestamosRealiozadoshoy)|currency}}
+                  </td>
+                  <td>
+                    {{getTotalCobros|currency}}
+                    </td>
+            </tr>
+          
+         </table>
+         <br>
+          </f7-block> -->
+    
           <f7-row v-if="!ruta_terminada">
           <f7-col md="12">
               <f7-list >
                 <f7-list-input
               outline
               floating-label
-              label="Dinero fisico"
+              label="Dinero recogido hoy"
               type="text"
-              placeholder="Por favor ingrese el saldo."
+              placeholder="Por favor ingrese el dinero recogido hoy."
               required
+              :value=jornada_cobrador.balance_final_manual
               validate
               pattern="[0-9.]*"
               error-message="Solo numeros"
@@ -84,10 +133,10 @@
           </f7-col>
           
         </f7-row>
-        </f7-card>
-          </f7-card-content>
+          
+           </f7-card-content>
          </f7-card></div>
-             </f7-block>
+             
      </div>
       <div v-else>
           <!-- {{getTodosClientesPrestamo}} -->
@@ -130,7 +179,7 @@
         :id=cliente.data.id
         :key=key
         :title="`${cliente.data.usuario.nombre}-${cliente.data.usuario.apellido}`" 
-        :footer="`${calculoTotalPagoHoy[index]!=undefined ? calculoTotalPagoHoy[index]==0?'Pagado':'Saldo pago hoy: '+Number(calculoTotalPagoHoy[index]).toLocaleString('es-CO',{style: 'currency',currency: 'COP',minimumSignificantDigits:1}):'NA'}`"  
+        :footer="`${calculoTotalPagoHoy[index]!=undefined ? calculoTotalPagoHoy[index]==0?'Pago':'Saldo a pagar: '+Number(calculoTotalPagoHoy[index]).toLocaleString('es-CO',{style: 'currency',currency: 'COP',minimumSignificantDigits:1}):'NA'}`"  
         @click="onClickClientePaginaDetalles(cliente.data.id,calculoTotalPagoHoy[index])"
         >
         <f7-swipeout-actions right>
@@ -144,7 +193,7 @@
          {{cliente.data.prestamos[0].estado_pago_prestamo.pago}}
          {{cliente.data.prestamos[0].estado_pago_prestamo.nopago}}
          {{cliente.data.prestamos[0].estado_pago_prestamo.pendiente}} -->
- 
+        <!-- {{Number(cliente.data.prestamos[0].dias_con_mora)}} -->
         </f7-list-item>
         </f7-list>
         </f7-block>
@@ -207,15 +256,23 @@
 import AbonoService from '../Services/AbonoServices.js';
 import CobradorService from '../Services/CobradoresServices.js';
 import ClientesService from '../Services/ClientesService.js';
+import DataTable from 'primevue/datatable';
+import Column from 'primevue/column';
+import ciudadesData from '@/pages/Ciudades/Ciudades.js'
 
 
 export default {
+  components:{
+    DataTable,
+    Column
+  },
   data() {
     return {
       lista_prestamos:[],
       lista_cobros_realizados:[],
       busqueda:'',
     // estado_peniente:false,
+    btn_comenzar_ruta:false,
     btn_ruta_terminada:false,
     ruta_terminada:false,
     sheetOpened: false,
@@ -283,6 +340,7 @@ export default {
               // element.estado==1
               // setAumentaContadorClientesListaPrestamos
               this.$store.commit('setAumentaContadorClientesListaPrestamos');
+
             }
 
             
@@ -321,13 +379,14 @@ export default {
       return localStorage.getItem("total_prestado")
     },
     getTotalCobros(){
-     return this.$store.getters.getCobrosTotalCobrado
+    //  return localStorage.getItem("total_cobros_realizados")
+      return this.$store.getters.getCobrosTotalCobrado  
     },
     getCantidadCobrosNoRealizados(){
-      return Number(this.$store.getters.getClientesListaPrestamo.length)-Number(this.$store.getters.getCobrosEfectivos)
+     return this.$store.getters.getCobrosNoEfectivos   
     },
     getCatidadCobrosPendientes(){
-      return this.$store.getters.getCobrosPendientes
+     return this.$store.getters.getCobrosPendientes   
     },
     getCantidadCobrosEfectivos(){
       return this.$store.getters.getCobrosEfectivos
@@ -420,22 +479,32 @@ export default {
       
     },
     onConfirmarJornada(){
-      if(Number(this.jornada_cobrador.balance_final_manual.split('.').join(''))==Number(this.$store.getters.getCobrosTotalCobrado)){
-          let guardando= this.$f7.dialog.preloader('Guardando...');
-       let ui_cobrador=localStorage.getItem("uid");
+      
+      console.log("verificamos",Number(this.jornada_cobrador.balance_final_manual.split('.').join(''))==Number(this.$store.getters.getCobrosTotalCobrado));
+      if(this.jornada_cobrador.balance_final_manual==""){
+        this.$f7.dialog.alert('Debe ingresar el saldo recogido!','Atencion');
+      }
+      else if(Number(this.jornada_cobrador.balance_final_manual.split('.').join(''))==Number(this.$store.getters.getCobrosTotalCobrado)){
+      
+      let guardando= this.$f7.dialog.preloader('Guardando...');
+      let ui_cobrador=localStorage.getItem("uid");
       let id_admin=localStorage.getItem("iad");
       let id_jornadacobrador=localStorage.getItem("idjornadacobrador");
       let id_empresa=localStorage.getItem("empresa");
       this.jornada_cobrador.balance_final=localStorage.getItem("saldo_zona");
+          
+
+      this.jornada_cobrador.balance_final_manual=0
       this.corbradorService.actualizarJornadaCobrador(id_admin,id_empresa,ui_cobrador,id_jornadacobrador,this.jornada_cobrador).then(response =>{
                 this.$f7.dialog.close();
               this.$f7.dialog.alert('Jornada cerrada correctamente!','Correcto',()=>{
                 setTimeout(()=>{
                   this.ruta_terminada=true
+                  
                   // this.$f7.sheet.close('.mensaje_final-sheet');
                   this.$f7.dialog.close();
                   // guardando.close();
-                },2000)
+                },1200)
               });
              }).catch(error =>{
                 console.log(error);
@@ -452,12 +521,13 @@ export default {
         console.log(this.$store.getters.getCobrosPendientes);
         let numero_de_clientes_prestamo=this.$store.getters.getContadorClientesPrestamo;
         let numero_de_clientes_prestamos_realizados=this.$store.getters.getContadorListaClientesPrestamo;
-        if(numero_de_clientes_prestamos_realizados!=numero_de_clientes_prestamo){
-            app.dialog.confirm('Aun quedan cobros por realizar','Atencion!');
-        }
-        else if(this.$store.getters.getCobrosPendientes>0){
+        if(this.$store.getters.getCobrosPendientes>0){
           app.dialog.confirm('Hay cobros pendientes','Atencion');
          
+        }
+        
+        else if(numero_de_clientes_prestamos_realizados!=numero_de_clientes_prestamo){
+            app.dialog.confirm('Aun quedan cobros por realizar','Atencion!');
         }
         else{
            app.dialog.confirm('Seguro desea terminar la ruta!','Terminar ruta', () => {
@@ -470,11 +540,18 @@ export default {
           this.$store.commit('setEstadoRuta',false);
 
           this.isComienzoRuta=false;
+          this.ruta_terminada=false;
+          this.btn_comenzar_ruta=true;
           this.btn_ruta_terminada=false;
           this.estado_lista_prestamos_clientes=true;
           localStorage.removeItem("listagenerada")
           localStorage.removeItem("listaClientesCobros")
           localStorage.removeItem("ListaEstadosCobro")
+          localStorage.removeItem('cobro_pendiente')
+          localStorage.removeItem('cobros_efectivos')
+          localStorage.removeItem('cobros_nofectivos')
+          localStorage.removeItem('total_cobros_realizados')
+         
           this.$store.state.estados_prestamos_ruta=[]
           // this.$f7.sheet.open('.mensaje_final-sheet');
         
@@ -501,7 +578,7 @@ export default {
                  console.log("................response",response);
                  this.isComienzoRuta=true;
                  this.btn_ruta_terminada=true;
-                 
+                  this.btn_comenzar_ruta=true;
                  localStorage.setItem("idjornadacobrador",response.data.id);
                  this.$store.commit('setEstadoRuta',true);
                  this.$f7.dialog.close();
@@ -534,5 +611,71 @@ export default {
 }
 .normal{
   border:0px
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+th, td {
+  text-align: left;
+  padding: 8px;
+}
+
+tr:nth-child(even){background-color: #f2f2f2}
+
+th {
+  background-color: #4CAF50;
+  color: white;
+}
+
+@media screen and (max-width: 600px) {
+  table {
+    border: 0;
+  }
+
+  table caption {
+    font-size: 1.3em;
+  }
+  
+  table thead {
+    border: none;
+    clip: rect(0 0 0 0);
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    padding: 0;
+    position: absolute;
+    width: 1px;
+  }
+  
+  table tr {
+    border-bottom: 3px solid #ddd;
+    display: block;
+    margin-bottom: .625em;
+  }
+  
+  table td {
+    border-bottom: 1px solid #ddd;
+    display: block;
+    font-size: .8em;
+    text-align: right;
+  }
+  
+  table td::before {
+    /*
+    * aria-label has no advantage, it won't be read inside a table
+    content: attr(aria-label);
+    */
+    content: attr(data-label);
+    float: left;
+    font-weight: bold;
+    text-transform: uppercase;
+  }
+  
+  table td:last-child {
+    border-bottom: 0;
+  }
 }
 </style>

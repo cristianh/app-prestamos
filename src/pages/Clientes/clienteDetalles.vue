@@ -1,7 +1,7 @@
 <template>
   <f7-page name="ClientesDetalles">
     <f7-navbar title="Usuario" back-link="Back"></f7-navbar>
-    <f7-block-title>Usuario id: {{id}}</f7-block-title>
+    <!-- <f7-block-title>Usuario id: {{id}}</f7-block-title> -->
     <f7-card>
       <f7-row>
       <f7-col>
@@ -46,6 +46,7 @@
         <div v-if="clientes_info.prestamos.dias_plazo!=''">
          <span> Dias de mora: </span>{{prestamos.dias_con_mora}}<br>
          <span> Dias de plazo: </span>{{prestamos.dias_plazo}}<br>
+         <span> Saldo pendiente: </span>{{prestamos.saldo_pendiente}}<br>
          <span>Fecha del prestamo: </span>{{prestamos.fecha}}<br>
          <span>Valor del prestamo: </span>{{prestamos.valor|currency}}<br>
          <span>Total a pagar: </span>{{prestamos.total_apagar|currency}}<br>
@@ -498,10 +499,16 @@ import ClientesService from '../Services/ClientesService.js';
               this.clientes_info.codeudor.ciudad=this.form.codeudor.ciudad
               this.clientes_info.codeudor.telefono2=this.form.codeudor.telefono2
               this.clientes_info.codeudor.telefono1= this.form.codeudor.telefono1
-              if(this.clientes_info.geolocalizacion){
+              if(this.clientes_info.hasOwnProperty('geolocalizacion')){
               //Geolocalizacion
+              
               this.clientes_info.geolocalizacion.lng= this.form.geolocalizacion.lng
               this.clientes_info.geolocalizacion.lat= this.form.geolocalizacion.lat
+              }else{
+                this.clientes_info.geolocalizacion={
+                  lng:this.form.geolocalizacion.lng,
+                  lat:this.form.geolocalizacion.lat
+              }
               }
               let nuevaInfo={
                 id:this.id,

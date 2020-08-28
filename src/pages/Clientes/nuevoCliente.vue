@@ -113,7 +113,7 @@
         placeholder="Oficio"
         required
         validate
-        pattern="[A-Za-z]*"
+        pattern="[A-Za-zñÑáéíóúÁÉÍÓÚ\s]*"
         error-message="Solo letras"
         :onValidate=onValidatedInput
         @input="form.usuario.oficio=$event.target.value"
@@ -171,7 +171,7 @@
         @input="form.negocio.telefono=$event.target.value"
       ></f7-list-input>
 
-      <f7-list-input
+      <!-- <f7-list-input
         outline
         floating-label
         label="Ciudad"
@@ -183,7 +183,22 @@
         error-message="Solo letras"
         :onValidate=onValidatedInput
         @input="form.negocio.ciudad=$event.target.value"
-      ></f7-list-input>     
+      ></f7-list-input>      -->
+      <f7-list-input
+                 outline
+        floating-label
+    label="Ciudad"
+    type="select"
+    placeholder="Seleccione..."
+    @change="onSelectCiudad"
+    error-message="Por favor seleccione una ciudad."
+    required
+    validate
+  >
+   <option value="0">Seleccione</option>
+  <option  v-for="(ciudad,index,key) in ciudades"  :key=key :value="`${ciudades[index].value}`">{{ciudades[index].label}}
+  </option>
+       </f7-list-input>
     </f7-list>
     </f7-tab>
     <f7-tab id="Codeudor" >
@@ -283,7 +298,7 @@
   </f7-tabs>
   <f7-block style="text-align:center;color:red;font-size:12px;font-family:Roboto" v-if="error_form">{{error_form}}</f7-block>
       <f7-block>
-
+<!-- {{form.negocio.ciudad}} -->
   <f7-row>
     
     <f7-col>
@@ -301,6 +316,7 @@
   </f7-row>
 
 </f7-block>
+ <!-- {{ciudades}} -->
 <f7-block inset>
 <div v-if="cargarGps"> 
   <Message  severity="success"  :sticky="true" :life="1500">Localizacion obtenida</Message>
@@ -326,9 +342,12 @@
           // balance final
           // balance final manual
 import ClientesCobradoresService from '../Services/ClientesService.js';
+import ciudadesData from '@/pages/Ciudades/Ciudades.js'
 export default {
     data() {
         return {
+          ciudades_data:ciudadesData,
+          ciudades:[],
           error_mensaje:'',
           idad:'',
           telefono:'',
@@ -470,8 +489,19 @@ export default {
     beforeMount() {
       this.clientes=this.$store.getters.getClientes;
       this.idad=localStorage.getItem("iad");
+      for (const key in this.ciudades_data[0].ciudades_principales) {
+            if (this.ciudades_data[0].ciudades_principales.hasOwnProperty(key)) {
+                
+                  let element={ value: this.ciudades_data[0].ciudades_principales[key], label: this.ciudades_data[0].ciudades_principales[key]};
+                  this.ciudades.push(element);
+                 
+            }
+        }
     },
     methods:{
+      onSelectCiudad($event){
+        this.form.negocio.ciudad=$event.target.value
+      },
      onValidatedInput(isValid){
       this.validar_campos=!isValid
      },
