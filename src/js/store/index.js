@@ -82,7 +82,7 @@ export default new Vuex.Store({
 
         },
         setAumentaContadorClientesListaPrestamos(state) {
-            state.contadorClientesSeleccionados++;
+            // state.contadorClientesSeleccionados++;
         },
         setDisminuyeContadorClientesListaPrestamos(state) {
             if (state.contadorClientesSeleccionados == 0) {
@@ -119,16 +119,17 @@ export default new Vuex.Store({
             localStorage.setItem('cobros_nofectivos', state.jornada_cobrador.catidad_cobrosenofectivos)
         },
         setQuitar_cobros_pendientesJornada(state) {
-            if (state.jornada_cobrador.numero_cobros_pendientes != 0) {
-                state.jornada_cobrador.numero_cobros_pendientes--;
+            if (state.jornada_cobrador.numero_cobros_pendientes == 0) {
+
             } else {
-                state.jornada_cobrador.numero_cobros_pendientes = 0;
+                state.jornada_cobrador.numero_cobros_pendientes--;
+                localStorage.setItem('cobro_pendiente', Number(state.jornada_cobrador.numero_cobros_pendientes))
             }
 
         },
         setTotalCobros(state, numeroCobros) {
             state.jornada_cobrador.total_cobros_realizados = numeroCobros;
-            localStorage.setItem('total_cobros_realizados', state.jornada_cobrador.total_cobros_realizados)
+            localStorage.setItem('total_cobros', state.jornada_cobrador.total_cobros_realizados)
         },
         addTasaseInteres(state, tazas) {
             state.tasaseinteres.unshift(tazas)
@@ -306,7 +307,7 @@ export default new Vuex.Store({
         getContadorTransacciones: state => {
             return state.contador_transferencias;
         },
-        getContadorListaClientesPrestamo: state => {
+        getContadorListaClientesCobros: state => {
             return state.contadorClientesSeleccionados;
         },
         getSaldoApagarHoy: state => {
@@ -360,7 +361,7 @@ export default new Vuex.Store({
                     if (elementP.data.prestamos[0].saldo_pendiente > 0) {
                         pago = Number(elementP.data.prestamos[0].saldo_pendiente) + Number(pago);
                     }
-                    state.saldo_pago_dia.push(pago);
+                    state.saldo_pago_dia.push(Math.round(pago));
                 }
 
             });
@@ -377,9 +378,6 @@ export default new Vuex.Store({
 
             return state.jornada_cobrador.total_cobros_realizados;
 
-        },
-        getCobrosNoralizados: state => {
-            return state.jornada_cobrador.total_cobros_realizados;
         },
         getCobrosPendientes: state => {
             return state.jornada_cobrador.numero_cobros_pendientes;
@@ -424,6 +422,9 @@ export default new Vuex.Store({
         },
         getContadorClientes: state => {
             return state.clientes.length
+        },
+        getContadorClientesCobros: state => {
+            return state.clientes_cobros.length
         },
         getClientes_lista_Ordenada: state => {
             return state.clientes_lista_ordenada

@@ -304,9 +304,7 @@ export default {
                                      if(localStorage.getItem('cobro_pendiente')){
                                          
                                          this.$store.state.jornada_cobrador.numero_cobros_pendientes=Number(localStorage.getItem('cobro_pendiente'))
-                                           
-            // catidad_cobrosenofectivos: 0,
-            
+                                             
                                      }
                                      if(localStorage.getItem('cobros_efectivos')){
                                         this.$store.state.jornada_cobrador.catidad_cobrosefectivos=Number(localStorage.getItem('cobros_efectivos'))
@@ -316,8 +314,8 @@ export default {
                                         this.$store.state.jornada_cobrador.catidad_cobrosenofectivos=Number(localStorage.getItem('cobros_nofectivos'))
                                      }
 
-                                     if(localStorage.getItem('total_cobros_realizados')){
-                                         this.$store.state.jornada_cobrador.total_cobros_realizados=Number(localStorage.getItem('total_cobros_realizados'))
+                                     if(localStorage.getItem('total_cobros')){
+                                         this.$store.state.jornada_cobrador.total_cobros_realizados=Number(localStorage.getItem('total_cobros'))
                                      }
 
                                       
@@ -336,7 +334,7 @@ export default {
             }else{
                 
             }
-           
+           this.$store.state.contadorClientesSeleccionados= this.$store.state.clientes_cobros.length
            this.$store.commit('setEstadoCobrosLista',JSON.parse(localStorage.getItem('ListaEstadosCobro')))
             self.$f7.dialog.close();
 

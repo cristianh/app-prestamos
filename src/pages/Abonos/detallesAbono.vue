@@ -275,7 +275,7 @@ import CobradorService from '../Services/CobradoresServices.js';
   onCobroListaPendiente(){
       // alert('pendiente');
       let cliente = this.clientes_info;
-      // console.log(cliente);
+      console.log(this.clientes_info);
       this.$store.commit('cobroClientePendiente',cliente);
        this.$f7.dialog.alert('Marcado como pendiente','Correcto');
        let estados=JSON.parse(localStorage.getItem('ListaEstadosCobro'))
@@ -283,7 +283,7 @@ import CobradorService from '../Services/CobradoresServices.js';
        estados[posicion].estado=3
        localStorage.setItem('ListaEstadosCobro',JSON.stringify(estados))
        this.$f7router.back();
-         
+        // this.$store.commit('setDisminuyeContadorClientesListaPrestamos');
       // state.clientes_cobros.splice(posicion, 1);
       //  console.log(cliente);
       // elemento.estado_pago_prestamo.pendiente=true
@@ -364,7 +364,7 @@ import CobradorService from '../Services/CobradoresServices.js';
            this.$store.commit('setQuitar_cobros_pendientesJornada');
            this.$store.commit('setEstadoPrestamoEstadoRuta',this.id);
             this.$f7.dialog.close();
-            this.$store.commit('setAumentaContadorClientesListaPrestamos');
+            this.$store.commit('setDisminuyeContadorClientesListaPrestamos');
             this.$f7router.back();
         });
               
@@ -423,7 +423,7 @@ import CobradorService from '../Services/CobradoresServices.js';
            this.$store.commit('setQuitar_cobros_pendientesJornada');
            this.$store.commit('setEstadoPrestamoEstadoRuta',this.id);
             this.$f7.dialog.close();
-            this.$store.commit('setAumentaContadorClientesListaPrestamos');
+            this.$store.commit('setDisminuyeContadorClientesListaPrestamos');
             this.$f7router.back();
         });
               
@@ -464,9 +464,7 @@ batch.commit().then(function () {
        console.log(posicion);
        estados[posicion].estado= 1
        localStorage.setItem('ListaEstadosCobro',JSON.stringify(estados))
-      // elemento.estado_pago_prestamo.pago=true
-      // elemento.estado_pago_prestamo.nopago=false
-      // elemento.estado_pago_prestamo.pendiente=false
+     
      
 
       //Verificamos que el valor ingresado a pagar no sea mayor al valor del prestamo realizado
@@ -562,8 +560,8 @@ this.clientesService.actualizarClienteCobrador(this.idad,idempresa,ui_cobrador,t
                this.valor_sin_puntos=0;  
                 this.$f7.sheet.close();
           this.$f7.dialog.close();
-          
-          this.$store.commit('setAumentaContadorClientesListaPrestamos');
+          this.$store.commit('setQuitar_cobros_pendientesJornada');
+          this.$store.commit('setDisminuyeContadorClientesListaPrestamos');
           this.clientesService.eliminarPrestamoPago(this.idad,idempresa,ui_cobrador,this.id,elemento).then( (response) =>  {
                 this.$f7router.back();
               });
@@ -624,7 +622,7 @@ this.clientesService.actualizarClienteCobrador(this.idad,idempresa,ui_cobrador,t
                this.valor_sin_puntos=0;  
                 this.$f7.sheet.close();
           this.$f7.dialog.close();
-          this.$store.commit('setAumentaContadorClientesListaPrestamos');
+          this.$store.commit('setDisminuyeContadorClientesListaPrestamos');
           this.updateValor();    
           });
 
@@ -659,7 +657,7 @@ this.clientesService.actualizarClienteCobrador(this.idad,idempresa,ui_cobrador,t
               this.valor_sin_puntos=0;   
                 this.$f7.sheet.close();
               this.$f7.dialog.close();
-              this.$store.commit('setAumentaContadorClientesListaPrestamos');
+              this.$store.commit('setDisminuyeContadorClientesListaPrestamos');
               this.clientesService.eliminarPrestamoPago(this.idad,idempresa,ui_cobrador,this.id,elemento.prestamos[0]).then( (response) =>  {
                 this.$f7router.back();
               });
@@ -716,7 +714,7 @@ this.clientesService.actualizarClienteCobrador(this.idad,idempresa,ui_cobrador,t
               this.valor_sin_puntos=0;   
                 this.$f7.sheet.close();
           this.$f7.dialog.close();
-          this.$store.commit('setAumentaContadorClientesListaPrestamos');
+          this.$store.commit('setDisminuyeContadorClientesListaPrestamos');
           this.updateValor();  
           });
           }

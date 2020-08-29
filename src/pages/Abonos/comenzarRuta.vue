@@ -33,7 +33,7 @@
     </f7-row>
   </f7-list>
  
-     <div v-if="!this.isComienzoRuta" > 
+     <div v-if="isComienzoRuta==false"> 
          <f7-block  inset>
             <f7-row>
             <f7-col lg="12" md="12">
@@ -52,7 +52,7 @@
           <!-- Cobros pendientes: {{getCatidadCobrosPendientes}}<br> -->
           Balance inicial de la zona: {{getBalanceInicial|currency}}<br>
           Total Prestado: {{getPrestamosRealiozadoshoy|currency}}<br>
-          Balance final de la zona: {{Number(getTotalCobros)!=0?Number(getBalanceFinal):Number(getBalanceFinal)-Number(getTotalCobros)|currency}}<br>
+          Balance final de la zona: {{Number(getTotalCobros)+Number(getBalanceInicial)|currency}}<br>
           Total dinero recogido: {{getTotalCobros|currency}} 
           <!-- <f7-block>
          <table border="1">
@@ -109,13 +109,13 @@
               floating-label
               label="Dinero recogido hoy"
               type="text"
+              :value=jornada_cobrador.balance_final_manual
               placeholder="Por favor ingrese el dinero recogido hoy."
               required
-              :value=jornada_cobrador.balance_final_manual
               validate
               pattern="[0-9.]*"
               error-message="Solo numeros"
-              :onValidate=onValidatedInput
+             
                v-currency="{
           locale: 'de-DE',
           currency: null,
@@ -142,7 +142,7 @@
       <div v-else>
           <!-- {{getTodosClientesPrestamo}} -->
        <!-- {{clientes}} -->
-          <div v-if="getTodosClientesPrestamo.length!=0 ">
+          <div v-if="isComienzoRuta==true">
             <!-- <f7-block inset>
               <f7-row>
         <f7-col>
@@ -351,6 +351,8 @@ export default {
     }else{
       // alert("false",localStorage.getItem("listagenerada"))
       this.isComienzoRuta=false;
+      this.estado_lista_prestamos_clientes=false;
+      
     }
     
   },
@@ -454,7 +456,6 @@ export default {
   },
   methods:{
     onValidatedInput(isValid){
-      alert(isValid)
       this.btn_ruta_terminada=!isValid
     },
     onClickClientePaginaDetalles(clienteId,saldoAPagar){
@@ -508,9 +509,11 @@ export default {
               this.$f7.dialog.alert('Jornada cerrada correctamente!','Correcto',()=>{
                 setTimeout(()=>{
                   this.ruta_terminada=true
+                  this.btn_comenzar_ruta=false;
+                  this.isComienzoRuta=false;
                   localStorage.removeItem("listagenerada")
                   localStorage.removeItem("listaClientesCobros")
-                  localStorage.removeItem("ListaEstadosCobro")
+                  // localStorage.removeItem("ListaEstadosCobro")
                   localStorage.removeItem('cobro_pendiente')
                   localStorage.removeItem('cobros_efectivos')
                   localStorage.removeItem('cobros_nofectivos')
@@ -518,7 +521,7 @@ export default {
                   localStorage.removeItem('total_cobros')
                   localStorage.removeItem('total_prestado')
                   localStorage.removeItem("saldo_inicial_zona")
-                  
+                  this.$store.state.estados_prestamos_ruta=[]
                   // this.$f7.sheet.close('.mensaje_final-sheet');
                   this.$f7.dialog.close();
                   // guardando.close();
@@ -534,17 +537,21 @@ export default {
 
     },
     onCerrarRuta(){
+        
+        
        const app = this.$f7;
         // app.dialog.alert(id);
         console.log(this.$store.getters.getCobrosPendientes);
-        let numero_de_clientes_prestamo=this.$store.getters.getContadorClientesPrestamo;
-        let numero_de_clientes_prestamos_realizados=this.$store.getters.getContadorListaClientesPrestamo;
+        let numero_de_clientes_prestamo=this.$store.getters.getContadorClientesCobros;
+        let numero_de_clientes_prestamos_realizados=this.$store.getters.getContadorListaClientesCobros;
+        console.log(numero_de_clientes_prestamo);
+        console.log(numero_de_clientes_prestamos_realizados);
         if(this.$store.getters.getCobrosPendientes>0){
           app.dialog.confirm('Hay cobros pendientes','Atencion');
          
         }
         
-        else if(numero_de_clientes_prestamos_realizados!=numero_de_clientes_prestamo){
+        else if(numero_de_clientes_prestamos_realizados!=0){
             app.dialog.confirm('Aun quedan cobros por realizar','Atencion!');
         }
         else{
@@ -554,17 +561,18 @@ export default {
           this.$store.commit('sethoraFinalJornada',this.$moment(res.datetime).format("hh:mm:ss"));
           this.$store.commit('setfechaFinalJornada',this.$moment(res.datetime).format("MM/DD/YYYY"));
         });
-          
+          localStorage.setItem("listagenerada",false);
           this.$store.commit('setEstadoRuta',false);
-
-          this.isComienzoRuta=false;
+        this.isComienzoRuta=false;
+        this.estado_lista_prestamos_clientes=true;
+          
           this.ruta_terminada=false;
           this.btn_comenzar_ruta=true;
-          // this.btn_ruta_terminada=false;
-          this.estado_lista_prestamos_clientes=true;
+          this.btn_ruta_terminada=false;
+          // this.estado_lista_prestamos_clientes=true;
           
          
-          this.$store.state.estados_prestamos_ruta=[]
+          
           // this.$f7.sheet.open('.mensaje_final-sheet');
         
         });
