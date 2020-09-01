@@ -215,7 +215,39 @@ export default {
         }
     },
     beforeMount() {
-        // localStorage.setItem("total_prestado",0)
+        // console.log(navigator.onLine)
+        if(localStorage.getItem("fecha_lista_generada")){
+         let fecha_lista = this.$moment(localStorage.getItem("fecha_lista_generada")).format('YYYY-MM-DD');
+         let fecha_hoy = this.$moment(new Date()).format('YYYY-MM-DD');
+        //  alert(fecha_hoy>fecha_lista)
+        
+                                        
+                                       
+        
+                                       
+                                    
+                                        if(fecha_hoy>fecha_lista){
+                                                localStorage.removeItem("fecha_lista_generada")
+                                                localStorage.removeItem("Informe_final_ruta")
+                                                localStorage.removeItem("estado_lista_prestamos_clientes")
+                                                localStorage.removeItem("mostrar_resultado_final")
+                                                localStorage.removeItem("jornada_confirmada")
+                                              
+                                        }
+                                        
+        }
+        
+
+        if(!navigator.onLine){
+                    this.$f7.dialog.close()
+                    this.profile_name = 'Bienvenido ' + localStorage.getItem("name") + '.';
+                    this.lastActivity = localStorage.getItem("lastactivity");
+                    this.$f7.dialog.alert("Revise su conexion a internet e intentelo nuevamente","Atencion!");
+                    this.mensaje_bienvenida = 'Invitado';
+                    this.balance_empresa = 0;
+                    this.isLoadBalnces = true;
+        }else{
+            // localStorage.setItem("total_prestado",0)
         this.idad = localStorage.getItem("iad")
         const self = this;
 
@@ -299,13 +331,25 @@ export default {
                                 this.$store.state.clientes_cobros.unshift(element);
                                 if(Boolean(localStorage.getItem("listagenerada"))==false || localStorage.getItem("listagenerada")=='false' ){
                                 estadoListaCobro.unshift({estado:0,id:element.data.id})
+                                localStorage.setItem('ListaEstadosCobro',JSON.stringify(estadoListaCobro))
+                                 
                                 
                                 }else{
-                                     if(localStorage.getItem('cobro_pendiente')){
+                                    //  this.$store.commit('setEstadoCobrosLista',JSON.parse(localStorage.getItem('ListaEstadosCobro')))
+                                     if(localStorage.getItem('cobros_pendientesArray')){
+                                            this.$store.state.cobros_pendientes=[]
+                                            let cobros_pendientes=JSON.parse(localStorage.getItem('cobros_pendientesArray'))
+                                            cobros_pendientes.forEach(element => {
+                                                 this.$store.state.cobros_pendientes.unshift(element)
+                                            });
                                          
-                                         this.$store.state.jornada_cobrador.numero_cobros_pendientes=Number(localStorage.getItem('cobro_pendiente'))
+                                            localStorage.setItem('cobro_pendiente', this.$store.state.cobros_pendientes.length)
+                                             this.$store.state.jornada_cobrador.numero_cobros_pendientes=this.$store.state.cobros_pendientes.length
+                                         
                                              
                                      }
+                                     
+                                     
                                      if(localStorage.getItem('cobros_efectivos')){
                                         this.$store.state.jornada_cobrador.catidad_cobrosefectivos=Number(localStorage.getItem('cobros_efectivos'))
                                      }
@@ -317,6 +361,14 @@ export default {
                                      if(localStorage.getItem('total_cobros')){
                                          this.$store.state.jornada_cobrador.total_cobros_realizados=Number(localStorage.getItem('total_cobros'))
                                      }
+                                    
+                                     if(localStorage.getItem('lista_clientes_cobrados')){
+                                       this.$store.state.contadorClientesSeleccionados=Number(localStorage.getItem('lista_clientes_cobrados'))
+                                          
+                                     }
+                                    
+
+                                     
 
                                       
                                     // localStorage.removeItem('cobros_nofectivos')
@@ -328,14 +380,10 @@ export default {
                     
                 }
             }
-            if(Boolean(localStorage.getItem("listagenerada"))==false || localStorage.getItem("listagenerada")=='false' ){
-            localStorage.setItem('ListaEstadosCobro',JSON.stringify(estadoListaCobro))
-            // this.$store.commit('setEstadoPrestamosPendientes',JSON.parse(localStorage.getItem('ListaEstadosCobro')))
-            }else{
-                
-            }
-           this.$store.state.contadorClientesSeleccionados= this.$store.state.clientes_cobros.length
-           this.$store.commit('setEstadoCobrosLista',JSON.parse(localStorage.getItem('ListaEstadosCobro')))
+    
+          
+          this.$store.commit('setEstadoCobrosLista',JSON.parse(localStorage.getItem('ListaEstadosCobro')))
+          
             self.$f7.dialog.close();
 
                this.onDetectarTransacciones();
@@ -439,6 +487,8 @@ export default {
         // });
      
 
+        }
+        
     },
     methods: {
     onDetectarTransaccionesNuevasAprobadas(idCobrador,idad,idempresa,idzona){

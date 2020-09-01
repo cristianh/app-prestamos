@@ -274,9 +274,10 @@ import CobradorService from '../Services/CobradoresServices.js';
   },
   onCobroListaPendiente(){
       // alert('pendiente');
-      let cliente = this.clientes_info;
-      console.log(this.clientes_info);
-      this.$store.commit('cobroClientePendiente',cliente);
+      let posicion = this.$store.state.cobros_pendientes.findIndex(x => x == this.id);
+      
+      if(posicion==-1){
+         this.$store.commit('cobroClientePendiente',this.id);
        this.$f7.dialog.alert('Marcado como pendiente','Correcto');
        let estados=JSON.parse(localStorage.getItem('ListaEstadosCobro'))
        let posicion = this.$store.getters.getClientesCobros.findIndex(x => x.data.id == this.id);
@@ -301,6 +302,10 @@ import CobradorService from '../Services/CobradoresServices.js';
      
     // this.onCambiarEstadoRuta();
    this.onPendiente()
+      }else{
+        this.$f7.dialog.alert('Este cliente ya esta marcado como pendiente','Atencion!');
+      }
+     
   },
     onOpenPopverCobroNoPago(){
         // let popoeveBotonNoPago=this.$f7.popover.open('.popover-menu','.boton-no-pago');
@@ -360,11 +365,13 @@ import CobradorService from '../Services/CobradoresServices.js';
            fecha_hora:this.$moment(new Date()).format("DD-MM-YYYY hh:mm:ss"), 
            razonnopago:this.inputNoPagoSeleccionado!=''?this.inputNoPagoSeleccionado:this.radioNoPagoSeleccionado
         }
+        this.$store.commit('setQuitar_cobros_pendientesJornada');
+        this.$store.commit('setDisminuyeContadorClientesListaPrestamos');
         this.clientesService.guardarObservacionNoPago(this.idad,idempresa,ui_cobrador,this.id,informacionNoPago).then( (response) =>  {
-           this.$store.commit('setQuitar_cobros_pendientesJornada');
+           
            this.$store.commit('setEstadoPrestamoEstadoRuta',this.id);
             this.$f7.dialog.close();
-            this.$store.commit('setDisminuyeContadorClientesListaPrestamos');
+           
             this.$f7router.back();
         });
               
@@ -419,11 +426,13 @@ import CobradorService from '../Services/CobradoresServices.js';
            fecha_hora:this.$moment(new Date()).format("DD-MM-YYYY hh:mm:ss"), 
            razonnopago:this.inputNoPagoSeleccionado!=''?this.inputNoPagoSeleccionado:this.radioNoPagoSeleccionado
         }
+              this.$store.commit('setQuitar_cobros_pendientesJornada');
+              this.$store.commit('setDisminuyeContadorClientesListaPrestamos');
         this.clientesService.guardarObservacionNoPago(this.idad,idempresa,ui_cobrador,this.id,informacionNoPago).then( (response) =>  {
-           this.$store.commit('setQuitar_cobros_pendientesJornada');
+     
            this.$store.commit('setEstadoPrestamoEstadoRuta',this.id);
             this.$f7.dialog.close();
-            this.$store.commit('setDisminuyeContadorClientesListaPrestamos');
+            
             this.$f7router.back();
         });
               
@@ -533,8 +542,8 @@ batch.commit().then(function () {
         //  alert(elemento.prestamos[0].total_apagar);
          if(elemento.prestamos[0].total_apagar==0 || elemento.prestamos[0].total_apagar<0){
        
-                this.$f7.sheet.close();
-          this.$f7.dialog.close();
+            this.$f7.sheet.close();
+            this.$f7.dialog.close();
             this.$f7.dialog.alert('El prestamo ha sido pagado.','Atencion',()=>{
                    
          
@@ -549,20 +558,24 @@ batch.commit().then(function () {
       // elemento.prestamos[0].total_apagar=0;
            
            elemento.prestamos[0].estado_prestamo=true
-           elemento.prestamos[0].valor=0
-           elemento.prestamos[0].dias_plazo=0
-           elemento.prestamos[0].dias_con_mora=0
-           elemento.prestamos[0].plan_seleccionado=0
-           elemento.prestamos[0].total_apagar=0
+          //  elemento.prestamos[0].valor=0
+          //  elemento.prestamos[0].dias_plazo=0
+          //  elemento.prestamos[0].dias_con_mora=0
+          //  elemento.prestamos[0].plan_seleccionado=0
+          //  elemento.prestamos[0].total_apagar=0
+          //  delete  elemento.prestamos
+           this.$store.commit('setQuitar_cobros_pendientesJornada');
 this.clientesService.actualizarClienteCobrador(this.idad,idempresa,ui_cobrador,this.id,elemento).then( (response) =>  {
         
               this.informacion_pago.valor_pago=0;  
                this.valor_sin_puntos=0;  
                 this.$f7.sheet.close();
           this.$f7.dialog.close();
-          this.$store.commit('setQuitar_cobros_pendientesJornada');
+          
           this.$store.commit('setDisminuyeContadorClientesListaPrestamos');
+          // this.$f7router.back();
           this.clientesService.eliminarPrestamoPago(this.idad,idempresa,ui_cobrador,this.id,elemento).then( (response) =>  {
+            this.$store.commit('eliminarClientePrestamoDiario',this.id);
                 this.$f7router.back();
               });
 });
@@ -631,7 +644,7 @@ this.clientesService.actualizarClienteCobrador(this.idad,idempresa,ui_cobrador,t
          }
          else {
             //Quitado el saldo a pagar
-          elemento.prestamos[0].total_apagar=Number(elemento.prestamos[0].total_apagar)-Number(this.informacion_pago.valor_pago);
+          elemento.prestamos[0].total_apagar=Number(this.informacion_pago.valor_pago)-Number(elemento.prestamos[0].total_apagar);
          
            if(elemento.prestamos[0].total_apagar==0 || elemento.prestamos[0].total_apagar<0){
                  this.$f7.sheet.close();
@@ -646,20 +659,23 @@ this.clientesService.actualizarClienteCobrador(this.idad,idempresa,ui_cobrador,t
               this.$store.commit('SetEliminarClientesPrestamos',posicion);
             
            elemento.prestamos[0].estado_prestamo=true
-           elemento.prestamos[0].valor=0
-           elemento.prestamos[0].dias_plazo=0
-           elemento.prestamos[0].dias_con_mora=0
-           elemento.prestamos[0].plan_seleccionado=0
-           elemento.prestamos[0].total_apagar=0
+          //  elemento.prestamos[0].valor=0
+          //  elemento.prestamos[0].dias_plazo=0
+          //  elemento.prestamos[0].dias_con_mora=0
+          //  elemento.prestamos[0].plan_seleccionado=0
+          //  elemento.prestamos[0].total_apagar=0
+          //  delete  elemento.prestamos
           //  elemento.prestamos[0].total_apagar=0;
              this.clientesService.actualizarClienteCobrador(this.idad,idempresa,ui_cobrador,this.id,elemento).then( (response) =>  {
               this.informacion_pago.valor_pago=0; 
               this.valor_sin_puntos=0;   
                 this.$f7.sheet.close();
               this.$f7.dialog.close();
+               
               this.$store.commit('setDisminuyeContadorClientesListaPrestamos');
-              this.clientesService.eliminarPrestamoPago(this.idad,idempresa,ui_cobrador,this.id,elemento.prestamos[0]).then( (response) =>  {
-                this.$f7router.back();
+              this.clientesService.eliminarPrestamoPago(this.idad,idempresa,ui_cobrador,this.id,elemento).then( (response) =>  {
+                 this.$store.commit('eliminarClientePrestamoDiario',this.id);
+                 this.$f7router.back();
               });
           });
              });

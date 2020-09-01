@@ -510,7 +510,7 @@ batch.commit().then( ()=> {
           let plazo_dias= this.planseleccionado;
           let total_apagar=Number(valor_prestamo)*Number(taza_seleccionada_interes)+Number(valor_prestamo);
           console.log( this.info_prestamo);
-          let pago=Number(total_apagar)/Number(plazo_dias)
+          // let pago=Number(total_apagar)/Number(plazo_dias)
         
           this.info_prestamo.total_apagar=total_apagar;
          

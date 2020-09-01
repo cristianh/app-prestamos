@@ -171,6 +171,9 @@
             localStorage.removeItem("iad");
             localStorage.removeItem("empresa");
             localStorage.removeItem("lastactivity");
+            localStorage.removeItem("lastactivity");
+            localStorage.removeItem("username");
+            localStorage.removeItem("password");
             // Handle Errors here.
              
             // var errorCode = error.code;

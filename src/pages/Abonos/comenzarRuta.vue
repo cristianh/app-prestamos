@@ -32,76 +32,32 @@
     </f7-col>
     </f7-row>
   </f7-list>
- 
-     <div v-if="isComienzoRuta==false"> 
+     <div v-if="estado_lista_prestamos_clientes"> 
          <f7-block  inset>
             <f7-row>
             <f7-col lg="12" md="12">
-                <f7-button fill  :disabled="btn_comenzar_ruta" @click="onGenerarListaJornadaPago">Comenzar<f7-icon material="swap_vert"></f7-icon></f7-button>
+                <f7-button fill  :disabled="btn_comenzar_ruta" @click="onVerificarDiaListaCobros">Comenzar<f7-icon material="swap_vert"></f7-icon></f7-button>
             </f7-col>
             </f7-row>
             </f7-block>
-            
-               <div v-if="estado_lista_prestamos_clientes"> <f7-card>
+             
+               <div v-if="mostrar_resultado_final"> 
+                 <f7-block-title>Informe final de ruta:</f7-block-title>
+                 <f7-card>
+                   
           <f7-card-content>
            <!-- Final:{{getBalanceFinal}}
            Realizados hoy p:{{getPrestamosRealiozadoshoy}}
            Total cobros:{{getTotalCobros}} -->
-          Cobros pagos: {{getCantidadCobrosEfectivos}}<br>
-          Cobros no pagos: {{getCantidadCobrosNoRealizados}}<br>
+        
+          Cobros pagos: {{informacion_final_ruta.Cobros_pagos}}<br>
+          Cobros no pagos: {{informacion_final_ruta.Cobros_nopagos}}<br>
           <!-- Cobros pendientes: {{getCatidadCobrosPendientes}}<br> -->
-          Balance inicial de la zona: {{getBalanceInicial|currency}}<br>
-          Total Prestado: {{getPrestamosRealiozadoshoy|currency}}<br>
-          Balance final de la zona: {{Number(getTotalCobros)+Number(getBalanceInicial)|currency}}<br>
-          Total dinero recogido: {{getTotalCobros|currency}} 
-          <!-- <f7-block>
-         <table border="1">
-          <tr>
-            <th>
-            Cobros pagos
-            </th>
-             <th>
-            Cobros no pagos
-            </th>
-             <th>
-            Balance inicial de la zona
-            </th>
-             <th>
-               Total Prestado
-            </th>
-             <th>
-              Balance final de la zona
-            </th>
-             <th>
-             Total dinero recogido
-            </th>
-            <tr>
-           <tr>
-            <td>
-              {{getCantidadCobrosEfectivos}}
-              </td>
-              <td>
-                {{getCantidadCobrosNoRealizados}}
-              </td>
-              <td>
-                {{this.balance_zona|currency}}
-                </td>
-                <td>
-                  {{getPrestamosRealiozadoshoy|currency}}
-                  </td>
-                <td>
-                  {{getBalanceFinal!=0?Number(getBalanceFinal)+Number(getPrestamosRealiozadoshoy)+Number(getTotalCobros):Number(this.balance_zona)-Number(getPrestamosRealiozadoshoy)|currency}}
-                  </td>
-                  <td>
-                    {{getTotalCobros|currency}}
-                    </td>
-            </tr>
-          
-         </table>
-         <br>
-          </f7-block> -->
-    
-          <f7-row v-if="!ruta_terminada">
+          Balance inicial de la zona: {{informacion_final_ruta.Balance_inicial_de_la_zona|currency}}<br>
+          Total Prestado: {{informacion_final_ruta.Total_prestado}}<br>
+          <!-- Balance final de la zona: {{Number(getTotalCobros)+Number(getBalanceInicial)|currency}}<br> -->
+          Total dinero recogido: {{informacion_final_ruta.Total_dinero_recogido|currency}} 
+          <f7-row v-if="ruta_terminada">
           <f7-col md="12">
               <f7-list >
                 <f7-list-input
@@ -136,13 +92,15 @@
         </f7-row>
           
            </f7-card-content>
-         </f7-card></div>
+         </f7-card>
+         </div>
              
      </div>
       <div v-else>
           <!-- {{getTodosClientesPrestamo}} -->
        <!-- {{clientes}} -->
-          <div v-if="isComienzoRuta==true">
+       <!-- {{}} -->
+          <div v-if="getClientesCobrosHoy.length>=1">
             <!-- <f7-block inset>
               <f7-row>
         <f7-col>
@@ -170,7 +128,7 @@
         <f7-list-item  
         media-list
         swipeout  
-        :disabled="getEstadoPrestamo[index].estado==1  || getEstadoPrestamo[index].estado==2"
+         :disabled="getEstadoPrestamo[index].estado==1  || getEstadoPrestamo[index].estado==2"
         v-for="(cliente,index,key) in getTodosClientesPrestamo"
        
         :badge="`${cliente.data.prestamos.length==0 || cliente.data.prestamos==undefined? 'NA':Number(cliente.data.prestamos[0].dias_con_mora)>=1?'Mora: '+Number(cliente.data.prestamos[0].dias_con_mora)+' dia':'Mora: '+Number(cliente.data.prestamos[0].dias_con_mora)+' dias'}`"
@@ -203,7 +161,7 @@
        <f7-block  inset>
          <f7-card>
           <f7-card-content>
-        "No hay clientes con prestamo para hoy"
+        No hay clientes con prestamo para hoy
           </f7-card-content>
          </f7-card>
 
@@ -276,9 +234,10 @@ export default {
     btn_comenzar_ruta:false,
     btn_ruta_terminada:true,
     ruta_terminada:false,
+    mostrar_resultado_final:false,
     sheetOpened: false,
     posiciones_lista_ordenada:[],
-    estado_lista_prestamos_clientes:false,
+    estado_lista_prestamos_clientes:true,
     color_bedge:'',
     jornada_cobrador:{
       balance_final_manual:0
@@ -292,6 +251,13 @@ export default {
       txt_ordenar:false,
       isLoadUsers:false,
       isComienzoRuta:false,
+      informacion_final_ruta:{
+                    Cobros_pagos: 0,
+                    Cobros_nopagos: 0,
+                    Balance_inicial_de_la_zona:0,
+                    Total_prestado: 0,
+                    Total_dinero_recogido:0
+      },
       informacion_pago:{
         valor:0,
         // fecha:this.$moment(new Date).format("DD/MM/YYYY"), 
@@ -322,6 +288,8 @@ export default {
         this.lista_cobros_realizados=EstadosCobrosGuardados
     })
     
+      
+    
     this.balance_zona=localStorage.getItem("saldo_zona");
    
     this.clientes=this.$store.getters.getClientes
@@ -329,7 +297,7 @@ export default {
     this.jornada_cobrador=this.$store.getters.getJornadaCobrador;
     // this.isComienzoRuta=this.$store.getters.getEstadoRuta;
     // alert("inicio ruta",this.isComienzoRuta)
-    
+   
     if(Boolean(localStorage.getItem("listagenerada"))==true || localStorage.getItem("listagenerada")=='true' ){
        
     // this.onComenzarFornada()
@@ -340,7 +308,7 @@ export default {
             if(element.estado==1 || element.estado==2){
               // element.estado==1
               // setAumentaContadorClientesListaPrestamos
-              this.$store.commit('setAumentaContadorClientesListaPrestamos');
+              this.$store.commit('setQuitar_cobros_pendientesJornada');
 
             }
 
@@ -348,25 +316,53 @@ export default {
           }
         }
       this.isComienzoRuta=true;
-    }else{
-      // alert("false",localStorage.getItem("listagenerada"))
-      this.isComienzoRuta=false;
-      this.estado_lista_prestamos_clientes=false;
-      
+    this.estado_lista_prestamos_clientes=false;
     }
+    
+         if(Boolean(localStorage.getItem("mostrar_resultado_final"))==true || localStorage.getItem("mostrar_resultado_final")=='true' ){
+     
+      // this.mostrar_resultado_final=localStorage.getItem("mostrar_resultado_final")
+          this.estado_lista_prestamos_clientes=true
+          //  alert(localStorage.getItem("jornada_confirmada"))
+          if(Boolean(localStorage.getItem("jornada_confirmada"))==true || localStorage.getItem("jornada_confirmada")=='true' ){
+          this.ruta_terminada=false
+          this.btn_ruta_terminada=false
+          }else{
+            this.ruta_terminada=true
+          this.btn_ruta_terminada=false
+          }
+         
+          
+          this.mostrar_resultado_final=Boolean(localStorage.getItem("mostrar_resultado_final")) 
+       if(Boolean(localStorage.getItem("Informe_final_ruta"))){
+          this.informacion_final_ruta=JSON.parse(localStorage.getItem("Informe_final_ruta"))
+       }
+         
+          // this.$store.commit('setEstadoRuta',false);
+         
+          // this.btn_ruta_terminada=false
+          // this.ruta_terminada=true
+          // this.btn_comenzar_ruta=true
+          // this.isComienzoRuta=false;
+    }
+         
+     
     
   },
   beforeCreate(){
-   if(Boolean(localStorage.getItem("listagenerada"))==true || localStorage.getItem("listagenerada")=='true' ){
+  //  if(Boolean(localStorage.getItem("listagenerada"))==true || localStorage.getItem("listagenerada")=='true' ){
        
-    //  alert("true",localStorage.getItem("listagenerada"))
+  //   //  alert("true",localStorage.getItem("listagenerada"))
       
-      // this.onComenzarFornada()
-      this.$store.commit('setEstadoListaCobrosRealizados')
-   }
+  //     // this.onComenzarFornada()
+  //     this.$store.commit('setEstadoListaCobrosRealizados')
+  //  }
   
   },
   computed: {
+     getClientesCobrosHoy(){
+       return this.$store.getters.getClientesCobros
+     },
      getEstadoPrestamo(){
       // console.log(state.clientes_cobros);
             // let estados = JSON.parse(localStorage.getItem('ListaEstadosCobro'))
@@ -379,7 +375,12 @@ export default {
       // 'pago'cliente.data.prestamos[0].estado_pago_prestamo.pago==true,'no-pago':Boolean(cliente.data.prestamos[0].estado_pago_prestamo.nopago)==true}
     },
     getPrestamosRealiozadoshoy(){
-      return localStorage.getItem("total_prestado")
+      if(localStorage.getItem("total_prestado")){
+        return Number(localStorage.getItem("total_prestado"))
+      }else{
+        return 0
+      }
+      
     },
     getTotalCobros(){
     //  return localStorage.getItem("total_cobros_realizados")
@@ -489,6 +490,7 @@ export default {
     },
     onConfirmarJornada(){
       
+      localStorage.setItem("jornada_confirmada",Boolean(true));
       console.log("verificamos",Number(this.jornada_cobrador.balance_final_manual.split('.').join(''))==Number(this.$store.getters.getCobrosTotalCobrado));
       if(this.jornada_cobrador.balance_final_manual==""){
         this.$f7.dialog.alert('Debe ingresar el saldo recogido!','Atencion');
@@ -501,18 +503,23 @@ export default {
       let id_jornadacobrador=localStorage.getItem("idjornadacobrador");
       let id_empresa=localStorage.getItem("empresa");
       this.jornada_cobrador.balance_final=localStorage.getItem("saldo_zona");
-          
+      this.btn_ruta_terminada=true
 
       this.jornada_cobrador.balance_final_manual=0
+     
       this.corbradorService.actualizarJornadaCobrador(id_admin,id_empresa,ui_cobrador,id_jornadacobrador,this.jornada_cobrador).then(response =>{
                 this.$f7.dialog.close();
               this.$f7.dialog.alert('Jornada cerrada correctamente!','Correcto',()=>{
                 setTimeout(()=>{
-                  this.ruta_terminada=true
-                  this.btn_comenzar_ruta=false;
-                  this.isComienzoRuta=false;
+                  this.ruta_terminada=false
+                  this.btn_comenzar_ruta=false
+                  this.isComienzoRuta=true
+                 
+                 
+                  this.mostrar_resultado_final=Boolean(localStorage.getItem("mostrar_resultado_final")) 
                   localStorage.removeItem("listagenerada")
-                  localStorage.removeItem("listaClientesCobros")
+                  localStorage.removeItem("listaClientesCobros") 
+                  localStorage.removeItem("ListaEstadosCobro") 
                   // localStorage.removeItem("ListaEstadosCobro")
                   localStorage.removeItem('cobro_pendiente')
                   localStorage.removeItem('cobros_efectivos')
@@ -521,7 +528,14 @@ export default {
                   localStorage.removeItem('total_cobros')
                   localStorage.removeItem('total_prestado')
                   localStorage.removeItem("saldo_inicial_zona")
+                  localStorage.removeItem("cobros_pendientesArray")
+                  // localStorage.removeItem("fecha_lista_generada")  
+                  // localStorage.removeItem("mostrar_resultado_final") 
+                  localStorage.removeItem("lista_clientes_cobrados") 
+                  
+                   
                   this.$store.state.estados_prestamos_ruta=[]
+                  this.$store.state.cobros_pendientes=[]
                   // this.$f7.sheet.close('.mensaje_final-sheet');
                   this.$f7.dialog.close();
                   // guardando.close();
@@ -538,20 +552,29 @@ export default {
     },
     onCerrarRuta(){
         
-        
+     
+       
        const app = this.$f7;
         // app.dialog.alert(id);
-        console.log(this.$store.getters.getCobrosPendientes);
-        let numero_de_clientes_prestamo=this.$store.getters.getContadorClientesCobros;
-        let numero_de_clientes_prestamos_realizados=this.$store.getters.getContadorListaClientesCobros;
-        console.log(numero_de_clientes_prestamo);
-        console.log(numero_de_clientes_prestamos_realizados);
+        // console.log(this.$store.getters.getCobrosPendientes);
+         this.informacion_final_ruta={
+                    Cobros_pagos:  Number(localStorage.getItem("cobros_efectivos")),
+                    Cobros_nopagos: Number(localStorage.getItem("cobros_nofectivos")),
+                    Balance_inicial_de_la_zona:localStorage.getItem("saldo_inicial_zona"),
+                    Total_prestado: localStorage.getItem("total_prestado")==null?0:localStorage.getItem("total_prestado"),
+                    Total_dinero_recogido:localStorage.getItem('total_cobros')
+          }
+        
+        let numero_de_clientes_cobros=this.$store.getters.getContadorClientesCobros;
+        let numero_de_clientes_cobros_realizados=this.$store.getters.getContadorListaClientesCobros;
+        console.log(numero_de_clientes_cobros);
+        console.log(numero_de_clientes_cobros_realizados);
         if(this.$store.getters.getCobrosPendientes>0){
           app.dialog.confirm('Hay cobros pendientes','Atencion');
          
         }
         
-        else if(numero_de_clientes_prestamos_realizados!=0){
+        else if(numero_de_clientes_cobros_realizados!=0){
             app.dialog.confirm('Aun quedan cobros por realizar','Atencion!');
         }
         else{
@@ -561,15 +584,20 @@ export default {
           this.$store.commit('sethoraFinalJornada',this.$moment(res.datetime).format("hh:mm:ss"));
           this.$store.commit('setfechaFinalJornada',this.$moment(res.datetime).format("MM/DD/YYYY"));
         });
-          localStorage.setItem("listagenerada",false);
-          this.$store.commit('setEstadoRuta',false);
-        this.isComienzoRuta=false;
-        this.estado_lista_prestamos_clientes=true;
           
-          this.ruta_terminada=false;
-          this.btn_comenzar_ruta=true;
-          this.btn_ruta_terminada=false;
-          // this.estado_lista_prestamos_clientes=true;
+          this.$store.commit('setEstadoRuta',false);
+          
+          this.estado_lista_prestamos_clientes=true
+         
+          this.mostrar_resultado_final=true 
+          this.btn_ruta_terminada=false
+          this.ruta_terminada=true
+          this.btn_comenzar_ruta=true
+          localStorage.setItem("Informe_final_ruta",JSON.stringify(this.informacion_final_ruta))
+          localStorage.setItem("mostrar_resultado_final",Boolean(true));
+         
+          
+         
           
          
           
@@ -581,9 +609,33 @@ export default {
         }
 
     },
+    onVerificarDiaListaCobros(){
+      if(localStorage.getItem("fecha_lista_generada")){
+        let fechaactual=this.$moment(new Date)
+        let fechageneradalista=this.$moment(localStorage.getItem("fecha_lista_generada"))
+        // alert(fechaactual.diff(fechageneradalista,'days') )// 1)
+       
+        if(fechaactual.diff(fechageneradalista,'days')==0){
+          this.$f7.dialog.alert('Ya ha generado una lista hoy regrese mañana he intentelo nuevamente','Atencion!');
+        }else{
+          this.$store.commit('setEstadoCobrosLista',JSON.parse(localStorage.getItem('ListaEstadosCobro')))
+        this.onGenerarListaJornadaPago()
+        }
+        
+      }else{
+        
+        
+        this.$store.commit('setEstadoCobrosLista',JSON.parse(localStorage.getItem('ListaEstadosCobro')))
+        this.onGenerarListaJornadaPago()
+      }
+      
+    },
     onGenerarListaJornadaPago(){
+        //Modifique aca.
         
         localStorage.setItem("listagenerada",true);
+        localStorage.setItem("fecha_lista_generada",this.$moment(new Date().toISOString().slice(0,10)))
+        this.$store.state.contadorClientesSeleccionados= this.$store.state.clientes_cobros.length
         // localStorage.setItem("listaClientesPrestamos",JSON.stringify(this.$store.getters.getClientesListaPrestamo));
         // this.clientes=JSON.parse(localStorage.getItem("listaClientesPrestamos"))
         // this.clientes=this.$store.getters.getClientesListaPrestamo
@@ -596,8 +648,9 @@ export default {
          let id_admin=localStorage.getItem("iad");
         this.corbradorService.guardarJornadaCobrador(id_admin,id_empresa,ui_cobrador,this.jornada_cobrador).then(response =>{
                  console.log("................response",response);
-                 this.isComienzoRuta=true;
-                //  this.btn_ruta_terminada=true;
+                  this.isComienzoRuta=true;
+                  this.estado_lista_prestamos_clientes=false;
+                  localStorage.removeItem("estado_lista_prestamos_clientes") 
                   this.btn_comenzar_ruta=true;
                  localStorage.setItem("idjornadacobrador",response.data.id);
                  this.$store.commit('setEstadoRuta',true);

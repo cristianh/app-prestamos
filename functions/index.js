@@ -207,7 +207,7 @@ exports.ClienteEliminarPrestamosPago = functions.https.onRequest(async(request, 
 
     try {
         await db.collection('usuarios').doc(request.query.idadmin).collection('empresas').doc(request.query.id_empresa).collection('cobradores').doc(request.query.doc).collection('clientes').doc(request.query.sub).update({
-            prestamos: fieldValue.arrayRemove(request.body)
+            prestamos: fieldValue.delete()
         });
         return response.send('Cobro registrado.');
     } catch (error) {
