@@ -504,6 +504,7 @@ batch.commit().then( ()=> {
           self.$f7.dialog.preloader('Guardando prestamo...');
           this.info_prestamo.cliente=this.cliente_seleccionado;
           let id_empresa=localStorage.getItem("empresa");
+          let id_admin=localStorage.getItem("iad");
           // this.info_prestamo.valor=this.info_prestamo.valor.replace('.', "");
           let valor_prestamo=this.info_prestamo.valor;
           let taza_seleccionada_interes= this.tazaseleccionada;
@@ -517,9 +518,13 @@ batch.commit().then( ()=> {
           this.info_prestamo.plan_seleccionado=this.planseleccionado;
           this.info_prestamo.dias_plazo=Number(this.planseleccionado);
 
-          var formData = new FormData();
-
-          this.abonoService.guardarAbonosPrestamos(this.idad,id_empresa,ui_cobrador,this.info_prestamo.cliente,this.info_prestamo).then( (response) =>  {
+          // alert(this.id)
+          if(this.id==undefined || this.id==null){
+             
+            this.id=localStorage.getItem("iad");
+            // alert(this.id)
+          }
+          this.abonoService.guardarAbonosPrestamos(this.id,id_empresa,ui_cobrador,this.info_prestamo.cliente,this.info_prestamo).then( (response) =>  {
           let saldo_actual=  localStorage.getItem("saldo_zona");
           // this.info_prestamo.valor=this.info_prestamo.valor.replace('.', "");
           let saldo_valor=   this.info_prestamo.valor;
@@ -552,8 +557,10 @@ batch.commit().then( ()=> {
           this.info_prestamo.plan_seleccionado='';
           this.planseleccionado=undefined;
           this.$f7router.back();
+          this.$f7.dialog.alert('Prestamos realizado con exito!','Correcto');
           
        });
+       
       }
 
       }

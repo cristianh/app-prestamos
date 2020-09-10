@@ -332,45 +332,26 @@ export default {
                         //    alert(fecha_prestamo<fecha_anterior_hoy && element.data.prestamos.length >= 1 && element.data.prestamos[0].estado_prestamo == "false")
                                 //  if (element.data.prestamos.length > 0 && element.data.prestamos[0].estado_prestamo == false) {
                             if(fecha_prestamo<fecha_anterior_hoy && element.data.prestamos.length >= 1 && element.data.prestamos[0].estado_prestamo == "false") {
-                                if(localStorage.getItem('ListaEstadosCobro')){
-                                    let estados=JSON.parse(localStorage.getItem('ListaEstadosCobro'))
-                                    
-                                    for (const key in estados) {
-                                        if (estados.hasOwnProperty(key)) {
-                                            const element_estado = estados[key];
-                                            if(element_estado.id==element.data.prestamos[0].cliente){
-                                                if(element_estado.estado==1){
-                                                element.data.estado_pago_prestamo.pago=true
-                                                 element.data.estado_pago_prestamo.nopago=false
-                                                 element.data.estado_pago_prestamo.pendiente=false
-                                                }
-                                                else if(element_estado.estado==2){
-                                                    element.data.estado_pago_prestamo.pago=false
-                                                 element.data.estado_pago_prestamo.nopago=true
-                                                 element.data.estado_pago_prestamo.pendiente=false
-                                                }
-                                                else if(element_estado.estado==3){
-                                                       element.data.estado_pago_prestamo.pago=false
-                                                 element.data.estado_pago_prestamo.nopago=false
-                                                 element.data.estado_pago_prestamo.pendiente=true
-                                                }
-                                            
-                                            
-                                        }
-                                    }
-                                }
-                            }
+                                
+                                 this.onActualizarEstadosLista(element)
+                                 
+                               
+                                // this.$store.state.clientes_cobros.push(element);
+                            // }else{
+                            //     this.$store.state.clientes_cobros.unshift(element);
+                            // }
 
                 
                                
 
-                                this.$store.state.clientes_cobros.unshift(element);
+                                
+
                                 
                                 
                                 // alert(localStorage.getItem("listagenerada"))
                                 if(Boolean(localStorage.getItem("listagenerada"))==false || localStorage.getItem("listagenerada")=='false' ){
                                     
-                                  estadoListaCobro.unshift({estado:0,id:element.data.id})
+                                  estadoListaCobro.unshift({estado:0,id:element.data.id,posicion:element.data.posicion})
                                   localStorage.setItem('ListaEstadosCobro',JSON.stringify(estadoListaCobro))
                                
                                  
@@ -433,113 +414,74 @@ export default {
           
           this.$store.commit('setEstadoCobrosLista',JSON.parse(localStorage.getItem('ListaEstadosCobro')))
           
-            self.$f7.dialog.close();
+            self.$f7.dialog.close()
 
-               this.onDetectarTransacciones();
+               this.onDetectarTransacciones()
+            //    this.onActualizarEstadosLista()
             
         });
-
-        //   this.CobradoresService.getAllInfoCobradores(this.idad, this.uid).then((response) => {
-        //             self.$f7.dialog.close();
-        //             self.$f7.dialog.preloader("Cargando informacion de los cobradores...");
-        //             this.rutas = response.data;
-        //             zona = response.data.Zona;
-        //             empresa = response.data.Empresa;
-        //             localStorage.setItem("empresa", empresa);
-        //             localStorage.setItem("zona", zona);
-        //              this.empresaService.getAllInfoEmpresa(this.idad, empresa).then((response) => {
-        //         self.$f7.dialog.close();
-        //         self.$f7.dialog.preloader("Cargando Informacion de la empresa...");
-        //        
-        
-
-        //     }).catch(error => {
-
-        //         self.$f7.dialog.alert(error, "Error al cargar la informacion de la empresa...");
-        //         self.$f7.dialog.close();
-
-        //     });
-                   
-
-        //         }).catch(error => {
-
-        //             self.$f7.dialog.close();
-        //             self.$f7.dialog.alert(error, "Error al cargar la informacion de la cobrador...");
-        //         });
-                
-        // this.ClientesCobradoresService.getAllClientesCobradores(this.idad, this.uid).then(response => {
-        //     self.$f7.dialog.close();
-            // self.$f7.dialog.preloader("Cargando Informacion de los clientes...");
-          
-
-        //     // axios.get(`https://us-central1-manifest-life-279516.cloudfunctions.net/Cobradores?doc=${}&sub=Rutas`)
-        //     // this.CobradoresService.getZonaCobrador(this.idad, this.uid).then((response) => {
-        //     //     let zona = response.data;
-        //     //     for (const key in zona) {
-        //     //         if (zona.hasOwnProperty(key)) {
-        //     //             const element = zona[key];
-        //     //             //this.clientes.push(element);
-        //     //             // this.$store.state.clientes.unshift(element);
-        //     //             this.$store.state.zonas.unshift(element);
-
-        //     //             ///this.clientes_nombres.push(element.data.usuario.nombre)
-        //     //         }
-        //     //     }
-
-        //     //     self.$f7.dialog.close();
-        //     // }).catch(error => {
-        //     //     console.log(error);
-        //     //     self.$f7.dialog.alert(error, "Error al cargar las zonas...");
-        //     //     self.$f7.dialog.close();
-        //     // });
-
-        // self.$f7.dialog.close();
-
-        // }).catch(error => {
-        //     self.$f7.dialog.close();
-        //     self.$f7.dialog.alert(error, "Error al cargar los clientes...");
-        // });
-
-
-        //  this.empresaService.getAllInfoEmpresaZona(this.idad, empresa, zona).then((datazona) => {
-        //                
-
-
-        //                 // this.isLoadRutas= true;
-        //             }).catch(error => {
-        //                 self.$f7.dialog.close();
-        //                 self.$f7.dialog.alert(error, "Error al cargar la informacion de la zonas de la empresa...");
-
-        //             });
-
-        // this.empresaService.getAllTazaeInteres(this.idad).then((response) => {
-        //     self.$f7.dialog.preloader("Cargando tazas de interes...");
-        //     let tazaseinteres = response.data;
-        //     for (const key in tazaseinteres) {
-        //         if (tazaseinteres.hasOwnProperty(key)) {
-        //             const element = tazaseinteres[key];
-        //             //this.clientes.push(element);
-        //             this.$store.state.tasaseinteres.unshift(element);
-
-        //             ///this.clientes_nombres.push(element.data.usuario.nombre);
-
-        //         }
-        //     }
-           
-
-
-
-        // }).catch(error => {
-        //     self.$f7.dialog.close();
-        //     self.$f7.dialog.alert(error, "Error al cargar las tazas de interes...");
-
-        // });
-     
 
         }
         
     },
     methods: {
+        onActualizarEstadosLista(elemento_lista_cobros){
+        // let lista_cobros_ordenada=this.$store.getters.getOrdenarListaClientesCobros
+        
+        // let lista_cobros_ordenada=listaCobros
+                                if(localStorage.getItem('ListaEstadosCobro')){
+                                    let estados=JSON.parse(localStorage.getItem('ListaEstadosCobro'))
+                                     let elemento_lista=estados.filter(x=>x.id===elemento_lista_cobros.data.id)
+                                    // let posicion_lista=lista_cobros_ordenada.findIndex(x=>x.data.id===elemento_lista[0].id)
+                                                    // console.log(elemento_lista[0].estado);
+                                                    // console.log(posicion_lista);
+                                                    if(elemento_lista.length>=1){
+                                                            console.log(elemento_lista[0].estado);
+                                                                    switch (elemento_lista[0].estado) {
+                                                    case 1:
+                                                elemento_lista_cobros.data.estado_pago_prestamo.pago=true
+                                                 elemento_lista_cobros.data.estado_pago_prestamo.nopago=false
+                                                elemento_lista_cobros.data.estado_pago_prestamo.pendiente=false
+                                                        break;
+                                                    case 2:
+                                                            elemento_lista_cobros.data.estado_pago_prestamo.pago=false
+                                                 elemento_lista_cobros.data.estado_pago_prestamo.nopago=true
+                                                 elemento_lista_cobros.data.estado_pago_prestamo.pendiente=false
+                                                        break;
+                                                    case 3:
+                                                    elemento_lista_cobros.data.estado_pago_prestamo.pago=false
+                                                 elemento_lista_cobros.data.estado_pago_prestamo.nopago=false
+                                                 elemento_lista_cobros.data.estado_pago_prestamo.pendiente=true
+                                                        break;
+                                                
+                                                    default:
+                                                        break;
+                                                }
+                                                   }
+                                                
+                                                    // console.log(elemento_lista_cobros);
+
+                                    this.$store.state.clientes_cobros.unshift(elemento_lista_cobros);
+
+                                    //  for (const key in lista_cobros_ordenada) {
+                                    //             if (lista_cobros_ordenada.hasOwnProperty(key)) {
+                                    //                  const element_estado = lista_cobros_ordenada[key];
+                                                    
+                                                    
+                                    //                 if(posicion_lista>=1){
+                                    
+                                    //                 }
+                                    //                 }
+                                    //             }
+
+                                     }else{
+                                        this.$store.state.clientes_cobros.unshift(elemento_lista_cobros);
+                                     }
+
+                 
+                                
+                                // this.$store.commit('setActualizarEstadosListaCobros',lista_cobros_ordenada)
+        },
  onDetectarTransaccionesEmpresa(idCobrador,idad,idempresa,idzona){
             
     let transferenciaEmpresa= db.collection("usuarios").doc(this.idad).collection("empresas").doc(idempresa).collection("Zonas").doc(idzona).collection('Transferencias')

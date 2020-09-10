@@ -286,7 +286,7 @@ export default {
   beforeMount(){
     
     this.$store.watch(() => this.$store.getters.getEstadoPrestamoRuta, EstadosCobrosGuardados => { 
-        console.log('watched: ', EstadosCobrosGuardados) 
+        // console.log('watched: ', EstadosCobrosGuardados) 
         this.lista_cobros_realizados=EstadosCobrosGuardados
     })
     
@@ -310,7 +310,7 @@ export default {
             if(element.estado==1 || element.estado==2){
               // element.estado==1
               // setAumentaContadorClientesListaPrestamos
-              this.$store.commit('setQuitar_cobros_pendientesJornada');
+              this.$store.commit('setQuitar_cobros_pendientesJornada',element.id);
 
             }
 
@@ -416,8 +416,8 @@ export default {
     },
     getTodosClientesPrestamo(){
 
-      let temporarlistaclientesprestamos=this.$store.getters.getClientesListaPrestamo
-      console.log("temporarlistaclientesprestamos",temporarlistaclientesprestamos);
+      let temporarlistaclientesprestamos=this.$store.getters.getClientesCobros
+      // console.log("temporarlistaclientesprestamos",temporarlistaclientesprestamos);
       if(this.busqueda==""){
         return this.$store.getters.getClientesListaPrestamo
       }else{
@@ -528,8 +528,7 @@ export default {
                   this.ruta_terminada=false
                   this.btn_comenzar_ruta=false
                   this.isComienzoRuta=true
-                    this.jornada_cobrador.balance_final_manual=0
-                 
+                  this.jornada_cobrador.balance_final_manual=0
                   this.mostrar_resultado_final=Boolean(localStorage.getItem("mostrar_resultado_final")) 
                   localStorage.removeItem("listagenerada")
                   localStorage.removeItem("listaClientesCobros") 
@@ -626,30 +625,191 @@ export default {
 
     },
     onVerificarDiaListaCobros(){
-      // alert(this.$store.getters.getClientesCobros.length)
+      if(this.onVerificarListaYaGenergada()){
+        this.$f7.dialog.alert('Ya ha generado una lista hoy regrese mañana he intentelo nuevamente','Atencion!');
+      }else if(this.onVerificarDiaNuevo()){
+            this.ruta_terminada=false
+                  this.btn_comenzar_ruta=false
+                  this.isComienzoRuta=true
+                  this.jornada_cobrador.balance_final_manual=0
+                  this.mostrar_resultado_final=false
+                  localStorage.removeItem("listagenerada")
+                  localStorage.removeItem("fecha_lista_generada")
+                  localStorage.removeItem("Informe_final_ruta")
+                  localStorage.removeItem("estado_lista_prestamos_clientes")
+                  localStorage.removeItem("mostrar_resultado_final")
+                  localStorage.removeItem("jornada_confirmada")
+                  localStorage.removeItem("cobros_hoy")
+                  // localStorage.removeItem("ListaEstadosCobro")
+                  this.$store.commit('setEstadoCobrosLista',JSON.parse(localStorage.getItem('ListaEstadosCobro')))
+                  this.$store.commit('setfechInicialJornada',this.$moment(new Date).format("MM-DD-YYYY"));
+                  this.$store.commit('sethoraInicialJornada',this.$moment(new Date).format("hh:mm:ss"));
+                  this.onRecargarInfoListaCobros()                                  
+      }else{
+         // alert(this.$store.getters.getClientesCobros.length)
          if(this.$store.getters.getClientesCobros.length>=1){
             localStorage.setItem('lista_clientes_cobrados', this.$store.getters.getClientesCobros.length)
           // this.$store.commit('setEstadoCobrosLista',JSON.parse(localStorage.getItem('ListaEstadosCobro')))
           // this.onGenerarListaJornadaPago()
           this.$store.commit('setEstadoCobrosLista',JSON.parse(localStorage.getItem('ListaEstadosCobro')))
         this.onGenerarListaJornadaPago()
+         this.$store.commit('setfechInicialJornada',this.$moment(new Date).format("MM-DD-YYYY"));
+        this.$store.commit('sethoraInicialJornada',this.$moment(new Date).format("hh:mm:ss"));
       
       }else{
          this.$f7.dialog.alert('No hay clientes para cobrar hoy','Atencion!');
       }
-      
+      }
+        
     },
-    onGenerarListaJornadaPago(){
-        this.$store.commit('setfechInicialJornada',this.$moment(new Date).format("MM-DD-YYYY"));
-        this.$store.commit('sethoraInicialJornada',this.$moment(new Date).format("hh:mm:ss"));
-        if(localStorage.getItem("fecha_lista_generada")){
+    onRecargarInfoListaCobros(){
+       let clientes_cobrador = this.$store.getters.getClientes;
+            let estadoListaCobro=[]
+                for (const key in clientes_cobrador) {
+                if (clientes_cobrador.hasOwnProperty(key)) {
+                    const element = clientes_cobrador[key];
+                    
+                   
+                    // alert(element.data.hasOwnProperty('prestamos'))
+                    if(element.data.hasOwnProperty('prestamos')){
+                       
+                            let fecha_prestamo = this.$moment(element.data.prestamos[0].fecha).format('YYYY-MM-DD');
+                            let fecha_anterior_hoy = this.$moment(new Date()).format('YYYY-MM-DD');
+
+                           
+                        //    alert(fecha_prestamo<fecha_anterior_hoy && element.data.prestamos.length >= 1 && element.data.prestamos[0].estado_prestamo == "false")
+                                //  if (element.data.prestamos.length > 0 && element.data.prestamos[0].estado_prestamo == false) {
+                            if(fecha_prestamo<fecha_anterior_hoy && element.data.prestamos.length >= 1 && element.data.prestamos[0].estado_prestamo == "false") {
+                                if(localStorage.getItem('ListaEstadosCobro')){
+                                    let estados=JSON.parse(localStorage.getItem('ListaEstadosCobro'))
+                                    
+                                    for (const key in estados) {
+                                        if (estados.hasOwnProperty(key)) {
+                                            const element_estado = estados[key];
+                                            if(element_estado.id==element.data.prestamos[0].cliente){
+                                                if(element_estado.estado==1){
+                                                element.data.estado_pago_prestamo.pago=true
+                                                 element.data.estado_pago_prestamo.nopago=false
+                                                 element.data.estado_pago_prestamo.pendiente=false
+                                                }
+                                                else if(element_estado.estado==2){
+                                                    element.data.estado_pago_prestamo.pago=false
+                                                 element.data.estado_pago_prestamo.nopago=true
+                                                 element.data.estado_pago_prestamo.pendiente=false
+                                                }
+                                                else if(element_estado.estado==3){
+                                                       element.data.estado_pago_prestamo.pago=false
+                                                 element.data.estado_pago_prestamo.nopago=false
+                                                 element.data.estado_pago_prestamo.pendiente=true
+                                                }
+                                            
+                                            
+                                        }
+                                    }
+                                }
+                            }
+
+                
+                               
+
+                                this.$store.state.clientes_cobros.unshift(element);
+                                
+                                
+                                // alert(localStorage.getItem("listagenerada"))
+                                if(Boolean(localStorage.getItem("listagenerada"))==false || localStorage.getItem("listagenerada")=='false' || localStorage.getItem("listagenerada")==null ){
+                                    
+                                  estadoListaCobro.unshift({estado:0,id:element.data.id})
+                                  localStorage.setItem('ListaEstadosCobro',JSON.stringify(estadoListaCobro))
+                               
+                                 
+                                
+                                }else{
+                                    
+                                    //  this.$store.commit('setEstadoCobrosLista',JSON.parse(localStorage.getItem('ListaEstadosCobro')))
+                                     if(localStorage.getItem('cobros_pendientesArray')){
+                                            this.$store.state.cobros_pendientes=[]
+                                            let cobros_pendientes=JSON.parse(localStorage.getItem('cobros_pendientesArray'))
+                                            cobros_pendientes.forEach(element => {
+                                                 this.$store.state.cobros_pendientes.unshift(element)
+                                            });
+                                         
+                                            localStorage.setItem('cobro_pendiente', this.$store.state.cobros_pendientes.length)
+                                             this.$store.state.jornada_cobrador.numero_cobros_pendientes=this.$store.state.cobros_pendientes.length
+                                         
+                                             
+                                     }
+                                     if(localStorage.getItem('total_prestado')){
+                                        this.$store.state.jornada_cobrador.total_prestado=Number(localStorage.getItem('total_prestado'))
+                                     }
+                                    //  total_prestado
+                                     
+                                     if(localStorage.getItem('cobros_efectivos')){
+                                        this.$store.state.jornada_cobrador.catidad_cobrosefectivos=Number(localStorage.getItem('cobros_efectivos'))
+                                     }
+                                    
+                                     if(localStorage.getItem('cobros_nofectivos')){
+                                        this.$store.state.jornada_cobrador.catidad_cobrosenofectivos=Number(localStorage.getItem('cobros_nofectivos'))
+                                     }
+
+                                     if(localStorage.getItem('total_cobros')){
+                                         this.$store.state.jornada_cobrador.total_cobros_realizados=Number(localStorage.getItem('total_cobros'))
+                                     }
+                                    
+                                     if(localStorage.getItem('lista_clientes_cobrados')){
+                                       this.$store.state.contadorClientesSeleccionados=Number(localStorage.getItem('lista_clientes_cobrados'))
+                                          
+                                     }
+
+                                     if(localStorage.getItem('cobros_hoy')){
+                                       this.$store.state.cobros_hoy=JSON.parse(localStorage.getItem('cobros_hoy'))   
+                                     }
+                                    
+
+                                     
+
+                                      
+                                    // localStorage.removeItem('cobros_nofectivos')
+                                    
+                                }
+                            }
+                    // }
+                    }
+                    
+                }
+            }
+    
+          
+          this.$store.commit('setEstadoCobrosLista',JSON.parse(localStorage.getItem('ListaEstadosCobro')))
+          this.onGenerarListaJornadaPago()
+    },
+    onVerificarDiaNuevo(){
+      if(localStorage.getItem("fecha_lista_generada")){
+         let fecha_lista = this.$moment(localStorage.getItem("fecha_lista_generada")).format('YYYY-MM-DD');
+         let fecha_hoy = this.$moment(new Date()).format('YYYY-MM-DD');
+          if(fecha_hoy>fecha_lista){
+                return true
+          }else{
+            return false
+          }
+                                        
+        }
+    },
+    onVerificarListaYaGenergada(){
+       if(localStorage.getItem("fecha_lista_generada")){
         let fechaactual=this.$moment(new Date)
         let fechageneradalista=this.$moment(localStorage.getItem("fecha_lista_generada"))
         // alert(fechaactual.diff(fechageneradalista,'days') )// 1)
          if(fechaactual.diff(fechageneradalista,'days')==0){
-          this.$f7.dialog.alert('Ya ha generado una lista hoy regrese mañana he intentelo nuevamente','Atencion!');
+           return true
+         }else{
+          return false
          }
-        }else{
+      }
+
+    },
+    onGenerarListaJornadaPago(){
+       
+   
           
                   //Modifique aca.
         
@@ -678,7 +838,7 @@ export default {
                 console.log(error);
          })
         // this.onComenzarFornada()
-        }
+        
          
 
         

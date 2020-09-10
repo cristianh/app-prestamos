@@ -127,9 +127,13 @@ export default new Vuex.Store({
             state.jornada_cobrador.catidad_cobrosenofectivos++;
             localStorage.setItem('cobros_nofectivos', state.jornada_cobrador.catidad_cobrosenofectivos)
         },
-        setQuitar_cobros_pendientesJornada(state) {
+        setQuitar_cobros_pendientesJornada(state, idClienteCobro) {
             if (state.jornada_cobrador.numero_cobros_pendientes != 0) {
                 state.jornada_cobrador.numero_cobros_pendientes--;
+                let pendientesarray = JSON.parse(localStorage.getItem('cobros_pendientesArray'))
+                let posicion = pendientesarray.findIndex(x => x.id == idClienteCobro);
+                pendientesarray.splice(0, 1)
+                localStorage.setItem('cobros_pendientesArray', JSON.stringify(pendientesarray)) //
                 localStorage.setItem('cobro_pendiente', Number(state.jornada_cobrador.numero_cobros_pendientes))
             } else {
 
@@ -273,12 +277,28 @@ export default new Vuex.Store({
         },
         eliminarClientePrestamoDiario(state, Idcliente) {
             let posicion = state.clientes_cobros.findIndex(x => x.data.id == Idcliente);
-            state.clientes_cobros.splice(posicion, 1);
+            console.log(posicion)
+                // state.clientes_cobros.splice(posicion, 1);
             let posicion_cliente = state.clientes.findIndex(x => x.data.id == Idcliente);
-            console.log(posicion_cliente)
-            console.log(state.clientes[posicion_cliente])
-            delete state.clientes[posicion_cliente].data.prestamos
+            let estados = JSON.parse(localStorage.getItem('ListaEstadosCobro'))
+            let posicion_estados = estados.findIndex(x => x.id == Idcliente);
+            let lista_clientes = JSON.parse(localStorage.getItem('lista_clientes_cobrados'))
+            if (lista_clientes != 0) {
+                lista_clientes = lista_clientes - 1;
 
+                localStorage.setItem('lista_clientes_cobrados', lista_clientes)
+            } else {
+                lista_clientes = 0;
+                localStorage.setItem('lista_clientes_cobrados', lista_clientes)
+            }
+
+            // alert(typeof(estados))
+            // let posicion_estados_ruta = state.estados_prestamos_ruta.findIndex(x => x.data.id == Idcliente);
+            // state.estados_prestamos_ruta.splice(posicion, 1);
+            // delete estados[posicion]
+            // estados.splice(posicion_estados, 1)
+            // delete state.clientes[posicion_cliente].data.prestamos
+            localStorage.setItem('ListaEstadosCobro', JSON.stringify(estados))
         },
         setEstadoCobrosLista(state, data) {
             state.estados_prestamos_ruta = data
@@ -292,6 +312,7 @@ export default new Vuex.Store({
 
             if (Boolean(localStorage.getItem("listagenerada")) == true || localStorage.getItem("listagenerada") == 'true') {
                 let estadolista = JSON.parse(localStorage.getItem("listaClientesCobros"));
+
                 for (const key in estadolista) {
                     if (estadolista.hasOwnProperty(key)) {
                         // const element = estadolista[key];
@@ -319,6 +340,9 @@ export default new Vuex.Store({
                 // this.onComenzarFornada()
 
             }
+        },
+        setActualizarEstadosListaCobros(state, nueva_lista) {
+            state.clientes_cobros = nueva_lista
         }
     },
     getters: {
@@ -354,61 +378,64 @@ export default new Vuex.Store({
             state.clientes_cobros.forEach(elementP => {
                 posicion = state.clientes_cobros.findIndex(x => x.data.id == elementP.data.id)
 
-                if (estados[posicion].estado == 1) {
+                if (estados[posicion].estado == 1 || estados[posicion].estado != null) {
+                    if (state.clientes_cobros[posicion].data.prestamos[0].saldo_pendiente > 0) {
 
-                    // if (Boolean(localStorage.getItem("listagenerada")) == true || localStorage.getItem("listagenerada") == 'true') {
-                    //     if (Number(elementP.data.prestamos[0].saldo_pendiente) > 0) {
+                        state.saldo_pago_dia.push(0)
+                    } else {
+                        valor_prestamo = elementP.data.prestamos[0].valor;
 
-                    //     } else {
-                    //         // state.saldo_pago_dia[posicion] = 0;
-                    //         state.saldo_pago_dia.push(0);
-                    //     }
-                    // } else {
-                    //     // state.saldo_pago_dia[posicion] = 0;
-                    //     state.saldo_pago_dia.push(0);
-                    // }
-                    state.saldo_pago_dia.push(0)
-                    console.log(posicion)
-                    console.log(estados[posicion].estado)
-                    console.log(state.saldo_pago_dia[posicion]);
+                        taza_seleccionada_interes = Number(elementP.data.prestamos[0].plan_seleccionado) / 100
+                            // plazo_dias = Number(elementP.data.prestamos[0].dias_plazo) + Number(elementP.data.prestamos[0].dias_con_mora)
+                            // plazo_dias = Number(elementP.data.prestamos[0].dias_plazo)
+                            // pago_hoy = Math.round((valor_prestamo * (1 + taza_seleccionada_interes)) / plazo_dias)
+                        plazo_dias = Number(elementP.data.prestamos[0].dias_plazo)
+                        pago_hoy = Math.round((valor_prestamo * (1 + taza_seleccionada_interes)) / plazo_dias)
+
+                        // if (Number(elementP.data.prestamos[0].dias_con_mora) >= 1) {
+
+                        // }
+
+                        if (elementP.data.prestamos[0].saldo_pendiente > 0) {
+                            pago_hoy = Number(elementP.data.prestamos[0].saldo_pendiente) + Number(pago_hoy);
+                        }
+
+                        if (elementP.data.prestamos[0].saldo_pago_dia > 0) {
+                            pago_hoy = Number(elementP.data.prestamos[0].saldo_pago_dia) - Number(pago_hoy);
+                        }
+
+
+
+                        console.log(pago_hoy);
+
+                        state.saldo_pago_dia.push(pago_hoy);
+                    }
+
+
 
                 } else {
                     valor_prestamo = elementP.data.prestamos[0].valor;
 
                     taza_seleccionada_interes = Number(elementP.data.prestamos[0].plan_seleccionado) / 100
-                    plazo_dias = Number(elementP.data.prestamos[0].dias_plazo) + Number(elementP.data.prestamos[0].dias_con_mora)
+
+                    // plazo_dias = Number(elementP.data.prestamos[0].dias_plazo)
+                    plazo_dias = Number(elementP.data.prestamos[0].dias_plazo)
                     pago_hoy = Math.round((valor_prestamo * (1 + taza_seleccionada_interes)) / plazo_dias)
+
+                    // if (Number(elementP.data.prestamos[0].dias_con_mora)==0) {
+
+                    // }else{
+
+                    // }
 
                     if (elementP.data.prestamos[0].saldo_pendiente > 0) {
                         pago_hoy = Number(elementP.data.prestamos[0].saldo_pendiente) + Number(pago_hoy);
                     }
 
-                    console.log(pago_hoy);
+                    if (elementP.data.prestamos[0].saldo_pago_dia > 0) {
+                        pago_hoy = Number(elementP.data.prestamos[0].saldo_pago_dia) - Number(pago_hoy);
+                    }
 
-
-                    // taza_seleccionada_interes;
-                    // switch (elementP.data.prestamos[0].plan_seleccionado) {
-                    //     case "10":
-                    //         taza_seleccionada_interes = 0.10
-                    //         break
-                    //     case "15":
-                    //         taza_seleccionada_interes = 0.15
-                    //         break
-                    //     case "20":
-                    //         taza_seleccionada_interes = 0.20
-                    //         break
-                    // }
-
-
-
-                    // total_apagar = (Number(valor_prestamo) * taza_seleccionada_interes) + Number(valor_prestamo);
-                    // console.log(".............................Total a pagar", total_apagar);
-
-                    // if (Number(plazo_dias) <= 0) {
-                    //     pago = 0;
-                    // } else {
-
-                    // }
                     state.saldo_pago_dia.push(pago_hoy);
                 }
 
@@ -445,16 +472,7 @@ export default new Vuex.Store({
             return state.estados_prestamos_ruta;
         },
         getClientesListaPrestamo: state => {
-            return state.clientes_cobros.sort((a, b) => {
-                if (a.data.posicion < b.data.posicion) {
-                    return 1;
-                }
-                if (a.data.posicion > b.data.posicion) {
-                    return -1;
-                }
-                // a must be equal to b
-                return 0;
-            });
+            return state.clientes_cobros
         },
         getJornadaCobrador: state => {
             return state.jornada_cobrador
@@ -503,10 +521,22 @@ export default new Vuex.Store({
         },
         getOrdenarClientes: state => {
             return state.clientes.sort((a, b) => {
-                if (a.data.posicion > b.data.posicion) {
+                if (a.data.posicion < b.data.posicion) {
                     return 1;
                 }
+                if (a.data.posicion > b.data.posicion) {
+                    return -1;
+                }
+                // a must be equal to b
+                return 0;
+            });
+        },
+        getOrdenarListaClientesCobros: state => {
+            return state.clientes_cobros.sort((a, b) => {
                 if (a.data.posicion < b.data.posicion) {
+                    return 1;
+                }
+                if (a.data.posicion > b.data.posicion) {
                     return -1;
                 }
                 // a must be equal to b

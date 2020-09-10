@@ -1,67 +1,72 @@
 {
-    "database": {
-        "rules": "database.rules.json"
+  "database": {
+    "rules": "database.rules.json"
+  },
+  "firestore": {
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
+  },
+  "functions": {
+    "predeploy": [
+      "npm --prefix \"$RESOURCE_DIR\" run lint"
+    ],
+    "source": "functions"
+  },
+  "hosting": [
+    {
+      "site": "adminprestamosdashboard",
+      "public": "y/dist",
+      "ignore": [
+        "firebase.json",
+        "**/.*",
+        "**/node_modules/**"
+      ],
+      "rewrites": [
+        {
+          "source": "**",
+          "destination": "/index.html"
+        }
+      ]
     },
+    {
+      "site": "empresassucomercio",
+      "public": "y/dist",
+      "ignore": [
+        "firebase.json",
+        "**/.*",
+        "**/node_modules/**"
+      ],
+      "rewrites": [
+        {
+          "source": "**",
+          "destination": "/index.html"
+        }
+      ]
+    }
+  ],
+  "storage": {
+    "rules": "storage.rules"
+  },
+  "emulators": {
     "firestore": {
-        "rules": "firestore.rules",
-        "indexes": "firestore.indexes.json"
+      "port": "3304"
+    },
+    "ui": {
+      "enabled": true,
+      "host": "localhost"
     },
     "functions": {
-        "predeploy": [
-            "npm --prefix \"$RESOURCE_DIR\" run lint"
-        ],
-        "source": "functions"
+      "port": 4001,
+      "host": "localhost"
     },
-    "hosting": [{
-            "site": "adminprestamosdashboard",
-            "public": "y/dist",
-            "ignore": [
-                "firebase.json",
-                "**/.*",
-                "**/node_modules/**"
-            ],
-            "rewrites": [{
-                "source": "**",
-                "destination": "/index.html"
-            }]
-        },
-        {
-            "site": "empresassucomercio",
-            "public": "y/dist",
-            "ignore": [
-                "firebase.json",
-                "**/.*",
-                "**/node_modules/**"
-            ],
-            "rewrites": [{
-                "source": "**",
-                "destination": "/index.html"
-            }]
-        }
-    ],
-    "storage": {
-        "rules": "storage.rules"
+    "database": {
+      "port": 9000
     },
-    "emulators": {
-        "firestore": {
-            "port": "3304"
-        },
-        "ui": {
-            "enabled": true,
-            "host": "localhost"
-        },
-        "functions": {
-            "port": 4001,
-            "host": "localhost"
-        },
-        "database": {
-            "port": 9000
-        },
-        "pubsub": {
-            "port": 4003
-        },
-        "hosting": {
-            "port": 4002
-        }
+    "pubsub": {
+      "port": 4003
+    },
+    "hosting": {
+      "port": 4002
     }
+  }
 }

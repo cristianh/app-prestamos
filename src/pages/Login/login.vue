@@ -210,6 +210,8 @@
                 
               case 'invalidEmail':
                 return "Correo electrónico no valido"
+              case 'auth/quota-exceeded':
+                return "Se ha superado la cuota del proyecto para esta operación."
                 
               case 'auth/wrong-password':
                 return "La contraseña es inválida o el usuario no tiene contraseña."

@@ -14,16 +14,16 @@
     <f7-block strong>
       <f7-block-title >Usuario</f7-block-title>
       <f7-list>
-      <f7-list-item v-for="(usuario,index,keyus) in clientes_info.usuario" :id="index" :key="keyus">
-        <span>{{index.replace('_',' ') | capitalize}}:</span>{{usuario}}
-       
+      <f7-list-item v-for="(usuario,index,keyne) in form.usuario" :id="index" :key="keyne">
+        <!-- {{usuario}} -->
+       <span>{{index| capitalize}}:</span>{{usuario}}
       </f7-list-item>
       </f7-list>
     </f7-block>
     <f7-block strong >
        <f7-block-title >Negocio</f7-block-title>
        <f7-list>
-      <f7-list-item  v-for="(negocio,index,keyne) in clientes_info.negocio" :id="index" :key="keyne">
+      <f7-list-item  v-for="(negocio,index,keyne) in form.negocio" :id="index" :key="keyne">
         <span>{{index.replace('_',' ') | capitalize}}:</span>{{negocio}}
       </f7-list-item>
       </f7-list>
@@ -31,7 +31,7 @@
     <f7-block strong>
       <f7-block-title>Codeudor</f7-block-title>
       <f7-list>
-       <f7-list-item   v-for="(codeudor,index,keycod) in clientes_info.codeudor" :id="index" :key="keycod">
+       <f7-list-item   v-for="(codeudor,index,keycod) in form.codeudor" :id="index" :key="keycod">
          <span>{{index.replace('_',' ') | capitalize}}:</span>{{codeudor}}
       </f7-list-item>
       </f7-list>
@@ -44,7 +44,8 @@
         <div v-if="clientes_info.prestamos.dias_plazo!=''">
          <span> Dias de mora: </span>{{prestamos.dias_con_mora}}<br>
          <span> Dias de plazo: </span>{{prestamos.dias_plazo}}<br>
-         <span> Saldo pendiente: </span>{{prestamos.saldo_pendiente}}<br>
+         <span> Saldo pendiente: </span>{{prestamos.saldo_pendiente|currency}}<br>
+         <span> Saldo a favor: </span>{{prestamos.saldo_pago_dia|currency}}<br>
          <span>Fecha del prestamo: </span>{{prestamos.fecha}}<br>
          <span>Valor del prestamo: </span>{{prestamos.valor|currency}}<br>
          <span>Total a pagar: </span>{{prestamos.total_apagar|currency}}<br>

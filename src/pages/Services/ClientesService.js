@@ -60,4 +60,8 @@ export default class ClientesService {
         }).then(response => response);
     }
 
+    // eliminarPrestamoPago(id_admin, id_empresa, ui_cobrador, id_cliente) {
+    //     return axios.delete(`ClienteEliminarPrestamosPago?idadmin=${id_admin}&id_empresa=${id_empresa}&doc=${ui_cobrador}&sub=${id_cliente}`).then(response => response);
+    // }
+
 }

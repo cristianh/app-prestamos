@@ -44,7 +44,7 @@ import 'primevue/resources/primevue.min.css' //core css
 import 'primeicons/primeicons.css'
 
 const firebaseConfig = {
-    apiKey: "AIzaSyA8t8KjQDFQhJ62OHZoaKc7eJ3QrvEYFXA",
+    apiKey: "AIzaSyB56SdrfZ3OE7m6VPWcTqsGVPxbJC1ifTY",
     authDomain: "manifest-life-279516.firebaseapp.com",
     databaseURL: "https://manifest-life-279516.firebaseio.com",
     projectId: "manifest-life-279516",
