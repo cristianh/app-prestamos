@@ -15,10 +15,10 @@
   <!-- <f7-list-button panel-close><f7-link no-link-class color="black" tab-link="#view-ruta"  icon-ios="f7:swap_calls" icon-aurora="f7:swap_calls" icon-md="material:swap_calls" >Rutas</f7-link></f7-list-button> -->
   <f7-list-button panel-close><f7-link  tab-link="#view-transacciones"  text="Transferencias" color="black" icon-ios="f7:import_export" icon-aurora="f7:import_export" icon-md="material:import_export" ></f7-link></f7-list-button>
   <f7-list-button panel-close><f7-link  tab-link="#view-notificaciones"  text="Notificaciones"  :icon-badge="getTransferencias==0?'':getTransferencias"  badge-color="green"   color="black" :icon-ios="getTransferencias==0?'f7:notifications':'f7:notifications_active'" :icon-aurora="getTransferencias==0?'f7:notifications':'f7:notifications_active'" :icon-md="getTransferencias==0?'material:notifications':'material:notifications_active'" ></f7-link></f7-list-button>
-  <f7-list-button panel-close><f7-link   color="black" icon-ios="f7:alarm_on" icon-aurora="f7:alarm_on" icon-md="material:alarm_on" >Pendientes</f7-link></f7-list-button>
-  <f7-list-button panel-close><f7-link   color="black" icon-ios="f7:create" icon-aurora="f7:create" icon-md="material:create" >Modificar Abono</f7-link></f7-list-button>
+  <!-- <f7-list-button panel-close><f7-link   color="black" icon-ios="f7:alarm_on" icon-aurora="f7:alarm_on" icon-md="material:alarm_on" >Pendientes</f7-link></f7-list-button> -->
+  <f7-list-button panel-close><f7-link   tab-link="#view-modificarabono" color="black" icon-ios="f7:create" icon-aurora="f7:create" icon-md="material:create" >Modificar Abono</f7-link></f7-list-button>
   <f7-list-button panel-close><f7-link   color="black" icon-ios="f7:delete" icon-aurora="f7:delete" icon-md="material:delete" >Eliminar Abono</f7-link></f7-list-button>
-  <f7-list-button panel-close><f7-link   color="black" icon-ios="f7:today" icon-aurora="f7:today" icon-md="material:today" >Resumen del dia</f7-link></f7-list-button>
+  <f7-list-button panel-close><f7-link   tab-link="#view-informedia" color="black" icon-ios="f7:today" icon-aurora="f7:today" icon-md="material:today" >Resumen del dia</f7-link></f7-list-button>
   <!-- <f7-list-button panel-close><f7-link   color="black" icon-ios="f7:cancel" icon-aurora="f7:cancel" icon-md="material:cancel" >Terminar ruta</f7-link></f7-list-button>   -->
   <f7-list-button @click="exitApp" ><f7-link   color="black" icon-ios="f7:exit_to_app" icon-aurora="f7:exit_to_app" icon-md="material:exit_to_app" >Salir</f7-link></f7-list-button>
 </f7-list>
@@ -48,8 +48,14 @@
     <!-- Settings View -->
     <f7-view id="view-nuevocobro" name="settings" tab url="/abonos/"></f7-view>
 
+    <!-- Modificar abono -->
+    <f7-view id="view-modificarabono" name="settings" tab url="/modificar_abonos/"></f7-view>
+
     <!-- Pendientes -->
     <f7-view id="view-pendientes" name="pendiente" tab url="/pendientes/"></f7-view>
+
+    <!-- Informes-dia -->
+    <f7-view id="view-informedia" name="pendiente" tab url="/informes_dia/"></f7-view>
 
     <!-- ComenzarRuta -->
     <f7-view id="view-rutainicio" name="comenzar_ruta" tab url="/comenzar_ruta/"></f7-view>

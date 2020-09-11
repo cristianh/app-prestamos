@@ -16,6 +16,7 @@ import nuevaRutaClientesDetallesPage from '../pages/Rutas/rutaClienteDetalles.vu
 //Abonos
 import comenzarRuta from '../pages/Abonos/comenzarRuta.vue';
 import detalleAbono from '../pages/Abonos/detallesAbono.vue';
+import ModificarAbono from '../pages/Abonos/ModificarAbono.vue';
 
 import PendientesPage from '../pages/Pendientes/PendientesPage.vue';
 
@@ -26,6 +27,10 @@ import TransaccionesPage from '../pages/Transacciones/NuevaTransaccion.vue';
 
 //Notificacion 
 import NotificacionPage from '../pages/Notificaciones/Notificacion.vue';
+
+
+//InformeDia 
+import InformeDiaPage from '../pages/InformesDia/informesDia.vue';
 
 //Defaul
 // import DynamicRoutePage from '../pages/dynamic-route.vue';
@@ -87,6 +92,14 @@ var routes = [{
     {
         path: '/home',
         component: HomePage
+    },
+    {
+        path: '/modificar_abonos',
+        component: ModificarAbono
+    },
+    {
+        path: '/informes_dia',
+        component: InformeDiaPage
     },
     // {
     //   path: '/about/',

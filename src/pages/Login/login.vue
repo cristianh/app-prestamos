@@ -2,24 +2,24 @@
   <f7-page  no-toolbar no-navbar no-swipeback login-screen >
     <f7-block>
     <f7-row no-gap>
-    <f7-col md="10"></f7-col>
-    <f7-col md="30"><img class="avatar-img" src="https://www.w3schools.com/howto/img_avatar.png" alt="Avatar"></f7-col>
-    <f7-col md="10"></f7-col>
+    <f7-col md="6"></f7-col>
+    <f7-col md="6" class="avatar-img"></f7-col>
+    <f7-col md="6"></f7-col>
     </f7-row>
     </f7-block>
     <f7-login-screen-title>Bienvenido {{userGooglename}}</f7-login-screen-title>
     <f7-list form>
       <f7-list-input
-        label="Username"
+        label="Correo"
         type="text"
-        placeholder="username"
+        placeholder="correo"
         :value="username"
         @input="username = $event.target.value"
       ></f7-list-input>
       <f7-list-input
-        label="Password"
+        label="Contraseña"
         type="password"
-        placeholder="password"
+        placeholder="contraseña"
         :value="password"
         @input="password = $event.target.value"
       ></f7-list-input>
@@ -75,7 +75,7 @@
       };
     },
     created(){
-    localStorage.clear();
+    // localStorage.clear();
 
 
          
@@ -140,6 +140,11 @@
         this.$f7.dialog.preloader('Ingresando...');
         
             firebase.auth().signInWithEmailAndPassword(this.username, this.password).then((response)=> {
+            if(this.recordarme){
+         // Guardar datos al almacenamiento local actual
+                localStorage.setItem("username", this.username);
+                localStorage.setItem("password", this.password);
+            }
             console.log(response);
              this.$f7.dialog.close();
             const username = response.user;
@@ -234,11 +239,7 @@
       getCheck($event){
        console.log($event);
        this.recordarme=!this.recordarme;
-       if(this.recordarme){
-         // Guardar datos al almacenamiento local actual
-          localStorage.setItem("username", this.username);
-          localStorage.setItem("password", this.password);
-       }
+       
        
       },
       GuardarUsuario(){
@@ -252,12 +253,122 @@
 
 <style lang="less">
 .avatar-img {
- width: 105px;
-    height: 105px;
+    background-image: url(https://www.w3schools.com/howto/img_avatar.png);
+    width: 105px;
+    height: 104px;
     border-radius: 50%;
     text-align: center;
     vertical-align: middle;
-    margin-left: -12px;
-    margin-top:-9px
+    /* background-attachment: fixed; */
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+/* 
+  ##Device = Desktops
+  ##Screen = 1281px to higher resolution desktops
+*/
+
+@media (min-width: 1281px) {
+  
+  //CSS
+  
+}
+
+/* 
+  ##Device = Laptops, Desktops
+  ##Screen = B/w 1025px to 1280px
+*/
+
+@media (min-width: 1025px) and (max-width: 1280px) {
+  
+  //CSS
+  
+}
+
+/* 
+  ##Device = Tablets, Ipads (portrait)
+  ##Screen = B/w 768px to 1024px
+*/
+
+@media (min-width: 768px) and (max-width: 1024px) {
+  
+  //CSS
+  
+}
+
+/* 
+  ##Device = Tablets, Ipads (landscape)
+  ##Screen = B/w 768px to 1024px
+*/
+
+@media (min-width: 768px) and (max-width: 1024px) and (orientation: landscape) {
+  
+  //CSS
+   .avatar-img {
+    border:#0099FF 3px solid;
+    background-image: url(https://www.w3schools.com/howto/img_avatar.png);
+    width: 105px;
+    height: 146px;
+    border-radius: 50%;
+    text-align: center;
+    vertical-align: middle;
+    /* background-attachment: fixed; */
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+  
+}
+  
+}
+
+/* 
+  ##Device = Low Resolution Tablets, Mobiles (Landscape)
+  ##Screen = B/w 481px to 767px
+*/
+
+@media (min-width: 481px) and (max-width: 767px) {
+  
+  //CSS
+    .avatar-img {
+    border:#0099FF 3px solid;
+    background-image: url(https://www.w3schools.com/howto/img_avatar.png);
+    width: 105px;
+    height: 146px;
+    border-radius: 50%;
+    text-align: center;
+    vertical-align: middle;
+    /* background-attachment: fixed; */
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+  
+}
+  
+}
+
+/* 
+  ##Device = Most of the Smartphones Mobiles (Portrait)
+  ##Screen = B/w 320px to 479px
+*/
+
+@media (min-width: 320px) and (max-width: 480px) {
+  
+  //CSS
+  .avatar-img {
+    border:#0099FF 3px solid;
+    background-image: url(https://www.w3schools.com/howto/img_avatar.png);
+    width: 105px;
+    height: 115px;
+    border-radius: 50%;
+    text-align: center;
+    vertical-align: middle;
+    /* background-attachment: fixed; */
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+  
+}
 }
 </style>

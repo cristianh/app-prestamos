@@ -216,6 +216,7 @@ export default {
     },
     beforeMount() {
         // console.log(navigator.onLine)
+        // this.CobradoresService = new CobradoresService();
         if(localStorage.getItem("fecha_lista_generada")){
          let fecha_lista = this.$moment(localStorage.getItem("fecha_lista_generada")).format('YYYY-MM-DD');
          let fecha_hoy = this.$moment(new Date()).format('YYYY-MM-DD');
@@ -232,6 +233,8 @@ export default {
                                                 localStorage.removeItem("estado_lista_prestamos_clientes")
                                                 localStorage.removeItem("mostrar_resultado_final")
                                                 localStorage.removeItem("jornada_confirmada")
+                                                localStorage.removeItem("cobros_hoy")
+                                                localStorage.removeItem("ListaEstadosCobro")
                                               
                                         }
                                         
@@ -262,7 +265,7 @@ export default {
         // console.log(this.uid);
         // localStorage.setItem("listagenerada",false);
         
-        axios.get(`https://us-central1-manifest-life-279516.cloudfunctions.net/InformacionParaCobradores?idadmin=${this.idad}&doc=${empresa}&idcobrador=${this.uid}`).then((resp)=>{
+        this.CobradoresService.getInformacionCobrador(this.idad,empresa,this.uid).then((resp)=>{
           
             if(resp.data.collecciones.find(x=>x==="parametros_cobros")){
                 // alert('la empresa no a dfinico los paramtros de cobro');
@@ -319,22 +322,61 @@ export default {
                     
                     //this.clientes.push(element);
                     this.$store.state.clientes.unshift(element);
+                    // alert(element.data.hasOwnProperty('prestamos'))
                     if(element.data.hasOwnProperty('prestamos')){
                        
                             let fecha_prestamo = this.$moment(element.data.prestamos[0].fecha).format('YYYY-MM-DD');
                             let fecha_anterior_hoy = this.$moment(new Date()).format('YYYY-MM-DD');
 
                            
-                           
+                        //    alert(fecha_prestamo<fecha_anterior_hoy && element.data.prestamos.length >= 1 && element.data.prestamos[0].estado_prestamo == "false")
                                 //  if (element.data.prestamos.length > 0 && element.data.prestamos[0].estado_prestamo == false) {
                             if(fecha_prestamo<fecha_anterior_hoy && element.data.prestamos.length >= 1 && element.data.prestamos[0].estado_prestamo == "false") {
+                                if(localStorage.getItem('ListaEstadosCobro')){
+                                    let estados=JSON.parse(localStorage.getItem('ListaEstadosCobro'))
+                                    
+                                    for (const key in estados) {
+                                        if (estados.hasOwnProperty(key)) {
+                                            const element_estado = estados[key];
+                                            if(element_estado.id==element.data.prestamos[0].cliente){
+                                                if(element_estado.estado==1){
+                                                element.data.estado_pago_prestamo.pago=true
+                                                 element.data.estado_pago_prestamo.nopago=false
+                                                 element.data.estado_pago_prestamo.pendiente=false
+                                                }
+                                                else if(element_estado.estado==2){
+                                                    element.data.estado_pago_prestamo.pago=false
+                                                 element.data.estado_pago_prestamo.nopago=true
+                                                 element.data.estado_pago_prestamo.pendiente=false
+                                                }
+                                                else if(element_estado.estado==3){
+                                                       element.data.estado_pago_prestamo.pago=false
+                                                 element.data.estado_pago_prestamo.nopago=false
+                                                 element.data.estado_pago_prestamo.pendiente=true
+                                                }
+                                            
+                                            
+                                        }
+                                    }
+                                }
+                            }
+
+                
+                               
+
                                 this.$store.state.clientes_cobros.unshift(element);
+                                
+                                
+                                // alert(localStorage.getItem("listagenerada"))
                                 if(Boolean(localStorage.getItem("listagenerada"))==false || localStorage.getItem("listagenerada")=='false' ){
-                                estadoListaCobro.unshift({estado:0,id:element.data.id})
-                                localStorage.setItem('ListaEstadosCobro',JSON.stringify(estadoListaCobro))
+                                    
+                                  estadoListaCobro.unshift({estado:0,id:element.data.id})
+                                  localStorage.setItem('ListaEstadosCobro',JSON.stringify(estadoListaCobro))
+                               
                                  
                                 
                                 }else{
+                                    
                                     //  this.$store.commit('setEstadoCobrosLista',JSON.parse(localStorage.getItem('ListaEstadosCobro')))
                                      if(localStorage.getItem('cobros_pendientesArray')){
                                             this.$store.state.cobros_pendientes=[]
@@ -348,7 +390,10 @@ export default {
                                          
                                              
                                      }
-                                     
+                                     if(localStorage.getItem('total_prestado')){
+                                        this.$store.state.jornada_cobrador.total_prestado=Number(localStorage.getItem('total_prestado'))
+                                     }
+                                    //  total_prestado
                                      
                                      if(localStorage.getItem('cobros_efectivos')){
                                         this.$store.state.jornada_cobrador.catidad_cobrosefectivos=Number(localStorage.getItem('cobros_efectivos'))
@@ -365,6 +410,10 @@ export default {
                                      if(localStorage.getItem('lista_clientes_cobrados')){
                                        this.$store.state.contadorClientesSeleccionados=Number(localStorage.getItem('lista_clientes_cobrados'))
                                           
+                                     }
+
+                                     if(localStorage.getItem('cobros_hoy')){
+                                       this.$store.state.cobros_hoy=JSON.parse(localStorage.getItem('cobros_hoy'))   
                                      }
                                     
 
@@ -491,125 +540,6 @@ export default {
         
     },
     methods: {
-    onDetectarTransaccionesNuevasAprobadas(idCobrador,idad,idempresa,idzona){
-        console.log(idCobrador);
-           let transferenciaNuevasAprobadas= db.collection("usuarios").doc(this.idad).collection("empresas").doc(idempresa).collection('Transferencias')
-      transferenciaNuevasAprobadas.where("estado_trasaccion", "==", 1)
-       transferenciaNuevasAprobadas.where("transaccion_nueva", "==", true)
-       transferenciaNuevasAprobadas.where("notificado", "==", false)
-        transferenciaNuevasAprobadas.where("idCobrador_recibe", "==", idzona).get()
-    .then((querySnapshot) =>{
-        querySnapshot.forEach((doc) =>{
-            let contador=0;
-     let mensaje_visible=false;
-     console.log(doc);
-   if(doc.exists){
-            if(mensaje_visible==false){
-                    this.$f7.dialog.alert('Tienes '+(contador+1)+' transferencia nueva aprobada de zona!','Atencion!');
-                     mensaje_visible=true;
-                 let data_transacciones={
-                  id:doc.id,
-                  data:doc.data()
-                }
-                console.log(doc.data().idCobrador_recibe);
-                console.log(doc.data().idCobrador_envia);
-                 this.$store.commit('setDatosTransferenciaPendientes',data_transacciones);
-                // console.log(data_transacciones);
-                this.$store.commit('setAumentaContadorTransferencias');
-                this.$store.commit('setDatosTransferencia',data_transacciones);
-               
-                 contador++
-                    }
-   }else{
-      
-
- 
-
-   }
-            
-        });
-    })
-    .catch((error)=> {
-        console.log("Error getting documents: ", error);
-    });
-
-    },
-    onDetectarTransaccionNuevas(idCobrador,idad,idempresa,idzona){
-     let transferencia= db.collection("usuarios").doc(this.idad).collection("empresas").doc(idempresa).collection('Transferencias')
-      transferencia.where("transaccion_nueva", "==", true)
-      transferencia.where("estado_trasaccion", "==", 1)
-      transferencia.where("idCobrador_recibe", "==", idzona)
-      .onSnapshot((snapshot)=> {
-    
-         let mensaje_visible=false;
-
-        snapshot.docChanges().forEach((change)=> {
-            
-            if (change.type === "added") {
-            //    if(mensaje_visible==false){
-            //         this.$f7.dialog.alert('Tiene '+(contador+1)+' transferencia de zona!','Atencion!');
-            //          mensaje_visible=true;
-            //         }
-                
-            //     this.$store.commit('setDatosTransferenciaPendientes',this.form_transaccion);
-            //        let data_transacciones={
-            //       id:idTransacciones[contador],
-            //       data:change.doc.data()
-            //     }
-            //     console.log(data_transacciones);
-            //     this.$store.commit('setAumentaContadorTransferencias');
-            //     this.$store.commit('setDatosTransferencia',data_transacciones);
-               
-                //  contador++
-                // console.log("New: ", change.doc.data());
-            }
-            if (change.type === "modified") {
-                   if(mensaje_visible==false){
-                    this.$f7.dialog.alert('Tiene '+(snapshot.docChanges().length)+' transferencia de zona!','Atencion!');
-                     mensaje_visible=true;
-                    }
-                  let data_transacciones={
-                  id:change.doc.id,
-                  data:change.doc.data()
-                }
-                console.log(data_transacciones);
-                this.$store.commit('setAumentaContadorTransferencias');
-                this.$store.commit('setDatosTransferencia',data_transacciones);
-                console.log("Modified city: ", change.doc.data());
-                
-            }
-            if (change.type === "removed") {
-                console.log("Removed city: ", change.doc.data());
-                let idad=localStorage.getItem("iad");
-                    let mensaje=`Por valor de: ${Number(change.doc.data().valor).toLocaleString('es-CO',{style: 'currency',currency: 'COP',minimumSignificantDigits:1})}.`
-                    this.$f7.dialog.alert(mensaje,`Transferencia envida a "${change.doc.data().nombre_zona_recibe}" cancelada!`,()=>{
-                        this.$f7.dialog.preloader('Actualizando saldo de la zona ...');
-                        let nuevosaldo=Number(this.$store.getters.getBalance)+ Number(change.doc.data().valor);
-                        // Get a new write batch
-                        var batch = db.batch();
-
-                        // Update the population of 'SF'
-                        // /usuarios/Nf05nKycByv8CrjrzfL6/empresas/mhVF3FZqPlNAx1sV9c0o/Zonas/SmhRYXL86AUXG2JBZaNU
-                        var sfRef = db.collection("usuarios").doc(idad).collection("empresas").doc(change.doc.data().idEmpresa_cobrador).collection("Zonas").doc(change.doc.data().idZona_envia);
-                        batch.update(sfRef, {"balance": Number(nuevosaldo)});
-
-                        // Commit the batch
-                        batch.commit().then( () =>{
-                        // ...
-                        console.log('balance actualizado');
-                        this.$store.commit('setActualizarDatosTransferenciaPendiente',change.doc.data());
-                        this.$store.commit('setBalanceZona',nuevosaldo)
-                        this.$f7.dialog.close();
-                        // this.transaccionService.elminiarTransaccion(idad,change.doc.data().idEmpresa_cobrador);
-                        //Cambiamos el estado a cancelado
-
-                        // this.estado_transaccion='success'
-                        });
-                  });
-            }
-        });
-    });
-    },
  onDetectarTransaccionesEmpresa(idCobrador,idad,idempresa,idzona){
             
     let transferenciaEmpresa= db.collection("usuarios").doc(this.idad).collection("empresas").doc(idempresa).collection("Zonas").doc(idzona).collection('Transferencias')
@@ -820,19 +750,6 @@ onDetectarTransaccionesCanceladas(idCobrador,idad,idempresa,idzona){
     beforeCreate() {
         this.uid = localStorage.getItem("uid");
 
-    },
-    mounted() {
-        //     db.collection("users").add({
-        //     first: "Ada",
-        //     last: "Lovelace",
-        //     born: 1815
-        // })
-        // .then(function(docRef) {
-        //     console.log("Document written with ID: ", docRef.id);
-        // })
-        // .catch(function(error) {
-        //     console.error("Error adding document: ", error);
-        // });
-    },
+    }
 }
 </script>

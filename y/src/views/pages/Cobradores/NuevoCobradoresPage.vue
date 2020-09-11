@@ -306,7 +306,7 @@ console.log(this.usuario);
               case 'networkError':
                  this.error= "Promblema al intentar conectar al servidor"
                          break;
-              case 'weakPassword':
+              case 'auth/weak-password':
                  this.error= "Contraseña muy debil o no válida"
                          break;
               case 'missingEmail':

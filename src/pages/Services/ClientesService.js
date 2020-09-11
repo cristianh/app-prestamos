@@ -27,6 +27,13 @@ export default class ClientesService {
         }).then(response => response);
     }
 
+    eliminarClienteCobro(id_admin, id_empresa, id_cobrador, id_cliente, id_cobro, data) {
+        return axios.post(`ClienteEliminarCobro?idadmin=${id_admin}&id_empresa=${id_empresa}&doc=${id_cobrador}&subdoc=${id_cliente}&idcobro=${id_cobro}`, qs.stringify(data), {
+            method: 'POST',
+            headers: { 'content-type': 'application/x-www-form-urlencoded' },
+        }).then(response => response);
+    }
+
 
     guardarListaGenerada(id_admin, id_empresa, id_cobrador, data) {
         return axios.post(`CobradoresGuardarListaDia?idadmin=${id_admin}&id_empresa=${id_empresa}&doc=${id_cobrador}`, qs.stringify(data), {

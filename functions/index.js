@@ -42,6 +42,62 @@ exports.updateEstadoUsuario = functions.firestore
 //     });
 
 
+/**
+ * @function Funcion para buscar el cobrador por la zona.
+ */
+exports.InformeDia = functions.https.onRequest(async(request, response, body) => {
+    response.set('Access-Control-Allow-Origin', '*');
+    response.set('Access-Control-Allow-Credentials', 'true'); // vital
+    response.set('Access-Control-Allow-Methods', 'GET', 'POST', 'PUT', 'DELETE', 'OPTIONS');
+    response.set('Access-Control-Allow-Headers', 'Content-Type');
+    response.set('Access-Control-Allow-Headers', 'Content-Length,Content-Range');
+    response.set('Access-Control-Allow-Headers', 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization');
+
+    try {
+        let infodia = {
+            cobros: [],
+            observaciones: [],
+            clientes: [],
+            prestamos: []
+        };
+
+
+        const list_collections_cobradores_clientes = await db.collection('usuarios').doc(request.query.idadmin).collection('empresas').doc(request.query.doc).collection('cobradores').doc(request.query.idcobrador).listCollections();
+        const collectionIds = list_collections_cobradores_clientes.map(col => col.id);
+        if (collectionIds.includes('Jornada_Ruta')) {
+            let jornadas_collection = db.collection('usuarios').doc(request.query.idadmin).collection('empresas').doc(request.query.doc).collection('cobradores').doc(request.query.idcobrador).collection('Jornada_Ruta')
+
+            let info_dia = []
+            let restultadoCollectionJornadas = jornadas_collection.where("fecha_inicial", "==", request.body.fecha).get()
+                .then((querySnapshot) => {
+                    querySnapshot.forEach((doc) => {
+
+                        let id = doc.id;
+                        let datadocument = doc.data();
+                        datadocument.id = id;
+                        info_dia.push(datadocument);
+                    });
+                    return true;
+                });
+
+            Promise.all([restultadoCollectionJornadas]).then(values => {
+                return response.status(200).send(info_dia);
+            }).catch((error) => {
+                return response.status(500).send(error);
+            });
+
+        }
+
+
+
+
+
+        // return response.status(200).send(JSON.stringify(collectionIds));
+    } catch (error) {
+        return response.status(500).send(error);
+    }
+})
+
 
 /**
  * @function Funcion para buscar el cobrador por la zona.
@@ -185,10 +241,10 @@ exports.CobradoresGuardarCobros = functions.https.onRequest(async(request, respo
     response.set('Access-Control-Allow-Headers', 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization');
 
     try {
-        await db.collection('usuarios').doc(request.query.idadmin).collection('empresas').doc(request.query.id_empresa).collection('cobradores').doc(request.query.doc).collection('clientes').doc(request.query.sub).update({
-            cobros: fieldValue.arrayUnion(request.body)
+        await db.collection('usuarios').doc(request.query.idadmin).collection('empresas').doc(request.query.id_empresa).collection('cobradores').doc(request.query.doc).collection('clientes').doc(request.query.sub).collection('cobros').add(request.body).then((resp) => {
+            return response.status(200).send({ mensaje: 'Cobro registrado.', id: resp.id });
         });
-        return response.send('Cobro registrado.');
+
     } catch (error) {
         return response.status(500).send(error);
     }
@@ -209,7 +265,29 @@ exports.ClienteEliminarPrestamosPago = functions.https.onRequest(async(request, 
         await db.collection('usuarios').doc(request.query.idadmin).collection('empresas').doc(request.query.id_empresa).collection('cobradores').doc(request.query.doc).collection('clientes').doc(request.query.sub).update({
             prestamos: fieldValue.delete()
         });
-        return response.send('Cobro registrado.');
+        return response.status(200).send('Cobro registrado.');
+    } catch (error) {
+        return response.status(500).send(error);
+    }
+});
+
+
+/**
+ * @function Funcion para los prestamos del cliente.
+ */
+exports.ClienteEliminarCobro = functions.https.onRequest(async(request, response, body) => {
+    response.set('Access-Control-Allow-Origin', '*');
+    response.set('Access-Control-Allow-Credentials', 'true'); // vital
+    response.set('Access-Control-Allow-Methods', 'GET', 'POST', 'PUT', 'DELETE', 'OPTIONS');
+    response.set('Access-Control-Allow-Headers', 'Content-Type');
+    response.set('Access-Control-Allow-Headers', 'Content-Length,Content-Range');
+    response.set('Access-Control-Allow-Headers', 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization');
+
+    try {
+        await db.collection('usuarios').doc(request.query.idadmin).collection('empresas').doc(request.query.id_empresa).collection('cobradores').doc(request.query.doc).collection('clientes').doc(request.query.sub).collection('cobros').doc(request.query.idcobro).delete().then(() => {
+            return response.status(200).send('Cobro eliminado.');
+        })
+
     } catch (error) {
         return response.status(500).send(error);
     }
@@ -227,8 +305,8 @@ exports.CobradoresGuardarObservacionNoPago = functions.https.onRequest(async(req
     response.set('Access-Control-Allow-Headers', 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization');
 
     try {
-        await db.collection('usuarios').doc(request.query.idadmin).collection('empresas').doc(request.query.id_empresa).collection('cobradores').doc(request.query.doc).collection('clientes').doc(request.query.sub).update({
-            observaciones: fieldValue.arrayUnion(request.body)
+        await db.collection('usuarios').doc(request.query.idadmin).collection('empresas').doc(request.query.id_empresa).collection('cobradores').doc(request.query.doc).collection('clientes').doc(request.query.sub).collection('observaciones').add(request.body).then((resp) => {
+            return response.status(200).send({ mensaje: 'Observacion registrada.', id: resp.id });
         });
         return response.send('Cobro registrado.');
     } catch (error) {

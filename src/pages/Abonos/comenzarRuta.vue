@@ -54,7 +54,7 @@
           Cobros no pagos: {{informacion_final_ruta.Cobros_nopagos}}<br>
           <!-- Cobros pendientes: {{getCatidadCobrosPendientes}}<br> -->
           Balance inicial de la zona: {{informacion_final_ruta.Balance_inicial_de_la_zona|currency}}<br>
-          Total Prestado: {{informacion_final_ruta.Total_prestado}}<br>
+          Total Prestado: {{informacion_final_ruta.Total_prestado|currency}}<br>
           <!-- Balance final de la zona: {{Number(getTotalCobros)+Number(getBalanceInicial)|currency}}<br> -->
           Total dinero recogido: {{informacion_final_ruta.Total_dinero_recogido|currency}} 
           <f7-row v-if="ruta_terminada">
@@ -122,18 +122,19 @@
        <!-- :link="`/cliente_detalles/${cliente.id}/`" -->
      
         <f7-list  class="search-list-ruta searchbar-found">
-                  
+            
 <!-- :after="`${cliente.data.prestamos.length==0 || cliente.data.prestamos==undefined? 'NA':Number(cliente.data.prestamos[0].dias_con_mora)>=1?'Mora: '+Number(cliente.data.prestamos[0].dias_con_mora)+' dia':'Mora: '+Number(cliente.data.prestamos[0].dias_con_mora)+' dias'}`"  -->
 <!-- {'pendiente':cliente.data.prestamos[0].estado_pago_ruta==3,'normal':cliente.data.prestamos[0].estado_pago_ruta==0,'pago':cliente.data.prestamos[0].estado_pago_ruta==1,'no-pago':cliente.data.prestamos[0].estado_pago_ruta==2 -->
+
         <f7-list-item  
         media-list
         swipeout  
-         :disabled="getEstadoPrestamo[index].estado==1  || getEstadoPrestamo[index].estado==2"
+        :disabled="cliente.data.estado_pago_prestamo.nopago==true || cliente.data.estado_pago_prestamo.pago==true"
         v-for="(cliente,index,key) in getTodosClientesPrestamo"
        
         :badge="`${cliente.data.prestamos.length==0 || cliente.data.prestamos==undefined? 'NA':Number(cliente.data.prestamos[0].dias_con_mora)>=1?'Mora: '+Number(cliente.data.prestamos[0].dias_con_mora)+' dia':'Mora: '+Number(cliente.data.prestamos[0].dias_con_mora)+' dias'}`"
         :badge-color="`${cliente.data.prestamos.length==0 || cliente.data.prestamos==undefined? 'NA':Number(cliente.data.prestamos[0].dias_con_mora)>=1?'red':''}`"
-        :class="{'pago':getEstadoPrestamo[index].estado==1,'no-pago':getEstadoPrestamo[index].estado==2,'pendiente':getEstadoPrestamo[index].estado==3}"
+        :class="{'pago':cliente.data.estado_pago_prestamo.pago==true,'no-pago':cliente.data.estado_pago_prestamo.nopago==true,'pendiente':cliente.data.estado_pago_prestamo.pendiente==true}"
         :subtitle="`Cedula: ${cliente.data.usuario.identificacion}`"   
         :id=cliente.data.id
         :key=key
@@ -146,6 +147,7 @@
         <!-- <f7-swipeout-button close color="blue" >Pendiente</f7-swipeout-button> -->
         <f7-swipeout-button confirm-text="Desea eliminar este cliente de la lista!" confirm-title="Seguro!" color="red" delete>Eliminar</f7-swipeout-button>
         </f7-swipeout-actions>
+        <!-- {{typeOfData(getEstadoPrestamo)}} -->
         <!-- {{cliente.data.prestamos[0].estado_pago_prestamo.pendiente}} -->
         <!-- {{lista_cobros_realizados[index].estado}} -->
          <!-- {{cliente.data.activo }}
@@ -364,15 +366,23 @@ export default {
        return this.$store.getters.getClientesCobros
      },
      getEstadoPrestamo(){
-      // console.log(state.clientes_cobros);
-            // let estados = JSON.parse(localStorage.getItem('ListaEstadosCobro'))
-            // return estados[data] == 1 ?
-            //     'pago' : estados[data] == 2 ?
-            //     'no-pago' : estados[data] == 3 ?
-            //     'pendiente' : 'normal'
-      return this.$store.getters.getEstadoPrestamoRuta
-      // 'pendiente'? data.estado_pendiente_prestamo_ruta:
-      // 'pago'cliente.data.prestamos[0].estado_pago_prestamo.pago==true,'no-pago':Boolean(cliente.data.prestamos[0].estado_pago_prestamo.nopago)==true}
+       let estados=this.$store.getters.getEstadoPrestamoRuta;
+        let temporarlistaclientesprestamos=this.$store.getters.getClientesListaPrestamo
+      // console.log("temporarlistaclientesprestamos",temporarlistaclientesprestamos);
+      if(this.busqueda==""){
+       return this.$store.getters.getEstadoPrestamoRuta
+      }else{
+       let cliente_find=temporarlistaclientesprestamos.findIndex(cliente => {
+        return cliente.data.usuario.identificacion.toLowerCase().includes(this.busqueda.toLowerCase())
+      //  return 
+       }); 
+      
+       return this.$store.getters.getEstadoPrestamoRuta[cliente_find].estado
+     
+      }
+     
+      
+      
     },
     getPrestamosRealiozadoshoy(){
       if(localStorage.getItem("total_prestado")){
@@ -456,6 +466,9 @@ export default {
     }
   },
   methods:{
+    typeOfData(data){
+      return typeof(data)
+    },
     onValidatedInput(isValid){
       this.btn_ruta_terminada=!isValid
     },
@@ -503,9 +516,10 @@ export default {
       let id_jornadacobrador=localStorage.getItem("idjornadacobrador");
       let id_empresa=localStorage.getItem("empresa");
       this.jornada_cobrador.balance_final=localStorage.getItem("saldo_zona");
+      this.jornada_cobrador.total_prestado=localStorage.getItem("total_prestado");
       this.btn_ruta_terminada=true
 
-      this.jornada_cobrador.balance_final_manual=0
+    
      
       this.corbradorService.actualizarJornadaCobrador(id_admin,id_empresa,ui_cobrador,id_jornadacobrador,this.jornada_cobrador).then(response =>{
                 this.$f7.dialog.close();
@@ -514,7 +528,7 @@ export default {
                   this.ruta_terminada=false
                   this.btn_comenzar_ruta=false
                   this.isComienzoRuta=true
-                 
+                    this.jornada_cobrador.balance_final_manual=0
                  
                   this.mostrar_resultado_final=Boolean(localStorage.getItem("mostrar_resultado_final")) 
                   localStorage.removeItem("listagenerada")
@@ -564,11 +578,13 @@ export default {
                     Total_prestado: localStorage.getItem("total_prestado")==null?0:localStorage.getItem("total_prestado"),
                     Total_dinero_recogido:localStorage.getItem('total_cobros')
           }
-        
+        //   this.clientesService.guardarListaGenerada(id_admin,id_empresa,ui_cobrador,this.informacion_final_ruta).then((res)=>{
+        //   alert(res.data)
+        // })
         let numero_de_clientes_cobros=this.$store.getters.getContadorClientesCobros;
         let numero_de_clientes_cobros_realizados=this.$store.getters.getContadorListaClientesCobros;
-        console.log(numero_de_clientes_cobros);
-        console.log(numero_de_clientes_cobros_realizados);
+        // console.log(numero_de_clientes_cobros);
+        // console.log(numero_de_clientes_cobros_realizados);
         if(this.$store.getters.getCobrosPendientes>0){
           app.dialog.confirm('Hay cobros pendientes','Atencion');
          
@@ -582,7 +598,7 @@ export default {
         
         axios.get('http://worldtimeapi.org/api/timezone/America/Bogota').then((res)=>{
           this.$store.commit('sethoraFinalJornada',this.$moment(res.datetime).format("hh:mm:ss"));
-          this.$store.commit('setfechaFinalJornada',this.$moment(res.datetime).format("MM/DD/YYYY"));
+          this.$store.commit('setfechaFinalJornada',this.$moment(res.datetime).format("MM-DD-YYYY"));
         });
           
           this.$store.commit('setEstadoRuta',false);
@@ -610,28 +626,32 @@ export default {
 
     },
     onVerificarDiaListaCobros(){
-      if(localStorage.getItem("fecha_lista_generada")){
-        let fechaactual=this.$moment(new Date)
-        let fechageneradalista=this.$moment(localStorage.getItem("fecha_lista_generada"))
-        // alert(fechaactual.diff(fechageneradalista,'days') )// 1)
-       
-        if(fechaactual.diff(fechageneradalista,'days')==0){
-          this.$f7.dialog.alert('Ya ha generado una lista hoy regrese mañana he intentelo nuevamente','Atencion!');
-        }else{
+      // alert(this.$store.getters.getClientesCobros.length)
+         if(this.$store.getters.getClientesCobros.length>=1){
+            localStorage.setItem('lista_clientes_cobrados', this.$store.getters.getClientesCobros.length)
+          // this.$store.commit('setEstadoCobrosLista',JSON.parse(localStorage.getItem('ListaEstadosCobro')))
+          // this.onGenerarListaJornadaPago()
           this.$store.commit('setEstadoCobrosLista',JSON.parse(localStorage.getItem('ListaEstadosCobro')))
         this.onGenerarListaJornadaPago()
-        }
-        
+      
       }else{
-        
-        
-        this.$store.commit('setEstadoCobrosLista',JSON.parse(localStorage.getItem('ListaEstadosCobro')))
-        this.onGenerarListaJornadaPago()
+         this.$f7.dialog.alert('No hay clientes para cobrar hoy','Atencion!');
       }
       
     },
     onGenerarListaJornadaPago(){
-        //Modifique aca.
+        this.$store.commit('setfechInicialJornada',this.$moment(new Date).format("MM-DD-YYYY"));
+        this.$store.commit('sethoraInicialJornada',this.$moment(new Date).format("hh:mm:ss"));
+        if(localStorage.getItem("fecha_lista_generada")){
+        let fechaactual=this.$moment(new Date)
+        let fechageneradalista=this.$moment(localStorage.getItem("fecha_lista_generada"))
+        // alert(fechaactual.diff(fechageneradalista,'days') )// 1)
+         if(fechaactual.diff(fechageneradalista,'days')==0){
+          this.$f7.dialog.alert('Ya ha generado una lista hoy regrese mañana he intentelo nuevamente','Atencion!');
+         }
+        }else{
+          
+                  //Modifique aca.
         
         localStorage.setItem("listagenerada",true);
         localStorage.setItem("fecha_lista_generada",this.$moment(new Date().toISOString().slice(0,10)))
@@ -642,8 +662,7 @@ export default {
         
         let id_empresa=localStorage.getItem("empresa");
         this.$f7.dialog.preloader('Creando lista...');
-        this.$store.commit('setfechInicialJornada',new Date().toISOString().slice(0,10));
-        this.$store.commit('sethoraInicialJornada',this.$moment(new Date).format("hh:mm:ss"));
+        
          let ui_cobrador=localStorage.getItem("uid");
          let id_admin=localStorage.getItem("iad");
         this.corbradorService.guardarJornadaCobrador(id_admin,id_empresa,ui_cobrador,this.jornada_cobrador).then(response =>{
@@ -659,7 +678,10 @@ export default {
                 console.log(error);
          })
         // this.onComenzarFornada()
+        }
+         
 
+        
         
     },
     onComenzarFornada(){

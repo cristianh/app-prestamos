@@ -20,9 +20,21 @@ export default class CobradorServices {
         }).then(response => response);
     }
 
+
     actualizarJornadaCobrador(id_admin, id_empresa, ui_rutacobrador, id_rutajornada, data) {
 
         return axios.post(`actualizarJornadaRutaDia?idadmin=${id_admin}&id_empresa=${id_empresa}&doc=${ui_rutacobrador}&subdoc=${id_rutajornada}`, qs.stringify(data), {
+            method: 'POST',
+            headers: { 'content-type': 'application/x-www-form-urlencoded' },
+        }).then(response => response);
+    }
+
+    getInformacionCobrador(id_admin, id_empresa, ui_rutacobrador) {
+        return axios.get(`InformacionParaCobradores?idadmin=${id_admin}&doc=${id_empresa}&idcobrador=${ui_rutacobrador}`).then(response => response);
+    }
+
+    getInformeDia(id_admin, id_empresa, ui_rutacobrador, fecha) {
+        return axios.post(`InformeDia?idadmin=${id_admin}&doc=${id_empresa}&idcobrador=${ui_rutacobrador}`, qs.stringify(fecha), {
             method: 'POST',
             headers: { 'content-type': 'application/x-www-form-urlencoded' },
         }).then(response => response);

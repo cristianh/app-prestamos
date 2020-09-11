@@ -479,7 +479,7 @@ batch.commit().then(function () {
       //Verificamos que el valor ingresado a pagar no sea mayor al valor del prestamo realizado
             // this.valor_sin_puntos=;
           //Quitamos los putos del valor a pagar.
-            this.informacion_pago.valor_pago=this.valor_sin_puntos.split('.').join('');
+            
             
           //  this.lista_cobros_clientes={
           //    cliente_id:elemento.prestamos[0].cliente,
@@ -492,26 +492,39 @@ batch.commit().then(function () {
           // this.$store.commit('setEstadoLocalListaCobros', this.lista_cobros_clientes)
   
    //Verificamos si el valor a pagar no es mayor al saldo pendiente por pagar del prestamo.
-      if(Number(this.informacion_pago.valor_pago)>Number(elemento.prestamos[0].valor)){
+    console.log(elemento);
+      if(Number(this.valor_sin_puntos.split('.').join(''))>Number(elemento.prestamos[0].valor)){
           this.$f7.dialog.alert('El valor a pagar es mayor al total del prestamo,revise por favor.','Atencion!');
           // this.valor_sin_puntos=0;
-          this.informacion_pago.valor_pago
+          // this.informacion_pago.valor_pago=0
       }else{
-    
+          
           this.$f7.dialog.preloader('Guardando pago...');
-          if(elemento.hasOwnProperty('cobros')){
-             elemento.cobros.push(this.informacion_pago);
-          }else{
-             elemento.cobros=new Array(this.informacion_pago);
-          }
-         
-          //guardamos el cobro realizado.
-          this.informacion_pago.cliente=this.id;
+          // if(elemento.hasOwnProperty('cobros')){
+          //    elemento.cobros.push(this.informacion_pago);
+          // }else{
+          //    elemento.cobros=new Array(this.informacion_pago);
+          // }
+          //Guardamos los cobros de realizados.
+          this.informacion_pago.valor_pago=Number(this.valor_sin_puntos.split('.').join(''));
+        
+
            let id_empresa=localStorage.getItem("empresa");
           this.abonoService.guardarAbonosCobros(this.idad,id_empresa,ui_cobrador,this.id,this.informacion_pago).then( (response) =>  {
           let saldo_actual=  localStorage.getItem("saldo_zona");
           // this.informacion_pago.valor_pago=this.informacion_pago.valor_pago.replace('.', "");
           let saldo_valor=    this.informacion_pago.valor_pago;
+            this.informacion_pago.cliente={
+            nombre:elemento.usuario.nombre,
+            apellido:elemento.usuario.apellido,
+            cedula:elemento.usuario.identificacion,
+            id:this.id,
+            id_cobro:response.id
+          }
+          
+          //guardamos el cobro realizado.
+          // this.informacion_pago.cliente=this.id;
+          this.$store.commit('setCobrosHoy',this.informacion_pago)
           this.$store.commit('setEstadoRuta',false);
           // this.jornada_cobrador.catidad_cobrosefectivos=Number(this.jornada_cobrador.catidad_cobrosefectivos)+1;
 
@@ -536,15 +549,15 @@ batch.commit().then(function () {
          
           //Si el saldo es igual entre el valor pago y el valor a pagar.
          if(Number(this.informacion_pago.valor_pago)===Number(this.saldo_a_pagar)){
-            
-          elemento.prestamos[0].total_apagar=Number(elemento.prestamos[0].total_apagar)-Number(this.informacion_pago.valor_pago);
+          // let saldo_final=
+          elemento.prestamos[0].total_apagar=Number(elemento.prestamos[0].total_apagar)-Number(this.informacion_pago.valor_pago)
           
-        //  alert(elemento.prestamos[0].total_apagar);
-         if(elemento.prestamos[0].total_apagar==0 || elemento.prestamos[0].total_apagar<0){
+        
+         if(elemento.prestamos[0].total_apagar==0 || elemento.prestamos[0].total_apagar<=0){
        
             this.$f7.sheet.close();
             this.$f7.dialog.close();
-            this.$f7.dialog.alert('El prestamo ha sido pagado.','Atencion',()=>{
+            this.$f7.dialog.alert('El prestamo ha sido cancelado.','Atencion',()=>{
                    
          
       
@@ -565,20 +578,20 @@ batch.commit().then(function () {
           //  elemento.prestamos[0].total_apagar=0
           //  delete  elemento.prestamos
            this.$store.commit('setQuitar_cobros_pendientesJornada');
-this.clientesService.actualizarClienteCobrador(this.idad,idempresa,ui_cobrador,this.id,elemento).then( (response) =>  {
-        
-              this.informacion_pago.valor_pago=0;  
-               this.valor_sin_puntos=0;  
-                this.$f7.sheet.close();
-          this.$f7.dialog.close();
-          
-          this.$store.commit('setDisminuyeContadorClientesListaPrestamos');
-          // this.$f7router.back();
-          this.clientesService.eliminarPrestamoPago(this.idad,idempresa,ui_cobrador,this.id,elemento).then( (response) =>  {
-            this.$store.commit('eliminarClientePrestamoDiario',this.id);
-                this.$f7router.back();
-              });
-});
+    this.clientesService.actualizarClienteCobrador(this.idad,idempresa,ui_cobrador,this.id,elemento).then( (response) =>  {
+            
+                  this.informacion_pago.valor_pago=0;  
+                  this.valor_sin_puntos=0;  
+                    this.$f7.sheet.close();
+              this.$f7.dialog.close();
+              
+              this.$store.commit('setDisminuyeContadorClientesListaPrestamos');
+              // this.$f7router.back();
+              this.clientesService.eliminarPrestamoPago(this.idad,idempresa,ui_cobrador,this.id,elemento).then( (response) =>  {
+                this.$store.commit('eliminarClientePrestamoDiario',this.id);
+                    this.$f7router.back();
+                  });
+    });
        
              });
 
@@ -631,8 +644,8 @@ this.clientesService.actualizarClienteCobrador(this.idad,idempresa,ui_cobrador,t
         console.log("elemento actualizado....",elemento);
 
             this.clientesService.actualizarClienteCobrador(this.idad,idempresa,ui_cobrador,this.id,elemento).then( (response) =>  {
-              this.informacion_pago.valor_pago=0;  
-               this.valor_sin_puntos=0;  
+              // this.informacion_pago.valor_pago=0;  
+              //  this.valor_sin_puntos=0;  
                 this.$f7.sheet.close();
           this.$f7.dialog.close();
           this.$store.commit('setDisminuyeContadorClientesListaPrestamos');
@@ -644,9 +657,9 @@ this.clientesService.actualizarClienteCobrador(this.idad,idempresa,ui_cobrador,t
          }
          else {
             //Quitado el saldo a pagar
-          elemento.prestamos[0].total_apagar=Number(this.informacion_pago.valor_pago)-Number(elemento.prestamos[0].total_apagar);
-         
-           if(elemento.prestamos[0].total_apagar==0 || elemento.prestamos[0].total_apagar<0){
+          elemento.prestamos[0].total_apagar=Number(elemento.prestamos[0].total_apagar)-Number(this.informacion_pago.valor_pago)
+        
+           if(elemento.prestamos[0].total_apagar==0 || elemento.prestamos[0].total_apagar<=0){
                  this.$f7.sheet.close();
           this.$f7.dialog.close();
             this.$f7.dialog.alert('El prestamo ha sido cancelado.','Atencion',()=>{
@@ -667,7 +680,7 @@ this.clientesService.actualizarClienteCobrador(this.idad,idempresa,ui_cobrador,t
           //  delete  elemento.prestamos
           //  elemento.prestamos[0].total_apagar=0;
              this.clientesService.actualizarClienteCobrador(this.idad,idempresa,ui_cobrador,this.id,elemento).then( (response) =>  {
-              this.informacion_pago.valor_pago=0; 
+              // this.informacion_pago.valor_pago=0; 
               this.valor_sin_puntos=0;   
                 this.$f7.sheet.close();
               this.$f7.dialog.close();
@@ -726,7 +739,7 @@ this.clientesService.actualizarClienteCobrador(this.idad,idempresa,ui_cobrador,t
          this.$store.commit('setEstadoPrestamoEstadoRuta',elemento.prestamos[0].cliente);
         //  alert(elemento.prestamos[0].total_apagar);
             this.clientesService.actualizarClienteCobrador(this.idad,idempresa,ui_cobrador,this.id,elemento).then( (response) =>  {
-              this.informacion_pago.valor_pago=0; 
+              // this.informacion_pago.valor_pago=0; 
               this.valor_sin_puntos=0;   
                 this.$f7.sheet.close();
           this.$f7.dialog.close();

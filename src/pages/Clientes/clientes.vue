@@ -403,7 +403,7 @@ var batch = db.batch();
 var sfRef = db.collection("usuarios").doc(this.idad).collection("empresas").doc(empresa).collection('Zonas').doc(zona);
 batch.update(sfRef, {"balance": this.balance_zona});
 
-
+this.valor_sin_puntos=0;
 
 // Commit the batch
 batch.commit().then( ()=> {
@@ -428,7 +428,7 @@ batch.commit().then( ()=> {
             }
 
             
-            this.valor_sin_puntos=0;
+            // this.valor_sin_puntos=0;
 });
        
        
@@ -529,10 +529,12 @@ batch.commit().then( ()=> {
           this.$store.commit('setBalanceZona',Number(descuentosaldozona));
           if(localStorage.getItem("total_prestado")){
             this.total_prestado=Number(this.total_prestado)+Number(this.info_prestamo.valor)+Number(localStorage.getItem("total_prestado"))
-            localStorage.setItem("total_prestado",this.total_prestado);
+            this.$store.commit('setTotal_prestadoJornada',this.total_prestado)
+            
           }else{
             this.total_prestado=Number(this.total_prestado)+Number(this.info_prestamo.valor)
-            localStorage.setItem("total_prestado",this.total_prestado);
+            // localStorage.setItem("total_prestado",this.total_prestado);
+            this.$store.commit('setTotal_prestadoJornada',this.total_prestado)
           }
           
           let elemento = this.clientes.findIndex(x=>x.data.id==this.cliente_seleccionado);
