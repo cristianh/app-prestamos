@@ -595,6 +595,12 @@ export default {
        }
        data.data.id=response.data,
        this.$store.commit('addNewClientes',data);
+        let posicion_cliente_lista={
+                        idCliente:response.data
+                    }
+                    //this.clientes.push(element);
+                    
+       this.$store.commit('addPosicionListaClienteCreada',posicion_cliente_lista)
        localStorage.setItem("cobros_efectivos",this.contador_cobros_efectivos++);
      
        

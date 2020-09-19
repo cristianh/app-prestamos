@@ -55,11 +55,12 @@
     <f7-list-item title="Cliente no encontrado."></f7-list-item>
   </f7-list>
        <!-- <pre>{{getClientesLista}}</pre> -->
+        <!-- :text="`Cedula: ${cliente.data.usuario.identificacion}`"  -->
         <f7-list  class="search-list searchbar-found" media-list  sortable @sortable:sort="onSort">
           <!-- :link="`/cliente_detalles/${cliente.id}/`" -->
         <f7-list-item swipeout   v-for="(cliente,index,key) in getClientesLista" 
           :id=cliente.id :key="key"  
-          :text="`Cedula: ${cliente.data.usuario.identificacion}`" 
+          :text="`Cedula: ${cliente.data.id}`"  
           :title="`${cliente.data.usuario.nombre} ${cliente.data.usuario.apellido}`" 
           :subtitle="cliente.data.usuario.direccion1==''?cliente.data.usuario.direccion2:cliente.data.usuario.direccion1" 
         
@@ -308,11 +309,72 @@ export default {
         this.mensaje_ordenar='ORDENAR';
       }
       },
+      onVerificarMovimientos(posicion1,posicion2){
+        // alert(Number(data.to)-Number(data.from))
+        // let g=Number(posicion1)-Number(posicion2)
+        // alert(g)
+         if(Number(posicion1)-Number(posicion2)==-1){
+           return "Mueve 1 arriba"
+        }else if(Number(posicion1)-Number(posicion2)==1){
+           return "Mueve 1 abajo"
+        }else if(Number(posicion1)-Number(posicion2)==-2){
+           return "Salta 1 arriba"
+        }else if(Number(posicion1)-Number(posicion2)==2){
+           return "Salta 1 abajo"
+        }else if(Number(posicion1)-Number(posicion2)>1){
+           //Abajo
+           return "abajo"
+          //  alert('Para abajo')
+        }else if(Number(posicion1)-Number(posicion2)<1){
+          //Arriba
+          return "arriba"
+          //  alert('Para arriba')
+        }else{
+
+        }
+      },
       onSort(data) {
          let ui_cobrador=localStorage.getItem("uid");
          let id_empresa=localStorage.getItem("empresa");
          
+        //  let lista_posiciones=this.$store.getters.getPosicionesListaClientes
+       
+       
+         
           this.$f7.dialog.preloader('Guardando lista...');
+
+let inicio = data.from;
+let fin = data.to;
+let numeros = this.$store.getters.getPosicionesListaClientes
+
+let element;
+
+if (fin < inicio) {
+  let temporal = numeros.splice(inicio, 1);
+  for (inicio; inicio < numeros.length - 1; inicio++) {
+    numeros[inicio] = numeros[inicio];
+    // document.getElementById("app").innerHTML = element;
+  }
+  numeros.splice(fin, 0, temporal[0]);
+  console.log(numeros);
+} else if (fin > inicio) {
+ 
+
+  let temporal = numeros.splice(inicio, 1);
+ 
+
+  for (inicio; inicio > numeros.length; inicio--) {
+    numeros[inicio] = numeros[inicio];
+    // document.getElementById("app").innerHTML = element;
+    // console.log(element);
+    // console.log(numeros);
+  }
+  numeros.splice(fin, 0, temporal[0]);
+  
+} else {
+ 
+}
+
      
           
       
@@ -326,12 +388,15 @@ export default {
         // Sort data   
         let elemento1=this.clientes[data.to];
         let elemento2=this.clientes[data.from];
-
-        elemento1.data.posicion=data.to;
-        elemento2.data.posicion=data.from;
         
+         let data_elements={
+          data:{
+            el1:elemento2,
+            el2:elemento1
+          }
+        }
 
-        let data_elements={
+        let data_elements_cliente={
           elm:{
             id:data.el.id,
             el1:elemento2,
@@ -339,27 +404,21 @@ export default {
           },
           data:data
         }
-      
-        this.$store.commit('SetPosicionListaClientes',data_elements);
-
-           let distancia=data.to-data.from;
+        // this.$store.commit('setPosicionListaCliente',data_elements);
+         this.$store.commit('SetPosicionListaClientes',data_elements_cliente);
+       
         
-         if(distancia==1){
-               // https://us-central1-manifest-life-279516.cloudfunctions.net/actualizarPosicionClienteLista?doc=zEAF3BMDDj9IXGwYOBXO&subdoc=Js46FGqf1w9yvPhjKeJ9
-        this.clientesservices.actualizarPosicionCliente(this.idad,id_empresa,ui_cobrador,this.clientes[data.to].data.id,{posicion_inicial:Number(data.from)}).then(()=>{     
-           this.clientesservices.actualizarPosicionCliente(this.idad,id_empresa,ui_cobrador,this.clientes[data.from].data.id,{posicion_inicial:Number(data.to)}).then(()=>{
-                this.$f7.dialog.close();
-           })
-        });
-         }else{
-               // https://us-central1-manifest-life-279516.cloudfunctions.net/actualizarPosicionClienteLista?doc=zEAF3BMDDj9IXGwYOBXO&subdoc=Js46FGqf1w9yvPhjKeJ9
-        this.clientesservices.actualizarPosicionCliente(this.idad,id_empresa,ui_cobrador,this.clientes[data.to].data.id,{posicion_inicial:Number(data.from)}).then(()=>{     
-           this.clientesservices.actualizarPosicionCliente(this.idad,id_empresa,ui_cobrador,this.clientes[data.from].data.id,{posicion_inicial:Number(data.to)}).then(()=>{
-                this.$f7.dialog.close();
-           })
-        });
-         }
+
+        this.clientesservices.actualizarPosicionCliente(this.idad,id_empresa,ui_cobrador,this.clientes[data.to].data.id,numeros).then((rest)=>{     
+              console.log(rest)
+              this.$f7.dialog.close();
+             
               
+            
+
+              });
+      
+ 
     
       },
       getPosicionElemento(id_clientepass){
@@ -408,6 +467,8 @@ this.valor_sin_puntos=0;
 // Commit the batch
 batch.commit().then( ()=> {
     // ...
+   this.$f7router.back();
+          this.$f7.dialog.alert('Prestamos realizado con exito!','Correcto');
    this.info_prestamo={
                 valor:0,
               // fecha:this.$moment(new Date).format("DD/MM/YYYY"), 
@@ -549,15 +610,18 @@ batch.commit().then( ()=> {
             this.clientes[elemento].data.prestamos=new Array(this.info_prestamo)
           }
           
-          this.updateBalanceValor();
+           this.$f7.dialog.close();
+          this.$f7.sheet.close();
+
+         
           //  this.info_prestamo.valor=0;
           // this.cliente_seleccionado='';
-          self.$f7.dialog.close();
-          this.$f7.sheet.close();
+         
           this.info_prestamo.plan_seleccionado='';
           this.planseleccionado=undefined;
-          this.$f7router.back();
-          this.$f7.dialog.alert('Prestamos realizado con exito!','Correcto');
+           this.updateBalanceValor();
+         
+
           
        });
        

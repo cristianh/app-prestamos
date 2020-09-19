@@ -53,8 +53,8 @@
           Cobros pagos: {{informacion_final_ruta.Cobros_pagos}}<br>
           Cobros no pagos: {{informacion_final_ruta.Cobros_nopagos}}<br>
           <!-- Cobros pendientes: {{getCatidadCobrosPendientes}}<br> -->
-          Balance inicial de la zona: {{informacion_final_ruta.Balance_inicial_de_la_zona|currency}}<br>
-          Total Prestado: {{informacion_final_ruta.Total_prestado|currency}}<br>
+          Balance final de la zona: {{Number(informacion_final_ruta.Balance_inicial_de_la_zona)+Number(informacion_final_ruta.Total_dinero_recogido)|currency}}<br>
+          Total Prestado: {{getPrestamosRealiozadoshoy|currency}}<br>
           <!-- Balance final de la zona: {{Number(getTotalCobros)+Number(getBalanceInicial)|currency}}<br> -->
           Total dinero recogido: {{informacion_final_ruta.Total_dinero_recogido|currency}} 
           <f7-row v-if="ruta_terminada">
@@ -139,7 +139,7 @@
         :id=cliente.data.id
         :key=key
         :title="`${cliente.data.usuario.nombre}-${cliente.data.usuario.apellido}`" 
-        :footer="`${calculoTotalPagoHoy[index]!=undefined ? calculoTotalPagoHoy[index]==0?'Pago':'Saldo a pagar: '+Number(calculoTotalPagoHoy[index]).toLocaleString('es-CO',{style: 'currency',currency: 'COP',minimumSignificantDigits:1}):'NA'}`"  
+        :footer="`${calculoTotalPagoHoy[index]!=undefined ? calculoTotalPagoHoy[index]==0?'Pago':calculoTotalPagoHoy[index]>0?'Saldo a pagar: '+Number(calculoTotalPagoHoy[index]).toLocaleString('es-CO',{style: 'currency',currency: 'COP',minimumSignificantDigits:1}):'Saldo a pagar: '+Number((calculoTotalPagoHoy[index]*(-1))).toLocaleString('es-CO',{style: 'currency',currency: 'COP',minimumSignificantDigits:1}):'NA'}`"  
         @click="onClickClientePaginaDetalles(cliente.data.id,calculoTotalPagoHoy[index])"
         >
         <f7-swipeout-actions right>
@@ -393,8 +393,8 @@ export default {
       
     },
     getTotalCobros(){
-    //  return localStorage.getItem("total_cobros_realizados")
-      return this.$store.getters.getCobrosTotalCobrado  
+     return localStorage.getItem("total_cobros")
+      // return this.$store.getters.getCobrosTotalCobrado  
     },
     getCantidadCobrosNoRealizados(){
      return this.$store.getters.getCobrosNoEfectivos   
@@ -625,10 +625,36 @@ export default {
 
     },
     onVerificarDiaListaCobros(){
+        // alert(this.onVerificarDiaNuevo())
+        // if(localStorage.getItem("fecha_lista_generada")){
+        //  let fecha_lista = this.$moment(localStorage.getItem("fecha_lista_generada")).format('YYYY-MM-DD');
+        //  let fecha_hoy = this.$moment(new Date()).format('YYYY-MM-DD');
+        // //  alert(fecha_hoy>fecha_lista)
+        
+                                        
+                                       
+        
+                                       
+                                    
+        //                                 if(fecha_hoy>fecha_lista){
+        //                                         localStorage.removeItem("fecha_lista_generada")
+        //                                         localStorage.removeItem("Informe_final_ruta")
+        //                                         localStorage.removeItem("estado_lista_prestamos_clientes")
+        //                                         localStorage.removeItem("mostrar_resultado_final")
+        //                                         localStorage.removeItem("jornada_confirmada")
+        //                                         localStorage.removeItem("cobros_hoy")
+        //                                         localStorage.removeItem("ListaEstadosCobro")
+                                              
+        //                                 }
+                                        
+        // }
+        
+                
       if(this.onVerificarListaYaGenergada()){
         this.$f7.dialog.alert('Ya ha generado una lista hoy regrese mañana he intentelo nuevamente','Atencion!');
+        
       }else if(this.onVerificarDiaNuevo()){
-            this.ruta_terminada=false
+                  this.ruta_terminada=false
                   this.btn_comenzar_ruta=false
                   this.isComienzoRuta=true
                   this.jornada_cobrador.balance_final_manual=0
@@ -640,7 +666,7 @@ export default {
                   localStorage.removeItem("mostrar_resultado_final")
                   localStorage.removeItem("jornada_confirmada")
                   localStorage.removeItem("cobros_hoy")
-                  // localStorage.removeItem("ListaEstadosCobro")
+                  localStorage.removeItem("ListaEstadosCobro")
                   this.$store.commit('setEstadoCobrosLista',JSON.parse(localStorage.getItem('ListaEstadosCobro')))
                   this.$store.commit('setfechInicialJornada',this.$moment(new Date).format("MM-DD-YYYY"));
                   this.$store.commit('sethoraInicialJornada',this.$moment(new Date).format("hh:mm:ss"));
@@ -655,6 +681,10 @@ export default {
         this.onGenerarListaJornadaPago()
          this.$store.commit('setfechInicialJornada',this.$moment(new Date).format("MM-DD-YYYY"));
         this.$store.commit('sethoraInicialJornada',this.$moment(new Date).format("hh:mm:ss"));
+          this.$f7.dialog.alert('this.ruta_terminada-this.btn_comenzar_ruta-this.isComienzoRuta','Atencion!',()=>{
+                      this.$f7.dialog.close()
+                      this.$f7.dialog.alert(this.ruta_terminada+'-'+this.btn_comenzar_ruta+'-'+this.isComienzoRuta,'Atencion!');
+                  });
       
       }else{
          this.$f7.dialog.alert('No hay clientes para cobrar hoy','Atencion!');
@@ -663,13 +693,18 @@ export default {
         
     },
     onRecargarInfoListaCobros(){
-       let clientes_cobrador = this.$store.getters.getClientes;
-            let estadoListaCobro=[]
+            this.$store.state.clientes_cobros=[]
+            localStorage.removeItem("ListaEstadosCobro")
+            localStorage.removeItem('ListaEstadosCobro')
+            this.$store.state.estados_prestamos_ruta=[]
+            let clientes_cobrador = this.$store.getters.getClientes;
+              let estadoListaCobro=[]
                 for (const key in clientes_cobrador) {
                 if (clientes_cobrador.hasOwnProperty(key)) {
                     const element = clientes_cobrador[key];
                     
-                   
+                    //this.clientes.push(element);
+                    // this.$store.state.clientes.unshift(element);
                     // alert(element.data.hasOwnProperty('prestamos'))
                     if(element.data.hasOwnProperty('prestamos')){
                        
@@ -680,49 +715,20 @@ export default {
                         //    alert(fecha_prestamo<fecha_anterior_hoy && element.data.prestamos.length >= 1 && element.data.prestamos[0].estado_prestamo == "false")
                                 //  if (element.data.prestamos.length > 0 && element.data.prestamos[0].estado_prestamo == false) {
                             if(fecha_prestamo<fecha_anterior_hoy && element.data.prestamos.length >= 1 && element.data.prestamos[0].estado_prestamo == "false") {
-                                if(localStorage.getItem('ListaEstadosCobro')){
-                                    let estados=JSON.parse(localStorage.getItem('ListaEstadosCobro'))
-                                    
-                                    for (const key in estados) {
-                                        if (estados.hasOwnProperty(key)) {
-                                            const element_estado = estados[key];
-                                            if(element_estado.id==element.data.prestamos[0].cliente){
-                                                if(element_estado.estado==1){
-                                                element.data.estado_pago_prestamo.pago=true
-                                                 element.data.estado_pago_prestamo.nopago=false
-                                                 element.data.estado_pago_prestamo.pendiente=false
-                                                }
-                                                else if(element_estado.estado==2){
-                                                    element.data.estado_pago_prestamo.pago=false
-                                                 element.data.estado_pago_prestamo.nopago=true
-                                                 element.data.estado_pago_prestamo.pendiente=false
-                                                }
-                                                else if(element_estado.estado==3){
-                                                       element.data.estado_pago_prestamo.pago=false
-                                                 element.data.estado_pago_prestamo.nopago=false
-                                                 element.data.estado_pago_prestamo.pendiente=true
-                                                }
-                                            
-                                            
-                                        }
-                                    }
-                                }
-                            }
-
-                
-                               
-
-                                this.$store.state.clientes_cobros.unshift(element);
                                 
-                                
-                                // alert(localStorage.getItem("listagenerada"))
-                                if(Boolean(localStorage.getItem("listagenerada"))==false || localStorage.getItem("listagenerada")=='false' || localStorage.getItem("listagenerada")==null ){
-                                    
-                                  estadoListaCobro.unshift({estado:0,id:element.data.id})
-                                  localStorage.setItem('ListaEstadosCobro',JSON.stringify(estadoListaCobro))
-                               
+                                 this.onActualizarEstadosLista(element)
                                  
-                                
+                               
+                                // this.$store.state.clientes_cobros.push(element);
+                            // }else{
+                            //     this.$store.state.clientes_cobros.unshift(element);
+                            // }
+                                // alert(localStorage.getItem("listagenerada"))
+                                if(Boolean(localStorage.getItem("listagenerada"))==false || localStorage.getItem("listagenerada")=='false' ||Boolean(localStorage.getItem("listagenerada"))==null  ){
+                                    
+                                  estadoListaCobro.unshift({estado:0,id:element.data.id,posicion:element.data.posicion})
+                                  localStorage.setItem('ListaEstadosCobro',JSON.stringify(estadoListaCobro))
+
                                 }else{
                                     
                                     //  this.$store.commit('setEstadoCobrosLista',JSON.parse(localStorage.getItem('ListaEstadosCobro')))
@@ -781,6 +787,54 @@ export default {
           
           this.$store.commit('setEstadoCobrosLista',JSON.parse(localStorage.getItem('ListaEstadosCobro')))
           this.onGenerarListaJornadaPago()
+    },
+    onActualizarEstadosLista(elemento_lista_cobros){
+        // let lista_cobros_ordenada=this.$store.getters.getOrdenarListaClientesCobros
+        
+        // let lista_cobros_ordenada=listaCobros
+                                if(localStorage.getItem('ListaEstadosCobro')){
+                                    let estados=JSON.parse(localStorage.getItem('ListaEstadosCobro'))
+                                     let elemento_lista=estados.filter(x=>x.id===elemento_lista_cobros.data.id)
+                                    // let posicion_lista=lista_cobros_ordenada.findIndex(x=>x.data.id===elemento_lista[0].id)
+                                                    // console.log(elemento_lista[0].estado);
+                                                    // console.log(posicion_lista);
+                                                    if(elemento_lista.length>=1){
+                                                            console.log(elemento_lista[0].estado);
+                                                                    switch (elemento_lista[0].estado) {
+                                                    case 1:
+                                                elemento_lista_cobros.data.estado_pago_prestamo.pago=true
+                                                 elemento_lista_cobros.data.estado_pago_prestamo.nopago=false
+                                                elemento_lista_cobros.data.estado_pago_prestamo.pendiente=false
+                                                        break;
+                                                    case 2:
+                                                            elemento_lista_cobros.data.estado_pago_prestamo.pago=false
+                                                 elemento_lista_cobros.data.estado_pago_prestamo.nopago=true
+                                                 elemento_lista_cobros.data.estado_pago_prestamo.pendiente=false
+                                                        break;
+                                                    case 3:
+                                                    elemento_lista_cobros.data.estado_pago_prestamo.pago=false
+                                                 elemento_lista_cobros.data.estado_pago_prestamo.nopago=false
+                                                 elemento_lista_cobros.data.estado_pago_prestamo.pendiente=true
+                                                        break;
+                                                
+                                                    default:
+                                                        break;
+                                                }
+                                                   }
+                                                
+                                                    // console.log(elemento_lista_cobros);
+
+                                    this.$store.state.clientes_cobros.unshift(elemento_lista_cobros);
+
+                                    
+
+                                     }else{
+                                        this.$store.state.clientes_cobros.unshift(elemento_lista_cobros);
+                                     }
+
+                 
+                                
+                                // this.$store.commit('setActualizarEstadosListaCobros',lista_cobros_ordenada)
     },
     onVerificarDiaNuevo(){
       if(localStorage.getItem("fecha_lista_generada")){

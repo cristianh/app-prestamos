@@ -44,8 +44,14 @@
         <div v-if="clientes_info.prestamos.dias_plazo!=''">
          <span> Dias de mora: </span>{{prestamos.dias_con_mora}}<br>
          <span> Dias de plazo: </span>{{prestamos.dias_plazo}}<br>
-         <span> Saldo pendiente: </span>{{prestamos.saldo_pendiente|currency}}<br>
-         <span> Saldo a favor: </span>{{prestamos.saldo_pago_dia|currency}}<br>
+         <div v-if="prestamos.saldo_pendiente>0">
+            <span> Saldo pendiente: </span>{{prestamos.saldo_pendiente|currency}}<br>
+         </div>
+         <div v-else>
+           <span> Saldo a favor: </span>{{(prestamos.saldo_pendiente*(-1))|currency}}<br>
+          
+        </div>
+         <!-- <span> Saldo a favor: </span>{{prestamos.saldo_pago_dia|currency}}<br> -->
          <span>Fecha del prestamo: </span>{{prestamos.fecha}}<br>
          <span>Valor del prestamo: </span>{{prestamos.valor|currency}}<br>
          <span>Total a pagar: </span>{{prestamos.total_apagar|currency}}<br>

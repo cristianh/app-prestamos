@@ -117,6 +117,7 @@ exports.InformacionParaCobradores = functions.https.onRequest(async(request, res
             zonas: [],
             cobrador: [],
             clientes: [],
+            lista_clientes: [],
             parametros_cobros: []
         };
         const collections = await db.collection('usuarios').doc(request.query.idadmin).collection('empresas').doc(request.query.doc).listCollections();
@@ -129,6 +130,7 @@ exports.InformacionParaCobradores = functions.https.onRequest(async(request, res
         const collections_parametros_cobro = await db.collection('usuarios').doc(request.query.idadmin).collection('empresas').doc(request.query.doc).collection('parametros_cobros');
         const collections_cobradores = await db.collection('usuarios').doc(request.query.idadmin).collection('empresas').doc(request.query.doc).collection('cobradores').doc(request.query.idcobrador);
         const collections_cobradores_clientes = await db.collection('usuarios').doc(request.query.idadmin).collection('empresas').doc(request.query.doc).collection('cobradores').doc(request.query.idcobrador).collection('clientes');
+        const collections_lista_clientes = await db.collection('usuarios').doc(request.query.idadmin).collection('empresas').doc(request.query.doc).collection('cobradores').doc(request.query.idcobrador).collection('lista_clientes_posicion').doc('posiciones');
 
         let restultadoConsultazonasempresa = collections_zona.where("empresa", "==", request.query.doc).get()
             .then((querySnapshot) => {
@@ -149,6 +151,22 @@ exports.InformacionParaCobradores = functions.https.onRequest(async(request, res
                     let datadocument_cobrador = doc.data();
                     datadocument_cobrador.id = id_cobrador;
                     infocobrador.cobrador.push(datadocument_cobrador);
+
+                    return true;
+
+                } else {
+                    return false;
+                }
+
+            });
+
+        let restultadoConsultaListaClientes = collections_lista_clientes.get()
+            .then((doc) => {
+                // infocobrador.lista_clientes.push(doc.data());
+                if (doc.exists) {
+
+                    let datalista_cliente = doc.data();
+                    infocobrador.lista_clientes.push(datalista_cliente);
 
                     return true;
 
@@ -197,7 +215,7 @@ exports.InformacionParaCobradores = functions.https.onRequest(async(request, res
                 return true;
             });
 
-        Promise.all([restultadoConsultazonasempresa, restultadoConsultacobradoressempresa, restultadoConsultainfoempresa, restultadoConsultaparametroscobros, restultadoConsultaClientesCobrador]).then(values => {
+        Promise.all([restultadoConsultazonasempresa, restultadoConsultacobradoressempresa, restultadoConsultaListaClientes, restultadoConsultainfoempresa, restultadoConsultaparametroscobros, restultadoConsultaClientesCobrador]).then(values => {
             return response.status(200).send(infocobrador);
         }).catch((error) => {
             return response.status(500).send(error);
@@ -1364,8 +1382,8 @@ exports.actualizarPosicionClienteLista = functions.https.onRequest(async(request
     response.set('Access-Control-Allow-Headers', 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization');
 
     try {
-        await db.collection('usuarios').doc(request.query.idadmin).collection('empresas').doc(request.query.id_empresa).collection('cobradores').doc(request.query.doc).collection('clientes').doc(request.query.subdoc)
-            .update({ posicion: Number(request.body.posicion_inicial) }, { merge: true })
+        await db.collection('usuarios').doc(request.query.idadmin).collection('empresas').doc(request.query.id_empresa).collection('cobradores').doc(request.query.doc).collection('lista_clientes_posicion').doc('posiciones')
+            .set(request.body)
             .then(res => {
                 return response.status(200).send(JSON.stringify({ mensaje: 'Posicion Guardada', id: res.id })).end();
             }).catch((error) => {
@@ -1377,6 +1395,8 @@ exports.actualizarPosicionClienteLista = functions.https.onRequest(async(request
         return response.send('Error getting document', error).end();
     }
 });
+
+
 
 
 /**
