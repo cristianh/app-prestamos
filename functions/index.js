@@ -58,7 +58,8 @@ exports.InformeDia = functions.https.onRequest(async(request, response, body) =>
             cobros: [],
             observaciones: [],
             clientes: [],
-            prestamos: []
+            prestamos: [],
+            jornada_dia: []
         };
 
 
@@ -66,8 +67,11 @@ exports.InformeDia = functions.https.onRequest(async(request, response, body) =>
         const collectionIds = list_collections_cobradores_clientes.map(col => col.id);
         if (collectionIds.includes('Jornada_Ruta')) {
             let jornadas_collection = db.collection('usuarios').doc(request.query.idadmin).collection('empresas').doc(request.query.doc).collection('cobradores').doc(request.query.idcobrador).collection('Jornada_Ruta')
+            let jornadas_collection_clientes = db.collection('usuarios').doc(request.query.idadmin).collection('empresas').doc(request.query.doc).collection('cobradores').doc(request.query.idcobrador).collection('clientes')
+            let jornadas_collection_cobros = db.collection('usuarios').doc(request.query.idadmin).collection('empresas').doc(request.query.doc).collection('cobradores').doc(request.query.idcobrador).collection('cobros')
+            let jornadas_collection_nopagos = db.collection('usuarios').doc(request.query.idadmin).collection('empresas').doc(request.query.doc).collection('cobradores').doc(request.query.idcobrador).collection('observaciones')
 
-            let info_dia = []
+
             let restultadoCollectionJornadas = jornadas_collection.where("fecha_inicial", "==", request.body.fecha).get()
                 .then((querySnapshot) => {
                     querySnapshot.forEach((doc) => {
@@ -75,13 +79,40 @@ exports.InformeDia = functions.https.onRequest(async(request, response, body) =>
                         let id = doc.id;
                         let datadocument = doc.data();
                         datadocument.id = id;
-                        info_dia.push(datadocument);
+                        let data = {
+                            data: datadocument
+                        }
+                        infodia.jornada_dia.push(data);
                     });
                     return true;
                 });
 
-            Promise.all([restultadoCollectionJornadas]).then(values => {
-                return response.status(200).send(info_dia);
+            let restultadoCollectionCobros = jornadas_collection_cobros.where("fecha", "==", request.body.fecha).get()
+                .then((querySnapshot) => {
+                    querySnapshot.forEach((doc) => {
+
+                        let id = doc.id;
+                        let datadocument = doc.data();
+                        datadocument.id = id;
+                        infodia.cobros.push(datadocument);
+                    });
+                    return true;
+                });
+
+            let restultadoCollectionNoCobros = jornadas_collection_nopagos.where("fecha", "==", request.body.fecha).get()
+                .then((querySnapshot) => {
+                    querySnapshot.forEach((doc) => {
+
+                        let id = doc.id;
+                        let datadocument = doc.data();
+                        datadocument.id = id;
+                        infodia.observaciones.push(datadocument);
+                    });
+                    return true;
+                });
+
+            Promise.all([restultadoCollectionJornadas, restultadoCollectionCobros, restultadoCollectionNoCobros]).then(values => {
+                return response.status(200).send(infodia);
             }).catch((error) => {
                 return response.status(500).send(error);
             });
@@ -259,7 +290,7 @@ exports.CobradoresGuardarCobros = functions.https.onRequest(async(request, respo
     response.set('Access-Control-Allow-Headers', 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization');
 
     try {
-        await db.collection('usuarios').doc(request.query.idadmin).collection('empresas').doc(request.query.id_empresa).collection('cobradores').doc(request.query.doc).collection('clientes').doc(request.query.sub).collection('cobros').add(request.body).then((resp) => {
+        await db.collection('usuarios').doc(request.query.idadmin).collection('empresas').doc(request.query.id_empresa).collection('cobradores').doc(request.query.doc).collection('cobros').add(request.body).then((resp) => {
             return response.status(200).send({ mensaje: 'Cobro registrado.', id: resp.id });
         });
 
@@ -323,7 +354,7 @@ exports.CobradoresGuardarObservacionNoPago = functions.https.onRequest(async(req
     response.set('Access-Control-Allow-Headers', 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization');
 
     try {
-        await db.collection('usuarios').doc(request.query.idadmin).collection('empresas').doc(request.query.id_empresa).collection('cobradores').doc(request.query.doc).collection('clientes').doc(request.query.sub).collection('observaciones').add(request.body).then((resp) => {
+        await db.collection('usuarios').doc(request.query.idadmin).collection('empresas').doc(request.query.id_empresa).collection('cobradores').doc(request.query.doc).collection('observaciones').add(request.body).then((resp) => {
             return response.status(200).send({ mensaje: 'Observacion registrada.', id: resp.id });
         });
         return response.send('Cobro registrado.');

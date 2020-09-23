@@ -265,10 +265,10 @@ import CobradorService from '../Services/CobradoresServices.js';
             informacion_pago:{
             valor:'',
             valor_pago:0,
-                // fecha:this.$moment(new Date).format("DD/MM/YYYY"), 
-                fecha:new Date().toISOString().slice(0,10), 
-                cliente:'',
-                estado_abono:true
+            fecha:this.$moment(new Date).format("MM-DD-YYYY"), 
+            // fecha:new Date().toISOString().slice(0,10),
+            hora:this.$moment(new Date()).format("hh:mm:ss"),  
+            estado_abono:true
             }
        }
    },
@@ -384,8 +384,16 @@ import CobradorService from '../Services/CobradoresServices.js';
         //     pagopendiente:false
         //   };
         // this.$store.commit('setEstadoPrestamoPendiente',data_pendiente);
+        
+          //  fecha:new Date().toISOString().slice(0,10),
+          
           let informacionNoPago={
-           fecha_hora:this.$moment(new Date()).format("DD-MM-YYYY hh:mm:ss"), 
+           cliente_nombre:elemento.usuario.nombre,
+           cliente_apellido:elemento.usuario.apellido,
+           cliente_cedula:elemento.usuario.identificacion,
+           cliente_id:this.id,
+           fecha:this.$moment(new Date()).format("MM-DD-YYYY"),
+           hora:this.$moment(new Date()).format("hh:mm:ss"), 
            razonnopago:this.inputNoPagoSeleccionado!=''?this.inputNoPagoSeleccionado:this.radioNoPagoSeleccionado
         }
         this.$store.commit('setQuitar_cobros_pendientesJornada',this.id);
@@ -449,7 +457,12 @@ import CobradorService from '../Services/CobradoresServices.js';
           // };
           // this.$store.commit('setEstadoPrestamoPendiente',data_pendiente);
           let informacionNoPago={
-           fecha_hora:this.$moment(new Date()).format("DD-MM-YYYY hh:mm:ss"), 
+           cliente_nombre:elemento.usuario.nombre,
+           cliente_apellido:elemento.usuario.apellido,
+           cliente_cedula:elemento.usuario.identificacion,
+           cliente_id:this.id,
+           fecha:this.$moment(new Date()).format("MM-DD-YYYY"),
+           hora:this.$moment(new Date()).format("hh:mm:ss"), 
            razonnopago:this.inputNoPagoSeleccionado!=''?this.inputNoPagoSeleccionado:this.radioNoPagoSeleccionado
         }
               this.$store.commit('setQuitar_cobros_pendientesJornada',this.id);
@@ -574,20 +587,30 @@ batch.commit().then(function () {
           // }
           //Guardamos los cobros de realizados.
           this.informacion_pago.valor_pago=Number(this.valor_sin_puntos.split('.').join(''));
-        
+          this.informacion_pago.cliente_nombre=elemento.usuario.nombre
+          this.informacion_pago.cliente_apellido=elemento.usuario.apellido
+          this.informacion_pago.cliente_cedula=elemento.usuario.identificacion
+          this.informacion_pago.cliente_id=this.id
+          
+
+
 
            let id_empresa=localStorage.getItem("empresa");
           this.abonoService.guardarAbonosCobros(this.idad,id_empresa,ui_cobrador,this.id,this.informacion_pago).then( (response) =>  {
           let saldo_actual=  localStorage.getItem("saldo_zona");
           // this.informacion_pago.valor_pago=this.informacion_pago.valor_pago.replace('.', "");
           let saldo_valor=    this.informacion_pago.valor_pago;
-            this.informacion_pago.cliente={
-            nombre:elemento.usuario.nombre,
-            apellido:elemento.usuario.apellido,
-            cedula:elemento.usuario.identificacion,
-            id:this.id,
-            id_cobro:response.id
-          }
+          //   this.informacion_pago.cliente={
+          //   nombre:elemento.usuario.nombre,
+          //   apellido:elemento.usuario.apellido,
+          //   cedula:elemento.usuario.identificacion,
+          //   id:this.id,
+          //   id_cobro:response.id
+          // }
+          this.informacion_pago.cliente_nombre=elemento.usuario.nombre
+          this.informacion_pago.cliente_apellido=elemento.usuario.apellido
+          this.informacion_pago.cliente_cedula=elemento.usuario.identificacion
+          this.informacion_pago.cliente_id=this.id
           
           //guardamos el cobro realizado.
           // this.informacion_pago.cliente=this.id;

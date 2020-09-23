@@ -304,34 +304,48 @@ export default {
                 if (clientes_cobrador.hasOwnProperty(key)) {
                     const element = clientes_cobrador[key];
                     
-                    if(resp.data.lista_clientes.length==0){
-                        let posicion_cliente_lista={
-                        idCliente:element.data.id
+                   
+                    if(resp.data.lista_clientes.length==1){
+                    let elementosLista=Object.values(resp.data.lista_clientes[0]);
+                    let posicionlista=elementosLista.findIndex(x=>x.idCliente==element.data.id)
+                    let posicionelementolista=elementosLista.find(x=>x.idCliente==element.data.id)
+                    if(posicionlista>-1){
+                    element.data.posicion=Number(posicionlista)+1
+                    let posicion_cliente_lista={
+                        idCliente:posicionelementolista.idCliente
                     }
-                    //this.clientes.push(element);
-                    
+
+                    // element.data.posicion=resp.data.lista_clientes[0][key].posicion
+                    // this.$store.state.posiciones_lista=resp.data.lista_clientes
+                    // console.log(resp.data.lista_clientes);
+                    this.$store.commit('setlistaDbGuardada');
                     this.$store.commit('addPosicionListaCliente',posicion_cliente_lista)
+                    this.$store.commit('addNewClientes',element)
+                        
+                    }
+
 
                   
 
                     
 
                     }else{
-                           let elementosLista=Object.values(resp.data.lista_clientes[0]);
-                     let posicionlista=elementosLista.findIndex(x=>x.idCliente==element.data.id)
-                    if(posicionlista>-1){
-                    element.data.posicion=Number(posicionlista)+1
-                    // this.$store.state.posiciones_lista=resp.data.lista_clientes
-                    console.log(resp.data.lista_clientes);
-                    
-                    this.$store.commit('addPosicionListaClienteCreada',resp.data.lista_clientes[0][key])
                         
-                    }
-                    }
-                    
 
+
+                        let posicion_cliente_lista={
+                        idCliente:element.data.id
+                    }
+                    //this.clientes.push(element);
+                    element.data.posicion=Number(key)+1
                     
-                    this.$store.state.clientes.unshift(element);
+                    this.$store.commit('addPosicionListaCliente',posicion_cliente_lista)
+                    this.$store.commit('addNewClientes',element)
+                    }
+                    
+                    
+                    
+                    // this.$store.state.clientes.unshift(element);
                     // alert(element.data.hasOwnProperty('prestamos'))
                     if(element.data.hasOwnProperty('prestamos')){
                        

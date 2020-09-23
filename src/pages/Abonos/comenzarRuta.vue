@@ -416,7 +416,17 @@ export default {
     },
     getTodosClientesPrestamo(){
 
-      let temporarlistaclientesprestamos=this.$store.getters.getClientesCobros
+
+      let temporarlistaclientesprestamos=this.$store.getters.getClientesCobros.sort((a, b) => {
+                    if (a.data.posicion > b.data.posicion) {
+                        return 1;
+                    }
+                    if (a.data.posicion < b.data.posicion) {
+                        return -1;
+                    }
+                    // a must be equal to b
+                    return 0;
+      });
       // console.log("temporarlistaclientesprestamos",temporarlistaclientesprestamos);
       if(this.busqueda==""){
         return this.$store.getters.getClientesListaPrestamo

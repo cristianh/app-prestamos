@@ -18,9 +18,9 @@
          
         v-for="(cobros,index,key) in lista_cobros_hoy"
         :subtitle=" `Valor:${Number(cobros.valor_pago).toLocaleString('es-CO',{style: 'currency',currency: 'COP',minimumSignificantDigits:1})}`"   
-        :id=cobros.cliente.id
+        :id=cobros.cliente_id
         :key=key
-        :title="`${cobros.cliente.nombre} ${cobros.cliente.apellido} `" 
+        :title="`${cobros.cliente_nombre} ${cobros.cliente_apellido} `" 
         :footer="`Fecha: ${cobros.fecha}`"
          
         >

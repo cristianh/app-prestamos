@@ -40,7 +40,8 @@ export default new Vuex.Store({
         contador: 0,
         estado_ruta: false,
         cobrador_ordena_lista: false,
-        balance_zona: 0
+        balance_zona: 0,
+        listaDBguardad: false
 
     },
     mutations: {
@@ -382,6 +383,9 @@ export default new Vuex.Store({
         },
         setActualizarEstadosListaCobros(state, nueva_lista) {
             state.clientes_cobros = nueva_lista
+        },
+        setlistaDbGuardada(state, nueva_lista) {
+            state.listaDBguardad = true
         }
     },
     getters: {
@@ -575,28 +579,39 @@ export default new Vuex.Store({
             return state.estado_ruta
         },
         getOrdenarClientes: state => {
-            return state.clientes.sort((a, b) => {
-                if (a.data.posicion > b.data.posicion) {
-                    return 1;
-                }
-                if (a.data.posicion < b.data.posicion) {
-                    return -1;
-                }
-                // a must be equal to b
-                return 0;
-            });
+            if (state.listaDBguardad) {
+                return state.clientes.sort((a, b) => {
+                    if (a.data.posicion > b.data.posicion) {
+                        return 1;
+                    }
+                    if (a.data.posicion < b.data.posicion) {
+                        return -1;
+                    }
+                    // a must be equal to b
+                    return 0;
+                });
+
+            } else {
+                return state.clientes
+            }
+
+
         },
         getOrdenarListaClientesCobros: state => {
-            return state.clientes_cobros.sort((a, b) => {
-                if (a.data.posicion > b.data.posicion) {
-                    return 1;
-                }
-                if (a.data.posicion < b.data.posicion) {
-                    return -1;
-                }
-                // a must be equal to b
-                return 0;
-            });
+            if (state.listaDBguardad) {
+                return state.clientes_cobros.sort((a, b) => {
+                    if (a.data.posicion > b.data.posicion) {
+                        return 1;
+                    }
+                    if (a.data.posicion < b.data.posicion) {
+                        return -1;
+                    }
+                    // a must be equal to b
+                    return 0;
+                });
+            } else {
+                return state.clientes_cobros
+            }
         }
     },
     actions: {},

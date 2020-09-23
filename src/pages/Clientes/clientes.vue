@@ -55,12 +55,13 @@
     <f7-list-item title="Cliente no encontrado."></f7-list-item>
   </f7-list>
        <!-- <pre>{{getClientesLista}}</pre> -->
-        <!-- :text="`Cedula: ${cliente.data.usuario.identificacion}`"  -->
+                  <!-- :text="`Cedula: ${cliente.data.id}`"  -->
         <f7-list  class="search-list searchbar-found" media-list  sortable @sortable:sort="onSort">
           <!-- :link="`/cliente_detalles/${cliente.id}/`" -->
         <f7-list-item swipeout   v-for="(cliente,index,key) in getClientesLista" 
           :id=cliente.id :key="key"  
-          :text="`Cedula: ${cliente.data.id}`"  
+ 
+          :text="`Cedula: ${cliente.data.usuario.identificacion}`" 
           :title="`${cliente.data.usuario.nombre} ${cliente.data.usuario.apellido}`" 
           :subtitle="cliente.data.usuario.direccion1==''?cliente.data.usuario.direccion2:cliente.data.usuario.direccion1" 
         
@@ -303,10 +304,20 @@ export default {
         
        if(this.txt_ordenar){
         
-        this.mensaje_ordenar='LISTO';
+        this.mensaje_ordenar='GUARDAR';
+   
              
       }else{
         this.mensaje_ordenar='ORDENAR';
+             this.$f7.dialog.preloader('Guardando lista...');
+    let ui_cobrador=localStorage.getItem("uid");
+         let id_empresa=localStorage.getItem("empresa");
+
+          this.clientesservices.actualizarPosicionCliente(this.idad,id_empresa,ui_cobrador,ui_cobrador,this.clientes_lista_ordenada).then((rest)=>{     
+              console.log(rest)
+              this.$f7.dialog.close();
+             
+        });
       }
       },
       onVerificarMovimientos(posicion1,posicion2){
@@ -334,42 +345,41 @@ export default {
         }
       },
       onSort(data) {
-         let ui_cobrador=localStorage.getItem("uid");
-         let id_empresa=localStorage.getItem("empresa");
+         
          
         //  let lista_posiciones=this.$store.getters.getPosicionesListaClientes
        
        
          
-          this.$f7.dialog.preloader('Guardando lista...');
+          
 
 let inicio = data.from;
 let fin = data.to;
-let numeros = this.$store.getters.getPosicionesListaClientes
+this.clientes_lista_ordenada = this.$store.getters.getPosicionesListaClientes
 
 let element;
 
 if (fin < inicio) {
-  let temporal = numeros.splice(inicio, 1);
-  for (inicio; inicio < numeros.length - 1; inicio++) {
-    numeros[inicio] = numeros[inicio];
+  let temporal = this.clientes_lista_ordenada.splice(inicio, 1);
+  for (inicio; inicio < this.clientes_lista_ordenada.length - 1; inicio++) {
+    this.clientes_lista_ordenada[inicio] = this.clientes_lista_ordenada[inicio];
     // document.getElementById("app").innerHTML = element;
   }
-  numeros.splice(fin, 0, temporal[0]);
-  console.log(numeros);
+  this.clientes_lista_ordenada.splice(fin, 0, temporal[0]);
+
 } else if (fin > inicio) {
  
 
-  let temporal = numeros.splice(inicio, 1);
+  let temporal = this.clientes_lista_ordenada.splice(inicio, 1);
  
 
-  for (inicio; inicio > numeros.length; inicio--) {
-    numeros[inicio] = numeros[inicio];
+  for (inicio; inicio > this.clientes_lista_ordenada.length; inicio--) {
+    this.clientes_lista_ordenada[inicio] = this.clientes_lista_ordenada[inicio];
     // document.getElementById("app").innerHTML = element;
     // console.log(element);
     // console.log(numeros);
   }
-  numeros.splice(fin, 0, temporal[0]);
+  this.clientes_lista_ordenada.splice(fin, 0, temporal[0]);
   
 } else {
  
@@ -406,17 +416,16 @@ if (fin < inicio) {
         }
         // this.$store.commit('setPosicionListaCliente',data_elements);
          this.$store.commit('SetPosicionListaClientes',data_elements_cliente);
+
+           const self = this;
+        self.$f7.dialog.preloader('Actualizando lista...');
+        setTimeout(() => {
+          self.$f7.dialog.close();
+        }, 1800);
        
         
 
-        this.clientesservices.actualizarPosicionCliente(this.idad,id_empresa,ui_cobrador,this.clientes[data.to].data.id,numeros).then((rest)=>{     
-              console.log(rest)
-              this.$f7.dialog.close();
-             
-              
-            
-
-              });
+      
       
  
     

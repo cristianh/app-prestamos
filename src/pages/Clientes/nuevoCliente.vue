@@ -584,6 +584,7 @@ export default {
      const self = this;
      self.$f7.dialog.preloader('Guardando...');
      let ui_cobrador=localStorage.getItem("uid");
+     let idadmin=localStorage.getItem("aid");
      let idmpresa=localStorage.getItem("empresa");
      this.form.posicion=Number(this.$store.getters.getContadorClientes)+1;
       this.cobradoresClientesService.guardarClienteCobrador(this.idad,idmpresa,ui_cobrador,this.form).then( (response) =>  {
@@ -601,6 +602,14 @@ export default {
                     //this.clientes.push(element);
                     
        this.$store.commit('addPosicionListaClienteCreada',posicion_cliente_lista)
+      let nueva_lista=this.$store.getters.getPosicionesListaClientes
+      this.$f7.dialog.preloader('Guardando lista...');
+       this.cobradoresClientesService.actualizarPosicionCliente(this.idad,idmpresa,ui_cobrador,response.data,nueva_lista).then((rest)=>{     
+              console.log(rest)
+              this.$f7.dialog.close();
+             
+        });
+      //  this.$store.commit('addPosicionListaClienteCreada',posicion_cliente_lista)
        localStorage.setItem("cobros_efectivos",this.contador_cobros_efectivos++);
      
        

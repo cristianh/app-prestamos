@@ -58,6 +58,7 @@
         "vue2-google-maps": "^0.10.7",
         "vuefire": "^2.2.4",
         "vuelidate": "^0.7.5",
+        "vuesax": "^4.0.1-alpha.24",
         "vuex": "^3.5.1",
         "vuex-persistedstate": "^3.1.0"
     },
