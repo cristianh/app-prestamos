@@ -201,15 +201,10 @@
         
         <f7-list-input
         wrap
-        type="number"
-        placeholder="Buscar por cedula..."
+        type="text"
+        placeholder="Buscar por nombre..."
         clear-button
-        
-        validate
-        maxlength=10
-        minlength=7
-        pattern="[0-9]"
-        error-message="Solo numeros"
+        pattern="[A-za-z]*"
         @input="busqueda=$event.target.value"
       
       ></f7-list-input>
@@ -406,7 +401,8 @@ export default {
        return this.$store.getters.getEstadoPrestamoRuta
       }else{
        let cliente_find=temporarlistaclientesprestamos.findIndex(cliente => {
-        return cliente.data.usuario.identificacion.toLowerCase().includes(this.busqueda.toLowerCase())
+        let nombreCompleto= cliente.data.usuario.nombre+' '+cliente.data.usuario.apellido
+         return nombreCompleto.toLowerCase().includes(this.busqueda.toLowerCase()) 
       //  return 
        }); 
       
@@ -474,7 +470,8 @@ export default {
       });
       }else{
          return temporarlistaclientesprestamos.filter(cliente => {
-        return cliente.data.usuario.identificacion.toLowerCase().includes(this.busqueda.toLowerCase())
+        let nombreCompleto= cliente.data.usuario.nombre+' '+cliente.data.usuario.apellido
+         return nombreCompleto.toLowerCase().includes(this.busqueda.toLowerCase()) 
       //  return 
        }); 
       }

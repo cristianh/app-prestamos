@@ -31,11 +31,11 @@ var cordovaApp = {
             //     e.preventDefault();
             //     return false;
             // }
-            // if ($('.sheet-modal.modal-in').length) {
-            //     f7.sheet.close('.sheet-modal.modal-in');
-            //     e.preventDefault();
-            //     return false;
-            // }
+            if ($('.sheet-modal.modal-in').length) {
+                f7.sheet.close('.sheet-modal.modal-in');
+                e.preventDefault();
+                return false;
+            }
             // if ($('.popover.modal-in').length) {
             //     f7.popover.close('.popover.modal-in');
             //     e.preventDefault();

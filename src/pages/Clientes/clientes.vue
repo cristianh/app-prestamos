@@ -175,15 +175,10 @@
         
         <f7-list-input
         wrap
-        type="number"
-        placeholder="Buscar por cedula..."
+        type="text"
+        placeholder="Buscar por nombre..."
         clear-button
-        
-        validate
-        maxlength=10
-        minlength=7
-        pattern="[0-9]"
-        error-message="Solo numeros"
+        pattern="/^[A-Za-z]+$/"
         @input="busqueda=$event.target.value"
       
       ></f7-list-input>
@@ -268,12 +263,13 @@ export default {
                     }
                     // a must be equal to b
                     return 0;
-      });;
+      })
       if(this.busqueda==""){
         return temporarlistaclientes
       }else{
          return temporarlistaclientes.filter(cliente => {
-         return cliente.data.usuario.identificacion.toLowerCase().includes(this.busqueda.toLowerCase())
+        let nombreCompleto= cliente.data.usuario.nombre+' '+cliente.data.usuario.apellido
+         return nombreCompleto.toLowerCase().includes(this.busqueda.toLowerCase()) 
       //  return 
        }); 
       }
@@ -393,26 +389,39 @@ batch.commit().then( ()=> {
         this.$f7.dialog.confirm('Confirmar usuario',nombrecompleto, () => {
            
            let elemento = this.$store.getters.getClientes.findIndex(x=>x.data.id==id);
-           console.log(this.clientes[elemento].data.prestamos.length)
+          
           //  alert(this.clientes[elemento].data.hasOwnProperty('prestamos'));
+          console.log(this.clientes[elemento].data.hasOwnProperty('prestamos'))
            if(this.clientes[elemento].data.hasOwnProperty('prestamos')){
+              // console.log("..",this.clientes[elemento].data.prestamos.length)
              if(this.clientes[elemento].data.prestamos.length>=1){
                    if(this.clientes[elemento].data.prestamos[0].estado_prestamo!=true){
   
            this.$f7.dialog.alert('No se puede realizar el prestamo, el cliente tiene un saldo por pagar.',nombrecompleto);
           }else{
+            this.valor_sin_puntos=0
           this.$f7.dialog.alert(nombrecompleto,'Confirmado!',()=>{
+            
             this.$f7.sheet.open('.demo-sheet-swipe-to-step');
           });
           }
              }else{
+               this.valor_sin_puntos=0
+          this.$f7.dialog.alert(nombrecompleto,'Confirmado!',()=>{
+            
+            this.$f7.sheet.open('.demo-sheet-swipe-to-step');
+          })
+
+          
+          };
+           }else{
+             this.valor_sin_puntos=0
           this.$f7.dialog.alert(nombrecompleto,'Confirmado!',()=>{
             this.$f7.sheet.open('.demo-sheet-swipe-to-step');
           })
 
           
           };
-           }
         });
       },
     pago(tipo_pago){
