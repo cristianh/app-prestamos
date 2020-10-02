@@ -140,7 +140,7 @@ export default new Vuex.Store({
                 let posicion_array = pendientesarray.findIndex(x => x == idClienteCobro);
                 let posicion_pendiente = pendientestore.findIndex(x => x == idClienteCobro);
 
-                console.log(posicion_array)
+                // console.log(posicion_array)
                 if (posicion_array != -1 && posicion_pendiente != -1) {
                     if (state.jornada_cobrador.numero_cobros_pendientes != 0) {
                         state.jornada_cobrador.numero_cobros_pendientes--;
@@ -170,6 +170,12 @@ export default new Vuex.Store({
             //console.log(clientenuevo);
             state.contador = state.contador + 1;
             state.clientes.unshift(clientenuevo)
+        },
+        addNewClientesNuevosLista(state, clientenuevo) {
+            // mutate state
+            //console.log(clientenuevo);
+            state.contador = state.contador + 1;
+            state.clientes.push(clientenuevo)
         },
         addClientesCobros(state, clientenuevocobro) {
             // mutate state
@@ -278,16 +284,14 @@ export default new Vuex.Store({
 
             if (fin < inicio) {
                 let temporal = clientes_lista_ordenada.splice(inicio, 1);
-                console.log("antes", clientes_lista_ordenada);
-                console.log("temporal", temporal);
-                console.log(clientes_lista_ordenada);
+
 
                 // console.log("aca mayor  inicio");
                 for (inicio; inicio < clientes_lista_ordenada - 1; inicio++) {
                     clientes_lista_ordenada[inicio] = clientes_lista_ordenada[inicio];
                 }
                 clientes_lista_ordenada.splice(fin, 0, temporal[0]);
-                console.log("despues", clientes_lista_ordenada);
+                // console.log("despues", clientes_lista_ordenada);
 
                 // console.log(state.clientes);
             } else if (fin > inicio) {
@@ -295,8 +299,8 @@ export default new Vuex.Store({
 
                 let temporal = clientes_lista_ordenada.splice(inicio, 1);
                 // console.log("temporal", temporal);
-                console.log("temporal", temporal);
-                console.log(clientes_lista_ordenada);
+                // console.log("temporal", temporal);
+                // console.log(clientes_lista_ordenada);
 
                 for (inicio; inicio > clientes_lista_ordenada.length; inicio--) {
                     clientes_lista_ordenada[inicio] = clientes_lista_ordenada[inicio];
@@ -306,7 +310,7 @@ export default new Vuex.Store({
                 }
                 clientes_lista_ordenada.splice(fin, 0, temporal[0]);
                 // console.log(state.clientes);
-                console.log("despues", clientes_lista_ordenada);
+                // console.log("despues", clientes_lista_ordenada);
             } else {
 
             }
@@ -408,8 +412,8 @@ export default new Vuex.Store({
         },
         eliminarClientePrestamoDiario(state, Idcliente) {
             let posicion = state.clientes_cobros.findIndex(x => x.data.id == Idcliente);
-            console.log(posicion)
-                // state.clientes_cobros.splice(posicion, 1);
+            // console.log(posicion)
+            // state.clientes_cobros.splice(posicion, 1);
             let posicion_cliente = state.clientes.findIndex(x => x.data.id == Idcliente);
             let estados = JSON.parse(localStorage.getItem('ListaEstadosCobro'))
             let posicion_estados = estados.findIndex(x => x.id == Idcliente);
@@ -542,10 +546,10 @@ export default new Vuex.Store({
 
 
                 if (elementP.data.prestamos[0].saldo_pendiente > 0) {
-                    console.log("a debe")
-                    console.log(pago_hoy < elementP.data.prestamos[0].saldo_pendiente)
-                    console.log(pago_hoy > elementP.data.prestamos[0].saldo_pendiente)
-                    console.log(pago_hoy)
+                    // console.log("a debe")
+                    // console.log(pago_hoy < elementP.data.prestamos[0].saldo_pendiente)
+                    // console.log(pago_hoy > elementP.data.prestamos[0].saldo_pendiente)
+                    // console.log(pago_hoy)
                     if (pago_hoy < elementP.data.prestamos[0].saldo_pendiente) {
                         pago_hoy = Number(elementP.data.prestamos[0].saldo_pendiente) + Number(pago_hoy);
                         state.saldo_pago_dia.push(pago_hoy)
@@ -555,14 +559,14 @@ export default new Vuex.Store({
                     }
 
                 } else if (elementP.data.prestamos[0].saldo_pendiente < 0) {
-                    console.log("a favor")
+                    // console.log("a favor")
 
-                    console.log(elementP.data.prestamos[0].saldo_pendiente)
+                    // console.log(elementP.data.prestamos[0].saldo_pendiente)
                     if (pago_hoy < elementP.data.prestamos[0].saldo_pendiente) {
                         pago_hoy = Number(elementP.data.prestamos[0].saldo_pendiente) - Number(pago_hoy);
                         state.saldo_pago_dia.push(pago_hoy)
                     } else {
-                        console.log(Number(pago_hoy) + Number(elementP.data.prestamos[0].saldo_pendiente))
+                        // console.log(Number(pago_hoy) + Number(elementP.data.prestamos[0].saldo_pendiente))
                         if ((Number(pago_hoy) + Number(elementP.data.prestamos[0].saldo_pendiente)) <= 0) {
                             state.saldo_pago_dia.push(0)
                                 // let estados = JSON.parse(localStorage.getItem('ListaEstadosCobro'))

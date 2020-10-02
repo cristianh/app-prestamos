@@ -459,8 +459,24 @@ export default {
                         if(Boolean(localStorage.getItem("listagenerada"))==false || localStorage.getItem("listagenerada")=='false' ){
                         // if(this.$store.getters.getListaDBguardad){
                             // localStorage.setItem("listagenerada",true);
-                        estadoListaCobro.push({estado:0,id:element.data.id,posicion:element.data.posicion})
-                        localStorage.setItem('ListaEstadosCobro',JSON.stringify(estadoListaCobro))
+                            let fecha_prestamo = this.$moment(element.data.prestamos[0].fecha).format('YYYY-MM-DD');
+                            let fecha_anterior_hoy = this.$moment(new Date()).format('YYYY-MM-DD');
+
+                        //    console.log("fecha_prestamo",fecha_prestamo) 
+                        //    console.log("fecha_anterior_hoy",fecha_anterior_hoy) 
+                                    
+                                    
+
+                            if(fecha_anterior_hoy>fecha_prestamo){
+                                // console.log("Fechas diferentes si") 
+                                if(element.data.prestamos.length >= 1){
+                                    // console.log("Prestamos mayor o igual a uno si") 
+                                    if(element.data.prestamos[0].estado_prestamo == "false"){
+                                        estadoListaCobro.push({estado:0,id:element.data.id,posicion:element.data.posicion})
+                                        localStorage.setItem('ListaEstadosCobro',JSON.stringify(estadoListaCobro))
+                                    }
+                                }
+                            }
                         // }
                 }                          }
                             
@@ -511,68 +527,60 @@ export default {
                             let fecha_prestamo = this.$moment(element.data.prestamos[0].fecha).format('YYYY-MM-DD');
                             let fecha_anterior_hoy = this.$moment(new Date()).format('YYYY-MM-DD');
 
-                           
-                        //    alert(fecha_prestamo<fecha_anterior_hoy && element.data.prestamos.length >= 1 && element.data.prestamos[0].estado_prestamo == "false")
-                                //  if (element.data.prestamos.length > 0 && element.data.prestamos[0].estado_prestamo == false) {
+                        //    console.log("fecha_prestamo",fecha_prestamo) 
+                        //    console.log("fecha_anterior_hoy",fecha_anterior_hoy) 
                                     
-                                    // element.data.prestamos.length >= 1 && element.data.prestamos[0].estado_prestamo == "false")
-                            if(fecha_prestamo<fecha_anterior_hoy && element.data.prestamos.length >= 1 && element.data.prestamos[0].estado_prestamo == "false") {
-                                console.log("onGenerarListaEstados");
+                                    
+
+                            if(fecha_anterior_hoy>fecha_prestamo){
+                                // console.log("Fechas diferentes si") 
+                                if(element.data.prestamos.length >= 1){
+                                    // console.log("Prestamos mayor o igual a uno si") 
+                                    if(element.data.prestamos[0].estado_prestamo == "false"){
+                                                //  console.log("estado de prestamos falso si") 
+                                                //  console.log("this.listaClientesGuardar.length",this.listaClientesGuardar.length) 
+                                                //  console.log("this.listaClientesGuardar",this.listaClientesGuardar) 
                                 if(this.listaClientesGuardar.length==1){
-                    let elementosLista=Object.values(this.listaClientesGuardar[0]);
-                    let posicionlista=elementosLista.findIndex(x=>x.idCliente==element.data.id)
-                    let posicionelementolista=elementosLista.find(x=>x.idCliente==element.data.id)
-                    if(posicionlista>-1){
-                    element.data.posicion=Number(posicionlista)+1
-                    // this.$store.commit('addNewClientes',element)
+                                let elementosLista=Object.values(this.listaClientesGuardar[0]);
+                                let posicionlista=elementosLista.findIndex(x=>x.idCliente==element.data.id)
+                                let posicionelementolista=elementosLista.find(x=>x.idCliente==element.data.id)
+                                //  console.log("posicionlista",posicionlista)
+                                //  console.log("posicionelementolista",posicionelementolista)
+                                if(posicionlista>-1){
+                                element.data.posicion=Number(posicionlista)+1
+                                // this.$store.commit('addNewClientes',element)
 
-                    let posicion_cliente_lista={
-                        idCliente:posicionelementolista.idCliente,
-                         posicion:Number(posicionlista)+1
-                    }
-                    // element.data.posicion=resp.data.lista_clientes[0][key].posicion
-                    // this.$store.state.posiciones_lista=resp.data.lista_clientes
-                    // console.log(resp.data.lista_clientes);
-                    this.$store.commit('setlistaDbGuardada');
-                    this.$store.commit('addPosicionListaCliente',posicion_cliente_lista)
-                    this.$store.state.clientes_cobros.unshift(element);
-                        
-                    }
-
-                    }else{
-                        
-                        let posicion_cliente_lista={
-                        idCliente:element.data.id,
-                        posicion:Number(key)+1
-                    }
-                    //this.clientes.push(element);
-                    element.data.posicion=Number(key)+1
-                    
-                    this.$store.commit('addPosicionListaCliente',posicion_cliente_lista)
-                    // this.$store.commit('addNewClientes',element)
-                    this.$store.state.clientes_cobros.unshift(element);
-                    }
-                                 
+                                let posicion_cliente_lista={
+                                    idCliente:posicionelementolista.idCliente,
+                                    posicion:Number(posicionlista)+1
+                                }
+                                // element.data.posicion=resp.data.lista_clientes[0][key].posicion
+                                // this.$store.state.posiciones_lista=resp.data.lista_clientes
+                                // console.log(resp.data.lista_clientes);
+                                this.$store.commit('setlistaDbGuardada');
+                                this.$store.commit('addPosicionListaCliente',posicion_cliente_lista)
                                 
-                              
-                               
-                                 
-                               
-                                // this.$store.state.clientes_cobros.push(element);
-                            // }else{
-                            //     this.$store.state.clientes_cobros.unshift(element);
-                            // }
-                                // alert(localStorage.getItem("listagenerada"))
-                               
-                            }
-                    // }
-                    
-
+                                this.$store.state.clientes_cobros.unshift(element);
+                                console.log("Carga cliente en cobros");
                                     
-                                            
-                                        }
+                                }
+
+                                }else{
+                                    // console.log("else");
+                                    let posicion_cliente_lista={
+                                    idCliente:element.data.id,
+                                    posicion:Number(key)+1
                                     }
-                                     }else{
+                                            //this.clientes.push(element);
+                                            element.data.posicion=Number(key)+1
+                                            
+                                            this.$store.commit('addPosicionListaCliente',posicion_cliente_lista)
+                                            // this.$store.commit('addNewClientes',element)
+                                            this.$store.state.clientes_cobros.unshift(element);
+                                            console.log("Carga cliente en cobros");
+                                }
+                                                }else{
+                                //  console.log("Fechas diferentes no")
                                          for (const key in lista_cobros_ordenada) {
                                             if (lista_cobros_ordenada[key].data.hasOwnProperty('prestamos')) {
                                             const element = lista_cobros_ordenada[key];
@@ -586,8 +594,9 @@ export default {
                                     
                                     // element.data.prestamos.length >= 1 && element.data.prestamos[0].estado_prestamo == "false")
                             if(fecha_prestamo<fecha_anterior_hoy && element.data.prestamos.length >= 1 && element.data.prestamos[0].estado_prestamo == "false") {
-                                console.log("onGenerarListaEstados");
+                                // console.log("onGenerarListaEstados");
                                  this.$store.state.clientes_cobros.unshift(element);
+                                 console.log("Carga cliente en cobros");
                                 
                               
                                
@@ -602,8 +611,15 @@ export default {
                             }
                     // }
                     }
-                                         }
-                                     }
+         }
+                            }
+
+                                            }
+                            } 
+                                        }   
+                                    } 
+                                }    
+                                     
 
                  
                                 
@@ -632,14 +648,14 @@ export default {
                 // console.log(data_transacciones);
                 this.$store.commit('setAumentaContadorTransferencias');
                 this.$store.commit('setDatosTransferencia',data_transacciones);
-                console.log("Modified city: ", change.doc.data());
+                // console.log("Modified city: ", change.doc.data());
                
             }
             if (change.type === "modified") {
                  
             }
             if (change.type === "removed") {
-                console.log("Removed city: ", change.doc.data());
+                // console.log("Removed city: ", change.doc.data());
             }
         });
     });
@@ -664,7 +680,7 @@ onDetectarTransaccionesCanceladas(idCobrador,idad,idempresa,idzona){
                 this.$store.commit('setDatosTransferenciaPendientes',change.doc.data());
                 
 
-                console.log("New: ", change.doc.data());
+                // console.log("New: ", change.doc.data());
             }
             if (change.type === "modified") {
                     if(change.doc.data().estado_transaccion==3){ 
@@ -684,7 +700,7 @@ onDetectarTransaccionesCanceladas(idCobrador,idad,idempresa,idzona){
                         // Commit the batch
                         batch.commit().then( () =>{
                         // ...
-                        console.log('balance actualizado');
+                        // console.log('balance actualizado');
                         this.$store.commit('setActualizarDatosTransferenciaPendiente',change.doc.data());
                         this.$store.commit('setBalanceZona',nuevosaldo)
                         this.$f7.dialog.close();
@@ -769,13 +785,13 @@ onDetectarTransaccionesCanceladas(idCobrador,idad,idempresa,idzona){
                
                 
 
-                console.log("New: ", change.doc.data());
+                // console.log("New: ", change.doc.data());
             }
             if (change.type === "modified") {
                 
 
-                 console.log("Changed: ", change.doc.data());
-                 console.log(change.doc);
+                //  console.log("Changed: ", change.doc.data());
+                //  console.log(change.doc);
                     if(change.doc.data().estado_transaccion==1 && change.doc.data().transaccion_nueva==true){
                  
                     if(snapshot.docs.length>=1 && mensaje==false){

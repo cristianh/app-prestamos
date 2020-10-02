@@ -536,7 +536,7 @@ export default {
               let ui_cobrador=localStorage.getItem("uid");
               let idadmin=localStorage.getItem("iad");
               let id_empresa=localStorage.getItem("empresa");
-              console.log(this.clientes_lista_ordenada);
+              // console.log(this.clientes_lista_ordenada);
               // this.$store.commit('setPosicionListaCliente',data_elements);
               this.$store.commit('setActulizarPosicionesLista',this.clientes_lista_ordenada);
 
@@ -545,7 +545,7 @@ export default {
 
               //  this.$f7.dialog.close();
               this.clientesService.actualizarPosicionCliente(idadmin,id_empresa,ui_cobrador,ui_cobrador,this.clientes_lista_ordenada).then((rest)=>{     
-              console.log(rest)
+              // console.log(rest)
               this.$f7.dialog.close();
               // this.$store.state.clientes=[]
               // this.$store.state.clientes=this.clientes_lista_ordenada_clientes
@@ -583,7 +583,7 @@ export default {
       this.btn_ruta_terminada=!isValid
     },
     onClickClientePaginaDetalles(clienteId,saldoAPagar){
-       console.log(this.contadorClientesSeleccionados);
+      //  console.log(this.contadorClientesSeleccionados);
       this.$f7router.navigate('/abonos_detalle/'+clienteId+'/'+saldoAPagar);
     },
     cambiarEstadoLista(){
@@ -799,7 +799,7 @@ if (fin < inicio) {
 
     },
     onVerificarDiaListaCobros(){
-      alert(this.onVerificarDiaNuevo())
+      // alert(this.onVerificarDiaNuevo())
       if(this.$store.getters.getClientesCobros.length==0){
         this.$f7.dialog.alert('No hay clientes para cobrar hoy','Atencion!');
       } else if(this.onVerificarListaYaGenergada()){
@@ -856,6 +856,7 @@ if (fin < inicio) {
         this.$store.commit('sethoraInicialJornada',this.$moment(new Date).format("hh:mm:ss"));
         // this.onGenerarListaJornadaPago()
           this.$store.commit('setEstadoCobrosLista',JSON.parse(localStorage.getItem('ListaEstadosCobro')))
+          console.log("a validar clientes cobros")
            this.onGenerarListaJornadaPago()
           // this.$f7.dialog.alert('this.ruta_terminada-this.btn_comenzar_ruta-this.isComienzoRuta','Atencion!',()=>{
           //             this.$f7.dialog.close()
@@ -865,6 +866,7 @@ if (fin < inicio) {
       }else{
           
           this.onGenerarListaJornadaPago()
+          console.log("entra al else")
           // this.$f7.dialog.alert('No hay clientes para cobrar hoy','Atencion!');
       }
       
@@ -917,7 +919,7 @@ if (fin < inicio) {
          let ui_cobrador=localStorage.getItem("uid");
          let id_admin=localStorage.getItem("iad");
         this.corbradorService.guardarJornadaCobrador(id_admin,id_empresa,ui_cobrador,this.jornada_cobrador).then(response =>{
-                 console.log("................response",response);
+                //  console.log("................response",response);
                   this.isComienzoRuta=true;
                   this.estado_lista_prestamos_clientes=false;
                   localStorage.removeItem("estado_lista_prestamos_clientes") 
@@ -1023,10 +1025,26 @@ if (fin < inicio) {
                         const element = lista_cobros_ordenada[key];
                        
                         if(Boolean(localStorage.getItem("listagenerada"))==false || localStorage.getItem("listagenerada")=='false' ){
-                        // if(this.$store.getters.getListaDBguardad){      
+                        // if(this.$store.getters.getListaDBguardad){ 
+                           let fecha_prestamo = this.$moment(element.data.prestamos[0].fecha).format('YYYY-MM-DD');
+                            let fecha_anterior_hoy = this.$moment(new Date()).format('YYYY-MM-DD');
+
+                        //    console.log("fecha_prestamo",fecha_prestamo) 
+                        //    console.log("fecha_anterior_hoy",fecha_anterior_hoy) 
+                                    
+                                    
+
+                            if(fecha_anterior_hoy>fecha_prestamo){
+                                // console.log("Fechas diferentes si") 
+                                if(element.data.prestamos.length >= 1){
+                                    // console.log("Prestamos mayor o igual a uno si") 
+                                    if(element.data.prestamos[0].estado_prestamo == "false"){     
                         estadoListaCobro.push({estado:0,id:element.data.id,posicion:element.data.posicion})
                         localStorage.setItem('ListaEstadosCobro',JSON.stringify(estadoListaCobro))
-                        // }
+                        // }}
+                                    }
+                                }
+                            }
                 }                          }
                             
             }
@@ -1037,6 +1055,7 @@ if (fin < inicio) {
         let lista_cobros_ordenada=this.$store.getters.getClientes
         
         // let lista_cobros_ordenada=listaCobros
+        this.$store.state.posiciones_lista=[]
                                 if(localStorage.getItem('ListaEstadosCobro')){
                                     let estados=JSON.parse(localStorage.getItem('ListaEstadosCobro'))
                                     for (const key in lista_cobros_ordenada) {
@@ -1081,7 +1100,7 @@ if (fin < inicio) {
                                     
                                     // element.data.prestamos.length >= 1 && element.data.prestamos[0].estado_prestamo == "false")
                             if(fecha_prestamo<fecha_anterior_hoy && element.data.prestamos.length >= 1 && element.data.prestamos[0].estado_prestamo == "false") {
-                                console.log("onGenerarListaEstados");
+                                // console.log("onGenerarListaEstados");
                                 if(this.listaClientesGuardar.length==1){
                     let elementosLista=Object.values(this.listaClientesGuardar[0]);
                     let posicionlista=elementosLista.findIndex(x=>x.idCliente==element.data.id)
@@ -1099,7 +1118,9 @@ if (fin < inicio) {
                     // console.log(resp.data.lista_clientes);
                     this.$store.commit('setlistaDbGuardada');
                     this.$store.commit('addPosicionListaCliente',posicion_cliente_lista)
+                    
                     this.$store.state.clientes_cobros.unshift(element);
+                    console.log('agrego un nuevo cliente en cobros')
                         
                     }
 
@@ -1115,6 +1136,7 @@ if (fin < inicio) {
                     this.$store.commit('addPosicionListaCliente',posicion_cliente_lista)
                     // this.$store.commit('addNewClientes',element)
                     this.$store.state.clientes_cobros.unshift(element);
+                    console.log('agrego un nuevo cliente en cobros')
                     }
                                  
                                 
@@ -1150,8 +1172,9 @@ if (fin < inicio) {
                                     
                                     // element.data.prestamos.length >= 1 && element.data.prestamos[0].estado_prestamo == "false")
                             if(fecha_prestamo<fecha_anterior_hoy && element.data.prestamos.length >= 1 && element.data.prestamos[0].estado_prestamo == "false") {
-                                console.log("onGenerarListaEstados");
+                                // console.log("onGenerarListaEstados");
                                  this.$store.state.clientes_cobros.unshift(element);
+                                 console.log('agrego un nuevo cliente en cobros')
                                 
                               
                                

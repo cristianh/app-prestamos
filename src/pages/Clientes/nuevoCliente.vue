@@ -30,6 +30,7 @@
         minlength=7
         pattern="[0-9]{7,10}"
         error-message="Solo numeros (7-10) caracteres"
+        :value=form.usuario.identificacion
         @input="form.usuario.identificacion=$event.target.value"
         :onValidate=onValidatedInput
       ></f7-list-input>
@@ -408,56 +409,33 @@ export default {
       
     },
     watch: {
-       telefono(value){
-        
-        if(value.length<10){
-            // this.error_form='El celular no esta completo.';
-            // this.validar_campos=true;
-        }else{
-           this.error_form='';
-           this.form.usuario.telefono=this.telefono;
-            // this.validar_campos=false;
-        }
-      },
-      telefonoNegocio(value){
-       
-        if(value.length<10){
-            // this.error_form='El telefono del negocio no esta completo.';
-            // this.validar_campos=true;
-        }else{
-           this.error_form='';
-           this.form.negocio.telefono=this.telefono;
-          //  this.validar_campos=false;
-        }
-      },
-      identificacion(value){
-          if(value.length<=9){
-            this.error_form='La cedula tiene pocos numeros.';
-            // this.validar_campos=true;
-          } else {
-            this.error_form='';
-            if(this.clientes.filter(x=>x.data.usuario.identificacion==value).length>0){
-            this.$f7.dialog.alert('Este cliente ya existe!','Atencion!',()=>{
+      'form.usuario.identificacion':function(value,oldvalue){
+          // this.error_form='';
+            if(value.length>=8){
+               if(this.clientes.filter(x=>x.data.usuario.identificacion==value).length>0){
+              this.form.usuario.identificacion=''
+            this.$f7.dialog.alert(`El cliente con cedula ${value} ya existe!`,'Atencion!',()=>{
               // this.identificacion=''
+              // alert('ok')
+              
             });
-          }else{
-            this.form.usuario.identificacion=this.identificacion;
-          }
-          }
+            }
+           
+       }
       }
     },
     destroyed() {
       this.form={
                 posicion:0,
                 activo:true,
-                telefonoUsuario:'',
                 usuario:{
                   identificacion:'',
                   nombre:'',
                   apellido:'',
                   direccion1:'',
                   direccion2:'',
-                  oficio:''
+                  oficio:'',
+                  telefono:''
                 },
                 negocio:{
                   nombre_negocio:'',
@@ -475,7 +453,12 @@ export default {
                 },
                 prestamos:new Array(),
                 cobros:new Array(),
-                geolocalizacion:{}
+                geolocalizacion:{},
+                 estado_pago_prestamo:{
+                pago:false,
+                nopago:false,
+                pendiente:false
+              },
             },
             this.lat='',
             this.log='',
@@ -504,6 +487,7 @@ export default {
       },
      onValidatedInput(isValid){
       this.validar_campos=!isValid
+      // this.onVerificarUsuarioRegistradoPorCedula()
      },
       onVolverACargarGeo(){
         navigator.geolocation.getCurrentPosition(this.onSuccessGeolocalizacion, this.onErrorGeolocalizacio);
@@ -538,9 +522,7 @@ export default {
           this.form.geolocalizacion.lat=position.coords.latitude
         },
       getInfoGelocalitation(){
-          return axios.get("https://ipinfo.io?token=3e5d1c9a59d8aa",  (response) => {
-              return JSON.stringify(response, null, 4)
-          }, "jsonp");
+          
       },
         onCobrosNoRealizados(){
           localStorage.setItem("cobros_no_efectivos",this.contador_cobros_no_efectivos++);
@@ -595,13 +577,14 @@ export default {
          'nuevo':true
        }
        data.data.id=response.data,
-       this.$store.commit('addNewClientes',data);
-        let posicion_cliente_lista={
-                        idCliente:response.data
-                    }
-                    //this.clientes.push(element);
+       this.$store.commit('addNewClientesNuevosLista',data);
+      //   let posicion_cliente_lista={
+      //                   idCliente:response.data,
+      //                   posicion: this.form.posicion
+      //               }
+      //               //this.clientes.push(element);
                     
-       this.$store.commit('addPosicionListaClienteCreada',posicion_cliente_lista)
+      //  this.$store.commit('addPosicionListaClienteCreada',posicion_cliente_lista)
       let nueva_lista=this.$store.getters.getPosicionesListaClientes
       this.$f7.dialog.preloader('Guardando lista...');
        this.cobradoresClientesService.actualizarPosicionCliente(this.idad,idmpresa,ui_cobrador,response.data,nueva_lista).then((rest)=>{     

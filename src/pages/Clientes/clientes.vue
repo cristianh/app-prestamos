@@ -259,7 +259,16 @@ export default {
   },
   computed: {
     getClientesLista(){
-      let temporarlistaclientes=this.$store.getters.getOrdenarClientes;
+      let temporarlistaclientes=this.$store.getters.getOrdenarClientes.sort((a, b) => {
+                    if (a.data.posicion > b.data.posicion) {
+                        return 1;
+                    }
+                    if (a.data.posicion < b.data.posicion) {
+                        return -1;
+                    }
+                    // a must be equal to b
+                    return 0;
+      });;
       if(this.busqueda==""){
         return temporarlistaclientes
       }else{
@@ -296,61 +305,6 @@ export default {
     },
       onLlamar(telefono){
         window.location.href = "tel:"+telefono;
-      },
-      onActualizarListaPrestamos(){
-            let lista_cobros_ordenada=this.$store.getters.getOrdenarClientes
-            this.$store.state.clientes_cobros=[]
-        
-        // let lista_cobros_ordenada=listaCobros
-                                if(localStorage.getItem('ListaEstadosCobro')){
-                                    let estados=JSON.parse(localStorage.getItem('ListaEstadosCobro'))
-                                    for (const key in lista_cobros_ordenada) {
-                                        if (lista_cobros_ordenada.hasOwnProperty(key)) {
-                                            const element = lista_cobros_ordenada[key];
-                                              let elemento_lista=estados.filter(x=>x.id===element.data.id)
-                                    // let posicion_lista=lista_cobros_ordenada.findIndex(x=>x.data.id===elemento_lista[0].id)
-                                                    // console.log(elemento_lista[0].estado);
-                                                    // console.log(posicion_lista);
-                                                    if(elemento_lista.length>=1){
-                                                            // console.log(elemento_lista[0].estado);
-                                                switch (elemento_lista[0].estado) {
-                                                    case 1:
-                                                element.data.estado_pago_prestamo.pago=true
-                                                element.data.estado_pago_prestamo.nopago=false
-                                                element.data.estado_pago_prestamo.pendiente=false
-                                                        break;
-                                                    case 2:
-                                                           element.data.estado_pago_prestamo.pago=false
-                                                 element.data.estado_pago_prestamo.nopago=true
-                                                 element.data.estado_pago_prestamo.pendiente=false
-                                                        break;
-                                                    case 3:
-                                                    element.data.estado_pago_prestamo.pago=false
-                                                 element.data.estado_pago_prestamo.nopago=false
-                                                 element.data.estado_pago_prestamo.pendiente=true
-                                                        break;
-                                                
-                                                    default:
-                                                        break;
-                                                }
-                                                   }
-                                                
-                                                    // console.log(elemento_lista_cobros);
-
-                                    this.$store.state.clientes_cobros.unshift(element);
-                                            
-                                        }
-                                    }
-                                     }else{
-                                         for (const key in lista_cobros_ordenada) {
-                                        if (lista_cobros_ordenada.hasOwnProperty(key)) {
-                                            const element = lista_cobros_ordenada[key]; 
-                                            this.$store.state.clientes_cobros.unshift(element);
-                                        }
-                                         }
-                                     }
-        
-
       },
       getPosicionElemento(id_clientepass){
           return this.clientes.findIndex(x=>x.id==id_clientepass);
@@ -438,21 +392,26 @@ batch.commit().then( ()=> {
         // app.dialog.alert(id);
         this.$f7.dialog.confirm('Confirmar usuario',nombrecompleto, () => {
            
-           let elemento = this.clientes.findIndex(x=>x.data.id==id);
-           console.log(this.clientes[elemento].data);
+           let elemento = this.$store.getters.getClientes.findIndex(x=>x.data.id==id);
+           console.log(this.clientes[elemento].data.prestamos.length)
+          //  alert(this.clientes[elemento].data.hasOwnProperty('prestamos'));
            if(this.clientes[elemento].data.hasOwnProperty('prestamos')){
-              if(this.clientes[elemento].data.prestamos[0].estado_prestamo!=true){
-  // && this.clientes[elemento].data.prestamos.estado_prestamo!=true
+             if(this.clientes[elemento].data.prestamos.length>=1){
+                   if(this.clientes[elemento].data.prestamos[0].estado_prestamo!=true){
+  
            this.$f7.dialog.alert('No se puede realizar el prestamo, el cliente tiene un saldo por pagar.',nombrecompleto);
           }else{
           this.$f7.dialog.alert(nombrecompleto,'Confirmado!',()=>{
             this.$f7.sheet.open('.demo-sheet-swipe-to-step');
           });
           }
-          }else{
+             }else{
           this.$f7.dialog.alert(nombrecompleto,'Confirmado!',()=>{
             this.$f7.sheet.open('.demo-sheet-swipe-to-step');
-          });
+          })
+
+          
+          };
            }
         });
       },
