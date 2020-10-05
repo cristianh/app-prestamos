@@ -449,7 +449,7 @@ export default {
         onGenerarListaEstados(){
             
             let lista_cobros_ordenada=this.$store.getters.getOrdenarClientes
-            console.log(lista_cobros_ordenada);
+            // console.log(lista_cobros_ordenada);
             let estadoListaCobro=[]
             
                 for (const key in lista_cobros_ordenada) {
@@ -561,7 +561,7 @@ export default {
                                 this.$store.commit('addPosicionListaCliente',posicion_cliente_lista)
                                 
                                 this.$store.state.clientes_cobros.unshift(element);
-                                console.log("Carga cliente en cobros");
+                                // console.log("Carga cliente en cobros");
                                     
                                 }
 
@@ -577,7 +577,7 @@ export default {
                                             this.$store.commit('addPosicionListaCliente',posicion_cliente_lista)
                                             // this.$store.commit('addNewClientes',element)
                                             this.$store.state.clientes_cobros.unshift(element);
-                                            console.log("Carga cliente en cobros");
+                                            // console.log("Carga cliente en cobros");
                                 }
                                                 }else{
                                 //  console.log("Fechas diferentes no")
@@ -596,7 +596,7 @@ export default {
                             if(fecha_prestamo<fecha_anterior_hoy && element.data.prestamos.length >= 1 && element.data.prestamos[0].estado_prestamo == "false") {
                                 // console.log("onGenerarListaEstados");
                                  this.$store.state.clientes_cobros.unshift(element);
-                                 console.log("Carga cliente en cobros");
+                                //  console.log("Carga cliente en cobros");
                                 
                               
                                

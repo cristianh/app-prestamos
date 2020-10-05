@@ -87,6 +87,8 @@ exports.InformeDia = functions.https.onRequest(async(request, response, body) =>
                     return true;
                 });
 
+
+
             let restultadoCollectionCobros = jornadas_collection_cobros.where("fecha", "==", request.body.fecha).get()
                 .then((querySnapshot) => {
                     querySnapshot.forEach((doc) => {

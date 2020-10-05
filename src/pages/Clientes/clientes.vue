@@ -5,9 +5,9 @@
         <f7-link icon-ios="f7:menu" icon-aurora="f7:menu" icon-md="material:menu" panel-open="left"></f7-link>
       </f7-nav-left>
       <f7-nav-title sliding>Clientes</f7-nav-title>
-       <f7-nav-right>
-      <!-- <f7-link class="searchbar-enable" data-searchbar=".searchbar-cliente" icon-ios="f7:search" icon-aurora="f7:search" icon-md="material:search"></f7-link> -->
-    </f7-nav-right>
+     <f7-nav-right>
+        <f7-link  tooltip="Nuevo cliente" size="21px" href="/cliente_nuevo/" color="green" icon-ios="f7:person_add_alt_1" icon-aurora="f7:person_add_alt_1" icon-md="material:person_add_alt_1" ></f7-link>
+      </f7-nav-right>
     
 
       <!-- <f7-searchbar
@@ -30,28 +30,27 @@
        <!-- <f7-nav-right>
        
       </f7-nav-right> -->
-    <f7-block>
-      <!-- <pre>{{$store.getters.getContador}}</pre> -->
-      <!-- <pre>{{$store.getters.getClientes}}</pre> -->
-      <!-- <pre>{{$store.getters.getContadorClientes}}</pre> -->
+    <!-- <f7-block>
+      
       
   <f7-row>
    
     <f7-col>
-        <!-- {{[0]}} -->
+      
       <f7-button fill large small href="/cliente_nuevo/" color="green"><f7-icon size="21px" material="person_add_alt_1"></f7-icon> NUEVO CLIENTE </f7-button>
     </f7-col>
-  </f7-row>
-</f7-block>
-<!-- <pre>{{clientes_lista_ordenada}}</pre> -->
-<f7-block>
+  </f7-row> -->
+
 <div v-if="clientes.length!=0">
+
   <f7-list class="searchbar-not-found">
     <f7-list-item title="Cliente no encontrado."></f7-list-item>
   </f7-list>
        <!-- <pre>{{getClientesLista}}</pre> -->
                    <!-- :text="`Cedula: ${cliente.data.id}`"  -->
                    <!-- :text="`Cedula: ${cliente.data.usuario.identificacion}`"  -->
+                    <f7-block>
+                   <f7-block-title >Clientes</f7-block-title>
         <f7-list  class="search-list searchbar-found" media-list  >
           <!-- :link="`/cliente_detalles/${cliente.id}/`" -->
         <f7-list-item swipeout   v-for="(cliente,index,key) in getClientesLista" 
@@ -74,6 +73,7 @@
          <!-- <f7-link v-if="cliente.data.usuario.telefono" style="margin-left:12px;font-size:14px" external  :href="`tel:${cliente.data.usuario.telefono}`"><f7-icon material="settings_phone"></f7-icon>{{cliente.data.usuario.telefono}}</f7-link> -->
           </f7-list-item>
         </f7-list>
+        </f7-block>
        
 </div>
 <div v-else>
@@ -127,19 +127,22 @@
         }"
         ></f7-list-input>
             <f7-list-input
+    input-id='selectPlan'
     label="Plan"
     type="select"
-    defaultValue="15/15"
     placeholder="Seleccione..."
     @change="onSelectPlan"
     error-message="Por favor seleccione un plan."
     required
     validate
   >
-   <option value="0">Seleccione</option>
-  <option  v-for="(planes,index,key) in tazasdeinteres"  :selected="planseleccionado" :key=key :value="`${planes.plazo}-${planes.interes}`">{{planes.nombre}}
+   <option value="Seleccione">Seleccione</option>
+  
+   
+  <option  v-for="(planes,index,key) in tazasdeinteres" :key=key :value="`${planes.plazo}-${planes.interes}`">{{planes.nombre}}
   </option>
        </f7-list-input>
+       
         </f7-list>
           <f7-list inset>
           <f7-list-input
@@ -160,6 +163,7 @@
     <f7-link>{{balance_zona|currency}}</f7-link>
   </f7-card-footer>
 </f7-card>
+<!-- {{planseleccionado_reset}} -->
         <div class="display-flex padding justify-content-space-between align-items-center">
           <div style="font-size: 18px"><b>Total:</b></div>
           <div style="font-size: 22px"><b><span>$ {{valor_sin_puntos==0?0:valor_sin_puntos}}</span></b></div>
@@ -400,6 +404,9 @@ batch.commit().then( ()=> {
            this.$f7.dialog.alert('No se puede realizar el prestamo, el cliente tiene un saldo por pagar.',nombrecompleto);
           }else{
             this.valor_sin_puntos=0
+            // this.planseleccionado_reset=undefined
+            
+              document.getElementById('selectPlan').value='Seleccione'
           this.$f7.dialog.alert(nombrecompleto,'Confirmado!',()=>{
             
             this.$f7.sheet.open('.demo-sheet-swipe-to-step');
@@ -407,6 +414,10 @@ batch.commit().then( ()=> {
           }
              }else{
                this.valor_sin_puntos=0
+              //  this.planseleccionado_reset=undefined
+              //  this.planseleccionado=undefined
+               
+               document.getElementById('selectPlan').value='Seleccione'
           this.$f7.dialog.alert(nombrecompleto,'Confirmado!',()=>{
             
             this.$f7.sheet.open('.demo-sheet-swipe-to-step');
@@ -416,6 +427,8 @@ batch.commit().then( ()=> {
           };
            }else{
              this.valor_sin_puntos=0
+           
+              document.getElementById('selectPlan').value='Seleccione'
           this.$f7.dialog.alert(nombrecompleto,'Confirmado!',()=>{
             this.$f7.sheet.open('.demo-sheet-swipe-to-step');
           })

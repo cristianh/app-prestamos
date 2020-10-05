@@ -17,6 +17,7 @@ import nuevaRutaClientesDetallesPage from '../pages/Rutas/rutaClienteDetalles.vu
 import comenzarRuta from '../pages/Abonos/comenzarRuta.vue';
 import detalleAbono from '../pages/Abonos/detallesAbono.vue';
 import ModificarAbono from '../pages/Abonos/ModificarAbono.vue';
+import EliminarAbono from '../pages/Abonos/EliminarAbono.vue';
 
 import PendientesPage from '../pages/Pendientes/PendientesPage.vue';
 
@@ -96,6 +97,10 @@ var routes = [{
     {
         path: '/modificar_abonos',
         component: ModificarAbono
+    },
+    {
+        path: '/eliminar_abonos',
+        component: EliminarAbono
     },
     {
         path: '/informes_dia',

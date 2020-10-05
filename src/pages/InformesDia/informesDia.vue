@@ -32,18 +32,13 @@
     <!-- <pre>{{consulta.length}}</pre> -->
 
 
-     <f7-block v-if="consulta!=0">
-      
-       <DataTable :value="jornada_dia.data" class="p-datatable-responsive-demo p-datatable-striped" :paginator="false" :rows="10">
-          <template #header>
-         Informe final dia {{fecha_busqueda}}
-         </template>
-         <!-- <Column field="hora_inicial" header="Hora Inicial">
-        <template #body="slotProps">
-            <span class="p-column-title">Hora Inicial</span>
-            {{slotProps}}
-        </template>
-    </Column> -->
+<!-- {{consulta.length}} -->
+     <f7-block v-if="consulta.length!=0">
+         <f7-list accordion-list>
+  <f7-list-item v-if="jornada_dia.data.length>=1" accordion-item :title="`Informe final dia`">
+    <f7-accordion-content>
+     <f7-block>
+          <DataTable :value="jornada_dia.data" class="p-datatable-responsive-demo p-datatable-striped" :paginator="false" :rows="10">
      <Column field="hora_inicial" header="Hora inicio dia cobrador">
         <template #body="slotProps">
             <span class="p-column-title"><b>Hora de inicio cobrador:</b></span>
@@ -93,133 +88,77 @@
         </template>
     </Column>
 </DataTable>
-
-<DataTable :value="cobros.data" class="p-datatable-responsive-demo" :paginator="false" :rows="10">
-          <template #header>
-        Cobros dia {{fecha_busqueda}}
-         </template>
-         <Column field="cliente_nombre" header="Cliente nombre">
-        <template #body="slotProps">
-            <span class="p-column-title"><b>Cliente nombre:</b></span>
-           {{slotProps.data.cliente_nombre}}
-        </template>
-        </Column>
-           <Column field="cliente_apellido" header="Cliente apellido">
-        <template #body="slotProps">
-            <span class="p-column-title"><b>Cliente apellido:</b></span>
-           {{slotProps.data.cliente_apellido}}
-        </template>
-    </Column>
-         <Column field="cliente_cedula" header="Cliente cedula">
-        <template #body="slotProps">
-            <span class="p-column-title"><b>Cliente cedula:</b></span>
-           {{slotProps.data.cliente_cedula}}
-        </template>
-    </Column>
-
-     <Column field="valor_pago" header="Valor pago">
-        <template #body="slotProps">
-            <span class="p-column-title"><b>Valor pago:</b></span>
-           {{slotProps.data.valor_pago|currency}}
-        </template>
-    </Column>
-    <Column field="fecha" header="Fecha">
-        <template #body="slotProps">
-            <span class="p-column-title"><b>Fecha:</b></span>
-           {{slotProps.data.fecha}}
-        </template>
-    </Column>
-    <Column field="hora" header="Hora">
-        <template #body="slotProps">
-            <span class="p-column-title"><b>Hora:</b></span>
-           {{slotProps.data.hora}}
-        </template>
-    </Column>
-    
-</DataTable>
-
-<DataTable :value="nopagos.data" class="p-datatable-responsive-demo" :paginator="false" :rows="10">
-          <template #header>
-        Cobros no  realizados dia {{fecha_busqueda}}
-         </template>
-            <Column field="cliente_nombre" header="Cliente nombre">
-        <template #body="slotProps">
-            <span class="p-column-title"><b>Cliente nombre:</b></span>
-           {{slotProps.data.cliente_nombre}}
-        </template>
-        </Column>
-           <Column field="cliente_apellido" header="Cliente apellido">
-        <template #body="slotProps">
-            <span class="p-column-title"><b>Cliente apellido:</b></span>
-           {{slotProps.data.cliente_apellido}}
-        </template>
-    </Column>
-         <Column field="cliente_cedula" header="Cliente cedula">
-        <template #body="slotProps">
-            <span class="p-column-title"><b>Cliente cedula:</b></span>
-           {{slotProps.data.cliente_cedula}}
-        </template>
-    </Column>
-
-     <Column field="valor_pago" header="Valor pago">
-        <template #body="slotProps">
-            <span class="p-column-title"><b>Valor pago:</b></span>
-           {{slotProps.data.valor_pago|currency}}
-        </template>
-    </Column>
-    <Column field="fecha" header="Fecha">
-        <template #body="slotProps">
-            <span class="p-column-title"><b>Fecha:</b></span>
-           {{slotProps.data.fecha}}
-        </template>
-    </Column>
-    <Column field="hora" header="Hora">
-        <template #body="slotProps">
-            <span class="p-column-title"><b>Hora:</b></span>
-           {{slotProps.data.hora}}
-        </template>
-    </Column>
-         <Column field="razonnopago" header="Razon no pago">
-        <template #body="slotProps">
-            <span class="p-column-title"><b>Razon no pago:</b></span>
-           {{slotProps.data.razonnopago}}
-        </template>
-        </Column>
-           <!-- <Column field="cliente_apellido" header="Cliente apellido">
-        <template #body="slotProps">
-            <span class="p-column-title"><b>Cliente apellido:</b></span>
-           {{slotProps.data.cliente_apellido}}
-        </template>
-    </Column>
-         <Column field="cliente_cedula" header="Cliente cedula">
-        <template #body="slotProps">
-            <span class="p-column-title"><b>Cliente cedula:</b></span>
-           {{slotProps.data.cliente_cedula}}
-        </template>
-    </Column>
-
-     <Column field="valor_pago" header="Valor pago">
-        <template #body="slotProps">
-            <span class="p-column-title"><b>Valor pago:</b></span>
-           {{slotProps.data.valor_pago|currency}}
-        </template>
-    </Column>
-    <Column field="fecha" header="Fecha">
-        <template #body="slotProps">
-            <span class="p-column-title"><b>Fecha:</b></span>
-           {{slotProps.data.fecha}}
-        </template>
-    </Column>
-    <Column field="hora" header="Hora">
-        <template #body="slotProps">
-            <span class="p-column-title"><b>Hora:</b></span>
-           {{slotProps.data.hora}}
-        </template>
-    </Column> -->
-    
-</DataTable>
-
+      </f7-block>
+    </f7-accordion-content>
+  </f7-list-item>
+   <f7-list-item v-else accordion-item :title="`Informe final dia ${fecha_busqueda}`">
+    <f7-accordion-content>
+      <f7-card>   
+          <f7-card-content>
+              No se encontraron resultados
+          </f7-card-content>
+        </f7-card>
+    </f7-accordion-content>
+  </f7-list-item>
+  <f7-list-item v-if="cobros.data.length>=1" accordion-item :title="`Cobros realizados`">
+    <f7-accordion-content>
+       <f7-block>
+          <f7-list  media-list  >
+          <f7-list-item v-for="(cliente,index,key) in cobros.data" 
+          :key="key" 
+          :text=" `Fecha y Hora: ${cliente.fecha} ${cliente.hora}`" 
+          :title="`${cliente.cliente_nombre} ${cliente.cliente_apellido}`"
+          :subtitle="`Cedula: ${cliente.cliente_cedula}`"
+          :after="`Valor:`+ Number(cliente.valor_pago).toLocaleString('es-CO',{style: 'currency',currency: 'COP',minimumSignificantDigits:1})" 
+          >
+          </f7-list-item>
+          </f7-list>
+      </f7-block>
+    </f7-accordion-content>
+  </f7-list-item>
+   <f7-list-item v-else accordion-item :title="`Cobros realizados`">
+    <f7-accordion-content>
+       <f7-card>   
+          <f7-card-content>
+              No se encontraron resultados
+          </f7-card-content>
+        </f7-card>
+    </f7-accordion-content>
+  </f7-list-item>
+  <f7-list-item v-if="nopagos.data.length>=1" accordion-item :title="`Cobros no realizados`">
+    <f7-accordion-content>
+        <f7-block>
+          <f7-list  media-list  >
+          <f7-list-item v-for="(cliente,index,key) in nopagos.data" 
+          :key="key" 
+          :text=" `Fecha y Hora: ${cliente.fecha} ${cliente.hora}`" 
+          :title="`Cliente: ${cliente.cliente_nombre} ${cliente.cliente_apellido}`"
+          :subtitle="`Razon no pago: ${cliente.razonnopago}`"
+          >
+          
+          </f7-list-item>
+          </f7-list>
+      </f7-block>
+    </f7-accordion-content>
+  </f7-list-item>
+  <f7-list-item v-else accordion-item :title="`Cobros no realizados el dia ${fecha_busqueda}`">
+    <f7-accordion-content>
+        <f7-card>   
+          <f7-card-content>
+              No se encontraron resultados
+          </f7-card-content>
+        </f7-card>
+    </f7-accordion-content>
+  </f7-list-item>
+</f7-list> 
 </f7-block>
+ <f7-block v-else>
+        <f7-card>   
+          <f7-card-content>
+              No se encontraron resultados
+          </f7-card-content>
+        </f7-card>
+ </f7-block>
 </f7-page>
 </template>
 
@@ -249,7 +188,11 @@ export default {
                   
               ]
           },
-            prestamos: [],
+            prestamos: {
+              "data": [
+                  
+              ]
+          },
             jornada_dia: {
               "data": [
                   
@@ -282,8 +225,14 @@ export default {
                 console.log(res);
                 this.$f7.dialog.close()
                 this.consulta=res.data
-                this.jornada_dia.data.push(res.data.jornada_dia[0].data)
-                // this.cobros.data.push(res.data.cobros[0])
+                console.log(this.consulta);
+                if(this.consulta.prestamos.length>=1 || this.consulta.observaciones.length>=1 || this.consulta.cobros.length>=1 ||this.consulta.jornada_dia.length>=1 ){
+                    if(res.data.jornada_dia.length>=1){
+                this.jornada_dia.data.push(res.data.jornada_dia[0].data) 
+                }
+                
+                 if(res.data.cobros.length>=1){
+                this.cobros.data.push(res.data.cobros[0])
                  for (const key in res.data.cobros) {
                   if (res.data.cobros.hasOwnProperty(key)) {
                     const element = res.data.cobros[key];
@@ -293,7 +242,9 @@ export default {
                     this.cobros.data.push(element)
                   }
                 }
-
+                 }
+                
+                 if(res.data.observaciones.length>=1){
                   for (const key in res.data.observaciones) {
                   if (res.data.observaciones.hasOwnProperty(key)) {
                     const element = res.data.observaciones[key];
@@ -303,6 +254,25 @@ export default {
                     this.nopagos.data.push(element)
                   }
                 }
+               }
+
+                 if(res.data.prestamos.length>=1){
+                  for (const key in res.data.prestamos) {
+                  if (res.data.prestamos.hasOwnProperty(key)) {
+                    const element = res.data.prestamos[key];
+                    console.log(element)
+                    // this.cobros.clientes.push(element.cliente)
+                    // delete element.cliente
+                    this.prestamos.data.push(element)
+                  }
+                }
+                 }
+                }else if(this.consulta.prestamos.length==0 || this.consulta.observaciones.length==0 || this.consulta.cobros.length==0 ||this.consulta.jornada_dia.length==0){
+                    this.consulta=[]
+                }else{
+                     this.consulta=[]
+                }
+                
                 
                 
                 // this.jornada_dia.data=res.data.jornada_dia[0].data

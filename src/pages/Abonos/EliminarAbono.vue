@@ -4,7 +4,7 @@
         <f7-nav-left>
         <f7-link icon-ios="f7:menu" icon-aurora="f7:menu" icon-md="material:menu" panel-open="left"></f7-link>
       </f7-nav-left>
-      <f7-nav-title sliding>Modificar Abono</f7-nav-title>
+      <f7-nav-title sliding>Eliminar Abono</f7-nav-title>
     </f7-navbar>
     
     
@@ -27,8 +27,8 @@
         <!-- confirm-text="Desea eliminar este cliente de la lista!" confirm-title="Seguro!" -->
         <f7-swipeout-actions right>
         <!-- <f7-swipeout-button close overswipe color="green" @click="onReply(cliente,cliente.data.usuario.nombre+cliente.data.usuario.apellido)">Seleccionar</f7-swipeout-button> -->
-        <f7-swipeout-button @click="onEditarCobros(cobros)" color="blue" >Editar</f7-swipeout-button>
-        <!-- <f7-swipeout-button  @click="onEliminarCobro(cobros)" color="red" delete>Eliminar</f7-swipeout-button> -->
+        <!-- <f7-swipeout-button @click="onEditarCobros(cobros)" color="blue" >Editar</f7-swipeout-button> -->
+        <f7-swipeout-button  @click="onEliminarCobro(cobros)" color="red" delete>Eliminar</f7-swipeout-button>
         </f7-swipeout-actions>
         <!-- {{cliente.data.prestamos[0].estado_pago_prestamo.pendiente}} -->
         <!-- {{lista_cobros_realizados[index].estado}} -->

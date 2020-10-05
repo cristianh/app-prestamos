@@ -603,8 +603,8 @@ batch.commit().then(function () {
        localStorage.setItem('ListaEstadosCobro',JSON.stringify(estados))
     
 
-      if(Number(this.valor_sin_puntos.split('.').join(''))>Number(elemento.prestamos[0].valor_total_prestamo)){
-          this.$f7.dialog.alert('El valor del pago es mayor al total a pagar,revise por favor.','Atencion!');
+      if(Number(this.valor_sin_puntos.split('.').join(''))>Number(elemento.prestamos[0].valor)){
+          this.$f7.dialog.alert('El pago a realizar es mayor al valor del prestamo, revise por favor e intente nuevamente.','Atencion!');
           // this.valor_sin_puntos=0;
           // this.informacion_pago.valor_pago=0
       }else{
