@@ -6,7 +6,7 @@
       <f7-row>
       <f7-col>
   
-      <f7-button fill large small popup-open=".demo-popup" color="green">EDITAR</f7-button>
+      <f7-button fill large small popup-open=".demo-popup" color="green">EDITAR <f7-icon size="21px" material="edit"></f7-icon> </f7-button>
     </f7-col>
       </f7-row>
     </f7-card>
@@ -54,7 +54,8 @@
          <!-- <span> Saldo a favor: </span>{{prestamos.saldo_pago_dia|currency}}<br> -->
          <span>Fecha del prestamo: </span>{{prestamos.fecha}}<br>
          <span>Valor del prestamo: </span>{{prestamos.valor|currency}}<br>
-         <span>Total a pagar: </span>{{prestamos.total_apagar|currency}}<br>
+         <span>Pendiente por pagar: </span>{{prestamos.total_apagar|currency}}<br>
+         <span>Valor total prestamo:</span> {{prestamos.valor_total_prestamo|currency}}<br>
          <span>Plan seleccionado: </span>{{prestamos.plan_seleccionado}}<br>
         </div>
         <div v-else>
@@ -111,7 +112,7 @@
       <f7-row>
       <f7-col>
         <!-- {{[0]}} -->
-      <f7-button fill large small @click="onActualizarClienteCobrador" color="green">ACTUALIZAR</f7-button>
+      <f7-button fill large small @click="onActualizarClienteCobrador" color="green">ACTUALIZAR <f7-icon size="21px" material="replay"></f7-icon></f7-button>
     </f7-col>
       </f7-row>
     </f7-card>
@@ -405,7 +406,7 @@
         <f7-row>
       <f7-col>
         <!-- {{[0]}} -->
-      <f7-button fill large small  @click="onActualizarGeolocalizacion" color="yellow">ACTUALIZAR UBICACION</f7-button>
+      <f7-button fill large small  @click="onActualizarGeolocalizacion" color="yellow">ACTUALIZAR UBICACION <f7-icon size="21px" material="edit_location"></f7-icon> </f7-button>
     </f7-col>
       </f7-row>
         </f7-block>

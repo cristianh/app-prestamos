@@ -36,7 +36,7 @@
          <f7-block  inset>
             <f7-row>
             <f7-col lg="12" md="12">
-                <f7-button fill  :disabled="btn_comenzar_ruta" @click="onVerificarDiaListaCobros">Comenzar<f7-icon material="swap_vert"></f7-icon></f7-button>
+                <f7-button fill  :disabled="btn_comenzar_ruta" @click="onVerificarDiaListaCobros">Comenzar<f7-icon material="swap_vert" size="21px"></f7-icon></f7-button>
             </f7-col>
             </f7-row>
             </f7-block>
@@ -111,8 +111,13 @@
           <f7-block>
         <f7-row>
         <f7-col>
-            <f7-button  fill color="red" @click="onCerrarRuta">Terminar Ruta <f7-icon material="cancel"></f7-icon></f7-button>
+            <f7-button  fill color="red" large small @click="onCerrarRuta">Terminar Ruta <f7-icon material="cancel" size="21px"></f7-icon></f7-button>
         </f7-col>
+         <f7-col>
+      
+          <f7-button  sortable-toggle=".sortable" fill large small color="blue"  @click="onCambiarMensajeOrdenar">{{mensaje_ordenar}}<f7-icon size="21px" :material="icono_boton_lsita"></f7-icon></f7-button>
+         </f7-col>
+    
          </f7-row>
         </f7-block>
          <f7-block>
@@ -121,14 +126,15 @@
          <f7-block-title >Clientes</f7-block-title>
        <!-- :link="`/cliente_detalles/${cliente.id}/`" -->
      
-        <f7-list  class="search-list-ruta searchbar-found">
+        <f7-list  sortable @sortable:sort="onSort"   class="search-list-ruta searchbar-found">
             
 <!-- :after="`${cliente.data.prestamos.length==0 || cliente.data.prestamos==undefined? 'NA':Number(cliente.data.prestamos[0].dias_con_mora)>=1?'Mora: '+Number(cliente.data.prestamos[0].dias_con_mora)+' dia':'Mora: '+Number(cliente.data.prestamos[0].dias_con_mora)+' dias'}`"  -->
 <!-- {'pendiente':cliente.data.prestamos[0].estado_pago_ruta==3,'normal':cliente.data.prestamos[0].estado_pago_ruta==0,'pago':cliente.data.prestamos[0].estado_pago_ruta==1,'no-pago':cliente.data.prestamos[0].estado_pago_ruta==2 -->
-
+<!-- :subtitle="`Cedula: ${cliente.data.usuario.identificacion}`"  -->
+<!-- :subtitle="`Cedula: ${cliente.data.id}`"   -->
         <f7-list-item  
         media-list
-        swipeout  
+        swipeout
         :disabled="cliente.data.estado_pago_prestamo.nopago==true || cliente.data.estado_pago_prestamo.pago==true"
         v-for="(cliente,index,key) in getTodosClientesPrestamo"
        
@@ -138,15 +144,15 @@
         :subtitle="`Cedula: ${cliente.data.usuario.identificacion}`"   
         :id=cliente.data.id
         :key=key
-        :title="`${cliente.data.usuario.nombre}-${cliente.data.usuario.apellido}`" 
-        :footer="`${calculoTotalPagoHoy[index]!=undefined ? calculoTotalPagoHoy[index]==0?'Pago':calculoTotalPagoHoy[index]>0?'Saldo a pagar: '+Number(calculoTotalPagoHoy[index]).toLocaleString('es-CO',{style: 'currency',currency: 'COP',minimumSignificantDigits:1}):'Saldo a pagar: '+Number((calculoTotalPagoHoy[index]*(-1))).toLocaleString('es-CO',{style: 'currency',currency: 'COP',minimumSignificantDigits:1}):'NA'}`"  
+        :title="`${cliente.data.usuario.nombre} ${cliente.data.usuario.apellido}`" 
+        :footer="onMensajeCouta(cliente.data.estado_pago_prestamo,calculoTotalPagoHoy[index])"  
         @click="onClickClientePaginaDetalles(cliente.data.id,calculoTotalPagoHoy[index])"
         >
-        <f7-swipeout-actions right>
+        <!-- <f7-swipeout-actions right> -->
         <!-- <f7-swipeout-button close overswipe color="green" @click="onReply(cliente,cliente.data.usuario.nombre+cliente.data.usuario.apellido)">Seleccionar</f7-swipeout-button> -->
         <!-- <f7-swipeout-button close color="blue" >Pendiente</f7-swipeout-button> -->
-        <f7-swipeout-button confirm-text="Desea eliminar este cliente de la lista!" confirm-title="Seguro!" color="red" delete>Eliminar</f7-swipeout-button>
-        </f7-swipeout-actions>
+        <!-- <f7-swipeout-button confirm-text="Desea eliminar este cliente de la lista!" confirm-title="Seguro!" color="red" delete>Eliminar</f7-swipeout-button> -->
+        <!-- </f7-swipeout-actions> -->
         <!-- {{typeOfData(getEstadoPrestamo)}} -->
         <!-- {{cliente.data.prestamos[0].estado_pago_prestamo.pendiente}} -->
         <!-- {{lista_cobros_realizados[index].estado}} -->
@@ -154,12 +160,13 @@
          {{cliente.data.prestamos[0].estado_pago_prestamo.pago}}
          {{cliente.data.prestamos[0].estado_pago_prestamo.nopago}}
          {{cliente.data.prestamos[0].estado_pago_prestamo.pendiente}} -->
-        <!-- {{Number(cliente.data.prestamos[0].dias_con_mora)}} -->
+        <!-- {{cliente.data.estado_pago_prestamo}} -->
+        <!-- {{calculoTotalPagoHoy[index]}} -->
         </f7-list-item>
         </f7-list>
         </f7-block>
       </div>
-            <div v-else>
+            <!-- <div v-else>
        <f7-block  inset>
          <f7-card>
           <f7-card-content>
@@ -168,7 +175,7 @@
          </f7-card>
 
 </f7-block>
-</div>
+</div> -->
 </div>
 
     <f7-sheet class="mensaje_final-sheet" :opened="sheetOpened" @sheet:closed="sheetOpened = false">
@@ -244,6 +251,10 @@ export default {
     jornada_cobrador:{
       balance_final_manual:0
     },
+    listaClientesGuardar:[],
+    icono_boton_lsita:'swap_vert',
+    mensaje_ordenar:'ORDENAR',
+    clientes_lista_ordenada:[], 
       numero_clientes:0,
       corbradorService:null,
       clientesService:null,
@@ -274,6 +285,13 @@ export default {
   created() {
      this.corbradorService= new CobradorService();
      this.clientesService= new ClientesService();
+  //     if(Boolean(localStorage.getItem("listagenerada"))==true || localStorage.getItem("listagenerada")=='true' ){
+  //       this.onComenzarFornada()
+  //   // //  alert("true",localStorage.getItem("listagenerada"))
+      
+  //   //   // this.onComenzarFornada()
+  //   //   this.$store.commit('setEstadoListaCobrosRealizados')
+  //  }
   },
   watch: {
     // UploadClientes(newCliente,oldCliente){
@@ -303,6 +321,7 @@ export default {
     if(Boolean(localStorage.getItem("listagenerada"))==true || localStorage.getItem("listagenerada")=='true' ){
        
     // this.onComenzarFornada()
+   
     let estados=JSON.parse(localStorage.getItem('ListaEstadosCobro'))
         for (const key in estados) {
           if (estados.hasOwnProperty(key)) {
@@ -310,6 +329,7 @@ export default {
             if(element.estado==1 || element.estado==2){
               // element.estado==1
               // setAumentaContadorClientesListaPrestamos
+              // console.log("..............")
               this.$store.commit('setQuitar_cobros_pendientesJornada',element.id);
 
             }
@@ -317,8 +337,21 @@ export default {
             
           }
         }
+
+        //  this.$store.state.clientes_cobros=this.$store.getters.getOrdenarClientes
+        // this.onComenzarFornada()
+      //      let clientes_ordenados=this.$store.getters.getOrdenarClientes
+      // console.log(clientes_ordenados)
+
+      // for (const key in clientes_ordenados) {
+      //   if (clientes_ordenados.hasOwnProperty(key)) {
+      //     const element = clientes_ordenados[key];
+      //     console.log(element)
+      //   }
+      // }
       this.isComienzoRuta=true;
     this.estado_lista_prestamos_clientes=false;
+     
     }
     
          if(Boolean(localStorage.getItem("mostrar_resultado_final"))==true || localStorage.getItem("mostrar_resultado_final")=='true' ){
@@ -353,11 +386,11 @@ export default {
   },
   beforeCreate(){
   //  if(Boolean(localStorage.getItem("listagenerada"))==true || localStorage.getItem("listagenerada")=='true' ){
-       
-  //   //  alert("true",localStorage.getItem("listagenerada"))
+  //       this.onComenzarFornada()
+  //   // //  alert("true",localStorage.getItem("listagenerada"))
       
-  //     // this.onComenzarFornada()
-  //     this.$store.commit('setEstadoListaCobrosRealizados')
+  //   //   // this.onComenzarFornada()
+  //   //   this.$store.commit('setEstadoListaCobrosRealizados')
   //  }
   
   },
@@ -429,7 +462,16 @@ export default {
       });
       // console.log("temporarlistaclientesprestamos",temporarlistaclientesprestamos);
       if(this.busqueda==""){
-        return this.$store.getters.getClientesListaPrestamo
+        return this.$store.getters.getClientesCobros.sort((a, b) => {
+                    if (a.data.posicion > b.data.posicion) {
+                        return 1;
+                    }
+                    if (a.data.posicion < b.data.posicion) {
+                        return -1;
+                    }
+                    // a must be equal to b
+                    return 0;
+      });
       }else{
          return temporarlistaclientesprestamos.filter(cliente => {
         return cliente.data.usuario.identificacion.toLowerCase().includes(this.busqueda.toLowerCase())
@@ -476,6 +518,64 @@ export default {
     }
   },
   methods:{
+    onMensajeCouta(estado,pago_hoy){
+    
+      return estado.pago==true?'Pago':
+      estado.nopago==true?'No pago':
+      'Saldo a pagar: '+Number(pago_hoy).toLocaleString('es-CO',{style: 'currency',currency: 'COP',minimumSignificantDigits:1})
+      // `${calculoTotalPagoHoy[index]!=undefined ? calculoTotalPagoHoy[index]==0?'Pago':calculoTotalPagoHoy[index]>0?'Saldo a pagar: '+Number(calculoTotalPagoHoy[index]).toLocaleString('es-CO',{style: 'currency',currency: 'COP',minimumSignificantDigits:1}):'Saldo a pagar: '+Number((calculoTotalPagoHoy[index]*(-1))).toLocaleString('es-CO',{style: 'currency',currency: 'COP',minimumSignificantDigits:1}):'NA'}`
+    },
+     onCambiarMensajeOrdenar(){
+        //  this.txt_ordenar=!this.txt_ordenar
+      
+
+         switch (this.mensaje_ordenar) {
+           case 'GUARDAR':
+              if(this.clientes_lista_ordenada.length!=0){
+              this.$f7.dialog.preloader('Guardando lista...');
+              let ui_cobrador=localStorage.getItem("uid");
+              let idadmin=localStorage.getItem("iad");
+              let id_empresa=localStorage.getItem("empresa");
+              console.log(this.clientes_lista_ordenada);
+              // this.$store.commit('setPosicionListaCliente',data_elements);
+              this.$store.commit('setActulizarPosicionesLista',this.clientes_lista_ordenada);
+
+              //  this.$store.state.clientes_cobros=this.clientes_lista_ordenada_cobros
+              //  this.$store.commit('setActulizarListaClientesCobros',this.clientes_lista_ordenada_cobros);
+
+              //  this.$f7.dialog.close();
+              this.clientesService.actualizarPosicionCliente(idadmin,id_empresa,ui_cobrador,ui_cobrador,this.clientes_lista_ordenada).then((rest)=>{     
+              console.log(rest)
+              this.$f7.dialog.close();
+              // this.$store.state.clientes=[]
+              // this.$store.state.clientes=this.clientes_lista_ordenada_clientes
+              // this.onActualizarListaPrestamos()
+              this.$f7.dialog.alert(rest.data.mensaje,'Atencion!');
+              this.mensaje_ordenar='ORDENAR';
+              this.icono_boton_lsita='swap_vert'
+              });
+            }
+             
+             break;
+
+             case 'ORDENAR':
+                this.mensaje_ordenar='CANCELAR';
+        this.icono_boton_lsita='swap_vert'
+             
+             break;
+            case 'CANCELAR':
+                this.mensaje_ordenar='ORDENAR';
+        this.icono_boton_lsita='swap_vert'
+             
+             break;
+         
+           default:
+             break;
+         }
+        
+    
+
+    },
     typeOfData(data){
       return typeof(data)
     },
@@ -490,25 +590,88 @@ export default {
      
     },
     onSort(data) {
-      
-      // let data_posicion={
-      //   cliente_id:data.el.id,
-      //   from:data.from,
-      //   to:data.to
-      // }
-      // let data_values= Object.values(data_posicion);
-      //  console.log(data_values);
+        this.mensaje_ordenar='GUARDAR';
+        this.icono_boton_lsita='save'
+     
+            //  let lista_posiciones=this.$store.getters.getPosicionesListaClientes
+       
+       
+         
+          
 
-      //  data_values.forEach(element => {
+let inicio = data.from;
+let fin = data.to;
+//  console.table(data);
+this.clientes_lista_ordenada = this.$store.getters.getPosicionesListaClientes
+
+let element;
+
+
+if (fin < inicio) {
+  let temporal = this.clientes_lista_ordenada.splice(inicio, 1);
+
+  // console.log("temporal", temporal);
+
+  // console.log("aca mayor  inicio");
+  for (inicio; inicio < this.clientes_lista_ordenada.length - 1; inicio++) {
+    this.clientes_lista_ordenada[inicio] = this.clientes_lista_ordenada[inicio];
+  }
+  this.clientes_lista_ordenada.splice(fin, 0, temporal[0]);
+  // console.table(this.clientes_lista_ordenada);
+} else if (fin > inicio) {
+  // console.log("aca mayor  fin");
+
+  let temporal = this.clientes_lista_ordenada.splice(inicio, 1);
+  //  console.log("antes", this.clientes_lista_ordenada);
+  // console.log("temporal", temporal);
+
+  for (inicio; inicio > this.clientes_lista_ordenada.length; inicio--) {
+    this.clientes_lista_ordenada[inicio] = this.clientes_lista_ordenada[inicio];
+    // document.getElementById("app").innerHTML = element;
+    // console.log(element);
+    // console.log(numeros);
+  }
+  this.clientes_lista_ordenada.splice(fin, 0, temporal[0]);
+  //  console.log("despues", this.clientes_lista_ordenada);
+  // console.table(this.clientes_lista_ordenada);
+} else {
+
+}
+
+
+
+
+// console.log(this.clientes_lista_ordenada_clientes);
+        // Sort data   
+        let elemento1=this.clientes[data.to];
+        let elemento2=this.clientes[data.from];
         
-      //  });
-      // console.log(this.posiciones_lista_ordenada.filter(x=>x.cliente_id==data.el.id).length);
-      // if(this.posiciones_lista_ordenada.filter(x=>x.cliente_id==data.el.id).length>0){
-      //   let element= this.posiciones_lista_ordenada.filterIndex(x=>x.cliente_id==data.el.id);
-      //   this.posiciones_lista_ordenada[element].to=data.to;
-      // }else{
-      //   this.posiciones_lista_ordenada.push(data_posicion);
-      // }
+         let data_elements={
+          data:{
+            el1:elemento2,
+            el2:elemento1
+          }
+        }
+
+        let data_elements_cliente={
+          elm:{
+            id:data.el.id,
+            el1:elemento2,
+            el2:elemento1
+          },
+          data:data
+        }
+        
+
+           const self = this;
+        self.$f7.dialog.preloader('Actualizando lista...');
+        setTimeout(() => {
+          self.$f7.dialog.close();
+          // this.$store.commit('setPosicionListaCliente',data_elements);
+        //  this.$store.commit('SetPosicionListaClientes',data);
+        }, 1800);
+
+   
       
     },
     onConfirmarJornada(){
@@ -620,6 +783,7 @@ export default {
           this.btn_comenzar_ruta=true
           localStorage.setItem("Informe_final_ruta",JSON.stringify(this.informacion_final_ruta))
           localStorage.setItem("mostrar_resultado_final",Boolean(true));
+          
          
           
          
@@ -635,32 +799,10 @@ export default {
 
     },
     onVerificarDiaListaCobros(){
-        // alert(this.onVerificarDiaNuevo())
-        // if(localStorage.getItem("fecha_lista_generada")){
-        //  let fecha_lista = this.$moment(localStorage.getItem("fecha_lista_generada")).format('YYYY-MM-DD');
-        //  let fecha_hoy = this.$moment(new Date()).format('YYYY-MM-DD');
-        // //  alert(fecha_hoy>fecha_lista)
-        
-                                        
-                                       
-        
-                                       
-                                    
-        //                                 if(fecha_hoy>fecha_lista){
-        //                                         localStorage.removeItem("fecha_lista_generada")
-        //                                         localStorage.removeItem("Informe_final_ruta")
-        //                                         localStorage.removeItem("estado_lista_prestamos_clientes")
-        //                                         localStorage.removeItem("mostrar_resultado_final")
-        //                                         localStorage.removeItem("jornada_confirmada")
-        //                                         localStorage.removeItem("cobros_hoy")
-        //                                         localStorage.removeItem("ListaEstadosCobro")
-                                              
-        //                                 }
-                                        
-        // }
-        
-                
-      if(this.onVerificarListaYaGenergada()){
+      alert(this.onVerificarDiaNuevo())
+      if(this.$store.getters.getClientesCobros.length==0){
+        this.$f7.dialog.alert('No hay clientes para cobrar hoy','Atencion!');
+      } else if(this.onVerificarListaYaGenergada()){
         this.$f7.dialog.alert('Ya ha generado una lista hoy regrese mañana he intentelo nuevamente','Atencion!');
         
       }else if(this.onVerificarDiaNuevo()){
@@ -676,68 +818,139 @@ export default {
                   localStorage.removeItem("mostrar_resultado_final")
                   localStorage.removeItem("jornada_confirmada")
                   localStorage.removeItem("cobros_hoy")
+                  localStorage.removeItem("nocobros_hoy")
                   localStorage.removeItem("ListaEstadosCobro")
                   this.$store.commit('setEstadoCobrosLista',JSON.parse(localStorage.getItem('ListaEstadosCobro')))
                   this.$store.commit('setfechInicialJornada',this.$moment(new Date).format("MM-DD-YYYY"));
                   this.$store.commit('sethoraInicialJornada',this.$moment(new Date).format("hh:mm:ss"));
-                  this.onRecargarInfoListaCobros()                                  
-      }else{
-         // alert(this.$store.getters.getClientesCobros.length)
-         if(this.$store.getters.getClientesCobros.length>=1){
+                   this.$store.state.clientes_cobros=[]
+                  localStorage.removeItem("ListaEstadosCobro")
+                  localStorage.removeItem('ListaEstadosCobro')
+                  this.$store.state.estados_prestamos_ruta=[]
+                  // this.onRecargarInfoListaCobros()
+                    let id_empresa=localStorage.getItem("empresa");
+                  this.$f7.dialog.preloader('Creando lista...');
+                  
+                  let ui_cobrador=localStorage.getItem("uid");
+                  let id_admin=localStorage.getItem("iad");
+                  this.corbradorService.guardarJornadaCobrador(id_admin,id_empresa,ui_cobrador,this.jornada_cobrador).then(response =>{
+                          console.log("................response",response);
+                            this.isComienzoRuta=true;
+                            this.estado_lista_prestamos_clientes=false;
+                            localStorage.removeItem("estado_lista_prestamos_clientes") 
+                            this.btn_comenzar_ruta=true;
+                          localStorage.setItem("idjornadacobrador",response.data.id);
+                          this.$store.commit('setEstadoRuta',true);
+                          this.$f7.dialog.close();
+                          
+                      }).catch(error =>{
+                          console.log(error);
+                  })   
+                  this.onComenzarFornada()                            
+      }else if(this.$store.getters.getClientesCobros.length>=1){
             localStorage.setItem('lista_clientes_cobrados', this.$store.getters.getClientesCobros.length)
           // this.$store.commit('setEstadoCobrosLista',JSON.parse(localStorage.getItem('ListaEstadosCobro')))
-          // this.onGenerarListaJornadaPago()
-          this.$store.commit('setEstadoCobrosLista',JSON.parse(localStorage.getItem('ListaEstadosCobro')))
-        this.onGenerarListaJornadaPago()
+          
+       
          this.$store.commit('setfechInicialJornada',this.$moment(new Date).format("MM-DD-YYYY"));
         this.$store.commit('sethoraInicialJornada',this.$moment(new Date).format("hh:mm:ss"));
-          this.$f7.dialog.alert('this.ruta_terminada-this.btn_comenzar_ruta-this.isComienzoRuta','Atencion!',()=>{
-                      this.$f7.dialog.close()
-                      this.$f7.dialog.alert(this.ruta_terminada+'-'+this.btn_comenzar_ruta+'-'+this.isComienzoRuta,'Atencion!');
-                  });
+        // this.onGenerarListaJornadaPago()
+          this.$store.commit('setEstadoCobrosLista',JSON.parse(localStorage.getItem('ListaEstadosCobro')))
+           this.onGenerarListaJornadaPago()
+          // this.$f7.dialog.alert('this.ruta_terminada-this.btn_comenzar_ruta-this.isComienzoRuta','Atencion!',()=>{
+          //             this.$f7.dialog.close()
+          //             this.$f7.dialog.alert(this.ruta_terminada+'-'+this.btn_comenzar_ruta+'-'+this.isComienzoRuta,'Atencion!');
+          //         });
       
       }else{
-         this.$f7.dialog.alert('No hay clientes para cobrar hoy','Atencion!');
+          
+          this.onGenerarListaJornadaPago()
+          // this.$f7.dialog.alert('No hay clientes para cobrar hoy','Atencion!');
       }
-      }
+      
         
     },
-    onRecargarInfoListaCobros(){
-            this.$store.state.clientes_cobros=[]
-            localStorage.removeItem("ListaEstadosCobro")
-            localStorage.removeItem('ListaEstadosCobro')
-            this.$store.state.estados_prestamos_ruta=[]
-            let clientes_cobrador = this.$store.getters.getClientes;
-              let estadoListaCobro=[]
-                for (const key in clientes_cobrador) {
-                if (clientes_cobrador.hasOwnProperty(key)) {
-                    const element = clientes_cobrador[key];
-                    
-                    //this.clientes.push(element);
-                    // this.$store.state.clientes.unshift(element);
-                    // alert(element.data.hasOwnProperty('prestamos'))
-                    if(element.data.hasOwnProperty('prestamos')){
-                       
-                            let fecha_prestamo = this.$moment(element.data.prestamos[0].fecha).format('YYYY-MM-DD');
-                            let fecha_anterior_hoy = this.$moment(new Date()).format('YYYY-MM-DD');
+    onVerificarDiaNuevo(){
+      if(localStorage.getItem("fecha_lista_generada")){
+         let fecha_lista = this.$moment(localStorage.getItem("fecha_lista_generada")).format('YYYY-MM-DD');
+         let fecha_hoy = this.$moment(new Date()).format('YYYY-MM-DD');
+          if(fecha_hoy>fecha_lista){
+                return true
+          }else{
+            return false
+          }
+                                        
+        }
+    },
+    onVerificarListaYaGenergada(){
+      let fechaactual=this.$moment(new Date)
+      let fechageneradalista
+       if(localStorage.getItem("fecha_lista_generada")){
+        
+        fechageneradalista=this.$moment(localStorage.getItem("fecha_lista_generada"))
+        if(fechaactual.diff(fechageneradalista,'days')==0){
+           return true
+         }else{
+          return false
+         }
+        }else{
+          return false
+        }
+        // alert(fechaactual.diff(fechageneradalista,'days') )// 1)
+         
+      
 
-                           
-                        //    alert(fecha_prestamo<fecha_anterior_hoy && element.data.prestamos.length >= 1 && element.data.prestamos[0].estado_prestamo == "false")
-                                //  if (element.data.prestamos.length > 0 && element.data.prestamos[0].estado_prestamo == false) {
-                            if(fecha_prestamo<fecha_anterior_hoy && element.data.prestamos.length >= 1 && element.data.prestamos[0].estado_prestamo == "false") {
-                                
-                                 this.onActualizarEstadosLista(element)
-                                 
+    },
+    onGenerarListaJornadaPago(){
+       
+   
+          
+                  //Modifique aca.
+      
+        // localStorage.setItem("listaClientesPrestamos",JSON.stringify(this.$store.getters.getClientesListaPrestamo));
+        // this.clientes=JSON.parse(localStorage.getItem("listaClientesPrestamos"))
+        // this.clientes=this.$store.getters.getClientesListaPrestamo
+        
+        let id_empresa=localStorage.getItem("empresa");
+        this.$f7.dialog.preloader('Creando lista...');
+        
+         let ui_cobrador=localStorage.getItem("uid");
+         let id_admin=localStorage.getItem("iad");
+        this.corbradorService.guardarJornadaCobrador(id_admin,id_empresa,ui_cobrador,this.jornada_cobrador).then(response =>{
+                 console.log("................response",response);
+                  this.isComienzoRuta=true;
+                  this.estado_lista_prestamos_clientes=false;
+                  localStorage.removeItem("estado_lista_prestamos_clientes") 
+                  this.btn_comenzar_ruta=true;
+                 localStorage.setItem("idjornadacobrador",response.data.id);
+                 this.$store.commit('setEstadoRuta',true);
+                 this.$f7.dialog.close();
+                 localStorage.setItem("listagenerada",true);
+                localStorage.setItem("fecha_lista_generada",this.$moment(new Date().toISOString().slice(0,10)))
+                this.$store.state.contadorClientesSeleccionados= this.$store.state.clientes_cobros.length
+             }).catch(error =>{
+                console.log(error);
+         })
+        
+        
+         
+
+        
+        
+    },
+    onComenzarFornada(){
+      
+      // this.$store.state.contadorClientesSeleccionados= 
+      
+      
+      this.onGenerarListaEstados()
+      this.$store.commit('setEstadosInicialesRutaClientesPrestamo')
+      if(Boolean(localStorage.getItem("listagenerada"))==false || localStorage.getItem("listagenerada")=='false' ){
+                                    // if(this.$store.getters.getListaDBguardad){
+                                    //     estadoListaCobro.push({estado:0,id:element.data.id,posicion:element.data.posicion})
+                                    //     localStorage.setItem('ListaEstadosCobro',JSON.stringify(estadoListaCobro))
+                                    // }
                                
-                                // this.$store.state.clientes_cobros.push(element);
-                            // }else{
-                            //     this.$store.state.clientes_cobros.unshift(element);
-                            // }
-                                // alert(localStorage.getItem("listagenerada"))
-                                if(Boolean(localStorage.getItem("listagenerada"))==false || localStorage.getItem("listagenerada")=='false' ||Boolean(localStorage.getItem("listagenerada"))==null  ){
-                                    
-                                  estadoListaCobro.unshift({estado:0,id:element.data.id,posicion:element.data.posicion})
-                                  localStorage.setItem('ListaEstadosCobro',JSON.stringify(estadoListaCobro))
 
                                 }else{
                                     
@@ -779,6 +992,10 @@ export default {
                                      if(localStorage.getItem('cobros_hoy')){
                                        this.$store.state.cobros_hoy=JSON.parse(localStorage.getItem('cobros_hoy'))   
                                      }
+
+                                     if(localStorage.getItem('nocobros_hoy')){
+                                       this.$store.state.nocobros_hoy=JSON.parse(localStorage.getItem('nocobros_hoy'))   
+                                     }
                                     
 
                                      
@@ -787,44 +1004,65 @@ export default {
                                     // localStorage.removeItem('cobros_nofectivos')
                                     
                                 }
-                            }
-                    // }
-                    }
-                    
-                }
-            }
-    
-          
-          this.$store.commit('setEstadoCobrosLista',JSON.parse(localStorage.getItem('ListaEstadosCobro')))
-          this.onGenerarListaJornadaPago()
+                
+  
+         
+
     },
-    onActualizarEstadosLista(elemento_lista_cobros){
-        // let lista_cobros_ordenada=this.$store.getters.getOrdenarListaClientesCobros
+   onGenerarListaEstados(){
+            
+            let lista_cobros_ordenada=this.$store.getters.getOrdenarClientes
+            
+            // console.log(lista_cobros_ordenada);
+            let estadoListaCobro=[]
+
+            // estado_pago_prestamo.pago==true
+            // this.$store.estados_prestamos_ruta=[]
+                for (const key in lista_cobros_ordenada) {
+                    if (lista_cobros_ordenada[key].data.hasOwnProperty('prestamos')) {
+                        const element = lista_cobros_ordenada[key];
+                       
+                        if(Boolean(localStorage.getItem("listagenerada"))==false || localStorage.getItem("listagenerada")=='false' ){
+                        // if(this.$store.getters.getListaDBguardad){      
+                        estadoListaCobro.push({estado:0,id:element.data.id,posicion:element.data.posicion})
+                        localStorage.setItem('ListaEstadosCobro',JSON.stringify(estadoListaCobro))
+                        // }
+                }                          }
+                            
+            }
+             this.$store.commit('setEstadoCobrosLista',JSON.parse(localStorage.getItem('ListaEstadosCobro')))
+             this.onActualizarEstadosLista()
+        },
+        onActualizarEstadosLista(){
+        let lista_cobros_ordenada=this.$store.getters.getClientes
         
         // let lista_cobros_ordenada=listaCobros
                                 if(localStorage.getItem('ListaEstadosCobro')){
                                     let estados=JSON.parse(localStorage.getItem('ListaEstadosCobro'))
-                                     let elemento_lista=estados.filter(x=>x.id===elemento_lista_cobros.data.id)
+                                    for (const key in lista_cobros_ordenada) {
+                                        if (lista_cobros_ordenada[key].data.hasOwnProperty('prestamos')) {
+                                            const element = lista_cobros_ordenada[key];
+                                              let elemento_lista=estados.filter(x=>x.id===element.data.id)
                                     // let posicion_lista=lista_cobros_ordenada.findIndex(x=>x.data.id===elemento_lista[0].id)
                                                     // console.log(elemento_lista[0].estado);
                                                     // console.log(posicion_lista);
                                                     if(elemento_lista.length>=1){
-                                                            console.log(elemento_lista[0].estado);
-                                                                    switch (elemento_lista[0].estado) {
+                                                            // console.log(elemento_lista[0].estado);
+                                                switch (elemento_lista[0].estado) {
                                                     case 1:
-                                                elemento_lista_cobros.data.estado_pago_prestamo.pago=true
-                                                 elemento_lista_cobros.data.estado_pago_prestamo.nopago=false
-                                                elemento_lista_cobros.data.estado_pago_prestamo.pendiente=false
+                                                element.data.estado_pago_prestamo.pago=true
+                                                element.data.estado_pago_prestamo.nopago=false
+                                                element.data.estado_pago_prestamo.pendiente=false
                                                         break;
                                                     case 2:
-                                                            elemento_lista_cobros.data.estado_pago_prestamo.pago=false
-                                                 elemento_lista_cobros.data.estado_pago_prestamo.nopago=true
-                                                 elemento_lista_cobros.data.estado_pago_prestamo.pendiente=false
+                                                           element.data.estado_pago_prestamo.pago=false
+                                                 element.data.estado_pago_prestamo.nopago=true
+                                                 element.data.estado_pago_prestamo.pendiente=false
                                                         break;
                                                     case 3:
-                                                    elemento_lista_cobros.data.estado_pago_prestamo.pago=false
-                                                 elemento_lista_cobros.data.estado_pago_prestamo.nopago=false
-                                                 elemento_lista_cobros.data.estado_pago_prestamo.pendiente=true
+                                                    element.data.estado_pago_prestamo.pago=false
+                                                 element.data.estado_pago_prestamo.nopago=false
+                                                 element.data.estado_pago_prestamo.pendiente=true
                                                         break;
                                                 
                                                     default:
@@ -832,86 +1070,111 @@ export default {
                                                 }
                                                    }
                                                 
-                                                    // console.log(elemento_lista_cobros);
+                        
+                       
+                            let fecha_prestamo = this.$moment(element.data.prestamos[0].fecha).format('YYYY-MM-DD');
+                            let fecha_anterior_hoy = this.$moment(new Date()).format('YYYY-MM-DD');
 
-                                    this.$store.state.clientes_cobros.unshift(elemento_lista_cobros);
+                           
+                        //    alert(fecha_prestamo<fecha_anterior_hoy && element.data.prestamos.length >= 1 && element.data.prestamos[0].estado_prestamo == "false")
+                                //  if (element.data.prestamos.length > 0 && element.data.prestamos[0].estado_prestamo == false) {
+                                    
+                                    // element.data.prestamos.length >= 1 && element.data.prestamos[0].estado_prestamo == "false")
+                            if(fecha_prestamo<fecha_anterior_hoy && element.data.prestamos.length >= 1 && element.data.prestamos[0].estado_prestamo == "false") {
+                                console.log("onGenerarListaEstados");
+                                if(this.listaClientesGuardar.length==1){
+                    let elementosLista=Object.values(this.listaClientesGuardar[0]);
+                    let posicionlista=elementosLista.findIndex(x=>x.idCliente==element.data.id)
+                    let posicionelementolista=elementosLista.find(x=>x.idCliente==element.data.id)
+                    if(posicionlista>-1){
+                    element.data.posicion=Number(posicionlista)+1
+                    // this.$store.commit('addNewClientes',element)
+
+                    let posicion_cliente_lista={
+                        idCliente:posicionelementolista.idCliente,
+                         posicion:Number(posicionlista)+1
+                    }
+                    // element.data.posicion=resp.data.lista_clientes[0][key].posicion
+                    // this.$store.state.posiciones_lista=resp.data.lista_clientes
+                    // console.log(resp.data.lista_clientes);
+                    this.$store.commit('setlistaDbGuardada');
+                    this.$store.commit('addPosicionListaCliente',posicion_cliente_lista)
+                    this.$store.state.clientes_cobros.unshift(element);
+                        
+                    }
+
+                    }else{
+                        
+                        let posicion_cliente_lista={
+                        idCliente:element.data.id,
+                        posicion:Number(key)+1
+                    }
+                    //this.clientes.push(element);
+                    element.data.posicion=Number(key)+1
+                    
+                    this.$store.commit('addPosicionListaCliente',posicion_cliente_lista)
+                    // this.$store.commit('addNewClientes',element)
+                    this.$store.state.clientes_cobros.unshift(element);
+                    }
+                                 
+                                
+                              
+                               
+                                 
+                               
+                                // this.$store.state.clientes_cobros.push(element);
+                            // }else{
+                            //     this.$store.state.clientes_cobros.unshift(element);
+                            // }
+                                // alert(localStorage.getItem("listagenerada"))
+                               
+                            }
+                    // }
+                    
 
                                     
-
+                                            
+                                        }
+                                    }
                                      }else{
-                                        this.$store.state.clientes_cobros.unshift(elemento_lista_cobros);
+                                         for (const key in lista_cobros_ordenada) {
+                                            if (lista_cobros_ordenada[key].data.hasOwnProperty('prestamos')) {
+                                            const element = lista_cobros_ordenada[key];
+                       
+                            let fecha_prestamo = this.$moment(element.data.prestamos[0].fecha).format('YYYY-MM-DD');
+                            let fecha_anterior_hoy = this.$moment(new Date()).format('YYYY-MM-DD');
+
+                           
+                        //    alert(fecha_prestamo<fecha_anterior_hoy && element.data.prestamos.length >= 1 && element.data.prestamos[0].estado_prestamo == "false")
+                                //  if (element.data.prestamos.length > 0 && element.data.prestamos[0].estado_prestamo == false) {
+                                    
+                                    // element.data.prestamos.length >= 1 && element.data.prestamos[0].estado_prestamo == "false")
+                            if(fecha_prestamo<fecha_anterior_hoy && element.data.prestamos.length >= 1 && element.data.prestamos[0].estado_prestamo == "false") {
+                                console.log("onGenerarListaEstados");
+                                 this.$store.state.clientes_cobros.unshift(element);
+                                
+                              
+                               
+                                 
+                               
+                                // this.$store.state.clientes_cobros.push(element);
+                            // }else{
+                            //     this.$store.state.clientes_cobros.unshift(element);
+                            // }
+                                // alert(localStorage.getItem("listagenerada"))
+                               
+                            }
+                    // }
+                    }
+                                         }
                                      }
 
                  
-                                
+                    localStorage.setItem('lista_clientes_cobrados',Number(this.$store.state.clientes_cobros.length))
+                    localStorage.setItem("listagenerada",true);
+                        localStorage.setItem("fecha_lista_generada",this.$moment(new Date().toISOString().slice(0,10))) 
                                 // this.$store.commit('setActualizarEstadosListaCobros',lista_cobros_ordenada)
-    },
-    onVerificarDiaNuevo(){
-      if(localStorage.getItem("fecha_lista_generada")){
-         let fecha_lista = this.$moment(localStorage.getItem("fecha_lista_generada")).format('YYYY-MM-DD');
-         let fecha_hoy = this.$moment(new Date()).format('YYYY-MM-DD');
-          if(fecha_hoy>fecha_lista){
-                return true
-          }else{
-            return false
-          }
-                                        
-        }
-    },
-    onVerificarListaYaGenergada(){
-       if(localStorage.getItem("fecha_lista_generada")){
-        let fechaactual=this.$moment(new Date)
-        let fechageneradalista=this.$moment(localStorage.getItem("fecha_lista_generada"))
-        // alert(fechaactual.diff(fechageneradalista,'days') )// 1)
-         if(fechaactual.diff(fechageneradalista,'days')==0){
-           return true
-         }else{
-          return false
-         }
-      }
-
-    },
-    onGenerarListaJornadaPago(){
-       
-   
-          
-                  //Modifique aca.
-        
-        localStorage.setItem("listagenerada",true);
-        localStorage.setItem("fecha_lista_generada",this.$moment(new Date().toISOString().slice(0,10)))
-        this.$store.state.contadorClientesSeleccionados= this.$store.state.clientes_cobros.length
-        // localStorage.setItem("listaClientesPrestamos",JSON.stringify(this.$store.getters.getClientesListaPrestamo));
-        // this.clientes=JSON.parse(localStorage.getItem("listaClientesPrestamos"))
-        // this.clientes=this.$store.getters.getClientesListaPrestamo
-        
-        let id_empresa=localStorage.getItem("empresa");
-        this.$f7.dialog.preloader('Creando lista...');
-        
-         let ui_cobrador=localStorage.getItem("uid");
-         let id_admin=localStorage.getItem("iad");
-        this.corbradorService.guardarJornadaCobrador(id_admin,id_empresa,ui_cobrador,this.jornada_cobrador).then(response =>{
-                 console.log("................response",response);
-                  this.isComienzoRuta=true;
-                  this.estado_lista_prestamos_clientes=false;
-                  localStorage.removeItem("estado_lista_prestamos_clientes") 
-                  this.btn_comenzar_ruta=true;
-                 localStorage.setItem("idjornadacobrador",response.data.id);
-                 this.$store.commit('setEstadoRuta',true);
-                 this.$f7.dialog.close();
-             }).catch(error =>{
-                console.log(error);
-         })
-        // this.onComenzarFornada()
-        
-         
-
-        
-        
-    },
-    onComenzarFornada(){
-        
-
-    }
+        },
 }
 }
 </script>

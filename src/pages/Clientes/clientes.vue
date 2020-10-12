@@ -39,29 +39,25 @@
    
     <f7-col>
         <!-- {{[0]}} -->
-      <f7-button fill large small href="/cliente_nuevo/" color="green">NUEVO CLIENTE</f7-button>
+      <f7-button fill large small href="/cliente_nuevo/" color="green"><f7-icon size="21px" material="person_add_alt_1"></f7-icon> NUEVO CLIENTE </f7-button>
     </f7-col>
-     <f7-col>
-      
-        <f7-button  sortable-toggle=".sortable" fill large small color="blue" @click="onCambiarMensajeOrdenar">{{mensaje_ordenar}}</f7-button>
-    </f7-col>
-
   </f7-row>
 </f7-block>
-
+<!-- <pre>{{clientes_lista_ordenada}}</pre> -->
 <f7-block>
 <div v-if="clientes.length!=0">
   <f7-list class="searchbar-not-found">
     <f7-list-item title="Cliente no encontrado."></f7-list-item>
   </f7-list>
        <!-- <pre>{{getClientesLista}}</pre> -->
-                  <!-- :text="`Cedula: ${cliente.data.id}`"  -->
-        <f7-list  class="search-list searchbar-found" media-list  sortable @sortable:sort="onSort">
+                   <!-- :text="`Cedula: ${cliente.data.id}`"  -->
+                   <!-- :text="`Cedula: ${cliente.data.usuario.identificacion}`"  -->
+        <f7-list  class="search-list searchbar-found" media-list  >
           <!-- :link="`/cliente_detalles/${cliente.id}/`" -->
         <f7-list-item swipeout   v-for="(cliente,index,key) in getClientesLista" 
           :id=cliente.id :key="key"  
- 
-          :text="`Cedula: ${cliente.data.usuario.identificacion}`" 
+           
+          :text="`Cedula: ${cliente.data.usuario.identificacion}`"
           :title="`${cliente.data.usuario.nombre} ${cliente.data.usuario.apellido}`" 
           :subtitle="cliente.data.usuario.direccion1==''?cliente.data.usuario.direccion2:cliente.data.usuario.direccion1" 
         
@@ -74,6 +70,7 @@
              <f7-swipeout-button close color="green" v-if="cliente.data.usuario.telefono!=''" @click="onLlamar(cliente.data.usuario.telefono)">Llamar</f7-swipeout-button>
         <f7-swipeout-button close overswipe color="blue" @click="onSeleccionarCliente(cliente.data.id,cliente.data.usuario.nombre+' '+cliente.data.usuario.apellido)">Prestamo</f7-swipeout-button>
         </f7-swipeout-actions>
+        <!-- {{cliente.data.posicion}} -->
          <!-- <f7-link v-if="cliente.data.usuario.telefono" style="margin-left:12px;font-size:14px" external  :href="`tel:${cliente.data.usuario.telefono}`"><f7-icon material="settings_phone"></f7-icon>{{cliente.data.usuario.telefono}}</f7-link> -->
           </f7-list-item>
         </f7-list>
@@ -218,10 +215,10 @@ export default {
             idad:'',
             clientes:[],
             clientes_lista_ordenada:[],
+            clientes_lista_ordenada_clientes:[],
             isLoadUsers:false,
             numero_clientes:0,
             txt_ordenar:false,
-            mensaje_ordenar:'ORDENAR',
             posiciones_lista_ordenada:[],
             clientesservices:null,
             total_prestado:0,
@@ -236,6 +233,7 @@ export default {
             tipo_seleccionado:'',
             info_prestamo:{
               valor:0,
+              valor_total_prestamo:0,
               // fecha:this.$moment(new Date).format("DD/MM/YYYY"), 
               fecha:new Date().toISOString().slice(0,10), 
               cliente:'',
@@ -299,136 +297,60 @@ export default {
       onLlamar(telefono){
         window.location.href = "tel:"+telefono;
       },
-      onCambiarMensajeOrdenar(){
-         this.txt_ordenar=!this.txt_ordenar
+      onActualizarListaPrestamos(){
+            let lista_cobros_ordenada=this.$store.getters.getOrdenarClientes
+            this.$store.state.clientes_cobros=[]
         
-       if(this.txt_ordenar){
-        
-        this.mensaje_ordenar='GUARDAR';
-   
-             
-      }else{
-        this.mensaje_ordenar='ORDENAR';
-             this.$f7.dialog.preloader('Guardando lista...');
-    let ui_cobrador=localStorage.getItem("uid");
-         let id_empresa=localStorage.getItem("empresa");
+        // let lista_cobros_ordenada=listaCobros
+                                if(localStorage.getItem('ListaEstadosCobro')){
+                                    let estados=JSON.parse(localStorage.getItem('ListaEstadosCobro'))
+                                    for (const key in lista_cobros_ordenada) {
+                                        if (lista_cobros_ordenada.hasOwnProperty(key)) {
+                                            const element = lista_cobros_ordenada[key];
+                                              let elemento_lista=estados.filter(x=>x.id===element.data.id)
+                                    // let posicion_lista=lista_cobros_ordenada.findIndex(x=>x.data.id===elemento_lista[0].id)
+                                                    // console.log(elemento_lista[0].estado);
+                                                    // console.log(posicion_lista);
+                                                    if(elemento_lista.length>=1){
+                                                            // console.log(elemento_lista[0].estado);
+                                                switch (elemento_lista[0].estado) {
+                                                    case 1:
+                                                element.data.estado_pago_prestamo.pago=true
+                                                element.data.estado_pago_prestamo.nopago=false
+                                                element.data.estado_pago_prestamo.pendiente=false
+                                                        break;
+                                                    case 2:
+                                                           element.data.estado_pago_prestamo.pago=false
+                                                 element.data.estado_pago_prestamo.nopago=true
+                                                 element.data.estado_pago_prestamo.pendiente=false
+                                                        break;
+                                                    case 3:
+                                                    element.data.estado_pago_prestamo.pago=false
+                                                 element.data.estado_pago_prestamo.nopago=false
+                                                 element.data.estado_pago_prestamo.pendiente=true
+                                                        break;
+                                                
+                                                    default:
+                                                        break;
+                                                }
+                                                   }
+                                                
+                                                    // console.log(elemento_lista_cobros);
 
-          this.clientesservices.actualizarPosicionCliente(this.idad,id_empresa,ui_cobrador,ui_cobrador,this.clientes_lista_ordenada).then((rest)=>{     
-              console.log(rest)
-              this.$f7.dialog.close();
-             
-        });
-      }
-      },
-      onVerificarMovimientos(posicion1,posicion2){
-        // alert(Number(data.to)-Number(data.from))
-        // let g=Number(posicion1)-Number(posicion2)
-        // alert(g)
-         if(Number(posicion1)-Number(posicion2)==-1){
-           return "Mueve 1 arriba"
-        }else if(Number(posicion1)-Number(posicion2)==1){
-           return "Mueve 1 abajo"
-        }else if(Number(posicion1)-Number(posicion2)==-2){
-           return "Salta 1 arriba"
-        }else if(Number(posicion1)-Number(posicion2)==2){
-           return "Salta 1 abajo"
-        }else if(Number(posicion1)-Number(posicion2)>1){
-           //Abajo
-           return "abajo"
-          //  alert('Para abajo')
-        }else if(Number(posicion1)-Number(posicion2)<1){
-          //Arriba
-          return "arriba"
-          //  alert('Para arriba')
-        }else{
-
-        }
-      },
-      onSort(data) {
-         
-         
-        //  let lista_posiciones=this.$store.getters.getPosicionesListaClientes
-       
-       
-         
-          
-
-let inicio = data.from;
-let fin = data.to;
-this.clientes_lista_ordenada = this.$store.getters.getPosicionesListaClientes
-
-let element;
-
-if (fin < inicio) {
-  let temporal = this.clientes_lista_ordenada.splice(inicio, 1);
-  for (inicio; inicio < this.clientes_lista_ordenada.length - 1; inicio++) {
-    this.clientes_lista_ordenada[inicio] = this.clientes_lista_ordenada[inicio];
-    // document.getElementById("app").innerHTML = element;
-  }
-  this.clientes_lista_ordenada.splice(fin, 0, temporal[0]);
-
-} else if (fin > inicio) {
- 
-
-  let temporal = this.clientes_lista_ordenada.splice(inicio, 1);
- 
-
-  for (inicio; inicio > this.clientes_lista_ordenada.length; inicio--) {
-    this.clientes_lista_ordenada[inicio] = this.clientes_lista_ordenada[inicio];
-    // document.getElementById("app").innerHTML = element;
-    // console.log(element);
-    // console.log(numeros);
-  }
-  this.clientes_lista_ordenada.splice(fin, 0, temporal[0]);
-  
-} else {
- 
-}
-
-     
-          
-      
+                                    this.$store.state.clientes_cobros.unshift(element);
+                                            
+                                        }
+                                    }
+                                     }else{
+                                         for (const key in lista_cobros_ordenada) {
+                                        if (lista_cobros_ordenada.hasOwnProperty(key)) {
+                                            const element = lista_cobros_ordenada[key]; 
+                                            this.$store.state.clientes_cobros.unshift(element);
+                                        }
+                                         }
+                                     }
         
 
-        //  Promise.all([updateposicion1, updateposicion2]).then(()=> {
-            
-        //  });
-
-  
-        // Sort data   
-        let elemento1=this.clientes[data.to];
-        let elemento2=this.clientes[data.from];
-        
-         let data_elements={
-          data:{
-            el1:elemento2,
-            el2:elemento1
-          }
-        }
-
-        let data_elements_cliente={
-          elm:{
-            id:data.el.id,
-            el1:elemento2,
-            el2:elemento1
-          },
-          data:data
-        }
-        // this.$store.commit('setPosicionListaCliente',data_elements);
-         this.$store.commit('SetPosicionListaClientes',data_elements_cliente);
-
-           const self = this;
-        self.$f7.dialog.preloader('Actualizando lista...');
-        setTimeout(() => {
-          self.$f7.dialog.close();
-        }, 1800);
-       
-        
-
-      
-      
- 
-    
       },
       getPosicionElemento(id_clientepass){
           return this.clientes.findIndex(x=>x.id==id_clientepass);
@@ -476,10 +398,12 @@ this.valor_sin_puntos=0;
 // Commit the batch
 batch.commit().then( ()=> {
     // ...
+  this.$f7.dialog.close();
    this.$f7router.back();
           this.$f7.dialog.alert('Prestamos realizado con exito!','Correcto');
    this.info_prestamo={
                 valor:0,
+                valor_total_prestamo:0,
               // fecha:this.$moment(new Date).format("DD/MM/YYYY"), 
               fecha:new Date().toISOString().slice(0,10), 
               cliente:'',
@@ -517,7 +441,7 @@ batch.commit().then( ()=> {
            let elemento = this.clientes.findIndex(x=>x.data.id==id);
            console.log(this.clientes[elemento].data);
            if(this.clientes[elemento].data.hasOwnProperty('prestamos')){
-              if(this.clientes[elemento].data.prestamos.length>0){
+              if(this.clientes[elemento].data.prestamos[0].estado_prestamo!=true){
   // && this.clientes[elemento].data.prestamos.estado_prestamo!=true
            this.$f7.dialog.alert('No se puede realizar el prestamo, el cliente tiene un saldo por pagar.',nombrecompleto);
           }else{
@@ -548,15 +472,7 @@ batch.commit().then( ()=> {
        this.$f7.dialog.alert('Debe ingresar un valor!','Atencion!');
       }
       else{
-         //  valor preswtamo  "x"
-          //  interes  i
-          // plazo p
-          // total a pagar = x*i+x
-
-          // total a pagar / p 
-          // 2 valor
-          // fecha_hora
-          // fecha_inicio
+        
           let saldo_actual_zona=  localStorage.getItem("saldo_zona");
           this.info_prestamo.valor=this.valor_sin_puntos.split('.').join('');
           // this.info_prestamo.valor=this.info_prestamo.valor.replace('.', "");
@@ -587,7 +503,7 @@ batch.commit().then( ()=> {
          
           this.info_prestamo.plan_seleccionado=this.planseleccionado;
           this.info_prestamo.dias_plazo=Number(this.planseleccionado);
-
+           this.info_prestamo.valor_total_prestamo=total_apagar;
           // alert(this.id)
           if(this.id==undefined || this.id==null){
              
@@ -603,7 +519,7 @@ batch.commit().then( ()=> {
           this.balance_zona= localStorage.getItem("saldo_zona");
           this.$store.commit('setBalanceZona',Number(descuentosaldozona));
           if(localStorage.getItem("total_prestado")){
-            this.total_prestado=Number(this.total_prestado)+Number(this.info_prestamo.valor)+Number(localStorage.getItem("total_prestado"))
+            this.total_prestado=Number(this.info_prestamo.valor)+Number(localStorage.getItem("total_prestado"))
             this.$store.commit('setTotal_prestadoJornada',this.total_prestado)
             
           }else{
@@ -619,7 +535,7 @@ batch.commit().then( ()=> {
             this.clientes[elemento].data.prestamos=new Array(this.info_prestamo)
           }
           
-           this.$f7.dialog.close();
+          
           this.$f7.sheet.close();
 
          

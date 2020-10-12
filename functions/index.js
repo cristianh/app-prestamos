@@ -1416,7 +1416,7 @@ exports.actualizarPosicionClienteLista = functions.https.onRequest(async(request
         await db.collection('usuarios').doc(request.query.idadmin).collection('empresas').doc(request.query.id_empresa).collection('cobradores').doc(request.query.doc).collection('lista_clientes_posicion').doc('posiciones')
             .set(request.body)
             .then(res => {
-                return response.status(200).send(JSON.stringify({ mensaje: 'Posicion Guardada', id: res.id })).end();
+                return response.status(200).send(JSON.stringify({ mensaje: 'Lista Guardada', id: res.id })).end();
             }).catch((error) => {
                 return response.status(500).send(error);
             });

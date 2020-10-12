@@ -584,7 +584,7 @@ export default {
      const self = this;
      self.$f7.dialog.preloader('Guardando...');
      let ui_cobrador=localStorage.getItem("uid");
-     let idadmin=localStorage.getItem("aid");
+     let idadmin=localStorage.getItem("iad");
      let idmpresa=localStorage.getItem("empresa");
      this.form.posicion=Number(this.$store.getters.getContadorClientes)+1;
       this.cobradoresClientesService.guardarClienteCobrador(this.idad,idmpresa,ui_cobrador,this.form).then( (response) =>  {

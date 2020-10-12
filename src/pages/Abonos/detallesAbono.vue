@@ -51,7 +51,8 @@
          <!-- Saldo a favor: {{prestamos.saldo_pago_dia|currency}}<br> -->
          Fecha del prestamo: {{prestamos.fecha}}<br>
          Valor del prestamo: {{prestamos.valor|currency}}<br>
-         Total a pagar: {{prestamos.total_apagar|currency}}<br>
+         Pendiente a pagar: {{prestamos.total_apagar|currency}}<br>
+         Valor total prestamo: {{prestamos.valor_total_prestamo|currency}}<br>
          Plan seleccionado: {{prestamos.plan_seleccionado}}</h5>
          </f7-block>
          <f7-block-title>Usuario</f7-block-title>
@@ -149,7 +150,7 @@
           label="Fecha"
           type="date"
           clear-button
-          :value="informacion_pago.fecha"
+          :value="fecha_input"
            @input="informacion_pago.fecha=$event.target.value"
            disabled
       >
@@ -262,6 +263,7 @@ import CobradorService from '../Services/CobradoresServices.js';
             abonoService:null,
             clientesService:null,
             cobradoresService:null,
+            fecha_input:new Date().toISOString().slice(0,10),
             informacion_pago:{
             valor:'',
             valor_pago:0,
@@ -297,7 +299,8 @@ import CobradorService from '../Services/CobradoresServices.js';
          this.$store.commit('cobroClientePendiente',this.id);
        this.$f7.dialog.alert('Marcado como pendiente','Correcto');
        let estados=JSON.parse(localStorage.getItem('ListaEstadosCobro'))
-       let posicion = this.$store.getters.getClientesCobros.findIndex(x => x.data.id == this.id);
+      //  let posicion = this.$store.getters.getClientesCobros.findIndex(x => x.data.id == this.id);
+       let posicion = estados.findIndex(x => x.id == this.id);
        estados[posicion].estado=3
        localStorage.setItem('ListaEstadosCobro',JSON.stringify(estados))
        this.$f7router.back();
@@ -339,8 +342,9 @@ import CobradorService from '../Services/CobradoresServices.js';
           this.$f7.popover.close('.popover-menu');
         let elemento = this.clientes_info;
          let estados=JSON.parse(localStorage.getItem('ListaEstadosCobro'))
-       let posicion = this.$store.getters.getClientesCobros.findIndex(x => x.data.id == this.id);
-       console.log(posicion);
+      //  let posicion = this.$store.getters.getClientesCobros.findIndex(x => x.data.id == this.id);
+      let posicion = estados.findIndex(x => x.id == this.id);
+      //  console.log(posicion);
        estados[posicion].estado= 2
        localStorage.setItem('ListaEstadosCobro',JSON.stringify(estados))
         // elemento.estado_pago_prestamo.nopago=true
@@ -396,12 +400,26 @@ import CobradorService from '../Services/CobradoresServices.js';
            hora:this.$moment(new Date()).format("hh:mm:ss"), 
            razonnopago:this.inputNoPagoSeleccionado!=''?this.inputNoPagoSeleccionado:this.radioNoPagoSeleccionado
         }
+
+        
+        
         this.$store.commit('setQuitar_cobros_pendientesJornada',this.id);
         this.$store.commit('setDisminuyeContadorClientesListaPrestamos');
         this.clientesService.guardarObservacionNoPago(this.idad,idempresa,ui_cobrador,this.id,informacionNoPago).then( (response) =>  {
            
            this.$store.commit('setEstadoPrestamoEstadoRuta',this.id);
             this.$f7.dialog.close();
+            let dataNoPago={
+               cliente_nombre:elemento.usuario.nombre,
+           cliente_apellido:elemento.usuario.apellido,
+           cliente_cedula:elemento.usuario.identificacion,
+           cliente_id:this.id,
+           fecha:this.$moment(new Date()).format("MM-DD-YYYY"),
+           hora:this.$moment(new Date()).format("hh:mm:ss"),
+           valor: elemento.prestamos[0].saldo_pendiente
+            }
+
+            this.$store.commit('setNoCobrosHoy',dataNoPago)
            
             this.$f7router.back();
         });
@@ -413,8 +431,9 @@ import CobradorService from '../Services/CobradoresServices.js';
           this.$f7.popover.close('.popover-menu');
         let elemento = this.clientes_info;
          let estados=JSON.parse(localStorage.getItem('ListaEstadosCobro'))
-       let posicion = this.$store.getters.getClientesCobros.findIndex(x => x.data.id == this.id);
-       console.log(posicion);
+      //  let posicion = this.$store.getters.getClientesCobros.findIndex(x => x.data.id == this.id);
+       let posicion = estados.findIndex(x => x.id == this.id);
+      //  console.log(posicion);
        estados[posicion].estado= 2
        localStorage.setItem('ListaEstadosCobro',JSON.stringify(estados))
         
@@ -471,7 +490,17 @@ import CobradorService from '../Services/CobradoresServices.js';
      
            this.$store.commit('setEstadoPrestamoEstadoRuta',this.id);
             this.$f7.dialog.close();
-            
+              let dataNoPago={
+               cliente_nombre:elemento.usuario.nombre,
+           cliente_apellido:elemento.usuario.apellido,
+           cliente_cedula:elemento.usuario.identificacion,
+           cliente_id:this.id,
+           fecha:this.$moment(new Date()).format("MM-DD-YYYY"),
+           hora:this.$moment(new Date()).format("hh:mm:ss"),
+           valor: elemento.prestamos[0].saldo_pendiente
+            }
+
+            this.$store.commit('setNoCobrosHoy',dataNoPago)
             this.$f7router.back();
         });
               
@@ -554,7 +583,7 @@ batch.commit().then(function () {
       let idempresa=localStorage.getItem("empresa");
        this.clientesService.eliminarPrestamoPago(this.idad,idempresa,ui_cobrador,this.id,elemento).then( (response) =>  {
                           // alert('elimina')
-          this.$store.state.estados_prestamos_ruta=[]
+          // this.$store.state.estados_prestamos_ruta=[]
           this.$store.commit('eliminarClientePrestamoDiario',this.id);
           
           this.$f7router.back();
@@ -567,13 +596,14 @@ batch.commit().then(function () {
 
       let elemento = this.clientes_info;
       let estados=JSON.parse(localStorage.getItem('ListaEstadosCobro'))
-       let posicion = this.$store.getters.getClientesCobros.findIndex(x => x.data.id == this.id);
-       console.log(posicion);
+      //  let posicion = this.$store.getters.getClientesCobros.findIndex(x => x.data.id == this.id);
+       let posicion = estados.findIndex(x => x.id == this.id);
+      //  console.log(posicion);
        estados[posicion].estado= 1
        localStorage.setItem('ListaEstadosCobro',JSON.stringify(estados))
     
 
-      if(Number(this.valor_sin_puntos.split('.').join(''))>Number(elemento.prestamos[0].total_apagar)){
+      if(Number(this.valor_sin_puntos.split('.').join(''))>Number(elemento.prestamos[0].valor_total_prestamo)){
           this.$f7.dialog.alert('El valor del pago es mayor al total a pagar,revise por favor.','Atencion!');
           // this.valor_sin_puntos=0;
           // this.informacion_pago.valor_pago=0
@@ -652,6 +682,7 @@ batch.commit().then(function () {
                         
                       elemento.prestamos[0].dias_con_mora=Number(elemento.prestamos[0].dias_con_mora)-1;
                     }
+                    // elemento.prestamos[0].saldo_pendiente=Number(this.saldo_a_pagar)-Number(this.informacion_pago.valor_pago);
                     if(Number(elemento.prestamos[0].saldo_pendiente)!=0){
                       if(Number(elemento.prestamos[0].saldo_pendiente)>=Number(this.saldo_a_pagar)){
                         elemento.prestamos[0].saldo_pendiente= Number(elemento.prestamos[0].saldo_pendiente)-Number(this.saldo_a_pagar);
@@ -662,11 +693,7 @@ batch.commit().then(function () {
                       //  elemento.prestamos[0].dias_con_mora=Number(elemento.prestamos[0].dias_con_mora)-1;
                     }
 
-                    // if(Number(elemento.prestamos[0].saldo_pago_dia)>0){
-                      
-                    //     elemento.prestamos[0].saldo_pago_dia=0
-                    //   //  elemento.prestamos[0].dias_con_mora=Number(elemento.prestamos[0].dias_con_mora)-1;
-                    // }
+                    
                     
                    
 
@@ -722,7 +749,12 @@ batch.commit().then(function () {
                         
                       elemento.prestamos[0].dias_con_mora=Number(elemento.prestamos[0].dias_con_mora)-1;
           }
-          elemento.prestamos[0].saldo_pendiente=Number(this.saldo_a_pagar)-Number(this.informacion_pago.valor_pago)
+          if(elemento.prestamos[0].saldo_pendiente!=0){
+            elemento.prestamos[0].saldo_pendiente=Number(elemento.prestamos[0].saldo_pendiente)-Number(this.saldo_a_pagar)-Number(this.informacion_pago.valor_pago)
+          }else{
+            elemento.prestamos[0].saldo_pendiente=Number(this.saldo_a_pagar)-Number(this.informacion_pago.valor_pago)
+          }
+          
           
 
           this.cliente_seleccionado='';    
@@ -770,6 +802,17 @@ batch.commit().then(function () {
           }
               
             elemento.prestamos[0].saldo_pendiente=Number(this.saldo_a_pagar)-Number(this.informacion_pago.valor_pago);
+
+            // if(Number(elemento.prestamos[0].saldo_pendiente)!=0){
+            //           if(Number(elemento.prestamos[0].saldo_pendiente)>=Number(this.saldo_a_pagar)){
+            //             elemento.prestamos[0].saldo_pendiente= Number(elemento.prestamos[0].saldo_pendiente)-Number(this.saldo_a_pagar);
+            //           }else{
+            //             elemento.prestamos[0].saldo_pendiente=Number(this.saldo_a_pagar)-Number(this.informacion_pago.valor_pago);
+            //           }
+                        
+            //           //  elemento.prestamos[0].dias_con_mora=Number(elemento.prestamos[0].dias_con_mora)-1;
+            // }
+
           // console.log(elemento.prestamos[0].saldo_pendiente);
           
            if(elemento.prestamos[0].dias_con_mora>=0){

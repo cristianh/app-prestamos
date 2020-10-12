@@ -188,6 +188,7 @@ import firebase from 'firebase'
 export default {
     data() {
         return {
+            listaClientesGuardar:[],
             mensaje_bienvenida: '',
             firstor: '',
             lastActivity: '',
@@ -244,7 +245,7 @@ export default {
         // localStorage.setItem("listagenerada",false);
         
         this.CobradoresService.getInformacionCobrador(this.idad,empresa,this.uid).then((resp)=>{
-            console.log(resp)
+            // console.log(resp)
             // alert(resp.data.lista_clientes.length)
            
              
@@ -299,78 +300,80 @@ export default {
             // alert(resp.data.lista_clientes.length);    
 
             let clientes_cobrador = resp.data.clientes;
+            this.listaClientesGuardar=resp.data.lista_clientes
+            console.log(this.listaClientesGuardar[0]);
             let estadoListaCobro=[]
+            let contadorListaCargada=0
                 for (const key in clientes_cobrador) {
                 if (clientes_cobrador.hasOwnProperty(key)) {
                     const element = clientes_cobrador[key];
                     
-                   
-                    if(resp.data.lista_clientes.length==1){
-                    let elementosLista=Object.values(resp.data.lista_clientes[0]);
+                    
+                    if(this.listaClientesGuardar.length>=1){
+                        let elementosLista=Object.values(this.listaClientesGuardar[0]);
                     let posicionlista=elementosLista.findIndex(x=>x.idCliente==element.data.id)
                     let posicionelementolista=elementosLista.find(x=>x.idCliente==element.data.id)
                     if(posicionlista>-1){
                     element.data.posicion=Number(posicionlista)+1
-                    let posicion_cliente_lista={
-                        idCliente:posicionelementolista.idCliente
-                    }
+                    this.$store.commit('addNewClientes',element)
 
+                    // let posicion_cliente_lista={
+                    //     idCliente:posicionelementolista.idCliente,
+                    //      posicion:Number(posicionlista)+1
+                    // }
                     // element.data.posicion=resp.data.lista_clientes[0][key].posicion
                     // this.$store.state.posiciones_lista=resp.data.lista_clientes
                     // console.log(resp.data.lista_clientes);
-                    this.$store.commit('setlistaDbGuardada');
-                    this.$store.commit('addPosicionListaCliente',posicion_cliente_lista)
-                    this.$store.commit('addNewClientes',element)
+                    // this.$store.commit('setlistaDbGuardada');
+                    // this.$store.commit('addPosicionListaCliente',posicion_cliente_lista)
+                   
                         
+                    }else{
+                 
+                    element.data.posicion=Number(key)+1
+                    
+                    
+                    this.$store.commit('addNewClientes',element)
                     }
+                    }else{
+                        this.$store.commit('addNewClientes',element)
+                    }
+                    
 
 
                   
 
                     
 
-                    }else{
-                        
-
-
-                        let posicion_cliente_lista={
-                        idCliente:element.data.id
-                    }
-                    //this.clientes.push(element);
-                    element.data.posicion=Number(key)+1
-                    
-                    this.$store.commit('addPosicionListaCliente',posicion_cliente_lista)
-                    this.$store.commit('addNewClientes',element)
-                    }
                     
                     
                     
-                    // this.$store.state.clientes.unshift(element);
-                    // alert(element.data.hasOwnProperty('prestamos'))
-                    if(element.data.hasOwnProperty('prestamos')){
-                       
-                            let fecha_prestamo = this.$moment(element.data.prestamos[0].fecha).format('YYYY-MM-DD');
-                            let fecha_anterior_hoy = this.$moment(new Date()).format('YYYY-MM-DD');
-
-                           
-                        //    alert(fecha_prestamo<fecha_anterior_hoy && element.data.prestamos.length >= 1 && element.data.prestamos[0].estado_prestamo == "false")
-                                //  if (element.data.prestamos.length > 0 && element.data.prestamos[0].estado_prestamo == false) {
-                                   
-                                    // element.data.prestamos.length >= 1 && element.data.prestamos[0].estado_prestamo == "false")
-                            if(fecha_prestamo<fecha_anterior_hoy && element.data.prestamos.length >= 1 && element.data.prestamos[0].estado_prestamo == "false") {
-                                
-                                 this.onActualizarEstadosLista(element)
-                                 
-                               
-                                // this.$store.state.clientes_cobros.push(element);
-                            // }else{
-                            //     this.$store.state.clientes_cobros.unshift(element);
-                            // }
-                                // alert(localStorage.getItem("listagenerada"))
-                                if(Boolean(localStorage.getItem("listagenerada"))==false || localStorage.getItem("listagenerada")=='false' ){
+                    
+                    // console.log(element.data.hasOwnProperty('prestamos'));
+                    contadorListaCargada++
+                      if(contadorListaCargada==clientes_cobrador.length){
                                     
-                                  estadoListaCobro.unshift({estado:0,id:element.data.id,posicion:element.data.posicion})
-                                  localStorage.setItem('ListaEstadosCobro',JSON.stringify(estadoListaCobro))
+                                        this.onGenerarListaEstados()
+                                         
+                        }
+
+                    
+
+
+
+                    
+                    
+                }
+            }    
+
+
+                if(Boolean(localStorage.getItem("listagenerada"))==false || localStorage.getItem("listagenerada")=='false' ){
+                    
+                                    // if(this.$store.getters.getListaDBguardad){
+                                    //     estadoListaCobro.push({estado:0,id:element.data.id,posicion:element.data.posicion})
+                                    //     localStorage.setItem('ListaEstadosCobro',JSON.stringify(estadoListaCobro))
+                                    // }
+                               
 
                                 }else{
                                     
@@ -412,6 +415,10 @@ export default {
                                      if(localStorage.getItem('cobros_hoy')){
                                        this.$store.state.cobros_hoy=JSON.parse(localStorage.getItem('cobros_hoy'))   
                                      }
+
+                                     if(localStorage.getItem('nocobros_hoy')){
+                                       this.$store.state.nocobros_hoy=JSON.parse(localStorage.getItem('nocobros_hoy'))   
+                                     }
                                     
 
                                      
@@ -420,18 +427,13 @@ export default {
                                     // localStorage.removeItem('cobros_nofectivos')
                                     
                                 }
-                            }
-                    // }
-                    }
-                    
-                }
-            }    
+
           
-          this.$store.commit('setEstadoCobrosLista',JSON.parse(localStorage.getItem('ListaEstadosCobro')))
-           this.$f7.dialog.alert('Se creo los estados iniciales de la lista','Atencion!',()=>{
-                      this.$f7.dialog.close()
-                      this.$f7.dialog.alert(JSON.parse(localStorage.getItem('ListaEstadosCobro')),'Atencion!');
-                  });
+        
+        //    this.$f7.dialog.alert('Se creo los estados iniciales de la lista','Atencion!',()=>{
+        //               this.$f7.dialog.close()
+        //               this.$f7.dialog.alert(JSON.parse(localStorage.getItem('ListaEstadosCobro')),'Atencion!');
+        //           });
           
             self.$f7.dialog.close()
 
@@ -444,33 +446,59 @@ export default {
         
     },
     methods: {
-        onActualizarEstadosLista(elemento_lista_cobros){
-        // let lista_cobros_ordenada=this.$store.getters.getOrdenarListaClientesCobros
+        onGenerarListaEstados(){
+            
+            let lista_cobros_ordenada=this.$store.getters.getOrdenarClientes
+            console.log(lista_cobros_ordenada);
+            let estadoListaCobro=[]
+            
+                for (const key in lista_cobros_ordenada) {
+                    if (lista_cobros_ordenada[key].data.hasOwnProperty('prestamos')) {
+                        const element = lista_cobros_ordenada[key];
+                       
+                        if(Boolean(localStorage.getItem("listagenerada"))==false || localStorage.getItem("listagenerada")=='false' ){
+                        // if(this.$store.getters.getListaDBguardad){
+                            // localStorage.setItem("listagenerada",true);
+                        estadoListaCobro.push({estado:0,id:element.data.id,posicion:element.data.posicion})
+                        localStorage.setItem('ListaEstadosCobro',JSON.stringify(estadoListaCobro))
+                        // }
+                }                          }
+                            
+            }
+             this.$store.commit('setEstadoCobrosLista',JSON.parse(localStorage.getItem('ListaEstadosCobro')))
+             this.onActualizarEstadosLista()
+        },
+        onActualizarEstadosLista(){
+        let lista_cobros_ordenada=this.$store.getters.getClientes
         
         // let lista_cobros_ordenada=listaCobros
+        // alert(Boolean(localStorage.getItem("ListaEstadosCobro")))
                                 if(localStorage.getItem('ListaEstadosCobro')){
                                     let estados=JSON.parse(localStorage.getItem('ListaEstadosCobro'))
-                                     let elemento_lista=estados.filter(x=>x.id===elemento_lista_cobros.data.id)
+                                    for (const key in lista_cobros_ordenada) {
+                                        if (lista_cobros_ordenada[key].data.hasOwnProperty('prestamos')) {
+                                            const element = lista_cobros_ordenada[key];
+                                              let elemento_lista=estados.filter(x=>x.id===element.data.id)
                                     // let posicion_lista=lista_cobros_ordenada.findIndex(x=>x.data.id===elemento_lista[0].id)
                                                     // console.log(elemento_lista[0].estado);
                                                     // console.log(posicion_lista);
                                                     if(elemento_lista.length>=1){
                                                             // console.log(elemento_lista[0].estado);
-                                                                    switch (elemento_lista[0].estado) {
+                                                switch (elemento_lista[0].estado) {
                                                     case 1:
-                                                elemento_lista_cobros.data.estado_pago_prestamo.pago=true
-                                                 elemento_lista_cobros.data.estado_pago_prestamo.nopago=false
-                                                elemento_lista_cobros.data.estado_pago_prestamo.pendiente=false
+                                                element.data.estado_pago_prestamo.pago=true
+                                                element.data.estado_pago_prestamo.nopago=false
+                                                element.data.estado_pago_prestamo.pendiente=false
                                                         break;
                                                     case 2:
-                                                            elemento_lista_cobros.data.estado_pago_prestamo.pago=false
-                                                 elemento_lista_cobros.data.estado_pago_prestamo.nopago=true
-                                                 elemento_lista_cobros.data.estado_pago_prestamo.pendiente=false
+                                                           element.data.estado_pago_prestamo.pago=false
+                                                 element.data.estado_pago_prestamo.nopago=true
+                                                 element.data.estado_pago_prestamo.pendiente=false
                                                         break;
                                                     case 3:
-                                                    elemento_lista_cobros.data.estado_pago_prestamo.pago=false
-                                                 elemento_lista_cobros.data.estado_pago_prestamo.nopago=false
-                                                 elemento_lista_cobros.data.estado_pago_prestamo.pendiente=true
+                                                    element.data.estado_pago_prestamo.pago=false
+                                                 element.data.estado_pago_prestamo.nopago=false
+                                                 element.data.estado_pago_prestamo.pendiente=true
                                                         break;
                                                 
                                                     default:
@@ -478,14 +506,103 @@ export default {
                                                 }
                                                    }
                                                 
-                                                    // console.log(elemento_lista_cobros);
+                        
+                       
+                            let fecha_prestamo = this.$moment(element.data.prestamos[0].fecha).format('YYYY-MM-DD');
+                            let fecha_anterior_hoy = this.$moment(new Date()).format('YYYY-MM-DD');
 
-                                    this.$store.state.clientes_cobros.unshift(elemento_lista_cobros);
+                           
+                        //    alert(fecha_prestamo<fecha_anterior_hoy && element.data.prestamos.length >= 1 && element.data.prestamos[0].estado_prestamo == "false")
+                                //  if (element.data.prestamos.length > 0 && element.data.prestamos[0].estado_prestamo == false) {
+                                    
+                                    // element.data.prestamos.length >= 1 && element.data.prestamos[0].estado_prestamo == "false")
+                            if(fecha_prestamo<fecha_anterior_hoy && element.data.prestamos.length >= 1 && element.data.prestamos[0].estado_prestamo == "false") {
+                                console.log("onGenerarListaEstados");
+                                if(this.listaClientesGuardar.length==1){
+                    let elementosLista=Object.values(this.listaClientesGuardar[0]);
+                    let posicionlista=elementosLista.findIndex(x=>x.idCliente==element.data.id)
+                    let posicionelementolista=elementosLista.find(x=>x.idCliente==element.data.id)
+                    if(posicionlista>-1){
+                    element.data.posicion=Number(posicionlista)+1
+                    // this.$store.commit('addNewClientes',element)
+
+                    let posicion_cliente_lista={
+                        idCliente:posicionelementolista.idCliente,
+                         posicion:Number(posicionlista)+1
+                    }
+                    // element.data.posicion=resp.data.lista_clientes[0][key].posicion
+                    // this.$store.state.posiciones_lista=resp.data.lista_clientes
+                    // console.log(resp.data.lista_clientes);
+                    this.$store.commit('setlistaDbGuardada');
+                    this.$store.commit('addPosicionListaCliente',posicion_cliente_lista)
+                    this.$store.state.clientes_cobros.unshift(element);
+                        
+                    }
+
+                    }else{
+                        
+                        let posicion_cliente_lista={
+                        idCliente:element.data.id,
+                        posicion:Number(key)+1
+                    }
+                    //this.clientes.push(element);
+                    element.data.posicion=Number(key)+1
+                    
+                    this.$store.commit('addPosicionListaCliente',posicion_cliente_lista)
+                    // this.$store.commit('addNewClientes',element)
+                    this.$store.state.clientes_cobros.unshift(element);
+                    }
+                                 
+                                
+                              
+                               
+                                 
+                               
+                                // this.$store.state.clientes_cobros.push(element);
+                            // }else{
+                            //     this.$store.state.clientes_cobros.unshift(element);
+                            // }
+                                // alert(localStorage.getItem("listagenerada"))
+                               
+                            }
+                    // }
+                    
 
                                     
-
+                                            
+                                        }
+                                    }
                                      }else{
-                                        this.$store.state.clientes_cobros.unshift(elemento_lista_cobros);
+                                         for (const key in lista_cobros_ordenada) {
+                                            if (lista_cobros_ordenada[key].data.hasOwnProperty('prestamos')) {
+                                            const element = lista_cobros_ordenada[key];
+                       
+                            let fecha_prestamo = this.$moment(element.data.prestamos[0].fecha).format('YYYY-MM-DD');
+                            let fecha_anterior_hoy = this.$moment(new Date()).format('YYYY-MM-DD');
+
+                           
+                        //    alert(fecha_prestamo<fecha_anterior_hoy && element.data.prestamos.length >= 1 && element.data.prestamos[0].estado_prestamo == "false")
+                                //  if (element.data.prestamos.length > 0 && element.data.prestamos[0].estado_prestamo == false) {
+                                    
+                                    // element.data.prestamos.length >= 1 && element.data.prestamos[0].estado_prestamo == "false")
+                            if(fecha_prestamo<fecha_anterior_hoy && element.data.prestamos.length >= 1 && element.data.prestamos[0].estado_prestamo == "false") {
+                                console.log("onGenerarListaEstados");
+                                 this.$store.state.clientes_cobros.unshift(element);
+                                
+                              
+                               
+                                 
+                               
+                                // this.$store.state.clientes_cobros.push(element);
+                            // }else{
+                            //     this.$store.state.clientes_cobros.unshift(element);
+                            // }
+                                // alert(localStorage.getItem("listagenerada"))
+                               
+                            }
+                    // }
+                    }
+                                         }
                                      }
 
                  
@@ -512,7 +629,7 @@ export default {
                   id:change.doc.id,
                   data:change.doc.data()
                 }
-                console.log(data_transacciones);
+                // console.log(data_transacciones);
                 this.$store.commit('setAumentaContadorTransferencias');
                 this.$store.commit('setDatosTransferencia',data_transacciones);
                 console.log("Modified city: ", change.doc.data());

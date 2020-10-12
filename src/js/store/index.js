@@ -29,7 +29,9 @@ export default new Vuex.Store({
             total_prestado: 0
         },
         cobros_hoy: [],
+        nocobros_hoy: [],
         clientes: [],
+        clientes_clon: [],
         clientes_lista_ordenada: [],
         clientes_cobros: [],
         clientes_prestamos: [],
@@ -48,6 +50,10 @@ export default new Vuex.Store({
         setCobrosHoy(state, infocobroshoy) {
             state.cobros_hoy.push(infocobroshoy)
             localStorage.setItem("cobros_hoy", JSON.stringify(state.cobros_hoy));
+        },
+        setNoCobrosHoy(state, infonocobroshoy) {
+            state.nocobros_hoy.push(infonocobroshoy)
+            localStorage.setItem("nocobros_hoy", JSON.stringify(state.nocobros_hoy));
         },
         setActualizarDatosTransferenciaPendiente(state, databusqueda) {
             let posicion = state.datos_transeferencia_pendientes.findIndex(x => x.valor === databusqueda.valor && x.hora === databusqueda.hora && x.fecha === databusqueda.fecha);
@@ -128,16 +134,28 @@ export default new Vuex.Store({
             localStorage.setItem('cobros_nofectivos', state.jornada_cobrador.catidad_cobrosenofectivos)
         },
         setQuitar_cobros_pendientesJornada(state, idClienteCobro) {
-            if (state.jornada_cobrador.numero_cobros_pendientes != 0) {
-                state.jornada_cobrador.numero_cobros_pendientes--;
+            if (localStorage.getItem('cobros_pendientesArray')) {
                 let pendientesarray = JSON.parse(localStorage.getItem('cobros_pendientesArray'))
-                let posicion = pendientesarray.findIndex(x => x.id == idClienteCobro);
-                pendientesarray.splice(0, 1)
-                localStorage.setItem('cobros_pendientesArray', JSON.stringify(pendientesarray)) //
-                localStorage.setItem('cobro_pendiente', Number(state.jornada_cobrador.numero_cobros_pendientes))
-            } else {
+                let pendientestore = state.cobros_pendientes
+                let posicion_array = pendientesarray.findIndex(x => x == idClienteCobro);
+                let posicion_pendiente = pendientestore.findIndex(x => x == idClienteCobro);
 
+                console.log(posicion_array)
+                if (posicion_array != -1 && posicion_pendiente != -1) {
+                    if (state.jornada_cobrador.numero_cobros_pendientes != 0) {
+                        state.jornada_cobrador.numero_cobros_pendientes--;
+
+                        pendientesarray.splice(posicion_array, 1)
+                        pendientestore.splice(posicion_pendiente, 1)
+                        localStorage.setItem('cobros_pendientesArray', JSON.stringify(pendientesarray)) //
+                        localStorage.setItem('cobro_pendiente', Number(state.jornada_cobrador.numero_cobros_pendientes))
+                    } else {
+
+                    }
+                }
             }
+
+
 
         },
         setTotalCobros(state, numeroCobros) {
@@ -172,6 +190,17 @@ export default new Vuex.Store({
         },
         addPosicionListaCliente(state, data) {
             state.posiciones_lista.unshift(data)
+            state.posiciones_lista = state.posiciones_lista.sort((a, b) => {
+                if (a.posicion > b.posicion) {
+                    return 1;
+                }
+                if (a.posicion < b.posicion) {
+                    return -1;
+                }
+                // a must be equal to b
+                return 0;
+            });
+
         },
         addPosicionListaClienteCreada(state, data) {
             state.posiciones_lista.push(data)
@@ -179,6 +208,17 @@ export default new Vuex.Store({
         setActulizarPosicionesLista(state, data) {
             // state.posiciones_lista = []
             state.posiciones_lista = data
+
+        },
+        setActulizarListaClientes(state, data) {
+            // state.posiciones_lista = []
+            state.clientes_clon = data
+
+        },
+        setActulizarListaClientesCobros(state, data) {
+            // state.posiciones_lista = []
+            state.clientes_cobros = data
+
         },
         setPosicionListaCliente(state, data) {
             let posicion_elemento1 = null
@@ -226,17 +266,56 @@ export default new Vuex.Store({
         },
         SetPosicionListaClientes(state, data_posicion) {
 
+            let inicio = data_posicion.from;
+            let fin = data_posicion.to;
+
+            let clientes_lista_ordenada = state.clientes
+            state.clientes = []
 
 
+            let element;
 
 
-            // state.clientes.splice(data_posicion.data.to, 1, data_posicion.elm.el1);
-            // state.clientes.splice(data_posicion.data.from, 1, data_posicion.elm.el2);
-            // state.clientes[data_posicion.data.from].data.posicion = data_posicion.data.to
-            // state.clientes[data_posicion.data.to].data.posicion = data_posicion.data.from
+            if (fin < inicio) {
+                let temporal = clientes_lista_ordenada.splice(inicio, 1);
+                console.log("antes", clientes_lista_ordenada);
+                console.log("temporal", temporal);
+                console.log(clientes_lista_ordenada);
 
+                // console.log("aca mayor  inicio");
+                for (inicio; inicio < clientes_lista_ordenada - 1; inicio++) {
+                    clientes_lista_ordenada[inicio] = clientes_lista_ordenada[inicio];
+                }
+                clientes_lista_ordenada.splice(fin, 0, temporal[0]);
+                console.log("despues", clientes_lista_ordenada);
+
+                // console.log(state.clientes);
+            } else if (fin > inicio) {
+                // console.log("aca mayor  fin");
+
+                let temporal = clientes_lista_ordenada.splice(inicio, 1);
+                // console.log("temporal", temporal);
+                console.log("temporal", temporal);
+                console.log(clientes_lista_ordenada);
+
+                for (inicio; inicio > clientes_lista_ordenada.length; inicio--) {
+                    clientes_lista_ordenada[inicio] = clientes_lista_ordenada[inicio];
+                    // document.getElementById("app").innerHTML = element;
+                    // console.log(element);
+                    // console.log(numeros);
+                }
+                clientes_lista_ordenada.splice(fin, 0, temporal[0]);
+                // console.log(state.clientes);
+                console.log("despues", clientes_lista_ordenada);
+            } else {
+
+            }
+
+
+            state.clientes = clientes_lista_ordenada
         },
         SetPosicionElementoClientes(state, data_posicion) {
+
 
             // state.clientes.splice(data_posicion.data.from, 1, data_posicion.elm.el1);
             // state.clientes.splice(data_posicion.data.to, 1, data_posicion.elm.el2);
@@ -271,6 +350,18 @@ export default new Vuex.Store({
             state.clientes_cobros[posicion].data.estado_pago_prestamo.nopago = false;
             state.clientes_cobros[posicion].data.estado_pago_prestamo.pago = true;
             state.clientes_cobros[posicion].data.estado_pago_prestamo.pendiente = false;
+
+        },
+        setEstadosInicialesRutaClientesPrestamo(state) {
+            let lista_cobros_ordenada = state.clientes_cobros
+            for (const key in lista_cobros_ordenada) {
+                if (lista_cobros_ordenada[key].data.hasOwnProperty('prestamos')) {
+
+                    state.clientes_cobros[key].data.estado_pago_prestamo.nopago = false;
+                    state.clientes_cobros[key].data.estado_pago_prestamo.pago = false;
+                    state.clientes_cobros[key].data.estado_pago_prestamo.pendiente = false;
+                }
+            }
 
         },
         setEstadoPrestamoEstadoRuta(state, idClientePrestamo) {
@@ -334,10 +425,11 @@ export default new Vuex.Store({
 
             // alert(typeof(estados))
             // let posicion_estados_ruta = state.estados_prestamos_ruta.findIndex(x => x.data.id == Idcliente);
-            // state.estados_prestamos_ruta.splice(posicion, 1);
+            state.estados_prestamos_ruta.splice(posicion, 1);
             // delete estados[posicion]
             estados.splice(posicion_estados, 1)
-            delete state.clientes[posicion_cliente].data.prestamos
+            delete state.posiciones_lista[posicion]
+            state.clientes[posicion_cliente].data.prestamos[0].estado_prestamo = true
             localStorage.setItem('ListaEstadosCobro', JSON.stringify(estados))
         },
         setEstadoCobrosLista(state, data) {
@@ -389,11 +481,17 @@ export default new Vuex.Store({
         }
     },
     getters: {
+        getListaDBguardad: state => {
+            return state.listaDBguardad
+        },
         getPosicionesListaClientes: state => {
             return state.posiciones_lista
         },
         getCobrosHoy: state => {
             return state.cobros_hoy
+        },
+        getNoCobrosHoy: state => {
+            return state.nocobros_hoy
         },
         getDatosTransferenciaPendiente: state => {
             return state.datos_transeferencia_pendientes;
@@ -419,12 +517,21 @@ export default new Vuex.Store({
 
 
 
-            let posicion = null
+            // let posicion = null
             state.saldo_pago_dia = []
-            let estados = JSON.parse(localStorage.getItem('ListaEstadosCobro'))
+
+            // let estados = state.estados_prestamos_ruta
+            // let estados = JSON.parse(localStorage.getItem('ListaEstadosCobro'))
+            //     // console.log(state.clientes_cobros[posicion_cobros]);
+            //     // console.log(posicion_cobros);
+            // console.log(estados);
 
             state.clientes_cobros.forEach(elementP => {
-                posicion = state.clientes_cobros.findIndex(x => x.data.id == elementP.data.id)
+
+
+                // let posicion = estados.findIndex(x => x.idCliente == elementP.data.id)
+                // let posicion_cobros = state.clientes_cobros.findIndex(x => x.data.id == elementP.data.id)
+                // posicioncobros = state.clientes_cobros.findIndex(x => x.data.id == elementP.data.id)
                 valor_prestamo = elementP.data.prestamos[0].valor;
 
                 taza_seleccionada_interes = Number(elementP.data.prestamos[0].plan_seleccionado) / 100
@@ -432,78 +539,113 @@ export default new Vuex.Store({
                 // plazo_dias = Number(elementP.data.prestamos[0].dias_plazo)
                 plazo_dias = Number(elementP.data.prestamos[0].dias_plazo)
                 pago_hoy = Math.round((valor_prestamo * (1 + taza_seleccionada_interes)) / plazo_dias)
-                    // alert(pago_hoy)
-                if (estados[posicion].estado == 1) {
-
-                    if (elementP.data.prestamos[0].saldo_pendiente == 0) {
-                        state.saldo_pago_dia.push(0)
 
 
-                    } else if (elementP.data.prestamos[0].saldo_pendiente < 0) {
-                        state.saldo_pago_dia.push(0)
-
-
-
+                if (elementP.data.prestamos[0].saldo_pendiente > 0) {
+                    console.log("a debe")
+                    console.log(pago_hoy < elementP.data.prestamos[0].saldo_pendiente)
+                    console.log(pago_hoy > elementP.data.prestamos[0].saldo_pendiente)
+                    console.log(pago_hoy)
+                    if (pago_hoy < elementP.data.prestamos[0].saldo_pendiente) {
+                        pago_hoy = Number(elementP.data.prestamos[0].saldo_pendiente) + Number(pago_hoy);
+                        state.saldo_pago_dia.push(pago_hoy)
                     } else {
-                        if (pago_hoy < elementP.data.prestamos[0].saldo_pendiente) {
-                            pago_hoy = Number(elementP.data.prestamos[0].saldo_pendiente) - Number(pago_hoy);
-                        } else {
-                            pago_hoy = Number(pago_hoy) - Number(elementP.data.prestamos[0].saldo_pendiente);
-                        }
-                        state.saldo_pago_dia.push(pago_hoy);
+                        pago_hoy = Number(pago_hoy) + Number(elementP.data.prestamos[0].saldo_pendiente);
+                        state.saldo_pago_dia.push(pago_hoy)
                     }
-
-
-                } else if (estados[posicion].estado == 2) {
-
-                    if (elementP.data.prestamos[0].saldo_pendiente > 0) {
-                        if (pago_hoy < elementP.data.prestamos[0].saldo_pendiente) {
-                            pago_hoy = Number(elementP.data.prestamos[0].saldo_pendiente) - Number(pago_hoy);
-                        } else {
-                            pago_hoy = Number(pago_hoy) + Number(elementP.data.prestamos[0].saldo_pendiente);
-                        }
-
-                    }
-                    // if (elementP.data.prestamos[0].saldo_pago_dia > 0) {
-                    //     if (pago_hoy < elementP.data.prestamos[0].saldo_pago_dia) {
-                    //         pago_hoy = Number(elementP.data.prestamos[0].saldo_pago_dia) + Number(pago_hoy);
-                    //     } else {
-                    //         pago_hoy = Number(pago_hoy) + Number(elementP.data.prestamos[0].saldo_pago_dia);
-
-
-                    //     }
-
-                    // }
-                    state.saldo_pago_dia.push(pago_hoy)
-
-                } else if (elementP.data.prestamos[0].saldo_pendiente > 0) {
-                    pago_hoy = Number(pago_hoy) + Number(elementP.data.prestamos[0].saldo_pendiente);
-                    // if (pago_hoy < elementP.data.prestamos[0].saldo_pendiente) {
-                    //     pago_hoy = Number(elementP.data.prestamos[0].saldo_pendiente) + Number(pago_hoy);
-                    // } else {
-
-                    // }
-                    state.saldo_pago_dia.push(pago_hoy);
 
                 } else if (elementP.data.prestamos[0].saldo_pendiente < 0) {
-                    pago_hoy = Number(pago_hoy) + Number(elementP.data.prestamos[0].saldo_pendiente);
-                    // if (pago_hoy < elementP.data.prestamos[0].saldo_pendiente) {
-                    //     pago_hoy = Number(elementP.data.prestamos[0].saldo_pendiente) + Number(pago_hoy);
-                    // } else {
+                    console.log("a favor")
 
-                    // }
+                    console.log(elementP.data.prestamos[0].saldo_pendiente)
+                    if (pago_hoy < elementP.data.prestamos[0].saldo_pendiente) {
+                        pago_hoy = Number(elementP.data.prestamos[0].saldo_pendiente) - Number(pago_hoy);
+                        state.saldo_pago_dia.push(pago_hoy)
+                    } else {
+                        console.log(Number(pago_hoy) + Number(elementP.data.prestamos[0].saldo_pendiente))
+                        if ((Number(pago_hoy) + Number(elementP.data.prestamos[0].saldo_pendiente)) <= 0) {
+                            state.saldo_pago_dia.push(0)
+                                // let estados = JSON.parse(localStorage.getItem('ListaEstadosCobro'))
+                                //     //  let posicion = this.$store.getters.getClientesCobros.findIndex(x => x.data.id == this.id);
+                                // let posicion = estados.findIndex(x => x.id == elementP.data.id);
+                                // //  console.log(posicion);
+                                // estados[posicion].estado = 1
+                                // localStorage.setItem('ListaEstadosCobro', JSON.stringify(estados))
+                                // state.clientes_cobros[posicion].data.estado_pago_prestamo.nopago = false;
+                                // state.clientes_cobros[posicion].data.estado_pago_prestamo.pago = true;
+                                // state.clientes_cobros[posicion].data.estado_pago_prestamo.pendiente = false;
+                                // if (state.jornada_cobrador.catidad_cobrosefectivos != 0) {
+                                //     state.jornada_cobrador.catidad_cobrosefectivos--;
+                                //     localStorage.setItem('cobros_efectivos', state.jornada_cobrador.catidad_cobrosefectivos)
+                                // }
+                                // if (state.contadorClientesSeleccionados != 0) {
+
+                            //     state.contadorClientesSeleccionados--;
+                            //     localStorage.setItem('lista_clientes_cobrados', state.contadorClientesSeleccionados)
+
+                            // }
+                            // let estados = JSON.parse(localStorage.getItem('ListaEstadosCobro'))
+                            // console.log(state.clientes_cobros);
+                            // //  let posicion = this.$store.getters.getClientesCobros.findIndex(x => x.data.id == this.id);
+                            // let posicion_lista_cobros = state.clientes_cobros.findIndex(x => x.data.id == elementP.data.id);
+                            // console.log(posicion_lista_cobros);
+                            // let posicion_estados = estados.findIndex(x => x.idCliente == elementP.data.id);
+
+                            // if (posicion_lista_cobros != -1) {
+                            //     delete state.clientes_cobros[posicion_lista_cobros]
+                            //     delete estados[posicion_estados]
+                            //         //  state.clientes_cobros[posicion].data.prestamos[0].
+                            //         // state.clientes_cobros[posicion].data.estado_pago_prestamo.nopago = false;
+                            //         // state.clientes_cobros[posicion].data.estado_pago_prestamo.pago = true;
+                            //         // state.clientes_cobros[posicion].data.estado_pago_prestamo.pendiente = false;
+                            // }
+
+                            // if (posicion_estados != -1) {
+                            //     delete estados[posicion_estados]
+                            //         //  state.clientes_cobros[posicion].data.prestamos[0].
+                            //         // state.clientes_cobros[posicion].data.estado_pago_prestamo.nopago = false;
+                            //         // state.clientes_cobros[posicion].data.estado_pago_prestamo.pago = true;
+                            //         // state.clientes_cobros[posicion].data.estado_pago_prestamo.pendiente = false;
+                            // }
+
+                            // if (state.contadorClientesSeleccionados != 0) {
+
+                            //     state.contadorClientesSeleccionados--;
+                            //     localStorage.setItem('lista_clientes_cobrados', state.contadorClientesSeleccionados)
+
+                            // }
+
+                            // //  console.log(posicion);
+                            // // estados[posicion].estado= 1
+                            // // localStorage.setItem('ListaEstadosCobro',JSON.stringify(estados))
+
+                        } else {
+                            state.saldo_pago_dia.push(Number(pago_hoy) + Number(elementP.data.prestamos[0].saldo_pendiente))
+                        }
+
+                        // pago_hoy = (Number(pago_hoy) + Number(elementP.data.prestamos[0].saldo_pendiente)) * 
+
+                    }
+
+
+                } else if (elementP.data.prestamos[0].saldo_pendiente == 0) {
                     state.saldo_pago_dia.push(pago_hoy);
-
                 } else {
-                    state.saldo_pago_dia.push(pago_hoy)
+
                 }
+
+
+
 
             });
             // }
 
-
+            // state.saldo_pago_dia.push(pago_hoy)
 
             return state.saldo_pago_dia;
+        },
+        getSaldosPagoDia: state => {
+            return state.saldo_pago_dia
         },
         getBalanceFinalZona: state => {
             return state.jornada_cobrador.balance_final
@@ -538,6 +680,7 @@ export default new Vuex.Store({
         },
         getClientesCobros: state => {
             return state.clientes_cobros
+
         },
         getBalance: state => {
             return state.balance_zona
@@ -579,39 +722,41 @@ export default new Vuex.Store({
             return state.estado_ruta
         },
         getOrdenarClientes: state => {
-            if (state.listaDBguardad) {
-                return state.clientes.sort((a, b) => {
-                    if (a.data.posicion > b.data.posicion) {
-                        return 1;
-                    }
-                    if (a.data.posicion < b.data.posicion) {
-                        return -1;
-                    }
-                    // a must be equal to b
-                    return 0;
-                });
+            return state.clientes.sort((a, b) => {
+                if (a.data.posicion > b.data.posicion) {
+                    return 1;
+                }
+                if (a.data.posicion < b.data.posicion) {
+                    return -1;
+                }
+                // a must be equal to b
+                return 0;
+            });
+            // if (state.listaDBguardad) {
 
-            } else {
-                return state.clientes
-            }
+
+            // } else {
+            //     return state.clientes
+            // }
 
 
         },
         getOrdenarListaClientesCobros: state => {
-            if (state.listaDBguardad) {
-                return state.clientes_cobros.sort((a, b) => {
-                    if (a.data.posicion > b.data.posicion) {
-                        return 1;
-                    }
-                    if (a.data.posicion < b.data.posicion) {
-                        return -1;
-                    }
-                    // a must be equal to b
-                    return 0;
-                });
-            } else {
-                return state.clientes_cobros
-            }
+            // if (state.listaDBguardad) {
+            return state.clientes_cobros
+                // return state.clientes_cobros.sort((a, b) => {
+                //     if (a.data.posicion > b.data.posicion) {
+                //         return 1;
+                //     }
+                //     if (a.data.posicion < b.data.posicion) {
+                //         return -1;
+                //     }
+                //     // a must be equal to b
+                //     return 0;
+                // });
+                // } else {
+
+            // }
         }
     },
     actions: {},
