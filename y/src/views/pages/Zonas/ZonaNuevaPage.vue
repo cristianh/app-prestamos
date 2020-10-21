@@ -164,7 +164,7 @@ export default {
       }
       },
         onGuardarZona(){
-          axios.get('http://worldtimeapi.org/api/timezone/America/Bogota').then((res)=>{
+          axios.get('https://worldtimeapi.org/api/timezone/America/Bogota').then((res)=>{
          
           this.zonas_form.hora=this.$moment(res.datetime).format("hh:mm:ss");
           this.zonas_form.fecha=this.$moment(res.datetime).format("MM/DD/YYYY");

@@ -49,26 +49,32 @@
        <!-- <pre>{{getClientesLista}}</pre> -->
                    <!-- :text="`Cedula: ${cliente.data.id}`"  -->
                    <!-- :text="`Cedula: ${cliente.data.usuario.identificacion}`"  -->
+                <!-- :text="`Cedula: ${cliente.data.posicion}-${cliente.data.id}`" -->
                     <f7-block>
                    <f7-block-title >Clientes</f7-block-title>
         <f7-list  class="search-list searchbar-found" media-list  >
           <!-- :link="`/cliente_detalles/${cliente.id}/`" -->
+          
         <f7-list-item swipeout   v-for="(cliente,index,key) in getClientesLista" 
           :id=cliente.id :key="key"  
-           
-          :text="`Cedula: ${cliente.data.usuario.identificacion}`"
+           :text="`Cedula: ${cliente.data.usuario.identificacion}`" 
           :title="`${cliente.data.usuario.nombre} ${cliente.data.usuario.apellido}`" 
           :subtitle="cliente.data.usuario.direccion1==''?cliente.data.usuario.direccion2:cliente.data.usuario.direccion1" 
         
           :badge="cliente.nuevo?'nuevo':''" 
           :badge-color="cliente.nuevo?'green':''"
-          :footer="`${cliente.data.hasOwnProperty('prestamos') && cliente.data.prestamos.length>0?'Prestamo: '+Number(cliente.data.prestamos[0].valor).toLocaleString('es-CO',{style: 'currency',currency: 'COP',minimumSignificantDigits:1}):'Prestamo: NA'}`"
+          :footer="`${cliente.data.hasOwnProperty('prestamos') && cliente.data.prestamos.length>0?
+          Number(cliente.data.prestamos[0].valor).toString().length==4?
+          'Prestamo: $ '+Number(cliente.data.prestamos[0].valor).toString().substring(0,1).concat('.')+Number(cliente.data.prestamos[0].valor).toString().substring(1,Number(cliente.data.prestamos[0].valor).toString().length):
+          'Prestamo: '+Number(cliente.data.prestamos[0].valor).toLocaleString('es-CO',{style: 'currency',currency: 'COP',minimumSignificantDigits:1}):
+          'Prestamo: NA'}`"
           @click="onClickClientePaginaDetalles(cliente.data.id)">
           <!-- `:after=""Telefono: ${cliente.data.usuario.telefono}` -->
            <f7-swipeout-actions class="list-ignore" right>
              <f7-swipeout-button close color="green" v-if="cliente.data.usuario.telefono!=''" @click="onLlamar(cliente.data.usuario.telefono)">Llamar</f7-swipeout-button>
         <f7-swipeout-button close overswipe color="blue" @click="onSeleccionarCliente(cliente.data.id,cliente.data.usuario.nombre+' '+cliente.data.usuario.apellido)">Prestamo</f7-swipeout-button>
         </f7-swipeout-actions>
+        <!-- {{cliente.posicion}} -->
         <!-- {{cliente.data.posicion}} -->
          <!-- <f7-link v-if="cliente.data.usuario.telefono" style="margin-left:12px;font-size:14px" external  :href="`tel:${cliente.data.usuario.telefono}`"><f7-icon material="settings_phone"></f7-icon>{{cliente.data.usuario.telefono}}</f7-link> -->
           </f7-list-item>
@@ -258,11 +264,11 @@ export default {
   },
   computed: {
     getClientesLista(){
-      let temporarlistaclientes=this.$store.getters.getOrdenarClientes.sort((a, b) => {
-                    if (a.data.posicion > b.data.posicion) {
+      let temporarlistaclientes=this.$store.getters.getClientes.sort((a, b) => {
+                    if (Number(a.data.posicion) > Number(b.data.posicion)) {
                         return 1;
                     }
-                    if (a.data.posicion < b.data.posicion) {
+                    if (Number(a.data.posicion) < Number(b.data.posicion)) {
                         return -1;
                     }
                     // a must be equal to b

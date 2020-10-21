@@ -519,7 +519,8 @@ export default {
     
       return estado.pago==true?'Pago':
       estado.nopago==true?'No pago':
-      'Saldo a pagar: '+Number(pago_hoy).toLocaleString('es-CO',{style: 'currency',currency: 'COP',minimumSignificantDigits:1})
+      // console.log(Number(pago_hoy).toString().length)
+      Number(pago_hoy).toString().length==4?'Saldo a pagar: $ '+Number(pago_hoy).toString().substring(0,1).concat('.')+Number(pago_hoy).toString().substring(1,Number(pago_hoy).toString().length): 'Saldo a pagar: '+ Number(pago_hoy).toLocaleString('es-CO',{style: 'currency',currency: 'COP',minimumSignificantDigits:1}) 
       // `${calculoTotalPagoHoy[index]!=undefined ? calculoTotalPagoHoy[index]==0?'Pago':calculoTotalPagoHoy[index]>0?'Saldo a pagar: '+Number(calculoTotalPagoHoy[index]).toLocaleString('es-CO',{style: 'currency',currency: 'COP',minimumSignificantDigits:1}):'Saldo a pagar: '+Number((calculoTotalPagoHoy[index]*(-1))).toLocaleString('es-CO',{style: 'currency',currency: 'COP',minimumSignificantDigits:1}):'NA'}`
     },
      onCambiarMensajeOrdenar(){
@@ -992,9 +993,9 @@ if (fin < inicio) {
                                        this.$store.state.cobros_hoy=JSON.parse(localStorage.getItem('cobros_hoy'))   
                                      }
 
-                                     if(localStorage.getItem('nocobros_hoy')){
-                                       this.$store.state.nocobros_hoy=JSON.parse(localStorage.getItem('nocobros_hoy'))   
-                                     }
+                                    //  if(localStorage.getItem('nocobros_hoy')){
+                                    //    this.$store.state.nocobros_hoy=JSON.parse(localStorage.getItem('nocobros_hoy'))   
+                                    //  }
                                     
 
                                      

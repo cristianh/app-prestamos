@@ -51,10 +51,10 @@ export default new Vuex.Store({
             state.cobros_hoy.push(infocobroshoy)
             localStorage.setItem("cobros_hoy", JSON.stringify(state.cobros_hoy));
         },
-        setNoCobrosHoy(state, infonocobroshoy) {
-            state.nocobros_hoy.push(infonocobroshoy)
-            localStorage.setItem("nocobros_hoy", JSON.stringify(state.nocobros_hoy));
-        },
+        // setNoCobrosHoy(state, infonocobroshoy) {
+        //     state.nocobros_hoy.push(infonocobroshoy)
+        //     localStorage.setItem("nocobros_hoy", JSON.stringify(state.nocobros_hoy));
+        // },
         setActualizarDatosTransferenciaPendiente(state, databusqueda) {
             let posicion = state.datos_transeferencia_pendientes.findIndex(x => x.valor === databusqueda.valor && x.hora === databusqueda.hora && x.fecha === databusqueda.fecha);
 
@@ -378,6 +378,22 @@ export default new Vuex.Store({
             }
 
         },
+        setEstadoPrestamoEliminarNoCobro(state, data) {
+            // editado
+            let posicion = state.clientes_cobros.findIndex(x => x.data.id == data.id);
+            state.clientes_cobros[posicion].data.estado_pago_prestamo.nopago = false;
+        },
+        setSaldoPendiente(state, datapendiente) {
+            // editado
+            let posicion = state.clientes_cobros.findIndex(x => x.data.id == datapendiente.id);
+            state.clientes_cobros[posicion].data.prestamos[0].saldo_pendiente = datapendiente.saldo_pendiente
+        },
+        setEstadoPrestamoEliminarCobro(state, data) {
+            // editado
+            let posicion = state.clientes_cobros.findIndex(x => x.data.id == data.id);
+            state.clientes_cobros[posicion].data.estado_pago_prestamo.pago = false;
+
+        },
         setEstadoPrestamoRutaNoPago(state, data) {
             // editado
 
@@ -402,6 +418,11 @@ export default new Vuex.Store({
             let posicion = state.clientes_cobros.findIndex(x => x.data.id == data.id);
             // alert(posicion)
             state.clientes_cobros[posicion].data.prestamos[0].dias_con_mora = data.dias_mora;
+        },
+        setTotalApagarEliminarCobros(state, data) {
+            let posicion = state.clientes_cobros.findIndex(x => x.data.id == data.id);
+            // alert(data.valor)
+            state.clientes_cobros[posicion].data.prestamos[0].total_apagar = state.clientes_cobros[posicion].data.prestamos[0].total_apagar + data.valor;
         },
         cobroClientePendiente(state, clientePendiente) {
             state.cobros_pendientes.unshift(clientePendiente);
@@ -494,9 +515,9 @@ export default new Vuex.Store({
         getCobrosHoy: state => {
             return state.cobros_hoy
         },
-        getNoCobrosHoy: state => {
-            return state.nocobros_hoy
-        },
+        // getNoCobrosHoy: state => {
+        //     return state.nocobros_hoy
+        // },
         getDatosTransferenciaPendiente: state => {
             return state.datos_transeferencia_pendientes;
         },
@@ -546,86 +567,45 @@ export default new Vuex.Store({
 
 
                 if (elementP.data.prestamos[0].saldo_pendiente > 0) {
-                    // console.log("a debe")
-                    // console.log(pago_hoy < elementP.data.prestamos[0].saldo_pendiente)
-                    // console.log(pago_hoy > elementP.data.prestamos[0].saldo_pendiente)
-                    // console.log(pago_hoy)
+                    console.log('aca 1')
+                        // console.log("saldo pendiente mayor")
+                        // console.log(pago_hoy < elementP.data.prestamos[0].saldo_pendiente)
+                        // console.log(pago_hoy > elementP.data.prestamos[0].saldo_pendiente)
+                        // console.log(pago_hoy)
                     if (pago_hoy < elementP.data.prestamos[0].saldo_pendiente) {
+                        console.log('aca 2')
+                            // console.log("saldo pago de hoy es menor al saldo pendiente")
                         pago_hoy = Number(elementP.data.prestamos[0].saldo_pendiente) + Number(pago_hoy);
                         state.saldo_pago_dia.push(pago_hoy)
                     } else {
+                        // console.log("saldo pago de hoy es mayor al saldo pendiente")
+                        console.log('aca 3')
                         pago_hoy = Number(pago_hoy) + Number(elementP.data.prestamos[0].saldo_pendiente);
                         state.saldo_pago_dia.push(pago_hoy)
                     }
 
                 } else if (elementP.data.prestamos[0].saldo_pendiente < 0) {
+                    // onsole.log("saldo pendiente menor")
                     // console.log("a favor")
+                    console.log('aca 4')
 
                     // console.log(elementP.data.prestamos[0].saldo_pendiente)
                     if (pago_hoy < elementP.data.prestamos[0].saldo_pendiente) {
                         pago_hoy = Number(elementP.data.prestamos[0].saldo_pendiente) - Number(pago_hoy);
                         state.saldo_pago_dia.push(pago_hoy)
+                        console.log('aca 5')
                     } else {
                         // console.log(Number(pago_hoy) + Number(elementP.data.prestamos[0].saldo_pendiente))
-                        if ((Number(pago_hoy) + Number(elementP.data.prestamos[0].saldo_pendiente)) <= 0) {
-                            state.saldo_pago_dia.push(0)
-                                // let estados = JSON.parse(localStorage.getItem('ListaEstadosCobro'))
-                                //     //  let posicion = this.$store.getters.getClientesCobros.findIndex(x => x.data.id == this.id);
-                                // let posicion = estados.findIndex(x => x.id == elementP.data.id);
-                                // //  console.log(posicion);
-                                // estados[posicion].estado = 1
-                                // localStorage.setItem('ListaEstadosCobro', JSON.stringify(estados))
-                                // state.clientes_cobros[posicion].data.estado_pago_prestamo.nopago = false;
-                                // state.clientes_cobros[posicion].data.estado_pago_prestamo.pago = true;
-                                // state.clientes_cobros[posicion].data.estado_pago_prestamo.pendiente = false;
-                                // if (state.jornada_cobrador.catidad_cobrosefectivos != 0) {
-                                //     state.jornada_cobrador.catidad_cobrosefectivos--;
-                                //     localStorage.setItem('cobros_efectivos', state.jornada_cobrador.catidad_cobrosefectivos)
-                                // }
-                                // if (state.contadorClientesSeleccionados != 0) {
 
-                            //     state.contadorClientesSeleccionados--;
-                            //     localStorage.setItem('lista_clientes_cobrados', state.contadorClientesSeleccionados)
+                        // if ((Number(pago_hoy) + Number(elementP.data.prestamos[0].saldo_pendiente)) <= 0) {
+                        //     state.saldo_pago_dia.push(0)
+                        //     console.log('aca 6')
 
-                            // }
-                            // let estados = JSON.parse(localStorage.getItem('ListaEstadosCobro'))
-                            // console.log(state.clientes_cobros);
-                            // //  let posicion = this.$store.getters.getClientesCobros.findIndex(x => x.data.id == this.id);
-                            // let posicion_lista_cobros = state.clientes_cobros.findIndex(x => x.data.id == elementP.data.id);
-                            // console.log(posicion_lista_cobros);
-                            // let posicion_estados = estados.findIndex(x => x.idCliente == elementP.data.id);
 
-                            // if (posicion_lista_cobros != -1) {
-                            //     delete state.clientes_cobros[posicion_lista_cobros]
-                            //     delete estados[posicion_estados]
-                            //         //  state.clientes_cobros[posicion].data.prestamos[0].
-                            //         // state.clientes_cobros[posicion].data.estado_pago_prestamo.nopago = false;
-                            //         // state.clientes_cobros[posicion].data.estado_pago_prestamo.pago = true;
-                            //         // state.clientes_cobros[posicion].data.estado_pago_prestamo.pendiente = false;
-                            // }
-
-                            // if (posicion_estados != -1) {
-                            //     delete estados[posicion_estados]
-                            //         //  state.clientes_cobros[posicion].data.prestamos[0].
-                            //         // state.clientes_cobros[posicion].data.estado_pago_prestamo.nopago = false;
-                            //         // state.clientes_cobros[posicion].data.estado_pago_prestamo.pago = true;
-                            //         // state.clientes_cobros[posicion].data.estado_pago_prestamo.pendiente = false;
-                            // }
-
-                            // if (state.contadorClientesSeleccionados != 0) {
-
-                            //     state.contadorClientesSeleccionados--;
-                            //     localStorage.setItem('lista_clientes_cobrados', state.contadorClientesSeleccionados)
-
-                            // }
-
-                            // //  console.log(posicion);
-                            // // estados[posicion].estado= 1
-                            // // localStorage.setItem('ListaEstadosCobro',JSON.stringify(estados))
-
-                        } else {
-                            state.saldo_pago_dia.push(Number(pago_hoy) + Number(elementP.data.prestamos[0].saldo_pendiente))
-                        }
+                        // } else {
+                        //     state.saldo_pago_dia.push(Number(pago_hoy) + Number(elementP.data.prestamos[0].saldo_pendiente))
+                        //     console.log('aca 7')
+                        // }
 
                         // pago_hoy = (Number(pago_hoy) + Number(elementP.data.prestamos[0].saldo_pendiente)) * 
 
@@ -634,6 +614,7 @@ export default new Vuex.Store({
 
                 } else if (elementP.data.prestamos[0].saldo_pendiente == 0) {
                     state.saldo_pago_dia.push(pago_hoy);
+                    console.log('aca 8')
                 } else {
 
                 }

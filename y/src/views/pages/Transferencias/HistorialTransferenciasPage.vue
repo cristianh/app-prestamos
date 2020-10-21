@@ -16,6 +16,7 @@
       </CCol>
         <CCol md="12">
   <CCard>
+    <!-- {{items}} -->
     <CCardHeader>
       <slot name="header">
         <CIcon name="cil-grid"/> {{caption}}
@@ -87,7 +88,7 @@ export default {
     fields: {
       type: Array,
       default () {
-        return ['enviado_por','mensaje', 'estado_transaccion', 'fecha', 'hora','valor']
+        return ['envia','mensaje', 'estado_transaccion', 'fecha', 'hora','valor']
       }
     },
     caption: {
@@ -152,11 +153,40 @@ export default {
      },
     getBadge (status) {
       
-      return status == 1 ? 'success':'danger'
+      // return status == 1 ? 'success':'danger'
+
+       switch (Number(status)) {
+           case 0:
+             return 'info'
+             break;
+           case 1:
+             return 'success'
+             break;
+           case 2:
+             return 'danger'
+             break;
+         
+           default:
+             break;
+         }
         
     },
     getBadgeText (status) {
-      return status == 1 ? 'Aprobado' : 'Cancelado'
+      // return status == 1 ? 'Aprobado' : 'Cancelado'
+       switch (Number(status)) {
+           case 0:
+             return 'Pendiente'
+             break;
+           case 1:
+             return 'Aprobado'
+             break;
+           case 2:
+             return 'Cancelado'
+             break;
+         
+           default:
+             break;
+         }
         
     }
     

@@ -120,6 +120,11 @@ export default [{
                     name: 'Nueva Cobrador',
                     to: '/nueva_cobrador',
                     icon: 'cil-user-follow',
+                },
+                {
+                    name: 'Listar Cobradores',
+                    to: '/Listar_cobradores',
+                    icon: 'cil-user-follow',
                 }
                 // {
                 //   name: 'Editar Empresa',

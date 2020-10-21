@@ -75,12 +75,14 @@
 <script>
 import ZonaService from '../Zonas/Services/ZonaService.js';
 import EmpresaService from '../Empresa/Services/EmpresasService.js';
+import CobradorService from '../Cobradores/Services/CobradoresService';
 
 export default {
     data() {
         return {
             zonaService:null,
             empresaService:null,
+            cobradorService:null,
             isEnabled:true,
             empresas:[{ value: 'Seleccione', label: 'Seleccione' }],
             zonas:[{ value: 'Seleccione', label: 'Seleccione' }],
@@ -91,7 +93,7 @@ export default {
           form_transaccion:{
           envia:'', 
           valor:0,
-          estado_transaccion:false,
+          estado_transaccion:0,
           fecha:new Date().toISOString().slice(0,10),
           hora: '',
           mensaje:'',
@@ -107,6 +109,7 @@ export default {
       created() {
         this.zonaService = new ZonaService();
         this.empresaService= new EmpresaService();
+        this.cobradorService= new CobradorService();
     },
     beforeMount(){
       this.loading = true;
@@ -137,7 +140,7 @@ export default {
           : status === 'Pending' ? 'warning'
             : status === 'Banned' ? 'danger' : 'primary'
     },
-        onGuardarTransaccion(){
+    onGuardarTransaccion(){
     this.form_transaccion.envia='Empresa'
     this.hora=this.$moment(new Date()).format("hh:mm:ss")
     var sfRef = db.collection("usuarios").doc(this.usuarioOnLogin).collection("empresas").doc(this.idSeleccionadaEmpresa);
@@ -152,6 +155,8 @@ if(this.form_transaccion.valor==0 ||this.form_transaccion.valor==''){
 }else if(this.form_transaccion.valor>this.nuevo_balanceempresa || this.nuevo_balanceempresa==0){
    this.$toast.add({severity:'error', summary: 'Atencion', detail:'La transaccion no se puede realizar, el valor a transferir es mayor al saldo de la empresa o no cuenta con saldo.', life: 3000});    
 }else{
+
+  this.form_transaccion.idRecibe=this.idSeleccionadaZona
    db.collection("usuarios").doc(this.usuarioOnLogin).collection("empresas").doc(this.idSeleccionadaEmpresa).collection("Zonas").doc(this.idSeleccionadaZona).collection("Transferencias").add(this.form_transaccion)
     .then(() =>{
         
@@ -184,7 +189,7 @@ else{
         this.form_transaccion={
           envia:'', 
           valor:0,
-          estado_transaccion:false,
+          estado_transaccion:0,
           fecha:new Date().toISOString().slice(0,10),
           hora: '',
           mensaje:'',

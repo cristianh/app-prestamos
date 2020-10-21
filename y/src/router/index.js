@@ -52,6 +52,10 @@ const Cobrador_nuevo = () =>
 const Listar_clientes = () =>
     import ('@/views/pages/Clientes/ListarClientesPage')
 
+//Clientes
+const Listar_cobradores = () =>
+    import ('@/views/pages/Cobradores/ListarCobradoresPage')
+
 //Tazas interes
 const Taza_Interes = () =>
     import ('@/views/pages/TazaInteres/TazaDeInteresPage')
@@ -249,12 +253,12 @@ function configRoutes() {
                             path: '/nueva_cobrador',
                             name: 'Nueva cobrador',
                             component: Cobrador_nuevo
+                        },
+                        {
+                            path: '/listar_cobradores',
+                            name: 'Listar cobradores',
+                            component: Listar_cobradores
                         }
-                        // {
-                        //   path: '/editar_cobrador',
-                        //   name: 'Editar cobrador',
-                        //   component: Empresa_Editar
-                        // },
                         // {
                         //   path: '/borrar_cobrador',
                         //   name: 'Eliminr cobrador',

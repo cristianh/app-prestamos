@@ -416,10 +416,10 @@ import CobradorService from '../Services/CobradoresServices.js';
            cliente_id:this.id,
            fecha:this.$moment(new Date()).format("MM-DD-YYYY"),
            hora:this.$moment(new Date()).format("hh:mm:ss"),
-           valor: elemento.prestamos[0].saldo_pendiente
+           valor: Number(this.informacion_pago.valor_pago)
             }
 
-            this.$store.commit('setNoCobrosHoy',dataNoPago)
+            this.$store.commit('setCobrosHoy',dataNoPago)
            
             this.$f7router.back();
         });
@@ -497,10 +497,10 @@ import CobradorService from '../Services/CobradoresServices.js';
            cliente_id:this.id,
            fecha:this.$moment(new Date()).format("MM-DD-YYYY"),
            hora:this.$moment(new Date()).format("hh:mm:ss"),
-           valor: elemento.prestamos[0].saldo_pendiente
+           valor_pago: Number(this.informacion_pago.valor_pago)
             }
 
-            this.$store.commit('setNoCobrosHoy',dataNoPago)
+            this.$store.commit('setCobrosHoy',dataNoPago)
             this.$f7router.back();
         });
               

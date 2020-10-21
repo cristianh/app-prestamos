@@ -1,5 +1,11 @@
 import qs from 'qs';
-export default class AbonoService {
+export default class PasswordService {
+
+    // GET     /passwords         Solicita todas las entradas.
+    // GET     /passwords/:id     Solicita una entrada por id.
+    // POST    /passwords         Crea una entrada.
+    // PUT     /passwords/:id     Actualiza una entrada.
+    // DELETE  /passwords/:id     Elimina una entrada.
 
     getTazaseInteres(id) {}
 

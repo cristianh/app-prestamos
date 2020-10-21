@@ -727,6 +727,46 @@ exports.buscarCobradorZona = functions.https.onRequest(async(request, response, 
 });
 
 
+/**
+ * @function Funcion para buscar el cobrador por la zona.
+ */
+exports.buscarZonaCobrador = functions.https.onRequest(async(request, response, body) => {
+    response.set('Access-Control-Allow-Origin', '*');
+    response.set('Access-Control-Allow-Credentials', 'true'); // vital
+    response.set('Access-Control-Allow-Methods', 'GET', 'POST', 'PUT', 'DELETE', 'OPTIONS');
+    response.set('Access-Control-Allow-Headers', 'Content-Type');
+    response.set('Access-Control-Allow-Headers', 'Content-Length,Content-Range');
+    response.set('Access-Control-Allow-Headers', 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization');
+    try {
+        let infoZona = [];
+
+        await db.collection('usuarios').doc(request.query.idadmin).collection('empresas').doc(request.query.idempresa).collection('Zonas').doc(request.query.doc).get().then((snapshot) => {
+            // return response.status(200).send(JSON.stringify(snapshot));
+            if (snapshot.exists) {
+
+                let id = snapshot.id;
+                let datadocument = snapshot.data();
+                datadocument.id = id;
+                infoZona.push(datadocument);
+                // cobradores.push({
+                //     id: doc.id,
+                //     data: doc.data()
+                // });
+
+                return response.status(200).send(JSON.stringify(infoZona));
+
+            } else {
+                return response.status(200).send('Not Found');
+            }
+        });
+
+
+    } catch (error) {
+        return response.status(500).send(error)
+    }
+
+});
+
 
 
 exports.CobradoresGuardar = functions.https.onRequest(async(request, response, body) => {
@@ -762,6 +802,91 @@ exports.CobradoresGuardar = functions.https.onRequest(async(request, response, b
     }
 
 });
+
+
+
+/*
+ * @function Funcion para retornar todos los cobradores por empresa.
+ * @param request
+ * @param response
+ * @param body
+ */
+
+exports.getAllCobradores = functions.https.onRequest(async(request, response, body) => {
+    //response.send("Hello from Firebase!");
+    response.set('Access-Control-Allow-Origin', '*');
+    response.set('Access-Control-Allow-Credentials', 'true'); // vital
+    response.set('Access-Control-Allow-Methods', 'GET', 'POST', 'PUT', 'DELETE', 'OPTIONS');
+    response.set('Access-Control-Allow-Headers', 'Content-Type');
+    response.set('Access-Control-Allow-Headers', 'Content-Length,Content-Range');
+    response.set('Access-Control-Allow-Headers', 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization');
+    try {
+        const snapshot = await db.collection('usuarios').doc(request.query.idadmin).collection('empresas').doc(request.query.idempresa).collection('cobradores').get();
+        let cobradores = [];
+
+        if (snapshot.empty) {
+            return response.send('Not Found');
+        } else {
+            snapshot.forEach(doc => {
+                let id = doc.id;
+                let datadocument = doc.data();
+                datadocument.id = id;
+                cobradores.push(datadocument);
+                // cobradores.push({
+                //         id: doc.id,
+                //         data: doc.data()
+                //     });
+            });
+            return response.status(200).send(JSON.stringify(cobradores));
+        }
+    } catch (error) {
+        return response.status(500).send(error);
+    }
+});
+
+
+exports.updateInfoCobradores = functions.https.onRequest(async(request, response, body) => {
+    //response.send("Hello from Firebase!");
+    response.set('Access-Control-Allow-Origin', '*');
+    response.set('Access-Control-Allow-Credentials', 'true'); // vital
+    response.set('Access-Control-Allow-Methods', 'GET', 'POST', 'PUT', 'DELETE', 'OPTIONS');
+    response.set('Access-Control-Allow-Headers', 'Content-Type');
+    response.set('Access-Control-Allow-Headers', 'Content-Length,Content-Range');
+    response.set('Access-Control-Allow-Headers', 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization');
+    try {
+        await db.collection('usuarios').doc(request.query.idadmin).collection('empresas').doc(request.query.idempresa).collection('cobradores').doc(request.query.doc).set(request.body, { merge: true })
+            .then((resp) => {
+                return response.status(200).send({ mensaje: 'Informacion actualizada', id: resp.id })
+            });
+    } catch (error) {
+        return response.send('Error getting document', error);
+
+    }
+});
+
+exports.eliminarCobradores = functions.https.onRequest(async(request, response, body) => {
+    //response.send("Hello from Firebase!");
+    response.set('Access-Control-Allow-Origin', '*');
+    response.set('Access-Control-Allow-Credentials', 'true'); // vital
+    response.set('Access-Control-Allow-Methods', 'GET', 'POST', 'PUT', 'DELETE', 'OPTIONS');
+    response.set('Access-Control-Allow-Headers', 'Content-Type');
+    response.set('Access-Control-Allow-Headers', 'Content-Length,Content-Range');
+    response.set('Access-Control-Allow-Headers', 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization');
+    try {
+        await db.collection('usuarios').doc(request.query.idadmin).collection('empresas').doc(request.query.idempresa).collection('cobradores').doc(request.query.doc).delete()
+            .then(() => res.status(204).send("Document successfully deleted!"))
+            .catch((error) => {
+                return response.status(500).send(error);
+            });
+        return response.send({ mensaje: 'Cobrador eliminado.' })
+
+    } catch (error) {
+        return response.send('Error getting document', error);
+
+    }
+});
+
+
 
 
 /*
@@ -1347,7 +1472,7 @@ exports.GuardarNuevoPlanEmpresa = functions.https.onRequest(async(request, respo
 
     try {
         await db.collection('usuarios').doc(request.query.idadmin).collection('empresas').doc(request.query.doc).collection('parametros_cobros').add(request.body).then(res => {
-            return response.status(200).send(JSON.stringify({ mensaje: 'El nuevo plan a sigo guardado.', id: res.id })).end();
+            return response.status(200).send(JSON.stringify({ mensaje: 'El nuevo plan ha sido creado.', id: res.id })).end();
         }).catch((error) => {
             return response.status(500).send(error);
         });

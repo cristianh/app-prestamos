@@ -221,7 +221,7 @@
         :value=form.usuario.oficio
         required
         validate
-        pattern="[A-Za-z]*"
+        pattern="[A-Za-zñÑáéíóúÁÉÍÓÚ\s]*"
         error-message="Solo letras"
         :onValidate=onValidatedInput
         @input="form.usuario.oficio=$event.target.value"
@@ -520,11 +520,12 @@ import ClientesService from '../Services/ClientesService.js';
                 id:this.id,
                 info:this.clientes_info
               }
-      this.$store.commit('setActualizarInformacionClientes',nuevaInfo)
+      
 
       this.clienteservice.actualizarClienteCobrador(this.idad,id_empresa,ui_cobrador,this.id,this.clientes_info).then( (response) =>  {
               // this.informacion_pago.valor_pago=0;
                this.$f7.dialog.confirm("Informacion Actualizada","Correcto");
+               this.$store.commit('setActualizarInformacionClientes',nuevaInfo)
                this.$f7.popup.close();
                 this.$f7.dialog.close();
                 this.$f7router.back();
@@ -602,7 +603,6 @@ import ClientesService from '../Services/ClientesService.js';
      let id_empresa=localStorage.getItem("empresa"); 
      this.$f7.dialog.preloader("Buscando Informacion...");
           this.cobradoresService.getCobradoresClientesBuscar(this.idad,id_empresa,ui_cobrador,this.$f7route.params.id).then( (response) =>  {
-              
               this.clientes_info=response.data;
               //Usuario
               this.form.usuario.identificacion=this.clientes_info.usuario.identificacion

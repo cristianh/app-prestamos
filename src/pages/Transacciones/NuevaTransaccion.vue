@@ -286,7 +286,7 @@ export default {
            case 1:
              return 'green'
              break;
-           case 3:
+           case 2:
              return 'red'
              break;
          
@@ -302,7 +302,7 @@ export default {
            case 1:
              return 'Aprobado'
              break;
-           case 3:
+           case 2:
              return 'Cancelado'
              break;
          
