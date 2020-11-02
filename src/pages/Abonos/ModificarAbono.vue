@@ -62,6 +62,7 @@ import CobradorService from '../Services/CobradoresServices.js';
 export default {
     data() {
         return {
+            datastorage:{},
             lista_cobros_hoy:[],
             clientesservice:null
         }
@@ -72,9 +73,9 @@ export default {
     methods: {
         onEditarCobros(cobros){
        let zona= localStorage.getItem("zona");
-       let empresa= localStorage.getItem("empresa");
-       let ui_cobrador=localStorage.getItem("uid");
-       let idad=localStorage.getItem("iad");
+       let empresa= this.datastorage.empresa
+       let ui_cobrador=this.datastorage.uid
+       let idad=this.datastorage.iad
 
 
 
@@ -83,9 +84,9 @@ export default {
         }, 
      onEliminarCobro(cobro){
           let zona= localStorage.getItem("zona");
-       let empresa= localStorage.getItem("empresa");
-       let ui_cobrador=localStorage.getItem("uid");
-       let idad=localStorage.getItem("iad");
+       let empresa= this.datastorage.empresa
+       let ui_cobrador=this.datastorage.uid
+       let idad=this.datastorage.iad
     //         this.clientesService.eliminarClienteCobro(idad,idempresa,ui_cobrador,cobro.cliente.id,cobro.id_cobro,cobro).then( (response) =>  {
 
     //  })
@@ -93,9 +94,9 @@ export default {
     },
     onActualizarPrestamos(cliente_cobro_id){
         let zona= localStorage.getItem("zona");
-       let empresa= localStorage.getItem("empresa");
-       let ui_cobrador=localStorage.getItem("uid");
-       let idad=localStorage.getItem("iad");
+       let empresa= this.datastorage.empresa
+       let ui_cobrador=this.datastorage.uid
+       let idad=this.datastorage.iad
 
         let clientes=this.$store.getters.getClientesCobros.findIndex(x => x.data.prestamos[0].cliente ==cliente_cobro_id)
 
@@ -117,9 +118,9 @@ export default {
     onActualizarBalanceEmpresa(saldo_nuevo){
         
        let zona= localStorage.getItem("zona");
-       let empresa= localStorage.getItem("empresa");
-       let ui_cobrador=localStorage.getItem("uid");
-       let idad=localStorage.getItem("iad");
+       let empresa= this.datastorage.empresa
+       let ui_cobrador=this.datastorage.uid
+       let idad=this.datastorage.iad
         //        // Get a new write batch
         var batch = db.batch();
 
@@ -147,6 +148,22 @@ filters: {
        
     },
     beforeMount() {
+    let localstoragedata=localStorage.getItem('datainfologin')
+      if(localstoragedata==null){
+          this.$store.watch(() => this.$store.getters.getDatasStorage, datainfo => { 
+        console.log("datastores",this.$store.getters.getDatasStorage)
+        // console.log('watched: ', EstadosCobrosGuardados) 
+       this.datastorage=datainfo
+      //  console.log("datastores",this.data_store)
+    //    this.idad=this.datastorage.iad
+       
+      })
+      }else{
+      
+      this.datastorage=JSON.parse(localstoragedata)
+      console.log("datastores",this.datastorage)
+    //    this.idad=this.datastorage.iad
+    }
     this.$store.watch(() => this.$store.getters.getCobrosHoy, CobrosHoy => { 
         // console.log('watched: ', EstadosCobrosGuardados) 
         this.lista_cobros_hoy=CobrosHoy

@@ -74,6 +74,26 @@ import 'framework7/css/framework7.bundle.css';
 import '../css/icons.css';
 import '../css/app.less';
 
+
+import Storage from 'vue-ls';
+
+let options = {
+    namespace: 'vuejs__', // key prefix
+    name: 'ls', // name variable Vue.[ls] or this.[$ls],
+    storage: 'local', // storage name session, local, memory
+};
+
+Vue.use(Storage, options);
+
+// import VueLocalStorage from 'vue-localstorage'
+
+// Vue.use(VueLocalStorage)
+// // Or you can specify any other name and use it via this.$ls, this.$whatEverYouWant
+// Vue.use(VueLocalStorage, {
+//   name: 'ls',
+//   bind: true //created computed members from your variable declarations
+// })
+
 Vue.use({ axios });
 Vue.use({ firebase });
 Vue.use({ db });

@@ -298,7 +298,7 @@ export default {
                 
                   let element={ value: this.paises_data[key].name, label: this.paises_data[key].name };
                   this.paises.push(element);
-                  // console.log(this.zonas);
+                 
             }
         }  
 
@@ -328,16 +328,16 @@ export default {
               if (this.ciudades_data.hasOwnProperty(key)) {
                 
                 if(this.ciudades_data[key].id==$event.target.value){
-                  console.log(this.ciudades_data[key].ciudades);
+                  
                   this.empresa_form.Departamento=this.ciudades_data[key].departamento
                   this.ciudades_data[key].ciudades.forEach(ciudades => {
                     let element={ value: ciudades, label: ciudades};
                     this.ciudades.push(element);
                   });
                   
-                  // console.log(this.zonas);
+                 
                   
-      // console.log(this.empresa_form.Departamento);
+     
             }
             }
       }
@@ -348,7 +348,7 @@ export default {
       //this.empresaService.guardarEmpresa(this.empresa_form).then(rsp=>{
         this.empresa_form.Balance=this.valor_sin_puntos.split('.').join('');
         this.empresaService.guardarEmpresa(this.usuarioOnLogin,this.empresa_form).then(rsp=>{
-        console.log(rsp);
+      
         localStorage.setItem('empresa',rsp.id);
         this.$toast.add({severity:'success', summary: 'Correcto.', detail:rsp.mensaje, life: 3000});
         this.departamentos=[{ value: 'Seleccione', label: 'Seleccione' }],

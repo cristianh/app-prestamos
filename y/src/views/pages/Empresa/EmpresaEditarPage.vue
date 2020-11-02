@@ -95,7 +95,7 @@ export default {
   },
   methods: {
      onCancel() {
-              console.log('User cancelled the loader.')
+              
      },
     getBadge (status) {
       return status === 'Active' ? 'success'

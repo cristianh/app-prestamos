@@ -99,7 +99,7 @@ export default {
       this.empresaService.getAllEmpresas(this.usuarioOnLogin).then((result)=>{
         
         tamporal_empresas=result.data;
-        console.log(tamporal_empresas);
+        
           for (const key in tamporal_empresas) {
             if (tamporal_empresas.hasOwnProperty(key)) {
                  let element={ value: tamporal_empresas[key].id, label: tamporal_empresas[key].Nombre };
@@ -118,7 +118,7 @@ export default {
   methods: {
     onGuardarPlan(){
       this.empresaService.guardarNuevoPlanEmpresa(this.usuarioOnLogin,this.planpago_form.empresa,this.planpago_form).then(rsp=>{
-        console.log(rsp);
+        
         this.$toast.add({severity:'success', summary: 'Correcto.', detail:rsp.mensaje, life: 3000});  
         this.planpago_form={
           nombre:'',

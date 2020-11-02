@@ -40,33 +40,24 @@
           </td>
         </template>
       </CDataTable> -->
-        <DataTable :value="items" :loading="loading"  :paginator="items.length==0?estadopaginado=false:estadopaginado=true" :rows="5">
+        <DataTable :value="items" :resizableColumns="true" columnResizeMode="fit" :loading="loading" class="p-datatable-responsive-demo" :paginator="items.length==0?estadopaginado=false:estadopaginado=true" :rows="5">
           <template #loading>
               Cargando transacciones
           </template>
-          <!-- <Column field="nombre_zona_envia" header="Zona"></Column> -->
-          <!-- <Column v-for="col of columns" :field="col.field" :header="col.header" :key="col.field"></Column> -->
-          <Column field="rol" header="Rol"></Column>
+          <Column  field="rol" header="Rol" headerStyle="width: 11%"></Column>
           <Column field="nombre" header="Nombre"></Column>
           <Column field="apellido" header="Apellido"></Column>
-          <Column field="identificacion" header="Identificacion"></Column>
-          <!-- <Column field="empresa" header="Empresa"></Column> -->
-          <Column field="direccion1" header="Direccion" ></Column>
-          <Column field="telefono" header="Telefono" ></Column>
-          <Column>
+          <Column field="identificacion" header="Identificacion" headerStyle="width: 15%"></Column>
+          <Column field="direccion1" header="Direccion" headerStyle="width: 15%"></Column>
+          <Column field="telefono" header="Telefono" headerStyle="width: 15%"></Column>
+          
+          <Column header="Acciones" >
         <template #body="items">
-          <!-- @click="editProduct(slotProps.data)" -->
-          <!-- @click="confirmDeleteProduct(slotProps.data)"  -->
-            <!-- <Button icon="pi pi-pencil" class="p-button-rounded p-button-success p-mr-2" @click="editProduct(slotProps.data)"  />
-            <Button icon="pi pi-trash" class="p-button-rounded p-button-warning" /> -->
-            <!-- @click="onActuaizarEstadoTransaccion(items.data.id)" -->
-            <CButton size="sm" class="m-2"   @click="editInfoCobrador(items)" color="warning">EDITAR</CButton>
-            <!-- <CButton size="sm" class="m-2"  @click="confirmDeleteCobrador(items)"  color="danger">ELIMINAR</CButton> -->
+            <CButton size="sm" class="m-2"  :block=true @click="editInfoCobrador(items)" color="warning">EDITAR</CButton>
+            <CButton size="sm" class="m-2"  :block=true  @click="verZona(items)" color="info">VER ZONA</CButton>
         </template>
         </Column>
-          <!-- <Column field="year" header="Year"></Column> -->
-    <!-- <Column field="brand" header="Brand"></Column>
-    <Column field="color" header="Color"></Column> -->
+
       </DataTable>
     </CCardBody>
   </CCard>
@@ -75,6 +66,41 @@
         color='#007BFF' 
         :on-cancel="onCancel"
         :is-full-page="fullPage"></loading>
+
+    <CModal
+      title="Zona"
+      color="info"
+      size="lg"
+      :show.sync="warningModalZona"
+      :centered=true
+    >
+    <DataTable :value="items_zona" :resizableColumns="true" columnResizeMode="fit"  :lazy="true" :loading="loading_zona" class="p-datatable-responsive-demo editable-cells-table"  :rows="1">
+          <template #loading>
+              Cargando informacion zona
+          </template>
+          <Column field="nombre" header="Nombre Zona" ></Column>
+          <Column field="ciudad" header="Ciudad"></Column>
+          <Column field="descripcion_zona" header="Descripcion zona"></Column>
+          <!-- <Column field="empresa" header="Identificacion" headerStyle="width: 15%"></Column> -->
+          
+          <!-- <Column field="telefono" header="Telefono" headerStyle="width: 15%"></Column> -->
+       
+          <!-- <Column header="Acciones" >
+        <template #body="items"> -->
+            <!-- <CButton size="sm" class="m-2"   @click="editInfoCobrador(items)" color="warning">EDITAR</CButton> -->
+            <!-- <CButton size="sm" class="m-2"   @click="verZona(items)" color="info">Ver Zona</CButton> -->
+        <!-- </template>
+        </Column> -->
+      </DataTable>
+         <template #footer>
+      <CRow>
+       <CCol col="4" sm="4" md="2" xl class="mb-3 mb-xl-0">
+            <CButton color="success" @click="onCerrarModalZona()">ACEPTAR</CButton>
+          </CCol>
+    </CRow>
+     </template>
+
+    </CModal>     
 
     <CModal
       title="Editar"
@@ -204,13 +230,16 @@ export default {
           telefono:'' 
       },
          warningModal: false,
+         warningModalZona: false,
           usuario:{
               empresa:''
           },
        isLoading: false,
        fullPage: true,
        loading:false,
+       loading_zona:false,
        items:[],
+       items_zona:[],
        empresaservice:null,
        cobradoreservice:null,
        usuarioOnLogin:'',
@@ -243,7 +272,7 @@ export default {
         this.isLoading=false
         if(result.data!='Not Found'){
         tamporal_empresas=result.data;
-        console.log(tamporal_empresas);
+        
           for (const key in tamporal_empresas) {
             if (tamporal_empresas.hasOwnProperty(key)) {
                  let element={ value: tamporal_empresas[key].id, label: tamporal_empresas[key].Nombre };
@@ -264,6 +293,23 @@ export default {
       this.cobradoreservice=new CobradorService();
   },
   methods: {
+    onCerrarModalZona(){
+       this.warningModalZona=false
+    },
+    verZona(cobradorInfo){
+      this.loading_zona=true
+      this.items_zona=[]
+      this.warningModalZona=true
+      let adminId=localStorage.getItem('id');
+     
+      this.cobradoreservice.getBuscarZonaCobrador(adminId,cobradorInfo.data.empresa,cobradorInfo.data.zona).then((response)=>{
+       
+         this.loading_zona=false
+        this.items_zona=response.data;
+                // this.$toast.add({severity:'info', summary: 'Atencion!.', detail:resp.data.mensaje, life: 5000});
+
+      });
+    },
     oncloseConfirmation(){
       this.displayConfirmation=false
     },
@@ -291,10 +337,10 @@ export default {
        this.warningModal=false
        let adminId=localStorage.getItem('id');
        let data= this.cobrador_edit_form;
-       console.log(data);
-       console.log(this.idCobrador);
+      
+       
        this.cobradoreservice.getUpdateInfoCobradores(adminId,this.idEmpresa,this.idCobrador,this.cobrador_edit_form).then((resp)=>{
-        console.log(resp);
+       
    
       this.$toast.add({severity:'success', summary: 'Correcto!.', detail:resp.data.mensaje, life: 5000});
        let posicion=this.items.findIndex(x=>x.id==this.idCobrador);
@@ -315,7 +361,7 @@ export default {
      },
       editInfoCobrador(infocobrador) {
            this.warningModal=true
-          //  console.log(interes);
+          
            this.idEmpresa=this.usuario.empresa
            this.idCobrador=infocobrador.data.id
            this.cobrador_edit_form.nombre=infocobrador.data.nombre
@@ -344,7 +390,7 @@ export default {
            this.cobradoreservice.getAllCobradores(this.usuarioOnLogin,this.usuario.empresa).then((response) => {
             
             
-            console.log(response.data);
+            
                 this.isLoading = false;
                 if(response.data!='Not Found'){ 
                  this.items=response.data;
@@ -359,7 +405,7 @@ export default {
     });
       },
      onCancel() {
-              console.log('User cancelled the loader.')
+              
      },
     getBadge (status) {
       return status === 'Active' ? 'success'

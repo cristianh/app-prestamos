@@ -228,7 +228,7 @@ export default {
         this.isLoading=false
         if(result.data!='Not Found'){
         tamporal_empresas=result.data;
-        console.log(tamporal_empresas);
+        
           for (const key in tamporal_empresas) {
             if (tamporal_empresas.hasOwnProperty(key)) {
                  let element={ value: tamporal_empresas[key].id, label: tamporal_empresas[key].Nombre };
@@ -259,7 +259,7 @@ export default {
             let adminId=localStorage.getItem('id');
              this.$toast.add({severity:'error', summary: 'Atencion!.', detail:'Plan eliminado', life: 5000});
             db.collection('usuarios').doc(adminId).collection('empresas').doc(this.idEmpresa).collection('parametros_cobros').doc(this.idPlan).delete().then(res => {
-              console.log(res);
+              
               
               
                 // return response.status(200).send(JSON.stringify({ mensaje: 'Plan de pago actualizado', id: res.id })).end();
@@ -272,7 +272,7 @@ export default {
        this.warningModal=false
        let adminId=localStorage.getItem('id');
        let data= this.planpago_edit_form;
-       console.log(data);
+       
        db.collection('usuarios').doc(adminId).collection('empresas').doc(this.idEmpresa).collection('parametros_cobros').doc(this.idPlan).update(
          {
            nombre:this.planpago_edit_form.nombre,
@@ -294,7 +294,7 @@ export default {
      },
       editProduct(interes) {
            this.warningModal=true
-          //  console.log(interes);
+          
            this.idEmpresa=interes.data.empresa
            this.idPlan=interes.data.id
            this.planpago_edit_form.nombre=interes.data.nombre
@@ -345,7 +345,7 @@ export default {
     });
       },
      onCancel() {
-              console.log('User cancelled the loader.')
+              
      },
     getBadge (status) {
       return status === 'Active' ? 'success'

@@ -88,7 +88,7 @@ export default {
         this.transaccionservice=new TransaccionesService();
              let datos= this.$store.getters.getDatosTransferencia;
              this.loading = true;
-      console.log(datos);
+      
       if(datos!=''){
                 // this.items=Object.values(datos);
                 // datos.filter(x=>x.estado_transaccion!==true)
@@ -102,14 +102,14 @@ export default {
    
     beforeMount() {
       this.$store.watch(() => this.$store.getters.getDatosTransferencia, Transacciones => { 
-        console.log('watched: ', Transacciones) 
+       
         this.items=Transacciones
         })
 
     },
     methods: {
      onCancel() {
-              console.log('User cancelled the loader.')
+             
      },
       stockClass(data) {
             return [
@@ -139,7 +139,7 @@ batch.update(sfRef, {"Balance": nuevoSaldoEmpresa});
 // Commit the batch
 batch.commit().then( () =>{
     // ...
-    console.log('balance actualizado');
+ 
         
         transaccionDatos.estado_transaccion=true;
         this.transaccionservice.guardarHistorialTransaccion(id_admin,idEmpresa,transaccionDatos);
@@ -150,17 +150,17 @@ batch.commit().then( () =>{
     },
     onAbortarTransaccion(IdTransaferencia){
        this.isLoading=true;
-        // console.log("---------------",itemsInfo);
+       
         let id_admin= localStorage.getItem('id');
          let posicion_transacciones=this.items.findIndex(x=>x.id==IdTransaferencia)
-         console.log(posicion_transacciones);
+        
          let itemsInfo=this.items[posicion_transacciones]
         if(itemsInfo.data.idEmpresa==""){
 
         
 
         this.transaccionservice.actualizarEstadoTransaccion(id_admin,itemsInfo.data.idEmpresa_cobrador,itemsInfo.id,3).then((resp)=>{
-        // console.log(resp);
+       
         // this.$store.commit('setDisminuyeContadorTransacciones');
       
         //No
@@ -185,7 +185,7 @@ batch.commit().then( () =>{
         }else{
 
         this.transaccionservice.actualizarEstadoTransaccion(id_admin,itemsInfo.data.idEmpresa,itemsInfo.id,3).then((resp)=>{
-        // console.log(resp);
+        
         // this.$store.commit('setDisminuyeContadorTransacciones');
       
         //No
@@ -209,17 +209,17 @@ batch.commit().then( () =>{
         }
     },
      onActualizarEstadoTransaccion(IdTransaferencia){
-        //  console.log(this.items);
+    
         this.isLoading=true;
          let posicion_transacciones=this.items.findIndex(x=>x.id==IdTransaferencia)
-        //  console.log(posicion_transacciones);
+        
          let itemsInfo=this.items[posicion_transacciones]
-         console.log("--------------------------onActuaizarEstadoTransaccion",itemsInfo);
+        
         if(itemsInfo.data.idEmpresa==""){
             let id_admin= localStorage.getItem('id');
            
           this.transaccionservice.actualizarEstadoTransaccion(id_admin,itemsInfo.data.idEmpresa_cobrador,itemsInfo.id,1).then((resp)=>{
-        // console.log(resp);
+   
         this.isLoading=false;
         let posicion=this.items.findIndex(x=>x.id==IdTransaferencia);
         this.items.splice(posicion,1);
@@ -235,16 +235,15 @@ batch.commit().then( () =>{
         }else{
         // let id_infotransferencia= this.$store.getters.getDatosTransferencia;
             let id_admin= localStorage.getItem('id');
-          //  console.log(itemsInfo.data);
-          //  console.log(this.items);
+        
             let posicion_transacciones=this.items.findIndex(x=>x.id==IdTransaferencia)
-              console.log(posicion_transacciones);
+              
               let itemsInfo=this.items[posicion_transacciones]
                 
                 this.$store.commit('setEliminarDatoTransferencia',itemsInfo.id); 
            this.transaccionservice.actualizarEstadoTransaccion(id_admin,itemsInfo.data.idEmpresa_cobrador,itemsInfo.id,1).then((resp)=>{
             this.empresaservice.getEmpresaPorId(id_admin,itemsInfo.data.idEmpresa).then((response)=>{
-                console.log(response.data);
+                
                 this.$store.commit('setDisminuyeContadorTransacciones');
                 this.transaccionservice.guardarHistorialTransaccion(id_admin,itemsInfo.data.idEmpresa,itemsInfo.data).then(()=>{
                 this.transaccionservice.elminiarTransaccionEmpresa(id_admin,itemsInfo.data.idEmpresa,itemsInfo.id);

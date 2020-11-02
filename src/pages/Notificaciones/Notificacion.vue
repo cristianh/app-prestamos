@@ -69,10 +69,10 @@
       <f7-button fill large small @click="onAceptarTransaccion(transferencia.id)" color="green">ACEPTAR</f7-button>
           
     </f7-col>
-      <f7-col >
+      <!-- <f7-col >
       <f7-button fill large small @click="onCancelarTransaccion(transferencia.id)" color="red">CANCELAR</f7-button>
           
-    </f7-col>
+    </f7-col> -->
     
   </f7-row>
  
@@ -86,6 +86,7 @@ import TransaccionesService from '../Services/TransaccionServices.js';
 export default {
     data() {
         return {
+          datastorage:'',
           idad:'',
           id_empresa:'',
           id_zona:'',
@@ -111,7 +112,24 @@ export default {
     beforeMount(){
       // this.clientes=this.$store.getters.getClientes;
       //this.clientes_lista_ordenada=this.$store.getters.getOrdenarClientes
-      this.idad=localStorage.getItem("iad");
+      let localstoragedata=localStorage.getItem('datainfologin')
+      if(localstoragedata==null){
+        this.$store.watch(() => this.$store.getters.getDatasStorage, datainfo => { 
+        console.log("datastores",this.$store.getters.getDatasStorage)
+        // console.log('watched: ', EstadosCobrosGuardados) 
+       this.datastorage=datainfo
+      //console.log("datastores",this.data_store)
+      //this.idad=this.datastorage.iad
+       
+      })
+      }else{
+      
+      this.datastorage=JSON.parse(localstoragedata)
+      console.log("datastores",this.datastorage)
+      //this.idad=this.datastorage.iad
+      }
+
+      this.idad=this.datastorage.iad
       console.log(this.idad);
       this.transacccionservice= new TransaccionesService();
       this.clientes=this.$store.getters.getOrdenarClientes;
@@ -125,7 +143,7 @@ export default {
 
       updateValorZona(Transaccion){
           let zona= localStorage.getItem("zona");
-          let empresa= localStorage.getItem("empresa");
+          let empresa= this.datastorage.empresa
        
           // Get a new write batch
           var batch = db.batch();
@@ -133,7 +151,7 @@ export default {
     if(Transaccion.data.envia=="Empresa"){
           // Update the population of 'SF'
           
-          var sfRef = db.collection("usuarios").doc(localStorage.getItem("iad")).collection("empresas").doc(empresa).collection('Zonas').doc(zona);
+          var sfRef = db.collection("usuarios").doc(this.datastorage.iad).collection("empresas").doc(empresa).collection('Zonas').doc(zona);
           batch.update(sfRef, {"balance": this.balance_zona});
 
 
@@ -143,22 +161,29 @@ export default {
               // console.log(Transaccion);
               // console.log(Transaccion.data);
               
-              this.transacccionservice.guardarHistorialTransaccion(localStorage.getItem("iad"),this.id_empresa,Transaccion.data).then(()=>{
+              this.transacccionservice.guardarHistorialTransaccion(this.datastorage.iad,this.id_empresa,Transaccion.data).then(()=>{
               this.$store.commit('setEliminarDatoTransferencia',Transaccion.id);  
               this.$f7.dialog.close();
               this.$f7.dialog.alert('Nuevo saldo '+Number(this.balance_zona).toLocaleString('es-CO',{style: 'currency',currency: 'COP',minimumSignificantDigits:1}),'Saldo actualizado!',()=>{
               
               // this.transacccionservice.eliminarTransaccionEmpresaZona(this.idad,empresa,zona,Transaccion.id)
               // db.collection('usuarios').doc(this.idad).collection('empresas').doc(empresa).collection('Zonas').doc(zona).collection('Transferencias').doc(Transaccion.id).delete()
-               this.transacccionservice.eliminarTransaccionEmpresaZona(localStorage.getItem("iad"),empresa,zona,Transaccion.id).then(()=>{
+               this.transacccionservice.eliminarTransaccionEmpresaZona(this.datastorage.iad,empresa,zona,Transaccion.id).then(()=>{
                 
               });
 
           }); 
-              });
+              }).catch((error)=>{
+                this.$f7.dialog.close()
+                 if(this.$store.getters.getModoDebugger){
+                  this.$store.commit('setErrorServices',error)
+                  this.$f7.dialog.alert('Ha ocurrido un error, por favor verifique el menu debug','Atencion!')
+                   console.log(error);
+          }
+       });
           });
     }else {
-        var sfRef = db.collection("usuarios").doc(localStorage.getItem("iad")).collection("empresas").doc(empresa).collection('Zonas').doc(zona);
+        var sfRef = db.collection("usuarios").doc(this.datastorage.iad).collection("empresas").doc(empresa).collection('Zonas').doc(zona);
           batch.update(sfRef, {"balance": this.balance_zona});
 
 
@@ -167,7 +192,7 @@ export default {
           batch.commit().then( () =>{
               console.log(Transaccion);
               
-              this.transacccionservice.guardarHistorialTransaccion(localStorage.getItem("iad"),this.id_empresa,Transaccion.data).then(()=>{
+              this.transacccionservice.guardarHistorialTransaccion(this.datastorage.iad,this.id_empresa,Transaccion.data).then(()=>{
               this.$store.commit('setEliminarDatoTransferencia',Transaccion.id);
                
               this.$f7.dialog.close();
@@ -177,13 +202,20 @@ export default {
              console.log(Transaccion.id);
               // this.transacccionservice.eliminarTransaccionEmpresa(this.idad,empresa,Transaccion.id).
               // db.collection('usuarios').doc(this.idad).collection('empresas').doc(empresa).collection('Transferencias').doc(Transaccion.id).delete()
-              this.transacccionservice.eliminarTransaccionEmpresa(localStorage.getItem("iad"),empresa,Transaccion.id).then(()=>{
+              this.transacccionservice.eliminarTransaccionEmpresa(this.datastorage.iad,empresa,Transaccion.id).then(()=>{
                 
               });
             
 
           }); 
-              });
+              }).catch((error)=>{
+                this.$f7.dialog.close()
+                 if(this.$store.getters.getModoDebugger){
+                  this.$store.commit('setErrorServices',error)
+                  this.$f7.dialog.alert('Ha ocurrido un error, por favor verifique el menu debug','Atencion!')
+                   console.log(error);
+          }
+       });
           });
 
     } 
@@ -198,8 +230,8 @@ export default {
      let transaccion= this.datos_transaccion[posicion];
      console.log(".........................transaccion",transaccion);
     
-     let uid = localStorage.getItem("uid");
-     this.id_empresa=localStorage.getItem("empresa");
+     let uid = this.datastorage.uid
+     this.id_empresa=this.datastorage.empresa
      this.id_zona = localStorage.getItem("zona")
      this.$store.commit('setEstadoTransferencia',1);
       
@@ -230,8 +262,8 @@ export default {
     //  transaccion.data.estado_transaccion=1
     if(transaccion.data.envia=='Empresa'){
        
-     let uid = localStorage.getItem("uid");
-     this.id_empresa=localStorage.getItem("empresa");
+     let uid = this.datastorage.uid
+     this.id_empresa= this.datastorage.empresa
      this.id_zona = localStorage.getItem("zona")
      this.$store.commit('setEstadoTransferencia',2);
      transaccion.data.estado_transaccion=2
@@ -242,12 +274,12 @@ export default {
       this.$f7.dialog.alert('transaccion cancelada','Atencion!',()=>{
       // this.identificacion=''
          let zona= localStorage.getItem("zona");
-       let empresa= localStorage.getItem("empresa");
+       let empresa= this.datastorage.empresa
           this.$store.commit('setDisminuyeContadorTransferencias');
           // this.transacccionservice.elminiarTransaccion(this.idad,this.id_empresa,this.id_zona);
-           this.transacccionservice.eliminarTransaccionEmpresaZona(localStorage.getItem("iad"),empresa,zona,transaccion.id).then(()=>{
-                this.$store.commit('setEliminarDatosTransferencia');  
-          this.$f7router.back();
+           this.transacccionservice.eliminarTransaccionEmpresaZona(this.datastorage.iad,empresa,zona,transaccion.id).then(()=>{
+                this.$store.commit('setEliminarDatosTransferencia',transaccion.id);  
+          // this.$f7router.back();
           });
           // this.transacccionservice.elminiarTransaccion(this.idad,this.id_empresa,transaccion.id);
           
@@ -282,7 +314,14 @@ export default {
 
       
         });
-      });
+      }).catch((error)=>{
+        this.$f7.dialog.close()
+                 if(this.$store.getters.getModoDebugger){
+                  this.$store.commit('setErrorServices',error)
+                  this.$f7.dialog.alert('Ha ocurrido un error, por favor verifique el menu debug','Atencion!')
+                   console.log(error);
+          }
+       });
     }
     else{
               this.datos_transaccion= this.$store.getters.getDatosTransferencia;
@@ -296,8 +335,8 @@ export default {
       console.log(".....................",transaccion);
     //  transaccion.data.estado_transaccion=1
 
-     let uid = localStorage.getItem("uid");
-     this.id_empresa=localStorage.getItem("empresa");
+     let uid = this.datastorage.uid
+     this.id_empresa= this.datastorage.empresa
      this.id_zona = localStorage.getItem("zona")
      this.$store.commit('setEstadoTransferencia',2);
     //  console.log(this.datos_transaccion[0]);
@@ -310,15 +349,22 @@ export default {
       this.$f7.dialog.alert('transaccion cancelada','Atencion!',()=>{
       // this.identificacion=''
          let zona= localStorage.getItem("zona");
-       let empresa= localStorage.getItem("empresa");
+       let empresa= this.datastorage.empresa
 
         
           // this.transacccionservice.elminiarTransaccion(this.idad,this.id_empresa,this.id_zona);
-           this.transacccionservice.eliminarTransaccionEmpresa(localStorage.getItem("iad"),empresa,transaccion.id).then(()=>{
+           this.transacccionservice.eliminarTransaccionEmpresa(this.datastorage.iad,empresa,transaccion.id).then(()=>{
               this.$store.commit('setDisminuyeContadorTransferencias');
-              this.$store.commit('setEliminarDatosTransferencia');  
-              this.$f7router.back();
-          });
+              this.$store.commit('setEliminarDatosTransferencia',transaccion.id);  
+              // this.$f7router.back();
+          }).catch((error)=>{
+            this.$f7.dialog.close()
+                 if(this.$store.getters.getModoDebugger){
+                  this.$store.commit('setErrorServices',error)
+                  this.$f7.dialog.alert('Ha ocurrido un error, por favor verifique el menu debug','Atencion!')
+                   console.log(error);
+          }
+       });
           
 
 
@@ -351,7 +397,14 @@ export default {
 
       
         });
-      });
+      }).catch((error)=>{
+        this.$f7.dialog.close()
+                 if(this.$store.getters.getModoDebugger){
+                  this.$store.commit('setErrorServices',error)
+                  this.$f7.dialog.alert('Ha ocurrido un error, por favor verifique el menu debug','Atencion!')
+                   console.log(error);
+          }
+       });
     }
     
    }

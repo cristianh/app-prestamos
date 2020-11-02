@@ -147,11 +147,9 @@ export default {
     },
     methods:{
       onSelectEmpresa($event){
-          console.log($event);
-          console.log(this.zonas_form.empresa);
+         
           let empresa=this.empresas_info.filter(x=>x.id==this.zonas_form.empresa);
-          console.log(empresa[0].Pais);
-          console.log(this.ciudades_data[0].ciudades_principales);
+         
            if(empresa[0].Pais==="Colombia"){ 
          for (const key in this.ciudades_data[0].ciudades_principales) {
             if (this.ciudades_data[0].ciudades_principales.hasOwnProperty(key)) {
@@ -170,7 +168,7 @@ export default {
           this.zonas_form.fecha=this.$moment(res.datetime).format("MM/DD/YYYY");
           this.zonaService.guardarZonaEmpresa(this.usuarioOnLogin,this.zonas_form.empresa,this.zonas_form).then(response=>{
             let mensaje=response.mensaje;
-            console.log(response);
+          
             if(mensaje){
                this.zonas_form={
           nombre:'',

@@ -146,29 +146,51 @@
                 localStorage.setItem("password", this.password);
             }
             console.log(response);
-             this.$f7.dialog.close();
+            
             const username = response.user;
             const id= response.user.displayName.split("-");
-            localStorage.setItem("uid", id[1]);
-            localStorage.setItem("email", response.user.email);
-            localStorage.setItem("name", id[0]);
-            localStorage.setItem("iad", id[2]);
-            localStorage.setItem("empresa", id[3]);
-            localStorage.setItem("lastactivity", response.user.metadata.lastSignInTime);
+            console.log("response.user.displayName",response.user.displayName)
             
-             this.$f7router.navigate('/home/', {
-            props: {
-                usuario: username.displayName
-            }
-            });
+            
+           
+            // console.log(localStorage);
+             this.$f7.dialog.close();
+
+            // localStorage.setItem("uid", id[1]);
+            // localStorage.setItem("email", response.user.email);
+            // localStorage.setItem("name", id[0]);
+            // localStorage.setItem("iad", id[2]);
+            // localStorage.setItem("empresa", id[3]);
+            // localStorage.setItem("lastactivity", response.user.metadata.lastSignInTime);
+
+        let datastorage={
+          uid:id[1],
+          email:response.user.email,
+          name:id[0],
+          iad: id[2],
+          empresa:id[3],
+          lastactivity: response.user.metadata.lastSignInTime
+        }
+
+        console.log("login estaore",JSON.stringify(datastorage));
+      
+      // this.$ls.set('foo', 'boo');
+            
+            localStorage.setItem("datainfologin", JSON.stringify(datastorage))
+             this.$store.commit('setLoadLocalStorage', datastorage) 
+            
             const self = this;
             const app = self.$f7;
             const router = self.$f7router;
-            // this.onDetectarTransacciones();
-           
-            // ...
+          
+            this.onVerificarInfo(datastorage,username)
             }).catch((error)=> {
               this.$f7.dialog.close();
+                   if(this.$store.getters.getModoDebugger){
+                  this.$store.commit('setErrorServices',error)
+                  this.$f7.dialog.alert('Ha ocurrido un error, por favor verifique el menu debug, se borraran el localstorage','Atencion!')
+                   console.log(error);
+          }
 
             localStorage.removeItem("uid");
             localStorage.removeItem("email");
@@ -187,6 +209,25 @@
             //this.error=errorMessage;
             this.error= this.errorloginValidador(error.code);
             });
+      },
+      onVerificarInfo(datastorage,username){
+        this.$f7.dialog.preloader('Verificando informacion...');
+       
+      
+        setTimeout(()=>{
+        this.$f7.dialog.close()
+         this.$f7router.navigate('/home/', {
+            props: {
+                usuario: username.displayName
+            }
+            });
+        },2500)
+       
+       
+  
+     
+        
+        
       },
       errorloginValidador(error_code){
             switch (error_code) {

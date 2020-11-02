@@ -420,6 +420,7 @@ import ClientesService from '../Services/ClientesService.js';
   export default {
    data() {
        return {
+         datastorage:{},
          validar_campos:false,
          form:{
                 posicion:0,
@@ -481,9 +482,12 @@ import ClientesService from '../Services/ClientesService.js';
   methods: {
     onActualizarClienteCobrador(){
       this.$f7.dialog.preloader('Actualizando Informacion...');
-    this.idad=localStorage.getItem("iad");
-     let ui_cobrador=localStorage.getItem("uid"); 
-     let id_empresa=localStorage.getItem("empresa"); 
+    // this.idad=localStorage.getItem("iad");
+    //  let ui_cobrador=localStorage.getItem("uid"); 
+    //  let id_empresa=localStorage.getItem("empresa"); 
+    this.idad=this.datastorage.iad
+     let ui_cobrador=this.datastorage.uid
+     let id_empresa=this.datastorage.empresa
 
               this.clientes_info.usuario.identificacion=this.form.usuario.identificacion
               this.clientes_info.usuario.nombre=this.form.usuario.nombre
@@ -529,6 +533,13 @@ import ClientesService from '../Services/ClientesService.js';
                this.$f7.popup.close();
                 this.$f7.dialog.close();
                 this.$f7router.back();
+      }).catch((error)=>{
+        this.$f7.dialog.close()
+        if(this.$store.getters.getModoDebugger){
+                  this.$store.commit('setErrorServices',error)
+                  this.$f7.dialog.alert('Ha ocurrido un error, por favor verifique el menu debug','Atencion!')
+                   console.log(error);
+          }
       });
     },
     onValidatedInput(isValid){
@@ -598,9 +609,26 @@ import ClientesService from '../Services/ClientesService.js';
     
   },
   beforeMount() {
-    this.idad=localStorage.getItem("iad");
-     let ui_cobrador=localStorage.getItem("uid"); 
-     let id_empresa=localStorage.getItem("empresa"); 
+     let localstoragedata=localStorage.getItem('datainfologin')
+      if(localstoragedata==null){
+          this.$store.watch(() => this.$store.getters.getDatasStorage, datainfo => { 
+        console.log("datastores",this.$store.getters.getDatasStorage)
+        // console.log('watched: ', EstadosCobrosGuardados) 
+       this.datastorage=datainfo
+      //  console.log("datastores",this.data_store)
+    //    this.idad=this.datastorage.iad
+       
+      })
+      }else{
+      
+      this.datastorage=JSON.parse(localstoragedata)
+      console.log("datastores",this.datastorage)
+    //    this.idad=this.datastorage.iad
+    }
+
+    this.idad=this.datastorage.iad
+     let ui_cobrador=this.datastorage.uid
+     let id_empresa=this.datastorage.empresa
      this.$f7.dialog.preloader("Buscando Informacion...");
           this.cobradoresService.getCobradoresClientesBuscar(this.idad,id_empresa,ui_cobrador,this.$f7route.params.id).then( (response) =>  {
               this.clientes_info=response.data;
@@ -644,8 +672,13 @@ import ClientesService from '../Services/ClientesService.js';
     //                    this.$refs.mapRef.$mapPromise.then((map) => {
     //   map.panTo(this.clientes_info.geolocalizacion)
     // })
-          }).catch(error => {
-              console.log(error);
+          }).catch((error) => {
+            this.$f7.dialog.close()
+              if(this.$store.getters.getModoDebugger){
+                  this.$store.commit('setErrorServices',error)
+                  this.$f7.dialog.alert('Ha ocurrido un error, por favor verifique el menu debug','Atencion!')
+                   console.log(error);
+          }
           }); 
  
   },

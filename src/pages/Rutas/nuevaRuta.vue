@@ -229,6 +229,7 @@ import qs from 'qs';
 export default {
     data() {
         return {
+          datastorage:{},
             form_rutas:{
               nombre:'',
               descripcion:'',
@@ -236,12 +237,30 @@ export default {
             }
         }
     },
+    beforeMount() {
+      let localstoragedata=localStorage.getItem('datainfologin')
+      if(localstoragedata==null){
+        this.$store.watch(() => this.$store.getters.getDatasStorage, datainfo => { 
+        console.log("datastores",this.$store.getters.getDatasStorage)
+        // console.log('watched: ', EstadosCobrosGuardados) 
+       this.datastorage=datainfo
+      //console.log("datastores",this.data_store)
+      //this.idad=this.datastorage.iad
+       
+      })
+      }else{
+      
+      this.datastorage=JSON.parse(localstoragedata)
+      console.log("datastores",this.datastorage)
+      //this.idad=this.datastorage.iad
+      }
+    },
     methods: {
       onGuardarNuevaRuta() {
         // Sort data
          const self = this;
         self.$f7.dialog.preloader('Guardando...');
-          let ui_cobrador=localStorage.getItem("uid"); 
+          let ui_cobrador=this.datastorage.uid
       axios.post(`https://us-central1-manifest-life-279516.cloudfunctions.net/CobradoresGuardarRutas?doc=${ui_cobrador}&sub=Rutas`,qs.stringify(this.form_rutas), {
             method: 'POST',
             headers: { 'content-type': 'application/x-www-form-urlencoded' },
@@ -256,7 +275,14 @@ export default {
        }
        this.$store.commit('addNewZona',data);
        this.$f7router.back()
-      });
+      }).catch((error)=>{
+        this.$f7.dialog.close()
+                 if(this.$store.getters.getModoDebugger){
+                  this.$store.commit('setErrorServices',error)
+                  this.$f7.dialog.alert('Ha ocurrido un error, por favor verifique el menu debug','Atencion!')
+                   console.log(error);
+          }
+       });
   }
 }
 }

@@ -167,7 +167,7 @@ export default {
             :dias_con_mora>5 ? 'danger' : 'secondary'
     },
      onCancel() {
-              console.log('User cancelled the loader.')
+              
      },
      onSelectdEmpresa($event){
             this.empresaseleccionada=$event.target.value
@@ -183,7 +183,7 @@ export default {
                 
                   let element={ value: tamporal_Zonas[key].id, label: tamporal_Zonas[key].nombre };
                   this.zonas.push(element);
-                  // console.log(this.zonas);
+                  
             }
         }   
              
@@ -193,12 +193,12 @@ export default {
          let tamporal_Clientes=[];
             this.cobradores=[{ value: 'Seleccione', label: 'Seleccione' }];
              this.isLoading = true;
-            console.log("...",this.usuario.zonas);
+           
             // let empresa=localStorage.getItem('empresa');
             this.cobradorservice.buscarCobradorPorZona(this.usuarioOnLogin,this.empresaseleccionada,this.usuario.zonas).then((response)=>{ 
-              console.log(response);
+              
               this.clienteservices.getAllClientesCobradores(this.usuarioOnLogin,this.empresaseleccionada,response.data.id).then((response)=>{
-              console.log(response);
+             
               this.isLoading = false;
             // tamporal_Clientes=response;
             // for (const key in tamporal_Clientes) {
@@ -212,9 +212,7 @@ export default {
             let usuarios=[];
             
             response.data.forEach(element => {
-              console.log(element.data);
-            // console.log(typeof(usuarios));
-            // console.log(Object.values(usuarios));
+            
             let Usuario=element.data.usuario;
             let Prestamos=element.data.prestamos[0];
             let Completo=Object.assign(Usuario, Prestamos);

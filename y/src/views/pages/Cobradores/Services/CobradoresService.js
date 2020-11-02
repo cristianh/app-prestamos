@@ -15,8 +15,12 @@ export default class CobradoresService {
         }).then(response => response).catch(error => { return error });
     }
 
-    getZonaCobrador(id_admin, id_empresa, id_zona) {
-        return axios.get(`buscarZonaCobrador?idadmin=${id_admin}&idempresa=${id_empresa}&zona=${id_zona}`).then(response => response).catch(error => { return error });
+    // getZonaCobrador(id_admin, id_empresa, id_zona) {
+    //     return axios.get(`buscarZonaCobrador?idadmin=${id_admin}&idempresa=${id_empresa}&zona=${id_zona}`).then(response => response).catch(error => { return error });
+    // }
+
+    getBuscarZonaCobrador(id_admin, id_empresa, id_zona) {
+        return axios.get(`buscarZonaCobrador?idadmin=${id_admin}&idempresa=${id_empresa}&doc=${id_zona}`).then(response => response).catch(error => { return error });
     }
 
     getBorrarCobrador(id_admin, id_empresa, id_documento) {

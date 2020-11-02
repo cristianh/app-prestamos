@@ -33,21 +33,15 @@ import NotificacionPage from '../pages/Notificaciones/Notificacion.vue';
 //InformeDia 
 import InformeDiaPage from '../pages/InformesDia/informesDia.vue';
 
-//Defaul
-// import DynamicRoutePage from '../pages/dynamic-route.vue';
-// import RequestAndLoad from '../pages/request-and-load.vue';
-// import AboutPage from '../pages/about.vue';
-// import FormPage from '../pages/form.vue';
-// import CatalogPage from '../pages/catalog.vue';
-// import ProductPage from '../pages/product.vue';
-
+// Debugger
+import DebuggerInfo from '../pages/Debugger/debuggerPage.vue';
 
 
 var routes = [{
         path: '/',
         //component: Login,
         async(routeTo, routeFrom, resolve, reject) {
-            if (localStorage.getItem("username")) {
+            if (localStorage.getItem("username") && localStorage.getItem("password")) {
                 resolve({
                     component: HomePage,
                 });
@@ -57,6 +51,10 @@ var routes = [{
                 });
             }
         }
+    },
+    {
+        path: '/debugger',
+        component: DebuggerInfo,
     },
     {
         path: '/rutas',

@@ -166,6 +166,7 @@ import TransaccionService from '../Services/TransaccionServices.js';
 export default {
     data() {
         return {
+          datastorage:{},
           idad:'',
           uid:'',
           id_zona:'',
@@ -205,9 +206,26 @@ export default {
         }
     },
     beforeMount(){
-      this.idad=localStorage.getItem("iad");
-      this.uid = localStorage.getItem("uid");
-      this.id_empresa=localStorage.getItem("empresa");
+      let localstoragedata=localStorage.getItem('datainfologin')
+      if(localstoragedata==null){
+        this.$store.watch(() => this.$store.getters.getDatasStorage, datainfo => { 
+        console.log("datastores",this.$store.getters.getDatasStorage)
+        // console.log('watched: ', EstadosCobrosGuardados) 
+       this.datastorage=datainfo
+      //console.log("datastores",this.data_store)
+      //this.idad=this.datastorage.iad
+       
+      })
+      }else{
+      
+      this.datastorage=JSON.parse(localstoragedata)
+      console.log("datastores",this.datastorage)
+      //this.idad=this.datastorage.iad
+      }
+
+      this.idad=this.datastorage.iad
+      this.uid = this.datastorage.uid
+      this.id_empresa=this.datastorage.empresa
       this.id_zona = localStorage.getItem("zona")
       this.clientes=this.$store.getters.getOrdenarClientes;
       // this.transaccionservice.getTransaccionesPendiente(this.idad,this.id_empresa,this.id_zona).then((resp)=>{
@@ -313,7 +331,7 @@ export default {
        updateValorBalance(){
          
        let zona= localStorage.getItem("zona");
-       let empresa= localStorage.getItem("empresa");
+       let empresa= this.datastorage.empresa
 
        // Get a new write batch
 var batch = db.batch();
@@ -369,8 +387,8 @@ batch.commit().then( () =>{
        this.opcionseleccionadazona=id_zona;
        console.log(nombre_zona);
        
-       let usuarioOnLogin=localStorage.getItem('iad');
-       let id_empresa=localStorage.getItem('empresa');
+       let usuarioOnLogin=this.datastorage.iad
+       let id_empresa=this.datastorage.empresa
       //  this.$f7.dialog.preloader('Cargando informacion...');
        this.form_transaccion.idCobrador_recibe=this.opcionseleccionadazona;
        this.form_transaccion.nombre_zona_recibe=nombre_zona;
@@ -445,9 +463,9 @@ batch.commit().then( () =>{
             this.$f7.dialog.alert('No se puede realizar la transaccion, no hay saldo disponible de la zona','Atencion!');
         }else{
         
-        this.form_transaccion.idCobrador_envia=localStorage.getItem('uid');
-        this.form_transaccion.enviado_por=localStorage.getItem('name');
-        this.form_transaccion.idEmpresa_cobrador=localStorage.getItem('empresa');
+        this.form_transaccion.idCobrador_envia=this.datastorage.uid
+        this.form_transaccion.enviado_por=this.datastorage.name
+        this.form_transaccion.idEmpresa_cobrador=this.datastorage.empresa
         
       
       this.$f7.dialog.confirm('Desea realizar la transaccion','Seguro!', () => {
@@ -474,7 +492,12 @@ batch.commit().then( () =>{
         this.updateValorBalance();
     })
     .catch((error)=> {
-        console.error("Error writing document: ", error);
+      this.$f7.dialog.close()
+                if(this.$store.getters.getModoDebugger){
+                  this.$store.commit('setErrorServices',error)
+                  this.$f7.dialog.alert('Ha ocurrido un error, por favor verifique el menu debug','Atencion!')
+                   console.log(error);
+          }
     });
         }
         else{
@@ -501,7 +524,12 @@ batch.commit().then( () =>{
         this.updateValorBalance();
     })
     .catch((error)=> {
-        console.error("Error writing document: ", error);
+      this.$f7.dialog.close()
+                if(this.$store.getters.getModoDebugger){
+                  this.$store.commit('setErrorServices',error)
+                  this.$f7.dialog.alert('Ha ocurrido un error, por favor verifique el menu debug','Atencion!')
+                   console.log(error);
+          }
     });
         }
      
@@ -514,9 +542,9 @@ batch.commit().then( () =>{
    },
    onDetectarTrasccionesPendientes(){ 
         this.$store.commit('setEliminarDatosTransferenciaPendiente');
-        let idCobrador=localStorage.getItem('uid');
-        let idad=localStorage.getItem("iad");
-        let idempresa=localStorage.getItem("empresa");
+        let idCobrador=this.datastorage.uid
+        let idad=this.datastorage.iad
+        let idempresa=this.datastorage.empresa
         let idzona=localStorage.getItem("zona");
 
     // db.collection("usuarios").doc(this.idad).collection("empresas").doc(idempresa).collection('Transferencias').doc('nueva_transaccion')

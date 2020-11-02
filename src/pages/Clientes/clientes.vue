@@ -7,7 +7,17 @@
       <f7-nav-title sliding>Clientes</f7-nav-title>
      <f7-nav-right>
         <f7-link  tooltip="Nuevo cliente" size="21px" href="/cliente_nuevo/" color="green" icon-ios="f7:person_add_alt_1" icon-aurora="f7:person_add_alt_1" icon-md="material:person_add_alt_1" ></f7-link>
+        <f7-link  tooltip="Filtro" popover-open=".popover-menu-filter" size="21px" color="green" icon-ios="f7:filter_list" icon-aurora="f7:filter_list" icon-md="material:filter_list" ></f7-link>
+        <!-- <f7-button fill  popover-open=".popover-menu" class="boton-no-pago"  color="red">No PAGO</f7-button> -->
       </f7-nav-right>
+      <f7-popover class="popover-menu-filter">
+        <f7-block-title>Buscar por: </f7-block-title>
+        <f7-list>
+  <f7-list-item radio value="Nombre" @click="onCloseFilterPopup" checked @change="filtrobusqueda=$event.target.value" name="radio" checked title="Nombre"></f7-list-item>
+  <f7-list-item radio value="Cedula" @click="onCloseFilterPopup" @change="filtrobusqueda=$event.target.value" name="radio" title="Cedula"></f7-list-item>
+</f7-list>
+  </f7-popover>
+    
     
 
       <!-- <f7-searchbar
@@ -54,7 +64,7 @@
                    <f7-block-title >Clientes</f7-block-title>
         <f7-list  class="search-list searchbar-found" media-list  >
           <!-- :link="`/cliente_detalles/${cliente.id}/`" -->
-          
+          {{filtrobusqueda}}
         <f7-list-item swipeout   v-for="(cliente,index,key) in getClientesLista" 
           :id=cliente.id :key="key"  
            :text="`Cedula: ${cliente.data.usuario.identificacion}`" 
@@ -186,12 +196,13 @@
         <f7-list-input
         wrap
         type="text"
-        placeholder="Buscar por nombre..."
+        :placeholder="`Buscar por ${filtrobusqueda.toLowerCase()}...`"
         clear-button
         pattern="/^[A-Za-z]+$/"
         @input="busqueda=$event.target.value"
       
       ></f7-list-input>
+ 
  </f7-list>
   </f7-toolbar>
    <!-- Will morph to Toolbar -->
@@ -216,6 +227,7 @@ export default {
   },
     data() {
         return {
+            filtrobusqueda:'Nombre',
             busqueda:'',
             idad:'',
             clientes:[],
@@ -250,7 +262,8 @@ export default {
               saldo_pendiente:0,
               saldo_pago_dia:0
             },
-            valor_sin_puntos:0
+            valor_sin_puntos:0,
+            data_store:''
         }
     },
     watch: {
@@ -278,8 +291,14 @@ export default {
         return temporarlistaclientes
       }else{
          return temporarlistaclientes.filter(cliente => {
-        let nombreCompleto= cliente.data.usuario.nombre+' '+cliente.data.usuario.apellido
-         return nombreCompleto.toLowerCase().includes(this.busqueda.toLowerCase()) 
+           if(this.filtrobusqueda=='Nombre'){
+             let nombreCompleto= cliente.data.usuario.nombre+' '+cliente.data.usuario.apellido
+             return nombreCompleto.toLowerCase().includes(this.busqueda.toLowerCase()) 
+
+           }else{
+             return cliente.data.usuario.identificacion.toLowerCase().includes(this.busqueda.toLowerCase()) 
+           }
+        
       //  return 
        }); 
       }
@@ -288,10 +307,35 @@ export default {
     }
   },
     beforeCreate() {
-     
+      
     },
     beforeMount(){
-      this.idad=localStorage.getItem("iad");
+      // for (const key in localStorage) {
+      //   if (localStorage.hasOwnProperty('datainfologin')) {
+      //     const element = localStorage[key];
+      //     console.log("datainfologin???????????",element)
+          
+      //   }
+      // }
+      let localstoragedata=localStorage.getItem('datainfologin')
+      console.log(JSON.parse(localstoragedata));
+      console.log("datastores",this.$store.getters.getDatasStorage)
+      if(localstoragedata==null){
+          this.$store.watch(() => this.$store.getters.getDatasStorage, datainfo => { 
+        console.log("datastores",this.$store.getters.getDatasStorage)
+        // console.log('watched: ', EstadosCobrosGuardados) 
+       this.data_store=datainfo
+      //  console.log("datastores",this.data_store)
+       this.idad=this.data_store.iad
+       
+      })
+      }else{
+      let localstoragedata=localStorage.getItem('datainfologin')
+      this.data_store=JSON.parse(localstoragedata)
+      console.log("datastores",this.data_store)
+       this.idad=this.data_store.iad
+      }
+           
       this.clientes=this.$store.getters.getOrdenarClientes;
       this.numero_clientes=this.clientes.length;
       if(this.numero_clientes==1){
@@ -306,6 +350,9 @@ export default {
  
     },
     methods: {
+      onCloseFilterPopup(){
+        this.$f7.popover.close('.popover-menu-filter');
+      },
       onClickClientePaginaDetalles(clienteId){
       this.$f7router.navigate(`/cliente_detalles/${clienteId}/`);
     },
@@ -343,14 +390,17 @@ export default {
     updateBalanceValor(){
       
        let zona= localStorage.getItem("zona");
-       let empresa= localStorage.getItem("empresa");
+      
+       console.log(zona)
+       console.log(this.data_store.empresa)
+       console.log(this.idad)
 
        // Get a new write batch
 var batch = db.batch();
 
 // Update the population of 'SF'
 
-var sfRef = db.collection("usuarios").doc(this.idad).collection("empresas").doc(empresa).collection('Zonas').doc(zona);
+var sfRef = db.collection("usuarios").doc(this.idad).collection("empresas").doc(this.data_store.empresa).collection('Zonas').doc(zona);
 batch.update(sfRef, {"balance": this.balance_zona});
 
 this.valor_sin_puntos=0;
@@ -471,13 +521,14 @@ batch.commit().then( ()=> {
         });
       }else{
 
-            const self = this;
+          const self = this;
           const app = this.$f7;
-          let ui_cobrador=localStorage.getItem("uid");
+          let ui_cobrador=this.data_store.uid
+          let id_empresa=this.data_store.empresa
+          let id_admin=this.data_store.iad
+
           self.$f7.dialog.preloader('Guardando prestamo...');
           this.info_prestamo.cliente=this.cliente_seleccionado;
-          let id_empresa=localStorage.getItem("empresa");
-          let id_admin=localStorage.getItem("iad");
           // this.info_prestamo.valor=this.info_prestamo.valor.replace('.', "");
           let valor_prestamo=this.info_prestamo.valor;
           let taza_seleccionada_interes= this.tazaseleccionada;
@@ -494,10 +545,11 @@ batch.commit().then( ()=> {
           // alert(this.id)
           if(this.id==undefined || this.id==null){
              
-            this.id=localStorage.getItem("iad");
-            // alert(this.id)
+            this.id=this.data_store.iad
+            
           }
-          this.abonoService.guardarAbonosPrestamos(this.id,id_empresa,ui_cobrador,this.info_prestamo.cliente,this.info_prestamo).then( (response) =>  {
+          console.log(this.id,this.data_store.empresa,this.data_store.uid,this.info_prestamo.cliente,this.info_prestamo)
+          this.abonoService.guardarAbonosPrestamos(this.id,this.data_store.empresa,this.data_store.uid,this.info_prestamo.cliente,this.info_prestamo).then( (response) =>  {
           let saldo_actual=  localStorage.getItem("saldo_zona");
           // this.info_prestamo.valor=this.info_prestamo.valor.replace('.', "");
           let saldo_valor=   this.info_prestamo.valor;
@@ -535,6 +587,13 @@ batch.commit().then( ()=> {
          
 
           
+       }).catch((error)=>{
+         this.$f7.dialog.close()
+                 if(this.$store.getters.getModoDebugger){
+                  this.$store.commit('setErrorServices',error)
+                  this.$f7.dialog.alert('Ha ocurrido un error, por favor verifique el menu debug','Atencion!')
+                   console.log(error);
+          }
        });
        
       }

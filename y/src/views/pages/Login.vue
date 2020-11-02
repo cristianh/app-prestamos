@@ -85,7 +85,7 @@ export default {
                   firebase.auth().signInWithEmailAndPassword(this.username, this.password).then((response)=> {
                    
                     const info= response.user.displayName.split("-");
-                // console.log(info);
+               
                      const usuario_login={
                        'id':info[1],
                        'username':response.user,
@@ -101,7 +101,7 @@ export default {
                      localStorage.setItem('ultimaconexion',response.user.metadata.lastSignInTime);
                      localStorage.setItem('rol',info[2]);
 
-                      // console.log(usuario_login);
+                  
                     //this.$store.commit('setUsurioLogin',usuario_login);
             
                     if(info[2]=='administrador'){
@@ -120,8 +120,7 @@ export default {
                     
                     //var errorCode = error.code;
                   //  var errorMessage = error.message;
-                  // console.log();
-                  console.log(error.message);
+            
                   switch (error.code) {
               case 'auth/user-not-found':
                  this.error= 'No hay ningún registro de usuario que corresponda a este identificador o usuario puede haber sido eliminado.';

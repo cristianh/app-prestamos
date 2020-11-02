@@ -19,6 +19,7 @@
   <f7-list-button panel-close><f7-link   tab-link="#view-modificarabono" color="black" icon-ios="f7:create" icon-aurora="f7:create" icon-md="material:create" >Modificar Abono</f7-link></f7-list-button>
   <!-- <f7-list-button panel-close><f7-link   tab-link="#view-eliminarabono" color="black" icon-ios="f7:delete" icon-aurora="f7:delete" icon-md="material:delete" >Eliminar Abono</f7-link></f7-list-button> -->
   <f7-list-button panel-close><f7-link   tab-link="#view-informedia" color="black" icon-ios="f7:today" icon-aurora="f7:today" icon-md="material:today" >Resumen del dia</f7-link></f7-list-button>
+  <f7-list-button panel-close v-if="modoDebugger"><f7-link   tab-link="#view-debugger" color="black" icon-ios="f7:whatshot" icon-aurora="f7:whatshot" icon-md="material:whatshot" >Debugger</f7-link></f7-list-button>
   <!-- <f7-list-button panel-close><f7-link   color="black" icon-ios="f7:cancel" icon-aurora="f7:cancel" icon-md="material:cancel" >Terminar ruta</f7-link></f7-list-button>   -->
   <f7-list-button @click="exitApp" ><f7-link   color="black" icon-ios="f7:exit_to_app" icon-aurora="f7:exit_to_app" icon-md="material:exit_to_app" >Salir</f7-link></f7-list-button>
 </f7-list>
@@ -53,6 +54,9 @@
 
    <!-- Modificar eliminar
     <f7-view id="view-eliminarabono" name="settings" tab url="/eliminar_abonos/"></f7-view> -->
+
+       <!-- Debugger -->
+    <f7-view id="view-debugger" name="debugger" tab url="/debugger/"></f7-view>
 
     <!-- Pendientes -->
     <f7-view id="view-pendientes" name="pendiente" tab url="/pendientes/"></f7-view>
@@ -138,6 +142,7 @@
             return {
 
               // Demo products for Catalog section
+              modoDebugger:'',
               idad:'',
               products: [
                 {
@@ -182,6 +187,12 @@
         password: '',
       }
     },
+    beforeMount() {
+      //Activamos o desativamos el modo debugger.
+      this.$store.commit('setModoDebuggerActive',true)
+      this.modoDebugger=this.$store.getters.getModoDebugger
+
+    },
     methods: {
       alertLoginData() {
         
@@ -189,8 +200,7 @@
       exitApp(){
         window.close();
         // cordovaApp.
-        // console.log(navigator);
-        console.log(window.navigator);
+       
         
         if (typeof cordovaApp !== 'undefined') {
             cordovaApp.closeApp();

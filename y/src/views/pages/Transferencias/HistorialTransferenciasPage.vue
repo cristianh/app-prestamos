@@ -88,7 +88,7 @@ export default {
     fields: {
       type: Array,
       default () {
-        return ['envia','mensaje', 'estado_transaccion', 'fecha', 'hora','valor']
+        return ['envia','recibe','mensaje','estado_transaccion', 'fecha', 'hora','valor']
       }
     },
     caption: {
@@ -128,15 +128,15 @@ export default {
   },
   methods: {
      onCancel() {
-              console.log('User cancelled the loader.')
+             
      },
        onSelectdEmpresa(){
            this.usuarioOnLogin=localStorage.getItem('id');
            this.isLoading = true;
            if(this.usuario.empresa!='Seleccione'){
-             console.log(this.usuario.empresa);
+             
            this.transaccionservice.getHistorialTransaccion(this.usuarioOnLogin,this.usuario.empresa).then((res)=>{
-              console.log(res.data);
+             
               this.isLoading = false;
               if(res.data!='Not Found'){
                 this.items=Object.values(res.data);

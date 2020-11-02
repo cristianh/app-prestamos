@@ -3,7 +3,7 @@
  
     <f7-navbar >
         <f7-nav-left>
-        <f7-link icon-ios="f7:menu" icon-aurora="f7:menu" icon-md="material:menu" panel-open="left"></f7-link>
+        <f7-link icon-ios="f7:menu" icon-aurora="f7:menu" icon-md="material:menu"  panel-open="left"></f7-link>
       </f7-nav-left>
       <f7-nav-title sliding>Informe del dia</f7-nav-title>
     </f7-navbar>
@@ -21,7 +21,7 @@
     @input="fecha_busqueda=$event.target.value"
   >
   </f7-list-input>
-    <f7-button  fill color="red" @click="onGenerarInforme"><f7-icon material="search"></f7-icon></f7-button>
+    <f7-button  fill color="red" @click="onGenerarInforme">BUSCAR<f7-icon material="search"></f7-icon></f7-button>
    </f7-list>
 
  
@@ -141,7 +141,7 @@
       </f7-block>
     </f7-accordion-content>
   </f7-list-item>
-  <f7-list-item v-else accordion-item :title="`Cobros no realizados el dia ${fecha_busqueda}`">
+  <f7-list-item v-else accordion-item :title="`Cobros no realizados`">
     <f7-accordion-content>
         <f7-card>   
           <f7-card-content>
@@ -152,7 +152,7 @@
   </f7-list-item>
 </f7-list> 
 </f7-block>
- <f7-block v-else>
+ <f7-block v-if="consulta.length==0 && buscar==true">
         <f7-card>   
           <f7-card-content>
               No se encontraron resultados
@@ -174,6 +174,8 @@ export default {
   },
     data() {
         return {
+            buscar:false,
+            datastorage:{},
             fecha_busqueda:new Date().toISOString().slice(0,10),
             hoy:new Date().toISOString().slice(0,10),
             cobradorservice:null,
@@ -211,17 +213,62 @@ export default {
     },
 });
     },
-    
+    beforeMount() {
+      let localstoragedata=localStorage.getItem('datainfologin')
+      if(localstoragedata==null){
+        this.$store.watch(() => this.$store.getters.getDatasStorage, datainfo => { 
+        console.log("datastores",this.$store.getters.getDatasStorage)
+        // console.log('watched: ', EstadosCobrosGuardados) 
+       this.datastorage=datainfo
+      //console.log("datastores",this.data_store)
+      //this.idad=this.datastorage.iad
+       
+      })
+      }else{
+      
+      this.datastorage=JSON.parse(localstoragedata)
+      console.log("datastores",this.datastorage)
+      //this.idad=this.datastorage.iad
+      }
+    },
     methods: {
+        onLimpiarInformacion(){
+          this.cobros={
+              "data": [
+                  
+              ]
+          }
+          this.nopagos={
+              "data": [
+                  
+              ]
+          },
+          this.prestamos={
+              "data": [
+                  
+              ]
+          },
+          this.jornada_dia={
+              "data": [
+                  
+              ]
+          }
+        },
         onGenerarInforme(){
             this.$f7.dialog.preloader('Buscando Informacion...');
-            let ui_cobrador=localStorage.getItem("uid");
-            let id_admin=localStorage.getItem("iad");
+            this.onLimpiarInformacion()
+            // let ui_cobrador=localStorage.getItem("uid");
+            // let id_admin=localStorage.getItem("iad");
+            // let id_jornadacobrador=localStorage.getItem("idjornadacobrador");
+            // let id_empresa=localStorage.getItem("empresa");
+            let ui_cobrador=this.datastorage.uid
+            let id_admin=this.datastorage.iad
             let id_jornadacobrador=localStorage.getItem("idjornadacobrador");
-            let id_empresa=localStorage.getItem("empresa");
+            let id_empresa=this.datastorage.empresa
             this.fecha_busqueda=this.$moment(this.fecha_busqueda).format("MM-DD-YYYY")
             console.log(this.fecha_busqueda);
             this.cobradorservice.getInformeDia(id_admin,id_empresa,ui_cobrador,{fecha:this.fecha_busqueda}).then((res)=>{
+                this.buscar=true
                 console.log(res);
                 this.$f7.dialog.close()
                 this.consulta=res.data
@@ -232,7 +279,7 @@ export default {
                 }
                 
                  if(res.data.cobros.length>=1){
-                this.cobros.data.push(res.data.cobros[0])
+                // this.cobros.data.push(res.data.cobros[0])
                  for (const key in res.data.cobros) {
                   if (res.data.cobros.hasOwnProperty(key)) {
                     const element = res.data.cobros[key];
@@ -271,16 +318,15 @@ export default {
                     this.consulta=[]
                 }else{
                      this.consulta=[]
-                }
-                
-                
-                
-                // this.jornada_dia.data=res.data.jornada_dia[0].data
-                // this.jornada_dia= }
-                // this.jornada_dia=[res.data.jornada_dia.slice(0,5),[]]
-                
-                
-            })
+                }                
+            }).catch((error)=>{
+              this.$f7.dialog.close()
+                 if(this.$store.getters.getModoDebugger){
+                  this.$store.commit('setErrorServices',error)
+                  this.$f7.dialog.alert('Ha ocurrido un error, por favor verifique el menu debug','Atencion!')
+                   console.log(error);
+          }
+       });
         }
     },
 }

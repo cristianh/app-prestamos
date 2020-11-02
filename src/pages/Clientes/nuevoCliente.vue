@@ -347,6 +347,7 @@ import ciudadesData from '@/pages/Ciudades/Ciudades.js'
 export default {
     data() {
         return {
+          datastorage:{},
           ciudades_data:ciudadesData,
           ciudades:[],
           error_mensaje:'',
@@ -470,8 +471,26 @@ export default {
        navigator.geolocation.getCurrentPosition(this.onSuccessGeolocalizacion, this.onErrorGeolocalizacio);
     },
     beforeMount() {
+
+      let localstoragedata=localStorage.getItem('datainfologin')
+      if(localstoragedata==null){
+          this.$store.watch(() => this.$store.getters.getDatasStorage, datainfo => { 
+        console.log("datastores",this.$store.getters.getDatasStorage)
+        // console.log('watched: ', EstadosCobrosGuardados) 
+       this.datastorage=datainfo
+      //  console.log("datastores",this.data_store)
+    //    this.idad=this.datastorage.iad
+       
+      })
+      }else{
+      
+      this.datastorage=JSON.parse(localstoragedata)
+      console.log("datastores",this.datastorage)
+    //    this.idad=this.datastorage.iad
+    }
+
       this.clientes=this.$store.getters.getClientes;
-      this.idad=localStorage.getItem("iad");
+      this.idad=this.datastorage.iad
       for (const key in this.ciudades_data[0].ciudades_principales) {
             if (this.ciudades_data[0].ciudades_principales.hasOwnProperty(key)) {
                 
@@ -565,9 +584,12 @@ export default {
 
      const self = this;
      self.$f7.dialog.preloader('Guardando...');
-     let ui_cobrador=localStorage.getItem("uid");
-     let idadmin=localStorage.getItem("iad");
-     let idmpresa=localStorage.getItem("empresa");
+    //  let ui_cobrador=localStorage.getItem("uid");
+    //  let idadmin=localStorage.getItem("iad");
+    //  let idmpresa=localStorage.getItem("empresa");
+     let ui_cobrador=this.datastorage.uid
+     let idadmin=this.datastorage.iad
+     let idmpresa=this.datastorage.empresa
      this.form.posicion=Number(this.$store.getters.getContadorClientes)+1;
       this.cobradoresClientesService.guardarClienteCobrador(this.idad,idmpresa,ui_cobrador,this.form).then( (response) =>  {
       
@@ -599,7 +621,12 @@ export default {
         this.$f7router.back()
         
     }).catch(error => {
-        console.log(error);
+      this.$f7.dialog.close()
+               if(this.$store.getters.getModoDebugger){
+                  this.$store.commit('setErrorServices',error)
+                  this.$f7.dialog.alert('Ha ocurrido un error, por favor verifique el menu debug','Atencion!')
+                   console.log(error);
+          }
     }); 
           }
         }

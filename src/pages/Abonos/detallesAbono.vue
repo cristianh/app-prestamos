@@ -241,6 +241,9 @@ import CobradorService from '../Services/CobradoresServices.js';
   export default {
    data() {
        return {
+            datastorage:{},
+            ui_cobrador:'',
+            idempresa:'',
             lista_cobros_clientes:[],
             idad:'',
             id :this.$f7route.params.id,
@@ -306,7 +309,7 @@ import CobradorService from '../Services/CobradoresServices.js';
        this.$f7router.back();
         // this.$store.commit('setDisminuyeContadorClientesListaPrestamos');
       // state.clientes_cobros.splice(posicion, 1);
-      //  console.log(cliente);
+     
       // elemento.estado_pago_prestamo.pendiente=true
       // elemento.estado_pago_prestamo.nopago=false
       // elemento.estado_pago_prestamo.pago=false
@@ -332,7 +335,7 @@ import CobradorService from '../Services/CobradoresServices.js';
         // popoeveBotonNoPago.closeByBackdropClick=false;
         // popoeveBotonNoPago.closeByOutsideClick=false;
         // popoeveBotonNoPago.on('close', function (popover) {
-        //   console.log('Popover close');
+        
         // });
     },
     onCobroNoPago(){
@@ -344,7 +347,7 @@ import CobradorService from '../Services/CobradoresServices.js';
          let estados=JSON.parse(localStorage.getItem('ListaEstadosCobro'))
       //  let posicion = this.$store.getters.getClientesCobros.findIndex(x => x.data.id == this.id);
       let posicion = estados.findIndex(x => x.id == this.id);
-      //  console.log(posicion);
+     
        estados[posicion].estado= 2
        localStorage.setItem('ListaEstadosCobro',JSON.stringify(estados))
         // elemento.estado_pago_prestamo.nopago=true
@@ -362,8 +365,8 @@ import CobradorService from '../Services/CobradoresServices.js';
         elemento.prestamos[0].dias_con_mora=Number(elemento.prestamos[0].dias_con_mora)+1;
         // elemento.prestamos[0].dias_con_mora=Number(elemento.prestamos[0].dias_con_mora)+1
         // console.log(elemento.prestamos[0].dias_con_mora);
-        let ui_cobrador=localStorage.getItem("uid");
-        let idempresa=localStorage.getItem("empresa");
+        // let ui_cobrador=localStorage.getItem("uid");
+       
         // elemento.prestamos[0].total_apagar=Number(elemento.prestamos[0].total_apagar)+Number(this.saldo_a_pagar);
           let dataTotalAPagarHoy={
             Idcliente: this.id,
@@ -371,7 +374,7 @@ import CobradorService from '../Services/CobradoresServices.js';
           };
           this.$store.commit('setEstadoTotalAPagar',dataTotalAPagarHoy);
         
-        this.clientesService.actualizarClienteCobrador(this.idad,idempresa,ui_cobrador,this.id,elemento).then( (response) =>  {
+        this.clientesService.actualizarClienteCobrador(this.idad,this.idempresa,this.ui_cobrador,this.id,elemento).then( (response) =>  {
               // this.informacion_pago.valor_pago=0;
           let data={
             id: this.id,
@@ -405,7 +408,7 @@ import CobradorService from '../Services/CobradoresServices.js';
         
         this.$store.commit('setQuitar_cobros_pendientesJornada',this.id);
         this.$store.commit('setDisminuyeContadorClientesListaPrestamos');
-        this.clientesService.guardarObservacionNoPago(this.idad,idempresa,ui_cobrador,this.id,informacionNoPago).then( (response) =>  {
+        this.clientesService.guardarObservacionNoPago(this.idad,this.idempresa,this.ui_cobrador,this.id,informacionNoPago).then( (response) =>  {
            
            this.$store.commit('setEstadoPrestamoEstadoRuta',this.id);
             this.$f7.dialog.close();
@@ -424,6 +427,13 @@ import CobradorService from '../Services/CobradoresServices.js';
             this.$f7router.back();
         });
               
+          }).catch((error)=>{
+            this.$f7.dialog.close()
+            if(this.$store.getters.getModoDebugger){
+                  this.$store.commit('setErrorServices',error)
+                  this.$f7.dialog.alert('Ha ocurrido un error, por favor verifique el menu debug','Atencion!')
+                   console.log(error);
+          }
           });
       }
       else if(this.radioNoPagoSeleccionado!=""){
@@ -437,7 +447,7 @@ import CobradorService from '../Services/CobradoresServices.js';
        estados[posicion].estado= 2
        localStorage.setItem('ListaEstadosCobro',JSON.stringify(estados))
         
-        let idempresa=localStorage.getItem("empresa");
+        // let idempresa=localStorage.getItem("empresa");
         this.$store.commit('setCatidad_cobrosenofectivosJornada');
         if(elemento.prestamos[0].saldo_pendiente==0){
           elemento.prestamos[0].saldo_pendiente=Number(this.saldo_a_pagar)+Number(this.informacion_pago.valor_pago);
@@ -449,8 +459,8 @@ import CobradorService from '../Services/CobradoresServices.js';
         elemento.prestamos[0].dias_con_mora=Number(elemento.prestamos[0].dias_con_mora)+1;
         
         // elemento.prestamos[0].dias_con_mora=Number(elemento.prestamos[0].dias_con_mora)+1
-        // console.log(elemento.prestamos[0].dias_con_mora);
-        let ui_cobrador=localStorage.getItem("uid");
+        
+        // let ui_cobrador=localStorage.getItem("uid");
         // elemento.prestamos[0].total_apagar=Number(elemento.prestamos[0].total_apagar)+Number(this.saldo_a_pagar);
           let dataTotalAPagarHoy={
             Idcliente: this.id,
@@ -458,7 +468,7 @@ import CobradorService from '../Services/CobradoresServices.js';
           };
           this.$store.commit('setEstadoTotalAPagar',dataTotalAPagarHoy);
         
-        this.clientesService.actualizarClienteCobrador(this.idad,idempresa,ui_cobrador,this.id,elemento).then( (response) =>  {
+        this.clientesService.actualizarClienteCobrador(this.idad,this.idempresa,this.ui_cobrador,this.id,elemento).then( (response) =>  {
               // this.informacion_pago.valor_pago=0;
           let data={
             id: this.id,
@@ -486,7 +496,7 @@ import CobradorService from '../Services/CobradoresServices.js';
         }
               this.$store.commit('setQuitar_cobros_pendientesJornada',this.id);
               this.$store.commit('setDisminuyeContadorClientesListaPrestamos');
-        this.clientesService.guardarObservacionNoPago(this.idad,idempresa,ui_cobrador,this.id,informacionNoPago).then( (response) =>  {
+        this.clientesService.guardarObservacionNoPago(this.idad,this.idempresa,this.ui_cobrador,this.id,informacionNoPago).then( (response) =>  {
      
            this.$store.commit('setEstadoPrestamoEstadoRuta',this.id);
             this.$f7.dialog.close();
@@ -502,6 +512,13 @@ import CobradorService from '../Services/CobradoresServices.js';
 
             this.$store.commit('setCobrosHoy',dataNoPago)
             this.$f7router.back();
+        }).catch((error)=>{
+          this.$f7.dialog.close()
+            if(this.$store.getters.getModoDebugger){
+                  this.$store.commit('setErrorServices',error)
+                  this.$f7.dialog.alert('Ha ocurrido un error, por favor verifique el menu debug','Atencion!')
+                   console.log(error);
+          }
         });
               
           });
@@ -513,7 +530,7 @@ import CobradorService from '../Services/CobradoresServices.js';
        updateValor(){
           this.$f7router.back();
        let zona= localStorage.getItem("zona");
-       let empresa= localStorage.getItem("empresa");
+       let empresa= this.datastorage.empresa
 
        // Get a new write batch
 var batch = db.batch();
@@ -531,8 +548,8 @@ batch.commit().then(function () {
 });
     },
     onVerificarPrestamopago(elemento){
-      let ui_cobrador=localStorage.getItem("uid");
-      let idempresa=localStorage.getItem("empresa");
+      // let ui_cobrador=localStorage.getItem("uid");
+      // let idempresa=localStorage.getItem("empresa");
          //Verificacmos si el prestamo esta pago verificando el total a pagar.
                   if(elemento.prestamos[0].total_apagar==0 || elemento.prestamos[0].total_apagar<=0){
                         let posicion=this.$store.getters.getClientesListaPrestamo.findIndex(x => x.data.prestamos[0].cliente==elemento.prestamos[0].cliente);
@@ -564,7 +581,7 @@ batch.commit().then(function () {
                    
                    
                     this.$store.commit('setQuitar_cobros_pendientesJornada',this.id);
-                    this.clientesService.actualizarClienteCobrador(this.idad,idempresa,ui_cobrador,this.id,elemento).then( (response) =>  {
+                    this.clientesService.actualizarClienteCobrador(this.idad,this.idempresa,this.ui_cobrador,this.id,elemento).then( (response) =>  {
                       
                         this.informacion_pago.valor_pago=0;  
                         this.valor_sin_puntos=0;  
@@ -574,25 +591,38 @@ batch.commit().then(function () {
                         this.$store.commit('setDisminuyeContadorClientesListaPrestamos');
 
                       this.onEliminarClienteLista(elemento)
+                      }).catch((error)=>{
+                        if(this.$store.getters.getModoDebugger){
+                                this.$store.commit('setErrorServices',error)
+                                this.$f7.dialog.alert('Ha ocurrido un error, por favor verifique el menu debug','Atencion!')
+                                console.log(error);
+                        }
                       });
                             
                         // this.$f7router.back();
     },
     onEliminarClienteLista(elemento){
-       let ui_cobrador=localStorage.getItem("uid");
-      let idempresa=localStorage.getItem("empresa");
-       this.clientesService.eliminarPrestamoPago(this.idad,idempresa,ui_cobrador,this.id,elemento).then( (response) =>  {
+      //  let ui_cobrador=localStorage.getItem("uid");
+      let idempresa=this.datastorage.empresa
+       this.clientesService.eliminarPrestamoPago(this.idad,this.idempresa,this.ui_cobrador,this.id,elemento).then( (response) =>  {
                           // alert('elimina')
           // this.$store.state.estados_prestamos_ruta=[]
           this.$store.commit('eliminarClientePrestamoDiario',this.id);
           
           this.$f7router.back();
+        }).catch((error)=>{
+          this.$f7.dialog.close()
+          if(this.$store.getters.getModoDebugger){
+                  this.$store.commit('setErrorServices',error)
+                  this.$f7.dialog.alert('Ha ocurrido un error, por favor verifique el menu debug','Atencion!')
+                   console.log(error);
+          }
         });
     },
     onConfirmarPago(){
       const app = this.$f7;
-      let ui_cobrador=localStorage.getItem("uid");
-      let idempresa=localStorage.getItem("empresa");
+      // let ui_cobrador=localStorage.getItem("uid");
+      // let idempresa=localStorage.getItem("empresa");
 
       let elemento = this.clientes_info;
       let estados=JSON.parse(localStorage.getItem('ListaEstadosCobro'))
@@ -626,7 +656,7 @@ batch.commit().then(function () {
 
 
            let id_empresa=localStorage.getItem("empresa");
-          this.abonoService.guardarAbonosCobros(this.idad,id_empresa,ui_cobrador,this.id,this.informacion_pago).then( (response) =>  {
+          this.abonoService.guardarAbonosCobros(this.idad,id_empresa,this.ui_cobrador,this.id,this.informacion_pago).then( (response) =>  {
           let saldo_actual=  localStorage.getItem("saldo_zona");
           // this.informacion_pago.valor_pago=this.informacion_pago.valor_pago.replace('.', "");
           let saldo_valor=    this.informacion_pago.valor_pago;
@@ -721,10 +751,10 @@ batch.commit().then(function () {
                 // this.$store.commit('setEstadoPrestamoPendiente',data_pendiente);
                 this.$store.commit('setQuitar_cobros_pendientesJornada',this.id);
                 this.$store.commit('setEstadoPrestamoEstadoRuta',elemento.prestamos[0].cliente);
-                  console.log("elemento actualizado....",elemento);
+                  
                   
 
-                      this.clientesService.actualizarClienteCobrador(this.idad,idempresa,ui_cobrador,this.id,elemento).then( (response) =>  {
+                      this.clientesService.actualizarClienteCobrador(this.idad,this.idempresa,this.ui_cobrador,this.id,elemento).then( (response) =>  {
                         // this.informacion_pago.valor_pago=0;  
                         //  this.valor_sin_puntos=0;  
                           this.$f7.sheet.close();
@@ -786,7 +816,7 @@ batch.commit().then(function () {
          this.$store.commit('setEstadoPrestamoEstadoRuta',elemento.prestamos[0].cliente);
         //  alert(elemento.prestamos[0].total_apagar);
        
-            this.clientesService.actualizarClienteCobrador(this.idad,idempresa,ui_cobrador,this.id,elemento).then( (response) =>  {
+            this.clientesService.actualizarClienteCobrador(this.idad,this.idempresa,this.ui_cobrador,this.id,elemento).then( (response) =>  {
               // this.informacion_pago.valor_pago=0; 
               this.valor_sin_puntos=0;   
                 this.$f7.sheet.close();
@@ -813,7 +843,7 @@ batch.commit().then(function () {
             //           //  elemento.prestamos[0].dias_con_mora=Number(elemento.prestamos[0].dias_con_mora)-1;
             // }
 
-          // console.log(elemento.prestamos[0].saldo_pendiente);
+         
           
            if(elemento.prestamos[0].dias_con_mora>=0){
             
@@ -852,7 +882,7 @@ batch.commit().then(function () {
          this.$store.commit('setEstadoPrestamoEstadoRuta',elemento.prestamos[0].cliente);
         //  alert(elemento.prestamos[0].total_apagar);
         
-            this.clientesService.actualizarClienteCobrador(this.idad,idempresa,ui_cobrador,this.id,elemento).then( (response) =>  {
+            this.clientesService.actualizarClienteCobrador(this.idad,this.idempresa,this.ui_cobrador,this.id,elemento).then( (response) =>  {
               // this.informacion_pago.valor_pago=0; 
               this.valor_sin_puntos=0;   
                 this.$f7.sheet.close();
@@ -865,29 +895,84 @@ batch.commit().then(function () {
           
           
         
+        }).catch((error)=>{
+          this.$f7.dialog.close()
+          if(this.$store.getters.getModoDebugger){
+                  this.$store.commit('setErrorServices',error)
+                  this.$f7.dialog.alert('Ha ocurrido un error, por favor verifique el menu debug','Atencion!')
+                   console.log(error);
+          }
         });
       }
          
   }
   },
+  // watch: {
+  //   ui_cobrador(newUid) {
+  //     localStorage.uid = newUid;
+  //   },
+  //   idempresa(newEmpresa){
+  //     localStorage.idempresa = newEmpresa;
+  //   }
+
+  // },
+  mounted() {
+    // if(localStorage.uid){
+    //   alert('actualiza uid')
+    //   this.ui_cobrador=localStorage.getItem("uid");
+    // }
+    // if(localStorage.empresa){
+    //   this.idempresa=localStorage.getItem("empresa");
+    // }
+    
+  },
   beforeMount(){
+    let localstoragedata=localStorage.getItem('datainfologin')
+      if(localstoragedata==null){
+          this.$store.watch(() => this.$store.getters.getDatasStorage, datainfo => { 
+        console.log("datastores",this.$store.getters.getDatasStorage)
+        // console.log('watched: ', EstadosCobrosGuardados) 
+       this.datastorage=datainfo
+      //  console.log("datastores",this.data_store)
+    //    this.idad=this.datastorage.iad
+       
+      })
+      }else{
+      
+      this.datastorage=JSON.parse(localstoragedata)
+      console.log("datastores",this.datastorage)
+    //    this.idad=this.datastorage.iad
+      }
+   
     this.$f7.dialog.preloader("Cargando informacion...");
-      this.balance_zona=localStorage.getItem("saldo_zona");
-      let idempresa=localStorage.getItem("empresa");
+    this.balance_zona=localStorage.getItem("saldo_zona");
+    this.ui_cobrador=this.datastorage.uid
+    this.idempresa=this.datastorage.empresa
+    
       this.abonoService= new AbonoService();
       this.clientesService=new ClientesService();
       this.cobradoresService= new CobradorService();
-      this.idad=localStorage.getItem("iad");
-       let ui_cobrador=localStorage.getItem("uid");
-          this.cobradoresService.getCobradoresClientesBuscar(this.idad,idempresa,ui_cobrador,this.$f7route.params.id).then( (response) =>  {
+      // this.idad=localStorage.getItem("iad");
+      this.idad=this.datastorage.iad
+      //  let ui_cobrador=localStorage.getItem("uid");
+          this.cobradoresService.getCobradoresClientesBuscar(this.idad,this.idempresa,this.ui_cobrador,this.$f7route.params.id).then( (response) =>  {
               this.clientes_info=response.data;
                this.$f7.dialog.close()
               this.isLoadUsers= true;
           }).catch(error => {
-              console.log(error);
+            this.$f7.dialog.close()
+              if(this.$store.getters.getModoDebugger){
+                  this.$store.commit('setErrorServices',error)
+                  this.$f7.dialog.alert('Ha ocurrido un error, por favor verifique el menu debug','Atencion!')
+                   console.log(error);
+          }
           });
   },
     beforeCreate(){
+    // this.ui_cobrador=localStorage.getItem("uid");
+    // let data_store=this.$store.getters.getDatasStorage
+    // console.log("datastores",data_store)
+  
      let posicion=this.$store.getters.getClientes.findIndex(x => {x.hasOwnProperty('nuevo')? x.nuevo === true:x});
      if(posicion>0){
        this.$store.commit('getSetNuevoClientes',posicion);

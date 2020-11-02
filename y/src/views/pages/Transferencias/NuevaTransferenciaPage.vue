@@ -97,6 +97,7 @@ export default {
           fecha:new Date().toISOString().slice(0,10),
           hora: '',
           mensaje:'',
+          recibe:'',
           idEnvia:'',
           idRecibe:''
           },
@@ -118,14 +119,11 @@ export default {
       this.empresaService.getAllEmpresas(this.usuarioOnLogin).then((result)=>{
         if(result.data!='Not Found'){
           tamporal_empresas=result.data;
-        // console.log(tamporal_empresas);
+       
           for (const key in tamporal_empresas) {
             if (tamporal_empresas.hasOwnProperty(key)) {
-                 let element={ value: tamporal_empresas[key].id, label: tamporal_empresas[key].Nombre };
-                 
+                 let element={ value: tamporal_empresas[key].id, label: tamporal_empresas[key].Nombre }; 
                  this.empresas.push(element);
-                 
-                
             }
          }
         }
@@ -157,6 +155,7 @@ if(this.form_transaccion.valor==0 ||this.form_transaccion.valor==''){
 }else{
 
   this.form_transaccion.idRecibe=this.idSeleccionadaZona
+  this.form_transaccion.hora=this.$moment(new Date()).format("hh:mm:ss"),
    db.collection("usuarios").doc(this.usuarioOnLogin).collection("empresas").doc(this.idSeleccionadaEmpresa).collection("Zonas").doc(this.idSeleccionadaZona).collection("Transferencias").add(this.form_transaccion)
     .then(() =>{
         
@@ -172,7 +171,7 @@ if(this.form_transaccion.valor==0 ||this.form_transaccion.valor==''){
 
 this.nuevo_balanceempresa=Number(this.nuevo_balanceempresa)-Number(this.form_transaccion.valor);
 
-//  console.log(this.nuevo_balanceempresa);
+
 if(this.nuevo_balanceempresa>0 || this.nuevo_balanceempresa==0){
   batch.update(sfRef, {"Balance": this.nuevo_balanceempresa });
  
@@ -191,10 +190,11 @@ else{
           valor:0,
           estado_transaccion:0,
           fecha:new Date().toISOString().slice(0,10),
-          hora: '',
+          hora:'',
           mensaje:'',
           idEnvia:'',
-          idRecibe:''
+          idRecibe:'',
+          recibe:''
           }
           this.valor_sin_puntos=0
           // ...
@@ -224,14 +224,14 @@ else{
             let tamporal_Zonas=[];
             this.idSeleccionadaEmpresa=this.usuario.empresa;
             this.zonaService.getAllZonasEmpresa(this.usuarioOnLogin,this.usuario.empresa,'Zonas').then((response)=>{
-            //console.log(response);
+            
             tamporal_Zonas=response;
             for (const key in tamporal_Zonas) {
             if (tamporal_Zonas.hasOwnProperty(key)) {
                 
                   let element={ value: tamporal_Zonas[key].id, label: tamporal_Zonas[key].nombre };
                   this.zonas.push(element);
-                  // console.log(this.zonas);
+                  
             }
         }   
              
@@ -240,8 +240,11 @@ else{
             
       },
       onZonaSeleccionada($event){
+          let posicion_zona=this.zonas.findIndex(x=>x.value==$event.target.value)
+       
+          this.form_transaccion.recibe=this.zonas[posicion_zona].label
           this.idSeleccionadaZona=$event.target.value;
-          // console.log(this.idSeleccionadaEmpresa);
+         
 
       }
     },   

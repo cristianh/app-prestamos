@@ -146,7 +146,7 @@ export default {
          cobradores.then((response)=>{
             //
             this.cobradores= [response.data.slice(0,5),[]]
-            //console.log(this.cobradores);
+           
        
              
          });
@@ -154,11 +154,11 @@ export default {
     },
     methods:{
         onGuardarCobrador(){
-          console.log(this.selection);
+          
           
           this.zonaService.guardarCobradoresZona(this.zonasFormCobrador.empresa,this.zonasFormCobrador.zonas,this.selectionItemSelccionado).then(response=>{
             let mensaje=response.mensaje;
-            console.log(response);
+            
             if(mensaje){
               this.$toast.add({severity:'success', summary: 'Correcto', detail:mensaje, life: 3000});    
             }
@@ -169,9 +169,9 @@ export default {
         },
         getItems(event){
           for (const iterator of event.items) {
-             console.log(iterator.id);
+             
              this.selectionItem.unshift(iterator.id);
-            console.log(event.items.id);
+          
             this.selectionItemSelccionado.id=iterator.id;
             
           }
@@ -187,7 +187,7 @@ export default {
         },
         setItems(event){
             // this.selectionItem.pop(event.items);
-            // console.log(event.items.id);
+           
             // this.selectionItemSelccionado={};
         },
         onSelectdEmpresa(){
@@ -198,14 +198,14 @@ export default {
             let zonasEmpresa=this.zonaService.getAllZonasEmpresa(this.zonasFormCobrador.empresa,'Zonas');
             
             zonasEmpresa.then((response)=>{
-            //console.log(response);
+          
             tamporal_Zonas=response;
             for (const key in tamporal_Zonas) {
             if (tamporal_Zonas.hasOwnProperty(key)) {
                 
                   let element={ value: tamporal_Zonas[key].id, label: tamporal_Zonas[key].nombre };
                   this.zonas.push(element);
-                  // console.log(this.zonas);
+                  
             }
         }   
              

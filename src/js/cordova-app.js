@@ -148,10 +148,6 @@ var cordovaApp = {
         cordovaApp.handleKeyboard();
     },
     closeApp: function() {
-        // alert(JSON.stringify(window.navigator.app));
-        // window.navigator.app.exitApp();
-        console.log(window.navigator.app.exitApp());
-        console.log(window.cordova);
         alert(cordova.plugins);
     }
 };

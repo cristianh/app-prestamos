@@ -200,7 +200,9 @@ export default {
             cobradoresService: null,
             empresaService: null,
             transaccionService:null,
-            idad: ''
+            idad: '',
+            datastorage:{}
+
             
 
         }
@@ -216,35 +218,53 @@ export default {
         }
     },
     beforeMount() {
-        // console.log(navigator.onLine)
-        // this.CobradoresService = new CobradoresService();
+       
+ 
+    
+
+     let localstoragedata=localStorage.getItem('datainfologin')
+      if(localstoragedata==null){
+          this.$store.watch(() => this.$store.getters.getDatasStorage, datainfo => { 
+        console.log("datastores",this.$store.getters.getDatasStorage)
+        // console.log('watched: ', EstadosCobrosGuardados) 
+       this.datastorage=datainfo
+      //  console.log("datastores",this.data_store)
+    //    this.idad=this.datastorage.iad
+       
+      })
+      }else{
+    
+      this.datastorage=JSON.parse(localstoragedata)
+      console.log("datastores",this.datastorage)
+    //    this.idad=this.datastorage.iad
+      }
     
 
         if(!navigator.onLine){
                     this.$f7.dialog.close()
-                    this.profile_name = 'Bienvenido ' + localStorage.getItem("name") + '.';
-                    this.lastActivity = localStorage.getItem("lastactivity");
+                    this.profile_name = 'Bienvenido ' + this.datastorage.name + '.';
+                    this.lastActivity = this.datastorage.lastactivity
                     this.$f7.dialog.alert("Revise su conexion a internet e intentelo nuevamente","Atencion!");
                     this.mensaje_bienvenida = 'Invitado';
                     this.balance_empresa = 0;
                     this.isLoadBalnces = true;
         }else{
             // localStorage.setItem("total_prestado",0)
-        this.idad = localStorage.getItem("iad")
+        this.idad = this.datastorage.iad
         const self = this;
 
-        this.profile_name = 'Bienvenido ' + localStorage.getItem("name") + '.';
-        this.lastActivity = localStorage.getItem("lastactivity");
-        this.uid=localStorage.getItem("uid");
+        this.profile_name = 'Bienvenido ' + this.datastorage.name + '.';
+        this.lastActivity = this.datastorage.lastactivity
+        this.uid=this.datastorage.uid
         // console.log(this.uid);
 
         let zona;
-        let empresa=localStorage.getItem("empresa");
+        let empresa=this.datastorage.empresa
         self.$f7.dialog.preloader("Cargando informacion...");
         // console.log(this.uid);
         // localStorage.setItem("listagenerada",false);
         
-        this.CobradoresService.getInformacionCobrador(this.idad,empresa,this.uid).then((resp)=>{
+        this.CobradoresService.getInformacionCobrador(this.idad,this.datastorage.empresa,this.uid).then((resp)=>{
             // console.log(resp)
             // alert(resp.data.lista_clientes.length)
            
@@ -301,8 +321,8 @@ export default {
 
             let clientes_cobrador = resp.data.clientes;
             this.listaClientesGuardar=resp.data.lista_clientes
-            console.log(this.listaClientesGuardar);
-            console.log(this.listaClientesGuardar[0]);
+            // console.log(this.listaClientesGuardar);
+            // console.log(this.listaClientesGuardar[0]);
             let estadoListaCobro=[]
             let contadorListaCargada=0
                 for (const key in clientes_cobrador) {
@@ -441,7 +461,14 @@ export default {
                this.onDetectarTransacciones()
             //    this.onActualizarEstadosLista()
             
-        });
+        }).catch((error)=>{
+            this.$f7.dialog.close()
+                 if(this.$store.getters.getModoDebugger){
+                  this.$store.commit('setErrorServices',error)
+                  this.$f7.dialog.alert('Ha ocurrido un error, por favor verifique el menu debug','Atencion!')
+                   console.log(error);
+          }
+       });
 
         }
         
@@ -535,14 +562,14 @@ export default {
 
                                 // console.log("Fechas diferentes si") 
                                 if(element.data.prestamos.length >= 1){
-                                    console.log("Prestamos mayor o igual a uno si") 
-                                    console.log("estado prestamo",element.data.prestamos[0].estado_prestamo) 
+                                    // console.log("Prestamos mayor o igual a uno si") 
+                                    // console.log("estado prestamo",element.data.prestamos[0].estado_prestamo) 
                                     if(element.data.prestamos[0].estado_prestamo == "false"){
                                         
                                 if(this.listaClientesGuardar.length>=1){
                                      
                                 let elementosLista=Object.values(this.listaClientesGuardar[0]);
-                                console.log(elementosLista)
+                                // console.log(elementosLista)
                                 //Posicion
                                 let posicionlista=elementosLista.findIndex(x=>x.idCliente==element.data.id)
                                 //Elemento
@@ -562,7 +589,7 @@ export default {
                                 this.$store.commit('addPosicionListaCliente',posicion_cliente_lista)
                                
                                 if(fecha_anterior_hoy>fecha_prestamo){
-                                     console.log('adicciona2')
+                                    //  console.log('adicciona2')
                                 this.$store.state.clientes_cobros.unshift(element);
                                 }
                                 // console.log("Carga cliente en cobros");
@@ -578,7 +605,7 @@ export default {
                                             this.$store.commit('addPosicionListaCliente',posicion_cliente_lista)
                                             // this.$store.commit('addNewClientes',element)
                                             if(fecha_anterior_hoy>fecha_prestamo){
-                                                 console.log('adicciona4')
+                                                //  console.log('adicciona4')
                                             this.$store.state.clientes_cobros.unshift(element);
                                             }
                                 
@@ -596,7 +623,7 @@ export default {
                                             this.$store.commit('addPosicionListaCliente',posicion_cliente_lista)
                                             // this.$store.commit('addNewClientes',element)
                                             if(fecha_anterior_hoy>fecha_prestamo){
-                                                 console.log('adicciona3')
+                                                //  console.log('adicciona3')
                                             this.$store.state.clientes_cobros.unshift(element);
                                             }
                                             // console.log("Carga cliente en cobros");
@@ -617,7 +644,7 @@ export default {
                                     // element.data.prestamos.length >= 1 && element.data.prestamos[0].estado_prestamo == "false")
                             if(fecha_anterior_hoy>fecha_prestamo){
                                 // console.log("onGenerarListaEstados");
-                                 console.log('adicciona1')
+                                //  console.log('adicciona1')
                                  this.$store.state.clientes_cobros.unshift(element);
                             
                                
@@ -697,7 +724,9 @@ onDetectarTransaccionesCanceladas(idCobrador,idad,idempresa,idzona){
             }
             if (change.type === "modified") {
                     if(change.doc.data().estado_transaccion==3){ 
-                        let idad=localStorage.getItem("iad");
+                        // let idad=localStorage.getItem("iad");
+                        let idad=this.datastorage.iad
+
                     let mensaje=`Por valor de: ${Number(change.doc.data().valor).toLocaleString('es-CO',{style: 'currency',currency: 'COP',minimumSignificantDigits:1})}.`
                     this.$f7.dialog.alert(mensaje,`Transferencia envida a "${change.doc.data().nombre_zona_recibe}" cancelada!`,()=>{
                         this.$f7.dialog.preloader('Actualizando saldo de la zona ...');
@@ -742,9 +771,9 @@ onDetectarTransaccionesCanceladas(idCobrador,idad,idempresa,idzona){
 
     
     onDetectarTransacciones(){
-        let idCobrador=localStorage.getItem('uid');
-        let idad=localStorage.getItem("iad");
-        let idempresa=localStorage.getItem("empresa");
+        let idCobrador=this.datastorage.uid
+        let idad=this.datastorage.iad
+        let idempresa=this.datastorage.empresa
         let idzona=localStorage.getItem("zona");
     
    
@@ -776,7 +805,7 @@ onDetectarTransaccionesCanceladas(idCobrador,idad,idempresa,idzona){
                 // this.$store.commit('setAumentaContadorTransferencias');
                 // this.$store.commit('setDatosTransferencia',change.doc.data());
                 // this.$store.commit('setDatosTransferenciaPendientes',change.doc.data());
-                console.log(change.doc);
+                // console.log(change.doc);
                     if(change.doc.data().estado_transaccion==1){
                         if(snapshot.docs.length>=1 && mensaje==false){
                     this.$f7.dialog.alert(`Tienes ${snapshot.docs.length} transferencias nuevas aprobadas de zona!`,'Atencion!');
@@ -846,7 +875,36 @@ onDetectarTransaccionesCanceladas(idCobrador,idad,idempresa,idzona){
         this.transaccionService = new TransaccionService(); 
     },
     beforeCreate() {
-        this.uid = localStorage.getItem("uid");
+       
+        
+        //  this.datastorage={
+        //   uid:localStorage.getItem('uid'),
+        //   email:localStorage.getItem('email'),
+        //   name:localStorage.getItem('name'),
+        //   iad: localStorage.getItem('iad'),
+        //   empresa: localStorage.getItem('empresa'),
+        //   lastactivity: localStorage.getItem('lastactivity')
+        // }
+        // this.$store.commit('setLoadLocalStorage',this.datastorage)
+        // console.log("datastorage-home",this.datastorage)
+        
+
+        // this.uid = localStorage.getItem("uid");
+            
+
+            if(this.$store.getters.getDatasStorage==null){
+                console.log("localstoragehomeif",this.$store.getters.getDatasStorage); 
+                console.log("datainfologin",localStorage.getItem('datainfologin'));
+                    if(localStorage.getItem('datainfologin')){
+                        this.$store.commit('setLoadLocalStorage', JSON.parse(localStorage.getItem("datainfologin"))) 
+                    }
+                    
+                    
+            }else{
+                console.log("localstoragehomeelse",this.$store.getters.getDatasStorage); 
+            }
+
+        this.uid = this.$store.getters.getDatasStorage.uid
 
     }
 }

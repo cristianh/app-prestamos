@@ -118,12 +118,12 @@ export default {
                     },3500)
                      
               }).catch(error => {
-                  console.log(error);
+                 
               });
 
              
 
-            console.log(user);
+          
         }).catch((error) => {
         // Handle Errors here.
         // var errorCode = error.code;

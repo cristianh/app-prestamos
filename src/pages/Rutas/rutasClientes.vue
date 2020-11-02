@@ -23,6 +23,7 @@ import qs from 'qs';
 export default {
     data() {
         return {
+            datastorage:{},
             id_ruta:this.$f7route.params.id,
             ruta_titulo:this.$f7route.params.titulo,
             usuarios_seleccionados:[]
@@ -39,7 +40,7 @@ export default {
         }
         },
         onGuardarClientesRutas(){
-              let ui_cobrador=localStorage.getItem("uid");
+              let ui_cobrador=this.datastorage.uid
                    const self = this;
         self.$f7.dialog.preloader('Guardando...');
              axios.post(`https://us-central1-manifest-life-279516.cloudfunctions.net/CobradoresGuardarClientesRutas?doc=${ui_cobrador}&sub=${this.id_ruta}`,qs.stringify(this.usuarios_seleccionados), {
@@ -50,7 +51,14 @@ export default {
        self.$f7.dialog.close();
        
        this.$f7router.back()
-        });
+        }).catch((error)=>{
+          this.$f7.dialog.close()
+                 if(this.$store.getters.getModoDebugger){
+                  this.$store.commit('setErrorServices',error)
+                  this.$f7.dialog.alert('Ha ocurrido un error, por favor verifique el menu debug','Atencion!')
+                   console.log(error);
+          }
+       });
         }
      
     },
@@ -58,6 +66,22 @@ export default {
         this.usuarios_seleccionados=[];
     },
      beforeMount(){
+       let localstoragedata=localStorage.getItem('datainfologin')
+      if(localstoragedata==null){
+        this.$store.watch(() => this.$store.getters.getDatasStorage, datainfo => { 
+        console.log("datastores",this.$store.getters.getDatasStorage)
+        // console.log('watched: ', EstadosCobrosGuardados) 
+       this.datastorage=datainfo
+      //console.log("datastores",this.data_store)
+      //this.idad=this.datastorage.iad
+       
+      })
+      }else{
+      
+      this.datastorage=JSON.parse(localstoragedata)
+      console.log("datastores",this.datastorage)
+      //this.idad=this.datastorage.iad
+      }
       this.clientes=this.$store.getters.getClientes;
     }
 }

@@ -3,11 +3,20 @@ import Vuex from "vuex";
 import createPersistedState from 'vuex-persistedstate';
 
 //   plugins: [createPersistedState()],
+// localStorage.setItem("uid", id[1]);
+// localStorage.setItem("email", data.user.email);
+// localStorage.setItem("name", id[0]);
+// localStorage.setItem("iad", id[2]);
+// localStorage.setItem("empresa", id[3]);
+// localStorage.setItem("lastactivity", data.user.metadata.lastSignInTime);
 
 Vue.use(Vuex);
 
 export default new Vuex.Store({
     state: {
+        data_local_storage: null,
+        error_debug_services: '',
+        mododebuggerActive: false,
         contadorClientesSeleccionados: 0,
         contador_transferencias: 0,
         datos_transeferencia: [],
@@ -47,6 +56,15 @@ export default new Vuex.Store({
 
     },
     mutations: {
+        setLoadLocalStorage(state, datastorage) {
+            state.data_local_storage = JSON.stringify(datastorage)
+        },
+        setModoDebuggerActive(state, estado) {
+            state.mododebuggerActive = estado
+        },
+        setErrorServices(state, error) {
+            state.error_debug_services = error
+        },
         setCobrosHoy(state, infocobroshoy) {
             state.cobros_hoy.push(infocobroshoy)
             localStorage.setItem("cobros_hoy", JSON.stringify(state.cobros_hoy));
@@ -69,8 +87,9 @@ export default new Vuex.Store({
         setDatosTransferencia(state, data_transferencia) {
             state.datos_transeferencia.push(data_transferencia)
         },
-        setEliminarDatosTransferencia(state) {
-            state.datos_transeferencia = []
+        setEliminarDatosTransferencia(state, id) {
+            let posicion_transferencia = state.datos_transeferencia.findIndex(x => x.id == id)
+            state.datos_transeferencia.splice(posicion_transferencia, 1)
         },
         setEliminarDatoTransferencia(state, id) {
             let posicion = state.datos_transeferencia.findIndex(x => x.data.id == id)
@@ -139,8 +158,6 @@ export default new Vuex.Store({
                 let pendientestore = state.cobros_pendientes
                 let posicion_array = pendientesarray.findIndex(x => x == idClienteCobro);
                 let posicion_pendiente = pendientestore.findIndex(x => x == idClienteCobro);
-
-                // console.log(posicion_array)
                 if (posicion_array != -1 && posicion_pendiente != -1) {
                     if (state.jornada_cobrador.numero_cobros_pendientes != 0) {
                         state.jornada_cobrador.numero_cobros_pendientes--;
@@ -166,31 +183,24 @@ export default new Vuex.Store({
             state.tasaseinteres.unshift(tazas)
         },
         addNewClientes(state, clientenuevo) {
-            // mutate state
-            //console.log(clientenuevo);
             state.contador = state.contador + 1;
             state.clientes.unshift(clientenuevo)
         },
         addNewClientesNuevosLista(state, clientenuevo) {
-            // mutate state
-            //console.log(clientenuevo);
             state.contador = state.contador + 1;
             state.clientes.push(clientenuevo)
         },
         addClientesCobros(state, clientenuevocobro) {
-            // mutate state
-            //console.log(clientenuevo);
+
             state.clientes_cobros.unshift(clientenuevocobro)
         },
         addClientesPrestamosList(state, clientenuevoprestamolist) {
-            // mutate state
-            //console.log(clientenuevo);
+
 
             state.clientes_cobros.unshift(clientenuevoprestamolist)
         },
         addNewZona(state, zonanueva) {
-            // mutate state
-            //console.log(clientenuevo);
+
 
             state.zonas.unshift(zonanueva)
         },
@@ -234,17 +244,12 @@ export default new Vuex.Store({
                     const element = state.posiciones_lista[key];
 
                     if (element.idCliente == data.data.el1.data.id) {
-                        console.log(element.posicion);
-                        console.log(data.data.el1.data.id);
                         element.posicion = data.data.el2.data.posicion
-                        console.log(element.posicion);
-
                     }
                     if (element.idCliente == data.data.el2.data.id) {
-                        console.log(element.posicion);
-                        console.log(data.data.el2.data.id);
+
                         element.posicion = data.data.el1.data.posicion
-                        console.log(element.posicion);
+
 
                     }
 
@@ -257,9 +262,6 @@ export default new Vuex.Store({
 
         },
         setZonasEmpresas(state, zonas) {
-            // mutate state
-            //console.log(clientenuevo);
-
             state.zonas_empresas = zonas;
         },
         getSetNuevoClientes(state, posicion) {
@@ -286,31 +288,24 @@ export default new Vuex.Store({
                 let temporal = clientes_lista_ordenada.splice(inicio, 1);
 
 
-                // console.log("aca mayor  inicio");
+
                 for (inicio; inicio < clientes_lista_ordenada - 1; inicio++) {
                     clientes_lista_ordenada[inicio] = clientes_lista_ordenada[inicio];
                 }
                 clientes_lista_ordenada.splice(fin, 0, temporal[0]);
-                // console.log("despues", clientes_lista_ordenada);
 
-                // console.log(state.clientes);
             } else if (fin > inicio) {
-                // console.log("aca mayor  fin");
+
 
                 let temporal = clientes_lista_ordenada.splice(inicio, 1);
-                // console.log("temporal", temporal);
-                // console.log("temporal", temporal);
-                // console.log(clientes_lista_ordenada);
+
 
                 for (inicio; inicio > clientes_lista_ordenada.length; inicio--) {
                     clientes_lista_ordenada[inicio] = clientes_lista_ordenada[inicio];
-                    // document.getElementById("app").innerHTML = element;
-                    // console.log(element);
-                    // console.log(numeros);
+
                 }
                 clientes_lista_ordenada.splice(fin, 0, temporal[0]);
-                // console.log(state.clientes);
-                // console.log("despues", clientes_lista_ordenada);
+
             } else {
 
             }
@@ -433,8 +428,7 @@ export default new Vuex.Store({
         },
         eliminarClientePrestamoDiario(state, Idcliente) {
             let posicion = state.clientes_cobros.findIndex(x => x.data.id == Idcliente);
-            // console.log(posicion)
-            // state.clientes_cobros.splice(posicion, 1);
+
             let posicion_cliente = state.clientes.findIndex(x => x.data.id == Idcliente);
             let estados = JSON.parse(localStorage.getItem('ListaEstadosCobro'))
             let posicion_estados = estados.findIndex(x => x.id == Idcliente);
@@ -481,9 +475,7 @@ export default new Vuex.Store({
                 }
                 // let elemento = estadolista.filter(x => x.data.prestamos[0].cliente == data.cliente_id)
                 // let posicion_elemento = estadolista.findIndex(x => x.data.prestamos[0].cliente == data.cliente_id)
-                // console.log(estadolista);
-                // console.log(elemento);
-                // console.log(posicion_elemento);
+
                 localStorage.setItem("listaClientesCobros", JSON.stringify(estadolista));
             } else {
                 localStorage.removeItem('listagenerada');
@@ -505,7 +497,37 @@ export default new Vuex.Store({
             state.listaDBguardad = true
         }
     },
+    //  uid:localStorage.getItem('uid'),
+    //       email:localStorage.getItem('email'),
+    //       name:localStorage.getItem('name'),
+    //       iad: localStorage.getItem('iad'),
+    //       empresa: localStorage.getItem('empresa'),
+    //       lastactivity: localStorage.getItem('lastactivity')
     getters: {
+        getDatasStorage: state => {
+            return JSON.parse(state.data_local_storage)
+        },
+        getDatasStorageUid: state => {
+            return state.data_local_storage.uid
+        },
+        getDatasStorageEmpresa: state => {
+            return state.data_local_storage.empresa
+        },
+        getDatasStorageIad: state => {
+            return state.data_local_storage.iad
+        },
+        getDatasStorageName: state => {
+            return state.data_local_storage.name
+        },
+        getDatasStorageLastActivity: state => {
+            return state.data_local_storage.lastactivity
+        },
+        getErrorMensajeServices: state => {
+            return state.error_debug_services
+        },
+        getModoDebugger: state => {
+            return state.mododebuggerActive
+        },
         getListaDBguardad: state => {
             return state.listaDBguardad
         },
@@ -547,9 +569,7 @@ export default new Vuex.Store({
 
             // let estados = state.estados_prestamos_ruta
             // let estados = JSON.parse(localStorage.getItem('ListaEstadosCobro'))
-            //     // console.log(state.clientes_cobros[posicion_cobros]);
-            //     // console.log(posicion_cobros);
-            // console.log(estados);
+
 
             state.clientes_cobros.forEach(elementP => {
 
@@ -567,44 +587,36 @@ export default new Vuex.Store({
 
 
                 if (elementP.data.prestamos[0].saldo_pendiente > 0) {
-                    console.log('aca 1')
-                        // console.log("saldo pendiente mayor")
-                        // console.log(pago_hoy < elementP.data.prestamos[0].saldo_pendiente)
-                        // console.log(pago_hoy > elementP.data.prestamos[0].saldo_pendiente)
-                        // console.log(pago_hoy)
+
+
                     if (pago_hoy < elementP.data.prestamos[0].saldo_pendiente) {
-                        console.log('aca 2')
-                            // console.log("saldo pago de hoy es menor al saldo pendiente")
+
+
                         pago_hoy = Number(elementP.data.prestamos[0].saldo_pendiente) + Number(pago_hoy);
                         state.saldo_pago_dia.push(pago_hoy)
                     } else {
-                        // console.log("saldo pago de hoy es mayor al saldo pendiente")
-                        console.log('aca 3')
+
+
                         pago_hoy = Number(pago_hoy) + Number(elementP.data.prestamos[0].saldo_pendiente);
                         state.saldo_pago_dia.push(pago_hoy)
                     }
 
                 } else if (elementP.data.prestamos[0].saldo_pendiente < 0) {
-                    // onsole.log("saldo pendiente menor")
-                    // console.log("a favor")
-                    console.log('aca 4')
-
-                    // console.log(elementP.data.prestamos[0].saldo_pendiente)
                     if (pago_hoy < elementP.data.prestamos[0].saldo_pendiente) {
                         pago_hoy = Number(elementP.data.prestamos[0].saldo_pendiente) - Number(pago_hoy);
                         state.saldo_pago_dia.push(pago_hoy)
-                        console.log('aca 5')
+
                     } else {
-                        // console.log(Number(pago_hoy) + Number(elementP.data.prestamos[0].saldo_pendiente))
+
 
                         // if ((Number(pago_hoy) + Number(elementP.data.prestamos[0].saldo_pendiente)) <= 0) {
                         //     state.saldo_pago_dia.push(0)
-                        //     console.log('aca 6')
+
 
 
                         // } else {
                         //     state.saldo_pago_dia.push(Number(pago_hoy) + Number(elementP.data.prestamos[0].saldo_pendiente))
-                        //     console.log('aca 7')
+
                         // }
 
                         // pago_hoy = (Number(pago_hoy) + Number(elementP.data.prestamos[0].saldo_pendiente)) * 
@@ -614,7 +626,7 @@ export default new Vuex.Store({
 
                 } else if (elementP.data.prestamos[0].saldo_pendiente == 0) {
                     state.saldo_pago_dia.push(pago_hoy);
-                    console.log('aca 8')
+
                 } else {
 
                 }

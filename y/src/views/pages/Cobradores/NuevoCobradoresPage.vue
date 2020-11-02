@@ -185,7 +185,7 @@ export default {
       this.empresaservice.getAllEmpresas(this.usuarioOnLogin).then((result)=>{
         
         tamporal_empresas=result.data;
-        console.log(tamporal_empresas);
+       
           for (const key in tamporal_empresas) {
             if (tamporal_empresas.hasOwnProperty(key)) {
                  let element={ value: tamporal_empresas[key].id, label: tamporal_empresas[key].Nombre };
@@ -206,14 +206,14 @@ export default {
             let tamporal_Zonas=[];
             
             this.zonaservice.getAllZonasEmpresa(this.usuarioOnLogin,this.usuario.empresa,'Zonas').then((response)=>{
-            //console.log(response);
+        
             tamporal_Zonas=response;
             for (const key in tamporal_Zonas) {
             if (tamporal_Zonas.hasOwnProperty(key)) {
                 
                   let element={ value: tamporal_Zonas[key].id, label: tamporal_Zonas[key].nombre };
                   this.zonas.push(element);
-                  // console.log(this.zonas);
+                  
             }
         }   
              
@@ -223,9 +223,9 @@ export default {
       },
         guardar_cobrador(){
         
-        // console.log("Cobrador........");
+        
         let consulta=this.cobradorservice.buscarCobradorPorZona(this.usuarioOnLogin,this.usuario.empresa,this.usuario.zona).then((response)=>{
-         console.log(response);
+        
           if(response.data.id=='No hay coincidencias'){
             
               
@@ -233,9 +233,9 @@ export default {
 
         firebase.auth().createUserWithEmailAndPassword(this.register.email, this.register.password).then((response)=>{
             var user = firebase.auth().currentUser;
-console.log(this.usuario);
+
         this.cobradorservice.guardarCobrador(this.usuarioOnLogin,this.usuario.empresa,this.usuario).then( (response) =>  {
-                console.log(response.data.id);
+              
                 var id =response.data.id;
                 user.updateProfile({
                       displayName:this.usuario.nombre +" "+this.usuario.apellido+'-'+id+'-'+this.usuarioOnLogin+'-'+this.usuario.empresa
@@ -267,7 +267,7 @@ console.log(this.usuario);
                   console.log(error);
               });
               
-            console.log(user);
+           
         }).catch((error)=> {
         // Handle Errors here.
         console.log(error.code);
