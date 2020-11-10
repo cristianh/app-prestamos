@@ -11,7 +11,7 @@ Framework7 app created with following options:
     "pwa",
     "cordova"
   ],
-  "name": "SVCC",
+  "name": "JUEGOS",
   "framework": "vue",
   "template": "tabs",
   "bundler": "webpack",

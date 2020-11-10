@@ -23,7 +23,17 @@
           Dashboard
         </CHeaderNavLink>
       </CHeaderNavItem>
+      <!-- <CHeaderNavItem class="px-3">
+        <CHeaderNavLink to="/users" exact>
+          Gastos
+        </CHeaderNavLink>
+      </CHeaderNavItem> -->
       <CHeaderNavItem class="px-3">
+        <CHeaderNavLink>
+          Settings
+        </CHeaderNavLink>
+      </CHeaderNavItem>
+      <!-- <CHeaderNavItem class="px-3">
         <CHeaderNavLink to="/users" exact>
           Users
         </CHeaderNavLink>
@@ -32,11 +42,14 @@
         <CHeaderNavLink>
           Settings
         </CHeaderNavLink>
-      </CHeaderNavItem>
+      </CHeaderNavItem> -->
     </CHeaderNav>
     <CHeaderNav class="mr-4">
       <CHeaderNavItem class="d-md-down-none mx-2">
             <TheHeaderDropdownTransaccion/>
+      </CHeaderNavItem>
+      <CHeaderNavItem class="d-md-down-none mx-2">
+            <TheHeaderDropdownGastos/>
       </CHeaderNavItem>
       <CHeaderNavItem class="d-md-down-none mx-2">
         <CHeaderNavLink>
@@ -59,6 +72,7 @@
 <script>
 import TheHeaderDropdownAccnt from './TheHeaderDropdownAccnt'
 import TheHeaderDropdownTransaccion from './TheHeaderDropdownTransaccion'
+import TheHeaderDropdownGastos from './TheHeaderDropdownGastos'
 
 export default {
   name: 'TheHeader',
@@ -69,7 +83,8 @@ export default {
   },
   components: {
     TheHeaderDropdownAccnt,
-    TheHeaderDropdownTransaccion
+    TheHeaderDropdownTransaccion, 
+    TheHeaderDropdownGastos 
   }
 }
 </script>

@@ -96,11 +96,12 @@ export default [{
                     name: 'Nueva Zona',
                     to: '/nueva_zona',
                     icon: 'cil-user-follow',
-                },
-                {
-                    name: 'Zonas Cobradores',
-                    to: '/zonas_cobradores',
-                },
+                }
+                // ,
+                // {
+                //     name: 'Zonas Cobradores',
+                //     to: '/zonas_cobradores',
+                // },
                 // {
                 //   name: 'Borrar Empresa',
                 //   to: '/borrar',
@@ -124,6 +125,32 @@ export default [{
                 {
                     name: 'Listar Cobradores',
                     to: '/Listar_cobradores',
+                    icon: 'cil-user-follow',
+                }
+                // {
+                //   name: 'Editar Empresa',
+                //   to: '/editar',
+                // },
+                // {
+                //   name: 'Borrar Empresa',
+                //   to: '/borrar',
+                // }
+            ]
+        },
+        {
+            _name: 'CSidebarNavDropdown',
+            name: 'Prestamos',
+            route: '/listaprestamos',
+            icon: 'cil-puzzle',
+            items: [
+                // {
+                //     name: 'Nueva Cobrador',
+                //     to: '/nueva_cobrador',
+                //     icon: 'cil-user-follow',
+                // },
+                {
+                    name: 'Listar Prestamos',
+                    to: '/listaprestamos',
                     icon: 'cil-user-follow',
                 }
                 // {

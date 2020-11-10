@@ -1,32 +1,7 @@
 <template>
     <div>
-      <CRow>
-        <CCol md="6">
-        <CCard>
-         <CCardBody>
-              <CSelect
-                  label="Empresas"
-                  :options="empresas"
-                  :value.sync="usuario.empresa"
-                  @change="onSelectdEmpresa"
-                />
-         </CCardBody>
-        </CCard>
-      </CCol>
-      <CCol md="6">
-         <CCard>
-         <CCardBody>
-            <CSelect
-                  label="Zona"
-                  :options="zonas"
-                  :value.sync="usuario.zona"
-                  :disabled=isEnabled
-                  @change="onZonaSeleccionada"
-                />
-         </CCardBody>
-        </CCard>
-      </CCol>
-      </CRow>
+       <empresazonaselected  :allInfoZona=true :isVisibleZona=true @onSelectedEmpresa="onEmpresaSeleccionadaParent" @onSelectedZona="onZonaSeleccionadaParent"></empresazonaselected>
+
    
       <CRow>
       <CCol sm="12">
@@ -83,13 +58,6 @@ export default {
             zonaService:null,
             empresaService:null,
             cobradorService:null,
-            isEnabled:true,
-            empresas:[{ value: 'Seleccione', label: 'Seleccione' }],
-            zonas:[{ value: 'Seleccione', label: 'Seleccione' }],
-            usuario:{
-            zona:'',
-            empresa:''
-            },
           form_transaccion:{
           envia:'', 
           valor:0,
@@ -115,21 +83,6 @@ export default {
     beforeMount(){
       this.loading = true;
       this.usuarioOnLogin=localStorage.getItem('id');
-      let tamporal_empresas=[];
-      this.empresaService.getAllEmpresas(this.usuarioOnLogin).then((result)=>{
-        if(result.data!='Not Found'){
-          tamporal_empresas=result.data;
-       
-          for (const key in tamporal_empresas) {
-            if (tamporal_empresas.hasOwnProperty(key)) {
-                 let element={ value: tamporal_empresas[key].id, label: tamporal_empresas[key].Nombre }; 
-                 this.empresas.push(element);
-            }
-         }
-        }
-        
-        
-        });
     },
     methods: {
         getBadge (status) {
@@ -141,6 +94,9 @@ export default {
     onGuardarTransaccion(){
     this.form_transaccion.envia='Empresa'
     this.hora=this.$moment(new Date()).format("hh:mm:ss")
+    console.log(this.usuarioOnLogin);
+    console.log(this.idSeleccionadaEmpresa);
+    console.log(this.idSeleccionadaZona);
     var sfRef = db.collection("usuarios").doc(this.usuarioOnLogin).collection("empresas").doc(this.idSeleccionadaEmpresa);
 
 sfRef.get().then((doc)=>{
@@ -160,13 +116,10 @@ if(this.form_transaccion.valor==0 ||this.form_transaccion.valor==''){
     .then(() =>{
         
         this.$toast.add({severity:'success', summary: 'Correcto', detail:'Transaccion Realizada en espera de aprobacion', life: 3000});    
-        // let nuevo_balance_empresa=Number(balance_actual_zona)-Number(this.form_transaccion.valor);
-        // this.$store.commit('setBalanceZona',nuevo_balance_zona);
-    //     this.$f7.dialog.close();
+
       var batch = db.batch();
 
-// Update the population of 'SF'
-// /usuarios/Nf05nKycByv8CrjrzfL6/empresas/mhVF3FZqPlNAx1sV9c0o/Zonas/SmhRYXL86AUXG2JBZaNU
+
 
 
 this.nuevo_balanceempresa=Number(this.nuevo_balanceempresa)-Number(this.form_transaccion.valor);
@@ -218,34 +171,12 @@ else{
      
 
         },
-        onSelectdEmpresa(){
-            this.isEnabled=false;
-            this.zonas=[{ value: 'Seleccione', label: 'Seleccione' }];
-            let tamporal_Zonas=[];
-            this.idSeleccionadaEmpresa=this.usuario.empresa;
-            this.zonaService.getAllZonasEmpresa(this.usuarioOnLogin,this.usuario.empresa,'Zonas').then((response)=>{
-            
-            tamporal_Zonas=response;
-            for (const key in tamporal_Zonas) {
-            if (tamporal_Zonas.hasOwnProperty(key)) {
-                
-                  let element={ value: tamporal_Zonas[key].id, label: tamporal_Zonas[key].nombre };
-                  this.zonas.push(element);
-                  
-            }
-        }   
-             
-        });
-
-            
+      onEmpresaSeleccionadaParent(empresa){
+       this.idSeleccionadaEmpresa=empresa
       },
-      onZonaSeleccionada($event){
-          let posicion_zona=this.zonas.findIndex(x=>x.value==$event.target.value)
-       
-          this.form_transaccion.recibe=this.zonas[posicion_zona].label
-          this.idSeleccionadaZona=$event.target.value;
-         
-
+      onZonaSeleccionadaParent(zona){
+        this.form_transaccion.recibe=zona.label
+        this.idSeleccionadaZona=zona.value;
       }
     },   
 }

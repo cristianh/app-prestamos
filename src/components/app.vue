@@ -16,6 +16,7 @@
   <f7-list-button panel-close><f7-link  tab-link="#view-transacciones"  text="Transferencias" color="black" icon-ios="f7:import_export" icon-aurora="f7:import_export" icon-md="material:import_export" ></f7-link></f7-list-button>
   <f7-list-button panel-close><f7-link  tab-link="#view-notificaciones"  text="Notificaciones"  :icon-badge="getTransferencias==0?'':getTransferencias"  badge-color="green"   color="black" :icon-ios="getTransferencias==0?'f7:notifications':'f7:notifications_active'" :icon-aurora="getTransferencias==0?'f7:notifications':'f7:notifications_active'" :icon-md="getTransferencias==0?'material:notifications':'material:notifications_active'" ></f7-link></f7-list-button>
   <!-- <f7-list-button panel-close><f7-link   color="black" icon-ios="f7:alarm_on" icon-aurora="f7:alarm_on" icon-md="material:alarm_on" >Pendientes</f7-link></f7-list-button> -->
+  <f7-list-button panel-close><f7-link   tab-link="#view-gastos" color="black" icon-ios="f7:attach_money" icon-aurora="f7:attach_money" icon-md="material:attach_money" >Gastos</f7-link></f7-list-button>
   <f7-list-button panel-close><f7-link   tab-link="#view-modificarabono" color="black" icon-ios="f7:create" icon-aurora="f7:create" icon-md="material:create" >Modificar Abono</f7-link></f7-list-button>
   <!-- <f7-list-button panel-close><f7-link   tab-link="#view-eliminarabono" color="black" icon-ios="f7:delete" icon-aurora="f7:delete" icon-md="material:delete" >Eliminar Abono</f7-link></f7-list-button> -->
   <f7-list-button panel-close><f7-link   tab-link="#view-informedia" color="black" icon-ios="f7:today" icon-aurora="f7:today" icon-md="material:today" >Resumen del dia</f7-link></f7-list-button>
@@ -50,7 +51,10 @@
     <f7-view id="view-nuevocobro" name="settings" tab url="/abonos/"></f7-view>
 
     <!-- Modificar abono -->
-    <f7-view id="view-modificarabono" name="settings" tab url="/modificar_abonos/"></f7-view>
+    <f7-view id="view-modificarabono" name="modificar_abono" tab url="/modificar_abonos/"></f7-view>
+
+     <!-- Gastos -->
+    <f7-view id="view-gastos" name="gastos" tab url="/gastos/"></f7-view>
 
    <!-- Modificar eliminar
     <f7-view id="view-eliminarabono" name="settings" tab url="/eliminar_abonos/"></f7-view> -->
@@ -134,7 +138,7 @@
         // Framework7 Parameters
         f7params: {
           id: 'io.framework7.myapp', // App bundle ID
-          name: 'SVCC', // App name
+          name: 'JUEGOS', // App name
           theme: 'auto', // Automatic theme detection
 
           // App root data

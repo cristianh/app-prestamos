@@ -216,7 +216,11 @@ export default {
           Mensaje:'',
           Pais:'',
           Departamento:'',
-          Ciudad:''
+          Ciudad:'',
+          contador_zonas:0,
+          contador_clientes:0,
+          contador_cobradores:0,
+          contador_empresas:0
       },
       empresaService:null,
       selected: 'Month',
@@ -359,7 +363,11 @@ export default {
           Mensaje:'',
           Pais:'',
           Departamento:'',
-          Ciudad:''
+          Ciudad:'',
+          contador_zonas:0,
+          contador_clientes:0,
+          contador_cobradores:0,
+          contador_empresas:0
       }
       this.valor_sin_puntos=0
       

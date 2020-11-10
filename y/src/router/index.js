@@ -39,6 +39,11 @@ const NuevaNotificacion = () =>
 
 
 
+// Prestamos
+const ListaPrestamos = () =>
+    import ('@/views/pages/Prestamos/ListaPrestamos')
+
+
 //Zonas.
 const Zona_nueva = () =>
     import ('@/views/pages/Zonas/ZonaNuevaPage')
@@ -287,6 +292,30 @@ function configRoutes() {
                             name: 'historial transacciones',
                             component: HistorialTransferencia
                         }
+                    ]
+                },
+                {
+                    path: 'pages',
+                    redirect: '/pages/listaprestamos',
+                    name: 'Pages',
+                    component: {
+                        render(c) { return c('router-view') }
+                    },
+                    children: [{
+                            path: '/listaprestamos',
+                            name: '',
+                            component: ListaPrestamos
+                        },
+                        //{
+                        //     path: '/nueva_transferencia',
+                        //     name: 'nueva transferencia',
+                        //     component: NuevaTransferencia
+                        // },
+                        // {
+                        //     path: '/historial_transacciones',
+                        //     name: 'historial transacciones',
+                        //     component: HistorialTransferencia
+                        // }
                     ]
                 },
                 {

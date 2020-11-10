@@ -12,6 +12,7 @@ import Button from 'primevue/button';
 import ToastService from 'primevue/toastservice';
 import Toast from 'primevue/toast';
 import VueCurrencyInput from 'vue-currency-input'
+import Calendar from 'primevue/calendar';
 
 
 
@@ -23,10 +24,13 @@ import 'primevue/resources/themes/saga-blue/theme.css'; //theme
 //import 'primevue/resources/primevue.min.css';    
 import 'primevue/resources/primevue.min.css' //core css
 import 'primeicons/primeicons.css' //core css
+import EmpresaZonaSelected from '@/views/pages/EmpresaZonaSelect/EmpresaZonaComponent'
 
 Vue.component('PickList', PickList);
 Vue.component('Toast', Toast);
 Vue.component('Button', Button);
+Vue.component('Calendar', Calendar);
+Vue.component('empresazonaselected', EmpresaZonaSelected);
 Vue.use(require('vue-moment'));
 Vue.use(VueCurrencyInput)
 

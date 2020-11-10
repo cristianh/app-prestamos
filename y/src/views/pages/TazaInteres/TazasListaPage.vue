@@ -1,6 +1,7 @@
 <template>
 <div>
-    <CRow>
+  <empresazonaselected  :isVisibleZona=false @onSelectedEmpresa="onSelectedEmpresaParent"></empresazonaselected>
+    <!-- <CRow>
         <CCol md="12">
         <CCard>
          <CCardBody>
@@ -13,7 +14,7 @@
          </CCardBody>
         </CCard>
       </CCol>
-    </CRow>
+    </CRow> -->
   <CCard>
     <CCardHeader>
       <slot name="header">
@@ -198,8 +199,7 @@ export default {
        items:[],
        empresaservice:null,
        tazainteresservice:null,
-       usuarioOnLogin:'',
-       empresas:[{ value: 'Seleccione', label: 'Seleccione' }],
+       usuarioOnLogin:''
       }
   },
   props: {
@@ -219,30 +219,6 @@ export default {
     small: Boolean,
     fixed: Boolean,
     dark: Boolean
-  },
-  beforeMount(){
-    this.usuarioOnLogin=localStorage.getItem('id');
-      
-   let tamporal_empresas=[];
-      this.empresaservice.getAllEmpresas(this.usuarioOnLogin).then((result)=>{
-        this.isLoading=false
-        if(result.data!='Not Found'){
-        tamporal_empresas=result.data;
-        
-          for (const key in tamporal_empresas) {
-            if (tamporal_empresas.hasOwnProperty(key)) {
-                 let element={ value: tamporal_empresas[key].id, label: tamporal_empresas[key].Nombre };
-                 
-                 this.empresas.push(element);
-                 
-                
-            }
-         }
-        }
-        
-        });
-   
-    
   },
   created() {
       this.empresaservice=new EmpresaService();
@@ -313,10 +289,10 @@ export default {
             
              
       },
-      onSelectdEmpresa(){
-        //   =localStorage.getItem('id');
+      onSelectedEmpresaParent(empresa){
           this.isLoading = true;
-           this.empresaservice.getAllTazaeInteres(this.usuarioOnLogin,this.usuario.empresa).then((response) => {
+          this.usuarioOnLogin=localStorage.getItem('id');  
+           this.empresaservice.getAllTazaeInteres(this.usuarioOnLogin,empresa).then((response) => {
             
             
             console.log(response.data);
@@ -328,20 +304,7 @@ export default {
                     
                 }
                 
-                
-                console.table(response.data);
-    //     this.isLoadUsers= true;
-
-            // for (const key in tazaseinteres) {
-            //     if (tazaseinteres.hasOwnProperty(key)) {
-            //         const element = tazaseinteres[key];
-            //         //this.clientes.push(element);
-            //         this.$store.state.tasaseinteres.unshift(element);
-
-            //         ///this.clientes_nombres.push(element.data.usuario.nombre);
-
-            //     }
-            // }
+  
     });
       },
      onCancel() {

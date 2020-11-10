@@ -13,6 +13,8 @@ admin.initializeApp(functions.config().firebase);
 const db = admin.firestore();
 
 const fieldValue = admin.firestore.FieldValue;
+const fieldValueincrement = admin.firestore.FieldValue.increment(1);
+const fieldValuedeincrement = admin.firestore.FieldValue.increment(-1);
 
 /**
  * @function Funcion para actualizar el estado del usuario en la lista de cobros.
@@ -20,26 +22,79 @@ const fieldValue = admin.firestore.FieldValue;
 exports.updateEstadoUsuario = functions.firestore
     .document('usuarios/{usuarioId}/empresas/{empresaId}/cobradores/{cobradorId}/Clientes/{clienteId}')
     .onUpdate((change, context) => {
-        // Get an object representing the document
-        // e.g. {'name': 'Marie', 'age': 66}
-        // ...or the previous value before this update
         const previousValue = change.before.data().activo;
         db.collection('usuarios').doc(context.params.usuarioId).collection('empresas').doc(context.params.empresaId).collection('cobradores').doc(context.params.cobradorId).collection('clientes').doc(context.params.clienteId).set({
             activo: true
         }, { merge: true });
+        // db.collection('usuarios').doc(context.params.usuarioId).collection('empresas').doc(context.params.empresaId).doc('contador_clientes').set({
+        //     contador_clientes: fieldValueincrement
+        // }, { merge: true });
     });
 
-// exports.detectarTransferencia = functions.firestore
-//     .document('usuarios/{usuarioId}/empresas/{empresaId}/Zonas/{zonaId}/Transferencias/{transferenciasId}')
-//     .onCreate((change, context) => {
-//         // Get an object representing the document
-//         // e.g. {'name': 'Marie', 'age': 66}
-//         // ...or the previous value before this update
-//         const previousValue = change.before.data().activo;
-//         db.collection('usuarios').doc(context.params.usuarioId).collection('empresas').doc(context.params.empresaId).collection('Zonas').doc(context.params.zonaId).collection('Transferencias').doc(context.params.transferenciasId).set({
-//             activo: true
-//         }, { merge: true });
-//     });
+/**
+ * @function Funcion contar los clientes.
+ */
+exports.contadorClientes = functions.firestore
+    .document('usuarios/{usuarioId}/empresas/{empresaId}/cobradores/{cobradorId}/clientes/{clienteId}')
+    .onCreate((change, context) => {
+        // const previousValue = change.before.data().activo;
+        db.collection('usuarios').doc(context.params.usuarioId).collection('empresas').doc(context.params.empresaId).set({
+            contador_clientes: fieldValueincrement
+        }, { merge: true });
+    });
+
+/**
+ * @function Funcion contar los cobradores.
+ */
+exports.contadorCobradores = functions.firestore
+    .document('usuarios/{usuarioId}/empresas/{empresaId}/cobradores/{cobradorId}')
+    .onCreate((change, context) => {
+        // const previousValue = change.before.data().activo;
+        db.collection('usuarios').doc(context.params.usuarioId).collection('empresas').doc(context.params.empresaId).set({
+            contador_cobradores: fieldValueincrement
+        }, { merge: true });
+    });
+
+/**
+ * @function Funcion contar los cobradores.
+ */
+exports.contadorZonas = functions.firestore
+    .document('usuarios/{usuarioId}/empresas/{empresaId}/Zonas/{zonaId}')
+    .onCreate((change, context) => {
+        // const previousValue = change.before.data().activo;
+        db.collection('usuarios').doc(context.params.usuarioId).collection('empresas').doc(context.params.empresaId).set({
+            contador_zonas: fieldValueincrement
+        }, { merge: true });
+    });
+
+/**
+ * @function Funcion contador clientes.
+ */
+exports.ContadorClientesEmpresa = functions.firestore
+    .document('usuarios/{usuarioId}/empresas/{empresaId}/cobradores/{cobradorId}/Clientes/{clienteId}')
+    .onWrite((change, context) => {
+        // Get an object representing the document
+        // e.g. {'name': 'Marie', 'age': 66}
+        // ...or the previous value before this update
+        if (!change.before.exists) {
+            // New document Created : add one to count
+
+            db.collection('usuarios').doc(context.params.usuarioId).collection('empresas').doc(context.params.empresaId).set({
+                contador_cobradores: fieldValueincrement
+            });
+
+        } else if (change.before.exists && change.after.exists) {
+            // Updating existing document : Do nothing
+
+        } else if (!change.after.exists) {
+            // Deleting document : subtract one from count
+
+            db.collection('usuarios').doc(context.params.usuarioId).collection('empresas').doc(context.params.empresaId).set({
+                contador_cobradores: fieldValuedeincrement
+            });
+
+        }
+    });
 
 
 /**
@@ -130,6 +185,97 @@ exports.InformeDia = functions.https.onRequest(async(request, response, body) =>
         return response.status(500).send(error);
     }
 })
+
+
+
+/**
+ * @function Funcion para buscar el cobrador por la zona.
+//  */
+exports.InfoDashboard = functions.https.onRequest(async(request, response, body) => {
+    response.set('Access-Control-Allow-Origin', '*');
+    response.set('Access-Control-Allow-Credentials', 'true'); // vital
+    response.set('Access-Control-Allow-Methods', 'GET', 'POST', 'PUT', 'DELETE', 'OPTIONS');
+    response.set('Access-Control-Allow-Headers', 'Content-Type');
+    response.set('Access-Control-Allow-Headers', 'Content-Length,Content-Range');
+    response.set('Access-Control-Allow-Headers', 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization');
+
+    try {
+        let infodia = {
+            NumerotransferenciasRecibidas: [],
+            NumerotransferenciasEnviadas: [],
+            totaldineroprestado: [],
+            totaldinerocobrado: []
+        };
+
+
+        let list_collections_zonas_transferencias = await db.collection('usuarios').doc(request.query.idadmin).collection('empresas').doc(request.query.doc).collection('Zonas').doc(request.query.idzona).collection('Transferencias');
+        let list_collections_empresa_historial_transacciones = await db.collection('usuarios').doc(request.query.idadmin).collection('empresas').doc(request.query.doc).collection('historial_transaccion');
+        let list_collections_empresa_cobradores_cobros = await db.collection('usuarios').doc(request.query.idadmin).collection('empresas').doc(request.query.doc).collection('cobradores').doc(request.query.idcobrador).collection('cobros');
+        let list_collections_empresa_cobradores_clientes = await db.collection('usuarios').doc(request.query.idadmin).collection('empresas').doc(request.query.doc).collection('cobradores').doc(request.query.idcobrador).collection('clientes');
+        // const list_collections_zonas_transferencias = await db.collection('usuarios').doc(request.query.idadmin).collection('empresas').doc(request.query.doc).collection('Zonas').doc(request.query.idzona).collection('Transferencias').listCollections();
+        // const collectionIds = list_collections_cobradores_clientes.map(col => col.id);
+        // if (collectionIds.includes('Jornada_Ruta')) {
+        // let jornadas_collection = db.collection('usuarios').doc(request.query.idadmin).collection('empresas').doc(request.query.doc).collection('cobradores').doc(request.query.idcobrador).collection('Jornada_Ruta')
+        // let jornadas_collection_clientes = db.collection('usuarios').doc(request.query.idadmin).collection('empresas').doc(request.query.doc).collection('cobradores').doc(request.query.idcobrador).collection('clientes')
+        // let jornadas_collection_cobros = db.collection('usuarios').doc(request.query.idadmin).collection('empresas').doc(request.query.doc).collection('cobradores').doc(request.query.idcobrador).collection('cobros')
+        // let jornadas_collection_nopagos = db.collection('usuarios').doc(request.query.idadmin).collection('empresas').doc(request.query.doc).collection('cobradores').doc(request.query.idcobrador).collection('observaciones')
+
+
+        let list_collections_empresa_historial_transacciones_query = list_collections_empresa_historial_transacciones.where("fecha", "<", request.body.fecha1).where("fecha", ">", request.body.fecha2).where("estado_transaccion", "==", request.body.estado).get()
+            .then((querySnapshot) => {
+                querySnapshot.forEach((doc) => {
+
+                    let id = doc.id;
+                    let datadocument = doc.data();
+                    datadocument.id = id;
+                    let data = {
+                        data: datadocument
+                    }
+                    infodia.NumerotransferenciasRecibidas.push(data);
+                });
+                return true;
+            });
+
+
+
+        // let restultadoCollectionCobros = jornadas_collection_cobros.where("fecha", "==", request.body.fecha).get()
+        //     .then((querySnapshot) => {
+        //         querySnapshot.forEach((doc) => {
+
+        //             let id = doc.id;
+        //             let datadocument = doc.data();
+        //             datadocument.id = id;
+        //             infodia.cobros.push(datadocument);
+        //         });
+        //         return true;
+        //     });
+
+        // let restultadoCollectionNoCobros = jornadas_collection_nopagos.where("fecha", "==", request.body.fecha).get()
+        //     .then((querySnapshot) => {
+        //         querySnapshot.forEach((doc) => {
+
+        //             let id = doc.id;
+        //             let datadocument = doc.data();
+        //             datadocument.id = id;
+        //             infodia.observaciones.push(datadocument);
+        //         });
+        //         return true;
+        //     });
+
+        Promise.all([list_collections_empresa_historial_transacciones_query]).then(values => {
+            return response.status(200).send(infodia);
+        }).catch((error) => {
+            return response.status(500).send({ 'error': error.code, 'mensaje': error.message, 'details ': error.details });
+        });
+
+        // }
+        // return response.status(200).send(JSON.stringify(collectionIds));
+    } catch (error) {
+        return response.status(500).send({ 'error': error.code, 'mensaje': error.message, 'details ': error.details });
+    }
+})
+
+
 
 
 /**
@@ -679,12 +825,14 @@ exports.CobradoresGuardarClientesRutas = functions.https.onRequest(async(request
  * @function Funcion para guardar los gastos de los cobradores.
  */
 exports.CobradoresGuardarGastos = functions.https.onRequest(async(request, response, body) => {
-    await db.collection('usuarios').doc(request.query.idadmin).collection('empresas').doc(request.query.id_empresa).collection('cobradores').doc(request.query.doc).collection(request.query.sub).add({
-        Descripcion: request.body.descripcion,
-        Valor_gasto: request.body.valor_gasto,
-        fecha_creacion: request.body.fecha_creacion
-    }).then(() => {
-        return response.send('Ruta registrada.');
+    response.set('Access-Control-Allow-Origin', '*');
+    response.set('Access-Control-Allow-Credentials', 'true'); // vital
+    response.set('Access-Control-Allow-Methods', 'GET,POST', 'PUT', 'DELETE', 'OPTIONS');
+    response.set('Access-Control-Allow-Headers', 'Content-Type');
+    response.set('Access-Control-Allow-Headers', 'Content-Length,Content-Range');
+    response.set('Access-Control-Allow-Headers', 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization');
+    await db.collection('usuarios').doc(request.query.id_admin).collection('empresas').doc(request.query.id_empresa).collection('cobradores').doc(request.query.ui_cobrador).collection('gastos').add(request.body).then(() => {
+        return response.send('Gasto registrado.');
     }).catch((error) => {
         return response.status(500).send(error);
     });

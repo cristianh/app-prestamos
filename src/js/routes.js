@@ -19,6 +19,9 @@ import detalleAbono from '../pages/Abonos/detallesAbono.vue';
 import ModificarAbono from '../pages/Abonos/ModificarAbono.vue';
 import EliminarAbono from '../pages/Abonos/EliminarAbono.vue';
 
+//Gastos
+import GastosPage from '../pages/Gastos/gastosPage.vue';
+
 import PendientesPage from '../pages/Pendientes/PendientesPage.vue';
 
 import NotFoundPage from '../pages/404.vue';
@@ -104,10 +107,10 @@ var routes = [{
         path: '/informes_dia',
         component: InformeDiaPage
     },
-    // {
-    //   path: '/about/',
-    //   component: AboutPage,
-    // },
+    {
+        path: '/gastos',
+        component: GastosPage,
+    },
     // {
     //   path: '/form/',
     //   component: FormPage,

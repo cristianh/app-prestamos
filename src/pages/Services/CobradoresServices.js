@@ -20,6 +20,13 @@ export default class CobradorServices {
         }).then(response => response);
     }
 
+    guardarGastoCobrador(id_admin, id_empresa, ui_cobrador, data) {
+        return axios.post(`CobradoresGuardarGastos?id_admin=${id_admin}&id_empresa=${id_empresa}&ui_cobrador=${ui_cobrador}`, qs.stringify(data), {
+            method: 'POST',
+            headers: { 'content-type': 'application/x-www-form-urlencoded' },
+        }).then(response => response);
+    }
+
 
     actualizarJornadaCobrador(id_admin, id_empresa, ui_rutacobrador, id_rutajornada, data) {
 

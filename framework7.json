@@ -1,41 +1,41 @@
 {
-  "cwd": "app",
-  "type": [
-    "pwa",
-    "cordova"
-  ],
-  "name": "SVCC",
-  "framework": "vue",
-  "template": "tabs",
-  "bundler": "webpack",
-  "cssPreProcessor": "less",
-  "theming": {
-    "customColor": false,
-    "color": "#007aff",
-    "darkTheme": false,
-    "iconFonts": true,
-    "fillBars": true
-  },
-  "customBuild": false,
-  "webpack": {
-    "developmentSourceMap": true,
-    "productionSourceMap": true,
-    "hashAssets": false,
-    "preserveAssetsPaths": false,
-    "inlineAssets": true
-  },
-  "pkg": "io.framework7.myapp",
-  "cordova": {
-    "folder": "cordova",
-    "platforms": [
-      "ios",
-      "android"
+    "cwd": "app",
+    "type": [
+        "pwa",
+        "cordova"
     ],
-    "plugins": [
-      "cordova-plugin-statusbar",
-      "cordova-plugin-keyboard",
-      "cordova-plugin-splashscreen",
-      "cordova-plugin-wkwebview-engine"
-    ]
-  }
+    "name": "JUEGOS",
+    "framework": "vue",
+    "template": "tabs",
+    "bundler": "webpack",
+    "cssPreProcessor": "less",
+    "theming": {
+        "customColor": false,
+        "color": "#007aff",
+        "darkTheme": false,
+        "iconFonts": true,
+        "fillBars": true
+    },
+    "customBuild": false,
+    "webpack": {
+        "developmentSourceMap": true,
+        "productionSourceMap": true,
+        "hashAssets": false,
+        "preserveAssetsPaths": false,
+        "inlineAssets": true
+    },
+    "pkg": "io.framework7.myapp",
+    "cordova": {
+        "folder": "cordova",
+        "platforms": [
+            "ios",
+            "android"
+        ],
+        "plugins": [
+            "cordova-plugin-statusbar",
+            "cordova-plugin-keyboard",
+            "cordova-plugin-splashscreen",
+            "cordova-plugin-wkwebview-engine"
+        ]
+    }
 }

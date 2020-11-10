@@ -1,8 +1,8 @@
 <template>
   <CRow>
-    <CCol sm="6" lg="3">
-      <CWidgetDropdown color="primary" header="9.823" text="Zonas">
-        <template #default>
+    <CCol sm="6" lg="4">
+      <CWidgetDropdown color="danger" :header="contador_zonas" text="Zonas">
+        <!-- <template #default>
           <CDropdown
             color="transparent p-0"
             placement="bottom-end"
@@ -15,23 +15,31 @@
             <CDropdownItem>Something else here...</CDropdownItem>
             <CDropdownItem disabled>Disabled action</CDropdownItem>
           </CDropdown>
-        </template>
+        </template> -->
         <template #footer>
-          <CChartLineSimple
+           <CChartBarSimple
+            class="mt-3 mx-3"
+            style="height:70px"
+            background-color="rgb(250, 152, 152)"
+            label="Members"
+            labels="months"
+          />
+          <!-- <CChartLineSimple
             pointed
             class="mt-3 mx-3"
             style="height:70px"
+            background-color="rgb(250, 152, 152)"
             :data-points="[65, 59, 84, 84, 51, 55, 40]"
             point-hover-background-color="primary"
             label="Members"
             labels="months"
-          />
+          /> -->
         </template>
       </CWidgetDropdown>
     </CCol>
-    <CCol sm="6" lg="3">
-      <CWidgetDropdown color="info" header="9.823" text="Cobradores">
-        <template #default>
+    <CCol sm="6" lg="4">
+      <CWidgetDropdown color="info" :header="contador_cobradores" text="Cobradores">
+        <!-- <template #default>
           <CDropdown
             color="transparent p-0"
             placement="bottom-end"
@@ -45,7 +53,7 @@
             <CDropdownItem>Something else here...</CDropdownItem>
             <CDropdownItem disabled>Disabled action</CDropdownItem>
           </CDropdown>
-        </template>
+        </template> -->
         <template #footer>
           <CChartLineSimple
             pointed
@@ -60,10 +68,10 @@
         </template>
       </CWidgetDropdown>
     </CCol>
-    <CCol sm="6" lg="3">
+    <CCol sm="6" lg="4">
       <CWidgetDropdown
         color="warning"
-        header="9.823"
+        :header="contador_empresas"
         text="Empresas"
       >
         <template #default>
@@ -94,7 +102,7 @@
         </template>
       </CWidgetDropdown>
     </CCol>
-    <CCol sm="6" lg="3">
+    <!-- <CCol sm="6" lg="3">
       <CWidgetDropdown
         color="danger"
         header="9.823"
@@ -124,7 +132,7 @@
           />
         </template>
       </CWidgetDropdown>
-    </CCol>
+    </CCol> -->
   </CRow>
 </template>
 
@@ -133,6 +141,14 @@ import { CChartLineSimple, CChartBarSimple } from '../charts/index.js'
 
 export default {
   name: 'WidgetsDropdown',
-  components: { CChartLineSimple, CChartBarSimple }
+  components: { CChartLineSimple, CChartBarSimple },
+  data() {
+    return {
+      contador_clientes:'50',
+      contador_zonas:'6',
+      contador_cobradores:'10',
+      contador_empresas:'4'
+    }
+  },
 }
 </script>
