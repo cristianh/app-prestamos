@@ -102,11 +102,11 @@
 </f7-block>
 <f7-popup class="demo-popup" :opened="popupOpened" @popup:closed="popupOpened = false">
       <f7-page>
-        <f7-navbar title="Editar usuario">
+       <f7-navbar title="Editar usuario">
           <f7-nav-right>
             <f7-link popup-close>Cerrar</f7-link>
           </f7-nav-right>
-        </f7-navbar>
+        </f7-navbar> 
         <f7-block>
            <f7-card>
       <f7-row>

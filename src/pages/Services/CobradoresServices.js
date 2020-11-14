@@ -27,6 +27,10 @@ export default class CobradorServices {
         }).then(response => response);
     }
 
+    getAllGastoCobrador(id_admin, id_empresa, ui_cobrador) {
+        return axios.get(`getCobradoresGastos?id_admin=${id_admin}&id_empresa=${id_empresa}&ui_cobrador=${ui_cobrador}`).then(response => response);
+    }
+
 
     actualizarJornadaCobrador(id_admin, id_empresa, ui_rutacobrador, id_rutajornada, data) {
 

@@ -38,6 +38,7 @@ export default new Vuex.Store({
             total_prestado: 0
         },
         cobros_hoy: [],
+        estados_prestamos_antes_cobros: [],
         nocobros_hoy: [],
         clientes: [],
         clientes_clon: [],
@@ -67,6 +68,15 @@ export default new Vuex.Store({
         },
         setCobrosHoy(state, infocobroshoy) {
             state.cobros_hoy.push(infocobroshoy)
+            localStorage.setItem("cobros_hoy", JSON.stringify(state.cobros_hoy));
+        },
+        setEstadosPrestamosAntesCobros(state, infoprestamo) {
+            state.estados_prestamos_antes_cobros.push(infoprestamo)
+            localStorage.setItem("estados_prestamos_antes_cobros", JSON.stringify(state.estados_prestamos_antes_cobros));
+        },
+        setEditCobrosHoy(state, datacobro) {
+            let posicion = state.cobros_hoy.findIndex(x => x.cobro_id === datacobro.id_cobro);
+            state.cobros_hoy[posicion].valor_pago = datacobro.nuevovalorcobro
             localStorage.setItem("cobros_hoy", JSON.stringify(state.cobros_hoy));
         },
         // setNoCobrosHoy(state, infonocobroshoy) {
@@ -333,6 +343,19 @@ export default new Vuex.Store({
                 // let posicion = estados.findIndex(x => x.id == data_posicion);
             estados.splice(data_posicion, 1);
         },
+        SetReiniciarEstadoClientesPrestamos(state, data) {
+
+            let posicion = state.clientes_cobros.findIndex(x => x.data.id == data.id);
+            state.estados_prestamos_ruta[posicion].estado = data.estadopagoruta;
+            // let posicion = state.clientes_cobros.findIndex(x => x.data.id == data.id);
+
+            // state.estados_prestamos_ruta[posicion].estado = data.estadopagoruta;
+            state.clientes_cobros[posicion].data.estado_pago_prestamo.nopago = false;
+            state.clientes_cobros[posicion].data.estado_pago_prestamo.pago = false;
+            state.clientes_cobros[posicion].data.estado_pago_prestamo.pendiente = false;
+
+            // estados.splice(data_posicion, 1);
+        },
         setEstadoListaOrdenada(state, newstado) {
             state.cobrador_ordena_lista = newstado;
         },
@@ -537,6 +560,9 @@ export default new Vuex.Store({
         getCobrosHoy: state => {
             return state.cobros_hoy
         },
+        getEstadoPrestamoAntesCobro: state => {
+            return state.estados_prestamos_antes_cobros
+        },
         // getNoCobrosHoy: state => {
         //     return state.nocobros_hoy
         // },
@@ -584,6 +610,7 @@ export default new Vuex.Store({
                 // plazo_dias = Number(elementP.data.prestamos[0].dias_plazo)
                 plazo_dias = Number(elementP.data.prestamos[0].dias_plazo)
                 pago_hoy = Math.round((valor_prestamo * (1 + taza_seleccionada_interes)) / plazo_dias)
+                console.log("pago_hoy", pago_hoy)
 
 
                 if (elementP.data.prestamos[0].saldo_pendiente > 0) {
@@ -638,6 +665,7 @@ export default new Vuex.Store({
             // }
 
             // state.saldo_pago_dia.push(pago_hoy)
+            console.log("saldo a pagar return", state.saldo_pago_dia);
 
             return state.saldo_pago_dia;
         },

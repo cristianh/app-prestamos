@@ -470,7 +470,7 @@ exports.ClienteEliminarPrestamosPago = functions.https.onRequest(async(request, 
 
 
 /**
- * @function Funcion para los prestamos del cliente.
+ * @function Funcion para eliminar el cobro al cliente.
  */
 exports.ClienteEliminarCobro = functions.https.onRequest(async(request, response, body) => {
     response.set('Access-Control-Allow-Origin', '*');
@@ -481,8 +481,30 @@ exports.ClienteEliminarCobro = functions.https.onRequest(async(request, response
     response.set('Access-Control-Allow-Headers', 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization');
 
     try {
-        await db.collection('usuarios').doc(request.query.idadmin).collection('empresas').doc(request.query.id_empresa).collection('cobradores').doc(request.query.doc).collection('clientes').doc(request.query.sub).collection('cobros').doc(request.query.idcobro).delete().then(() => {
+
+        await db.collection('usuarios').doc(request.query.id_admin).collection('empresas').doc(request.query.id_empresa).collection('cobradores').doc(request.query.id_cobrador).collection('cobros').doc(request.query.id_cobro).delete().then(() => {
             return response.status(200).send('Cobro eliminado.');
+        })
+
+    } catch (error) {
+        return response.status(500).send(error);
+    }
+});
+
+/**
+ * @function Funcion para los prestamos del cliente.
+ */
+exports.ClienteActualizarCobro = functions.https.onRequest(async(request, response, body) => {
+    response.set('Access-Control-Allow-Origin', '*');
+    response.set('Access-Control-Allow-Credentials', 'true'); // vital
+    response.set('Access-Control-Allow-Methods', 'GET', 'POST', 'PUT', 'DELETE', 'OPTIONS');
+    response.set('Access-Control-Allow-Headers', 'Content-Type');
+    response.set('Access-Control-Allow-Headers', 'Content-Length,Content-Range');
+    response.set('Access-Control-Allow-Headers', 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization');
+
+    try {
+        await db.collection('usuarios').doc(request.query.id_admin).collection('empresas').doc(request.query.id_empresa).collection('cobradores').doc(request.query.id_cobrador).collection('cobros').doc(request.query.id_cobro).update(request.body, { merge: true }).then((resp) => {
+            return response.status(200).send({ mensaje: 'Cobro Actualizado.', id: resp.id });
         })
 
     } catch (error) {
@@ -836,6 +858,41 @@ exports.CobradoresGuardarGastos = functions.https.onRequest(async(request, respo
     }).catch((error) => {
         return response.status(500).send(error);
     });
+});
+
+/**
+ * @function Funcion para ver todos los gastos de los cobradores.
+ */
+exports.getCobradoresGastos = functions.https.onRequest(async(request, response, body) => {
+    response.set('Access-Control-Allow-Origin', '*');
+    response.set('Access-Control-Allow-Credentials', 'true'); // vital
+    response.set('Access-Control-Allow-Methods', 'GET,POST', 'PUT', 'DELETE', 'OPTIONS');
+    response.set('Access-Control-Allow-Headers', 'Content-Type');
+    response.set('Access-Control-Allow-Headers', 'Content-Length,Content-Range');
+    response.set('Access-Control-Allow-Headers', 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization');
+
+    try {
+        const snapshot = await db.collection('usuarios').doc(request.query.id_admin).collection('empresas').doc(request.query.id_empresa).collection('cobradores').doc(request.query.ui_cobrador).collection('gastos').get();
+        let gastos = [];
+
+        if (snapshot.empty) {
+            return response.send('Not Found');
+        } else {
+            snapshot.forEach(doc => {
+                let id = doc.id;
+                let datadocument = doc.data();
+                datadocument.id = id;
+                gastos.push(datadocument);
+                // cobradores.push({
+                //         id: doc.id,
+                //         data: doc.data()
+                //     });
+            });
+            return response.status(200).send(JSON.stringify(gastos));
+        }
+    } catch (error) {
+        return response.status(500).send(error);
+    }
 });
 
 /**

@@ -27,8 +27,13 @@ export default class ClientesService {
         }).then(response => response);
     }
 
-    eliminarClienteCobro(id_admin, id_empresa, id_cobrador, id_cliente, id_cobro, data) {
-        return axios.post(`ClienteEliminarCobro?idadmin=${id_admin}&id_empresa=${id_empresa}&doc=${id_cobrador}&subdoc=${id_cliente}&idcobro=${id_cobro}`, qs.stringify(data), {
+    // db.collection('usuarios').doc(request.query.id_admin).collection('empresas').doc(request.query.id_empresa).collection('cobradores').doc(request.query.id_cobrador).collection('cobros').doc(request.query.id_cobro).delete().then(() => {
+    eliminarClienteCobro(id_admin, id_empresa, id_cobrador, id_cobro) {
+        return axios.get(`ClienteEliminarCobro?id_admin=${id_admin}&id_empresa=${id_empresa}&id_cobrador=${id_cobrador}&id_cobro=${id_cobro}`).then(response => response);
+    }
+
+    actualizarClienteCobro(id_admin, id_empresa, id_cobrador, id_cobro, data) {
+        return axios.post(`ClienteActualizarCobro?id_admin=${id_admin}&id_empresa=${id_empresa}&id_cobrador=${id_cobrador}&id_cobro=${id_cobro}`, qs.stringify(data), {
             method: 'POST',
             headers: { 'content-type': 'application/x-www-form-urlencoded' },
         }).then(response => response);

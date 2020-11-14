@@ -34,7 +34,7 @@
 
 <!-- {{consulta.length}} -->
      <f7-block v-if="consulta.length!=0">
-         <f7-list accordion-list>
+  <f7-list accordion-list>
   <f7-list-item v-if="jornada_dia.data.length>=1" accordion-item :title="`Informe final dia`">
     <f7-accordion-content>
      <f7-block>

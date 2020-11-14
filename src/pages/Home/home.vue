@@ -437,6 +437,10 @@ export default {
                                        this.$store.state.cobros_hoy=JSON.parse(localStorage.getItem('cobros_hoy'))   
                                      }
 
+                                     if(localStorage.getItem('estados_prestamos_antes_cobros')){
+                                       this.$store.state.estados_prestamos_antes_cobros=JSON.parse(localStorage.getItem('estados_prestamos_antes_cobros'))   
+                                     }
+
                                     //  if(localStorage.getItem('nocobros_hoy')){
                                     //    this.$store.state.nocobros_hoy=JSON.parse(localStorage.getItem('nocobros_hoy'))   
                                     //  }

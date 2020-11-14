@@ -158,7 +158,7 @@
          {{cliente.data.prestamos[0].estado_pago_prestamo.pago}}
          {{cliente.data.prestamos[0].estado_pago_prestamo.nopago}}
          {{cliente.data.prestamos[0].estado_pago_prestamo.pendiente}} -->
-        <!-- {{cliente.data.estado_pago_prestamo}} -->
+        {{cliente.data.estado_pago_prestamo}}
         <!-- {{calculoTotalPagoHoy[index]}} -->
         </f7-list-item>
         </f7-list>
@@ -814,6 +814,7 @@ if (fin < inicio) {
           this.btn_comenzar_ruta=true
           localStorage.setItem("Informe_final_ruta",JSON.stringify(this.informacion_final_ruta))
           localStorage.setItem("mostrar_resultado_final",Boolean(true));
+          localStorage.removeItem("cobros_hoy")
           
          
           

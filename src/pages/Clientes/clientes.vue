@@ -18,39 +18,8 @@
 </f7-list>
   </f7-popover>
     
-    
-
-      <!-- <f7-searchbar
-     
-      expandable
-       class="searchbar-cliente"
-      found-el=".searchbar-found"
-      searchbar-ignore=".list-ignore"
-      search-container=".search-list"
-      search-in=".item-text"
-      search-item="li"
-      :disable-button="!$theme.aurora"
-      placeholder="Buscar por cedula..."
-    ></f7-searchbar> -->
-      <!-- <f7-nav-title-large>Clientes</f7-nav-title-large> -->
+  
     </f7-navbar>
-    <!-- <f7-navbar title="Clientes" back-link="Atras">
-      
-    </f7-navbar> -->
-       <!-- <f7-nav-right>
-       
-      </f7-nav-right> -->
-    <!-- <f7-block>
-      
-      
-  <f7-row>
-   
-    <f7-col>
-      
-      <f7-button fill large small href="/cliente_nuevo/" color="green"><f7-icon size="21px" material="person_add_alt_1"></f7-icon> NUEVO CLIENTE </f7-button>
-    </f7-col>
-  </f7-row> -->
-
 <div v-if="clientes.length!=0">
 
   <f7-list class="searchbar-not-found">
