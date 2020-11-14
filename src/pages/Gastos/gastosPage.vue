@@ -151,7 +151,9 @@ export default {
 
       this.cobradorservice.getAllGastoCobrador(this.datastorage.iad,this.datastorage.empresa,this.datastorage.uid).then((resp)=>{
             console.log("repo",resp);
-            if(!resp.data=="Not Found"){
+            if(resp.data=="Not Found" || resp.data==0){
+              this.historico_gastos=[]
+            }else{
               this.historico_gastos=resp.data
             }
             

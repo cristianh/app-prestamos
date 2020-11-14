@@ -51,7 +51,7 @@
           <Column field="direccion1" header="Direccion" headerStyle="width: 15%"></Column>
           <Column field="telefono" header="Telefono" headerStyle="width: 15%"></Column>
           
-          <Column header="Acciones" >
+          <Column  v-if="getLogin_rol=='administrador'" header="Acciones" >
         <template #body="items">
             <CButton size="sm" class="m-2"  :block=true @click="editInfoCobrador(items)" color="warning">EDITAR</CButton>
             <CButton size="sm" class="m-2"  :block=true  @click="verZona(items)" color="info">VER ZONA</CButton>
@@ -263,6 +263,11 @@ export default {
     small: Boolean,
     fixed: Boolean,
     dark: Boolean
+  },
+  computed: {
+    getLogin_rol(){
+      return localStorage.getItem('rol')
+    }
   },
   beforeMount(){
     this.usuarioOnLogin=localStorage.getItem('id');

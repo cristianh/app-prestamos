@@ -85,8 +85,36 @@ export default {
                   firebase.auth().signInWithEmailAndPassword(this.username, this.password).then((response)=> {
                    
                     const info= response.user.displayName.split("-");
+                    console.log(response.user.displayName);
                
-                     const usuario_login={
+                    
+
+                  
+                    //this.$store.commit('setUsurioLogin',usuario_login);
+                    console.log(info);
+                    if(info.length==5){
+                       const usuario_login={
+                       'id':info[2],
+                       'username':response.user,
+                       'displayName':info[0],
+                       'email':response.user.email,
+                       'ultimaconexion':response.user.metadata.lastSignInTime,
+                       'rol':info[4]
+                     }
+                     localStorage.setItem('id',info[2]);
+                     localStorage.setItem('username',response.user);
+                     localStorage.setItem('displayName',info[0]);
+                     localStorage.setItem('email',info[1],response.user.email);
+                     localStorage.setItem('ultimaconexion',response.user.metadata.lastSignInTime);
+                     localStorage.setItem('rol',info[4]);
+                      if(info[4]=='supervisor' ){
+                        this.$router.push('home/dashboard');
+                      }else{
+                        this.error='No tiene privilegios para ingresar a esta pagina.';
+                       this.$toast.add({severity:'error', summary: 'Error', detail:this.error, life: 3000}); 
+                      }
+                    }else{
+                       const usuario_login={
                        'id':info[1],
                        'username':response.user,
                        'displayName':info[0],
@@ -100,19 +128,17 @@ export default {
                      localStorage.setItem('email',info[1],response.user.email);
                      localStorage.setItem('ultimaconexion',response.user.metadata.lastSignInTime);
                      localStorage.setItem('rol',info[2]);
-
-                  
-                    //this.$store.commit('setUsurioLogin',usuario_login);
-            
-                    if(info[2]=='administrador'){
+                       if(info[2]=='administrador'  ){
                         //  this.oneDetectarTransacciones();
                          this.$router.push('home/dashboard');
                          
                     }else{
-                       this.error='No tiene privilegios para ingresar a eta pagina.';
+                       this.error='No tiene privilegios para ingresar a esta pagina.';
                        this.$toast.add({severity:'error', summary: 'Error', detail:this.error, life: 3000});  
                         //  this.$router.push('/');
                     }
+                    }
+                   
                      
                     // ...
                     }).catch((error)=> {

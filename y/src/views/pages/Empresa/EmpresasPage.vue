@@ -322,6 +322,25 @@ export default {
             }
         }  
       }
+      else if(this.empresa_form.Pais==="Brazil"){ 
+         for (const key in this.ciudades_data) {
+            if (this.ciudades_data.hasOwnProperty(key)) {
+                
+                  let element={ value: this.ciudades_data[key].id, label: this.ciudades_data[key].departamento};
+                  this.departamentos.push(element);
+                 
+            }
+        }  
+      }
+       else if(this.empresa_form.Pais==="Mexico"){ 
+         for (const key in this.ciudades_data) {
+            if (this.ciudades_data.hasOwnProperty(key)) {
+                  let element={ value: this.ciudades_data[key].id, label: this.ciudades_data[key].departamento};
+                  this.departamentos.push(element);
+                 
+            }
+        }  
+      }
       
     },
      onSelectdDepartamento($event){

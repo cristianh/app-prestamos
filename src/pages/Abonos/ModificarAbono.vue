@@ -217,6 +217,9 @@ export default {
            id_cobro:this.infocobroseleccionado.cobro_id,
            nuevovalorcobro:saldoactualizado
        }
+
+      
+      
        this.$store.commit('setBalanceZona',Number(saldoactualizado));
        this.$store.commit('setEditCobrosHoy',datasetcobrostore);
        this.$store.commit('setbalance_finalJornada',Number(saldoactualizado));
@@ -299,6 +302,13 @@ export default {
                       estadopagoruta:0
         };
       //  this.$store.commit('setEstadoPrestamoRutaPago',data_estado_ruta);
+         let dataTotalAPagarHoy={
+            Idcliente: this.infocobroseleccionado.cliente_id,
+            pagototalhoy:Number(this.infocobroseleccionado.valor_pago)
+          };
+      this.$store.commit('setEstadoTotalAPagar',dataTotalAPagarHoy);
+
+      // this.$store.getters.getSaldosPagoDia
 
       this.$store.commit('SetReiniciarEstadoClientesPrestamos',data_estado_ruta)
       // this.$store.commit('setEstadosInicialesRutaClientesPrestamo')
@@ -309,6 +319,7 @@ export default {
 
         this.clientesservice.actualizarClienteCobrador(idad,empresa,ui_cobrador,this.infocobroseleccionado.cliente_id,cliente.data).then( (response) =>  {
             console.log(response.data)
+
             
             this.onDescuentaSaldoZona()
               //     this.informacion_pago.valor_pago=0;  

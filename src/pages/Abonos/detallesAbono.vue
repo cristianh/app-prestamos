@@ -566,6 +566,7 @@ import CobradorService from '../Services/CobradoresServices.js';
 
 
            let id_empresa=localStorage.getItem("empresa");
+          
           this.abonoService.guardarAbonosCobros(this.idad,id_empresa,this.ui_cobrador,this.id,this.informacion_pago).then( (response) =>  {
           let saldo_actual=  localStorage.getItem("saldo_zona");
           // this.informacion_pago.valor_pago=this.informacion_pago.valor_pago.replace('.', "");

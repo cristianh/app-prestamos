@@ -51,7 +51,7 @@
           <Column field="interes" header="Interes"></Column>
           <!-- <Column field="empresa" header="Empresa"></Column> -->
           <Column field="plazo" header="Plazo(dias)" ></Column>
-          <Column>
+          <Column  header="Acciones" v-if="getLogin_rol=='administrador'">
         <template #body="items">
           <!-- @click="editProduct(slotProps.data)" -->
           <!-- @click="confirmDeleteProduct(slotProps.data)"  -->
@@ -125,7 +125,7 @@
               />
       </CCol>
      </CRow>
-      <CRow>
+      <CRow >
       <!-- <CCol md="12">
         <CSelect
                   label="Empresas"
@@ -137,7 +137,7 @@
     
     </CCardBody>
      </CCard>
-     <template #footer>
+     <template  #footer>
       <CRow>
        <CCol col="4" sm="4" md="2" xl class="mb-3 mb-xl-0">
             <CButton color="success"  @click="onActualizar" >ACTUALIZAR</CButton>
@@ -156,6 +156,7 @@
     </template>
 </Dialog>
     <Toast  autoZIndex position="bottomright" />
+    <!-- {{getLogin_rol}} -->
 </div>
 </template>
 
@@ -223,6 +224,11 @@ export default {
   created() {
       this.empresaservice=new EmpresaService();
       this.tazainteresservice=new TazaInteresService();
+  },
+  computed: {
+    getLogin_rol(){
+      return localStorage.getItem('rol')
+  }
   },
   methods: {
     oncloseConfirmation(){

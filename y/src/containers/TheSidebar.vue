@@ -22,7 +22,7 @@
       />
     </CSidebarBrand>
 
-    <CRenderFunction flat :content-to-render="$options.nav"/>
+    <CRenderFunction flat :content-to-render="getLogin_rol=='administrador'?$options.nav:$options.nav_supervisor"/>
     <CSidebarMinimizer
       class="d-md-down-none"
       @click.native="$store.commit('set', ['sidebarMinimize', !minimize])"
@@ -32,11 +32,16 @@
 
 <script>
 import nav from './_nav'
+import nav_supervisor from './_nav_supervisor.js'
 
 export default {
   name: 'TheSidebar',
+  nav_supervisor,
   nav,
   computed: {
+    getLogin_rol(){
+      return localStorage.getItem('rol')
+    },
     show () {
       return this.$store.state.sidebarShow 
     },

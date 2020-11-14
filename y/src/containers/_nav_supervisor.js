@@ -20,12 +20,6 @@ export default [{
             route: '/empresa',
             icon: 'cil-cloud-download',
             items: [{
-                    name: 'Nueva Empresa',
-                    to: '/nueva_empresa',
-                    icon: 'cil-building-business'
-
-                },
-                {
                     name: 'Listar Empresas',
                     to: '/editar_empresa',
                 }
@@ -41,12 +35,6 @@ export default [{
             route: '/empresa',
             icon: 'cil-puzzle',
             items: [{
-                    name: 'Nuevo Plan Pago',
-                    to: '/nueva_plan',
-                    icon: 'cil-plus'
-
-                },
-                {
                     name: 'Listar planes',
                     to: '/listar_planes',
                 }
@@ -62,12 +50,6 @@ export default [{
             route: '/empresa',
             icon: 'cil-puzzle',
             items: [{
-                    name: 'Nueva transferencia',
-                    to: '/nueva_transferencia',
-                    icon: 'cil-plus'
-
-                },
-                {
                     name: 'Historial transferencia',
                     to: '/historial_transacciones',
                     icon: 'cil-plus'
@@ -87,48 +69,23 @@ export default [{
         //   _name: 'CSidebarNavTitle',
         //   _children: ['Zonas']
         // },
-        {
-            _name: 'CSidebarNavDropdown',
-            name: 'Zonas',
-            route: '/zonas',
-            icon: 'cil-puzzle',
-            items: [{
-                    name: 'Nueva Zona',
-                    to: '/nueva_zona',
-                    icon: 'cil-user-follow',
-                }
-                // ,
-                // {
-                //     name: 'Zonas Cobradores',
-                //     to: '/zonas_cobradores',
-                // },
-                // {
-                //   name: 'Borrar Empresa',
-                //   to: '/borrar',
-                // }
-            ]
-        },
-        {
-            _name: 'CSidebarNavDropdown',
-            name: 'Supervisores',
-            route: '/supervisores',
-            icon: 'cil-puzzle',
-            items: [{
-                    name: 'Nuevo Supervisor',
-                    to: '/nueva_supervisor',
-                    icon: 'cil-user-follow',
-                }
-                // ,
-                // {
-                //     name: 'Zonas Cobradores',
-                //     to: '/zonas_cobradores',
-                // },
-                // {
-                //   name: 'Borrar Empresa',
-                //   to: '/borrar',
-                // }
-            ]
-        },
+        // {
+        //     _name: 'CSidebarNavDropdown',
+        //     name: 'Zonas',
+        //     route: '/zonas',
+        //     icon: 'cil-puzzle',
+        //     items: [
+        //         // ,
+        //         // {
+        //         //     name: 'Zonas Cobradores',
+        //         //     to: '/zonas_cobradores',
+        //         // },
+        //         // {
+        //         //   name: 'Borrar Empresa',
+        //         //   to: '/borrar',
+        //         // }
+        //     ]
+        // },
         //  {
         //   _name: 'CSidebarNavTitle',
         //   _children: ['Cobradores']
@@ -139,11 +96,6 @@ export default [{
             route: '/zonas',
             icon: 'cil-puzzle',
             items: [{
-                    name: 'Nuevo Cobrador',
-                    to: '/nueva_cobrador',
-                    icon: 'cil-user-follow',
-                },
-                {
                     name: 'Listar Cobradores',
                     to: '/Listar_cobradores',
                     icon: 'cil-user-follow',

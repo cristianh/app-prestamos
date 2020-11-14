@@ -491,10 +491,10 @@ export default {
 
       this.clientes=this.$store.getters.getClientes;
       this.idad=this.datastorage.iad
-      for (const key in this.ciudades_data[0].ciudades_principales) {
-            if (this.ciudades_data[0].ciudades_principales.hasOwnProperty(key)) {
+      for (const key in this.ciudades_data[0].Colombia) {
+            if (this.ciudades_data[0].Colombia.hasOwnProperty(key)) {
                 
-                  let element={ value: this.ciudades_data[0].ciudades_principales[key], label: this.ciudades_data[0].ciudades_principales[key]};
+                  let element={ value: this.ciudades_data[0].Colombia[key], label: this.ciudades_data[0].Colombia[key]};
                   this.ciudades.push(element);
                  
             }

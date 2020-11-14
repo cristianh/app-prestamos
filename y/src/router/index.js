@@ -17,12 +17,16 @@ const Typography = () =>
 //Empresa.
 const Empresa = () =>
     import ('@/views/pages/Empresa/EmpresasPage')
-const Empresa_nueva = () =>
-    import ('@/views/pages/Empresa/EmpresaNuevaPage')
+
+//Gastos.
+const Gastos = () =>
+    import ('@/views/pages/Gastos/GastosPage')
+    // const Empresa_nueva = () =>
+    //     import ('@/views/pages/Empresa/EmpresaNuevaPage')
 const Empresa_Editar = () =>
     import ('@/views/pages/Empresa/EmpresaEditarPage')
-const Eliminar_Editar = () =>
-    import ('@/views/pages/Empresa/EliminarEmpresasPage')
+    // const Eliminar_Editar = () =>
+    // import ('@/views/pages/Empresa/EliminarEmpresasPage')
     //Empresa Bienvenida
     // const MensajeBienvenidaCobradores = () => import('@/views/pages/Empresa/MensajeBienvenidaCobradores')
 
@@ -153,6 +157,10 @@ const Users = () =>
 const User = () =>
     import ('@/views/users/User')
 
+//Supervisores
+const Supervisores = () =>
+    import ('@/views/pages/Supervisores/SupervisoresPage')
+
 Vue.use(Router)
 
 export default new Router({
@@ -186,7 +194,15 @@ function configRoutes() {
             children: [{
                     path: 'dashboard',
                     name: 'Dashboard',
-                    component: Dashboard
+                    component: Dashboard,
+                    beforeEnter: (to, from, next) => {
+                        // ...
+                        console.log(to);
+                        console.log(from);
+                        console.log(next);
+                        next()
+
+                    },
                 },
                 {
                     path: 'pages',
@@ -204,12 +220,13 @@ function configRoutes() {
                             path: '/editar_empresa',
                             name: 'Editar empresa',
                             component: Empresa_Editar
-                        },
-                        {
-                            path: '/borrar_empresa',
-                            name: 'Eliminr empresa',
-                            component: Eliminar_Editar
                         }
+                        // ,
+                        // {
+                        //     path: '/borrar_empresa',
+                        //     name: 'Eliminr empresa',
+                        //     component: Eliminar_Editar
+                        // }
                         // {
                         //   path: '/mensaje_bienvenida_cobradores',
                         //   name: 'Mensaje bienvenida',
@@ -234,11 +251,12 @@ function configRoutes() {
                             name: 'Editar empresa',
                             component: Empresa_Editar
                         },
-                        {
-                            path: '/borrar_zona',
-                            name: 'Eliminar empresa',
-                            component: Eliminar_Editar
-                        },
+                        // ,
+                        // {
+                        //     path: '/borrar_zona',
+                        //     name: 'Eliminar empresa',
+                        //     component: Eliminar_Editar
+                        // },
                         {
                             path: '/zonas_cobradores',
                             name: 'Zona cobrador',
@@ -263,6 +281,50 @@ function configRoutes() {
                             path: '/listar_cobradores',
                             name: 'Listar cobradores',
                             component: Listar_cobradores
+                        }
+                        // {
+                        //   path: '/borrar_cobrador',
+                        //   name: 'Eliminr cobrador',
+                        //   component: Eliminar_Editar
+                        // }
+                    ]
+                },
+                {
+                    path: 'pages',
+                    redirect: '/pages/supervisor',
+                    name: 'Pages',
+                    component: {
+                        render(c) { return c('router-view') }
+                    },
+                    children: [{
+                            path: '/nueva_supervisor',
+                            name: 'Nuevo supervisor',
+                            component: Supervisores
+                        }
+
+                        // {
+                        //     path: '/listar_supervisor',
+                        //     name: 'Listar supervisor',
+                        //     component: Listar_cobradores
+                        // }
+                        // {
+                        //   path: '/borrar_cobrador',
+                        //   name: 'Eliminr cobrador',
+                        //   component: Eliminar_Editar
+                        // }
+                    ]
+                },
+                {
+                    path: 'pages',
+                    redirect: '/pages/gastos',
+                    name: 'Pages',
+                    component: {
+                        render(c) { return c('router-view') }
+                    },
+                    children: [{
+                            path: '/listar_gastos',
+                            name: 'Listar gastos',
+                            component: Gastos
                         }
                         // {
                         //   path: '/borrar_cobrador',

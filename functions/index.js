@@ -973,6 +973,27 @@ exports.buscarZonaCobrador = functions.https.onRequest(async(request, response, 
 });
 
 
+exports.SupervisorGuardar = functions.https.onRequest(async(request, response, body) => {
+    response.set('Access-Control-Allow-Origin', '*');
+    response.set('Access-Control-Allow-Credentials', 'true'); // vital
+    response.set('Access-Control-Allow-Methods', 'GET,POST', 'PUT', 'DELETE', 'OPTIONS');
+    response.set('Access-Control-Allow-Headers', 'Content-Type');
+    response.set('Access-Control-Allow-Headers', 'Content-Length,Content-Range');
+    response.set('Access-Control-Allow-Headers', 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization');
+
+    try {
+        await db.collection('usuarios').doc(request.query.idadmin).collection('empresas').doc(request.query.doc).collection('supervisores').add(request.body).then((ref) => {
+            // db.collection('cobradores').doc(ref.id).collection("Clientes").set({'hola':'fg'});
+            return response.status(200).send({ mensaje: 'El nuevo supervisor ha sido registrado', id: ref.id });
+        });
+
+    } catch (error) {
+        // db.collection('cobradores').doc(ref.id).collection("Clientes").set({'hola':'fg'});
+        return response.status(500).send(error);
+    }
+
+});
+
 
 exports.CobradoresGuardar = functions.https.onRequest(async(request, response, body) => {
     response.set('Access-Control-Allow-Origin', '*');

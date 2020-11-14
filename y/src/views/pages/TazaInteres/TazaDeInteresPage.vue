@@ -29,6 +29,7 @@
       <CCol sm="12">
         <CInput
                   label="Interes del plan"
+                  description="Ingrese el valor en formato decimal Ej: 20% = 0.2"
                   placeholder="Ingrese el interes del plan"
                   v-model="planpago_form.interes"
          />

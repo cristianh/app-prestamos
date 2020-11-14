@@ -149,17 +149,58 @@ export default {
       onSelectEmpresa($event){
          
           let empresa=this.empresas_info.filter(x=>x.id==this.zonas_form.empresa);
-         
-           if(empresa[0].Pais==="Colombia"){ 
-         for (const key in this.ciudades_data[0].ciudades_principales) {
-            if (this.ciudades_data[0].ciudades_principales.hasOwnProperty(key)) {
-                
-                  let element={ value: this.ciudades_data[0].ciudades_principales[key], label: this.ciudades_data[0].ciudades_principales[key]};
+          let pais=empresa[0].Pais;
+        
+          console.log(empresa[0].Pais);
+          let contador_cuidades=0
+          this.ciudades=[]
+        switch (empresa[0].Pais) {
+          case "Colombia":
+            // this.ciudades=[]
+          this.ciudades.push({ value: 'Seleccione', label: 'Seleccione'});
+             for (const key in this.ciudades_data[0].Colombia) {
+            if (this.ciudades_data[0].Colombia.hasOwnProperty(key)) {
+                 
+                  let element={ value: this.ciudades_data[0].Colombia[key], label: this.ciudades_data[0].Colombia[key]};
+                 
                   this.ciudades.push(element);
                  
             }
-        }  
-      }
+        }
+            break;
+        case "México":
+          // this.ciudades=[]
+          this.ciudades.push({ value: 'Seleccione', label: 'Seleccione'});
+            for (const key in this.ciudades_data[0].Mexico) {
+            if (this.ciudades_data[0].Mexico.hasOwnProperty(key)) {
+                
+                  let element={ value: this.ciudades_data[0].Mexico[key], label: this.ciudades_data[0].Mexico[key]};
+                  
+                  this.ciudades.push(element);
+                  //  console.log(this.ciudades);
+                 
+            }
+        } 
+        case "Brasil":
+          this.ciudades.push({ value: 'Seleccione', label: 'Seleccione'});
+            for (const key in this.ciudades_data[0].Brazil) {
+            if (this.ciudades_data[0].Brazil.hasOwnProperty(key)) {
+                  contador_cuidades++;
+                  let element={ value: this.ciudades_data[0].Brazil[key], label: this.ciudades_data[0].Brazil[key]};
+                  if(contador_cuidades==this.ciudades_data[0].Brazil.length){
+                     this.ciudades.push({ value: 'Seleccione', label: 'Seleccione'});
+                  }
+                  this.ciudades.push(element);
+                  //  console.log(this.ciudades);
+                 
+            }
+        } 
+          break;
+
+          default:
+            break;
+        }
+     
       },
         onGuardarZona(){
           axios.get('https://worldtimeapi.org/api/timezone/America/Bogota').then((res)=>{
