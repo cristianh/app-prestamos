@@ -171,10 +171,10 @@ export default {
         case "México":
           // this.ciudades=[]
           this.ciudades.push({ value: 'Seleccione', label: 'Seleccione'});
-            for (const key in this.ciudades_data[0].Mexico) {
-            if (this.ciudades_data[0].Mexico.hasOwnProperty(key)) {
+            for (const key in this.ciudades_data[0].México) {
+            if (this.ciudades_data[0].México.hasOwnProperty(key)) {
                 
-                  let element={ value: this.ciudades_data[0].Mexico[key], label: this.ciudades_data[0].Mexico[key]};
+                  let element={ value: this.ciudades_data[0].México[key], label: this.ciudades_data[0].México[key]};
                   
                   this.ciudades.push(element);
                   //  console.log(this.ciudades);
@@ -183,11 +183,11 @@ export default {
         } 
         case "Brasil":
           this.ciudades.push({ value: 'Seleccione', label: 'Seleccione'});
-            for (const key in this.ciudades_data[0].Brazil) {
-            if (this.ciudades_data[0].Brazil.hasOwnProperty(key)) {
+            for (const key in this.ciudades_data[0].Brasil) {
+            if (this.ciudades_data[0].Brasil.hasOwnProperty(key)) {
                   contador_cuidades++;
-                  let element={ value: this.ciudades_data[0].Brazil[key], label: this.ciudades_data[0].Brazil[key]};
-                  if(contador_cuidades==this.ciudades_data[0].Brazil.length){
+                  let element={ value: this.ciudades_data[0].Brasil[key], label: this.ciudades_data[0].Brasil[key]};
+                  if(contador_cuidades==this.ciudades_data[0].Brasil.length){
                      this.ciudades.push({ value: 'Seleccione', label: 'Seleccione'});
                   }
                   this.ciudades.push(element);

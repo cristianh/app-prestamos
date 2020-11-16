@@ -33,8 +33,7 @@ const CiudadesData = [{
             'Yopal',
             'Leticia'
         ],
-        'Mexico': [
-            'Abasolo',
+        'México': [
             'Abasolo',
             'Acajete',
             'Acajete',
@@ -1225,7 +1224,7 @@ const CiudadesData = [{
             'Zumpango de Ocampo',
             'Zumpango del Río'
         ],
-        'Brazil': [
+        'Brasil': [
             'Abaetetuba',
             'Abunã',
             'Acaraú',

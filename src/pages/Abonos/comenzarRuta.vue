@@ -143,9 +143,10 @@
         :id=cliente.data.id
         :key=key
         :title="`${cliente.data.usuario.nombre} ${cliente.data.usuario.apellido}`" 
-        :footer="onMensajeCouta(cliente.data.estado_pago_prestamo,calculoTotalPagoHoy[index])"  
-        @click="onClickClientePaginaDetalles(cliente.data.id,calculoTotalPagoHoy[index])"
+        :footer="onMensajeCouta(cliente.data.estado_pago_prestamo,calculoTotalPagoHoy[index].pago)"  
+        @click="onClickClientePaginaDetalles(cliente.data.id,calculoTotalPagoHoy[index].pago)"
         >
+        
         <!-- <f7-swipeout-actions right> -->
         <!-- <f7-swipeout-button close overswipe color="green" @click="onReply(cliente,cliente.data.usuario.nombre+cliente.data.usuario.apellido)">Seleccionar</f7-swipeout-button> -->
         <!-- <f7-swipeout-button close color="blue" >Pendiente</f7-swipeout-button> -->
@@ -158,8 +159,8 @@
          {{cliente.data.prestamos[0].estado_pago_prestamo.pago}}
          {{cliente.data.prestamos[0].estado_pago_prestamo.nopago}}
          {{cliente.data.prestamos[0].estado_pago_prestamo.pendiente}} -->
-        {{cliente.data.estado_pago_prestamo}}
-        <!-- {{calculoTotalPagoHoy[index]}} -->
+        <!-- {{cliente.data.estado_pago_prestamo}} -->
+        {{calculoTotalPagoHoy[index].pago}}
         </f7-list-item>
         </f7-list>
         </f7-block>
@@ -815,15 +816,7 @@ if (fin < inicio) {
           localStorage.setItem("Informe_final_ruta",JSON.stringify(this.informacion_final_ruta))
           localStorage.setItem("mostrar_resultado_final",Boolean(true));
           localStorage.removeItem("cobros_hoy")
-          
-         
-          
-         
-          
-         
-          
-          // this.$f7.sheet.open('.mensaje_final-sheet');
-        
+          this.$store.commit('setEliminarTodoCobros');
         });
 
           

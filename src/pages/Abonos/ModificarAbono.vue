@@ -10,12 +10,13 @@
     
     <f7-block>
         <!-- {{lista_cobros_hoy}} -->
+         <!-- @swipeout:delete="onEliminarCobro(cobros,index)" -->
         <div v-if="lista_cobros_hoy.length>=1">
         <f7-list>
         <f7-list-item  
         media-list
         swipeout  
-         
+       
         v-for="(cobros,index,key) in lista_cobros_hoy"
         :subtitle=" `Valor:${Number(cobros.valor_pago).toLocaleString('es-CO',{style: 'currency',currency: 'COP',minimumSignificantDigits:1})}`"   
         :id=cobros.cliente_id
@@ -29,7 +30,7 @@
         <f7-swipeout-actions right>
         <!-- <f7-swipeout-button close overswipe color="green" @click="onReply(cliente,cliente.data.usuario.nombre+cliente.data.usuario.apellido)">Seleccionar</f7-swipeout-button> -->
         <!-- <f7-swipeout-button @click="onOpenModalEditCobro(cobros)" color="blue" >Editar</f7-swipeout-button> -->
-        <f7-swipeout-button  @click="onEliminarCobro(cobros)" color="red" delete>Eliminar</f7-swipeout-button>
+        <f7-swipeout-button   @click="onEliminarCobro(cobros,index)" color="red">Eliminar</f7-swipeout-button>
         </f7-swipeout-actions>
         <!-- {{cliente.data.prestamos[0].estado_pago_prestamo.pendiente}} -->
         <!-- {{lista_cobros_realizados[index].estado}} -->
@@ -191,43 +192,7 @@ export default {
         }, 
          onDescuentaSaldoZona(){
        
-       let saldo_actual=  localStorage.getItem("saldo_zona");
-       console.log(saldo_actual)
-      
-       let saldoactualizado;
-      //  let descuentosaldozona;
-       console.log(this.infocobroseleccionado.valor_pago)
-       console.log(Number(this.valorform.replace('.','')))
-       saldoactualizado=Number(saldo_actual)-Number(this.infocobroseleccionado.valor_pago)
-      //  if(Number(this.valorform.replace('.',''))>=Number(this.infocobroseleccionado.valor_pago)){
-      //      saldoactualizado=Number(this.valorform.replace('.',''))+Number(this.infocobroseleccionado.valor_pago);
-      //      descuentosaldozona=Number(saldo_actual)+Number(saldoactualizado);
-      //      console.log(descuentosaldozona);
-      //      console.log(saldoactualizado);
-      //  }else{
-      //      saldoactualizado=Number(this.infocobroseleccionado.valor_pago)-Number(this.valorform.replace('.',''));
-      //      descuentosaldozona=Number(saldo_actual)-Number(saldoactualizado);
-      //      console.log(descuentosaldozona);
-      //      console.log(saldoactualizado);
-      //  }
-       
-       
-
-       let datasetcobrostore={
-           id_cobro:this.infocobroseleccionado.cobro_id,
-           nuevovalorcobro:saldoactualizado
-       }
-
-      
-      
-       this.$store.commit('setBalanceZona',Number(saldoactualizado));
-       this.$store.commit('setEditCobrosHoy',datasetcobrostore);
-       this.$store.commit('setbalance_finalJornada',Number(saldoactualizado));
-       this.balance_zona= localStorage.getItem("saldo_zona");
-    //    his.$f7router.back();
-        // this.$f7.popup.close()
-        // this.onActualizarPrestamos(saldoactualizado)
-        this.updateValor()
+    
        
         }, 
         onEditarCobros(){
@@ -267,7 +232,36 @@ export default {
 
 
         }, 
-     onEliminarCobro(cobro){
+    onReiniciarPrestamoLocal(idcliente,prestamoestadoinicial){
+       console.log("...............................prestamo a reiniciar",prestamoestadoinicial)
+      let dataReiniciarPrestamo={
+              id:idcliente,
+              prestamo:prestamoestadoinicial
+       }
+       this.$store.commit('SetActualizarPrestamoClientes',dataReiniciarPrestamo);
+      
+      //  console.log("...............................this.$store.getters.getClientesCobros",this.$store.getters.getClientesCobros)
+    },
+    onReduceNumeroDeCobrosEfectivos(){
+       this.$store.commit('setCatidad_cobrosefectivosJornadaDisminuye');
+    },
+    onReiniciarEstadoTotalApagar(dataTotalAPagarHoy){
+      this.$store.commit('setEstadoTotalAPagar',dataTotalAPagarHoy);
+    },
+    onReiniciarEstadoClientePrestamo(data_estado_ruta){
+      this.$store.commit('SetReiniciarEstadoClientesPrestamos',data_estado_ruta)
+    },
+     onEliminarEstadoPrestamoAntesCobro(idCliente){
+       this.$store.commit('setEliminarEstadosPrestamosAntesCobros',idCliente)
+       
+       if(localStorage.getItem('estados_prestamos_antes_cobros').length==0){
+         localStorage.removeItem('estados_prestamos_antes_cobros')
+       }
+      //  localStorage.setItem("estados_prestamos_antes_cobros", JSON.stringify(state.estados_prestamos_antes_cobros));
+     },
+     onEliminarCobro(cobro,pocision_lista_cliente){
+
+       this.$f7.dialog.confirm("Seguro desea eliminar este cobro","Atencion!",()=>{
        this.$f7.dialog.preloader('Eliminando cobro...');
        this.infocobroseleccionado=cobro;
        let zona= localStorage.getItem("zona");
@@ -275,66 +269,93 @@ export default {
        let ui_cobrador=this.datastorage.uid
        let idad=this.datastorage.iad
        let cliente=this.$store.getters.getClientesCobros.find(x => x.data.prestamos[0].cliente ==this.infocobroseleccionado.cliente_id)
-      console.log(this.$store.getters.getEstadoPrestamoAntesCobro);
+      
        let prestamoestadoinicial=this.$store.getters.getEstadoPrestamoAntesCobro.find(x => x.cliente ==this.infocobroseleccionado.cliente_id)
-       console.log(cliente)
+       console.log("...............................prestamo estado actual",cliente.data.prestamos[0])
+       console.log("...............................cliente",cliente)
        console.log(prestamoestadoinicial)
        cliente.data.prestamos[0]=prestamoestadoinicial
-
-      
-    this.clientesservice.eliminarClienteCobro(idad,empresa,ui_cobrador,this.infocobroseleccionado.cobro_id).then( (response) =>  {
-      console.log(response.data)
-      this.$f7.dialog.close();
-      this.$f7.dialog.alert('Cobro eliminado','Atencion!')
-
-      
-       
-       let estados=JSON.parse(localStorage.getItem('ListaEstadosCobro'))
-       console.log(estados);
-      //  let posicion = this.$store.getters.getClientesCobros.findIndex(x => x.data.id == this.id);
-       let posicion = estados.findIndex(x => x.id == this.infocobroseleccionado.cliente_id);
-       console.log(posicion);
-       estados[posicion].estado= 0
-       localStorage.setItem('ListaEstadosCobro',JSON.stringify(estados))
-
-       let data_estado_ruta={
-                      id: this.infocobroseleccionado.cliente_id,
-                      estadopagoruta:0
-        };
-      //  this.$store.commit('setEstadoPrestamoRutaPago',data_estado_ruta);
-         let dataTotalAPagarHoy={
-            Idcliente: this.infocobroseleccionado.cliente_id,
-            pagototalhoy:Number(this.infocobroseleccionado.valor_pago)
-          };
-      this.$store.commit('setEstadoTotalAPagar',dataTotalAPagarHoy);
-
-      // this.$store.getters.getSaldosPagoDia
-
-      this.$store.commit('SetReiniciarEstadoClientesPrestamos',data_estado_ruta)
-      // this.$store.commit('setEstadosInicialesRutaClientesPrestamo')
-      
-                    // console.log(posicion);
-                    
-        // this.$store.commit('SetEliminarClientesPrestamos',posicion);
-
-        this.clientesservice.actualizarClienteCobrador(idad,empresa,ui_cobrador,this.infocobroseleccionado.cliente_id,cliente.data).then( (response) =>  {
+       this.clientesservice.actualizarClienteCobrador(idad,empresa,ui_cobrador,this.infocobroseleccionado.cliente_id,cliente.data).then( (response) =>  {
             console.log(response.data)
 
+            let data_estado_ruta={
+                          id: this.infocobroseleccionado.cliente_id,
+                          estadopagoruta:0
+            };
+
+              let dataTotalAPagarHoy={
+            Idcliente: this.infocobroseleccionado.cliente_id,
+            pagototalhoy:{pago:cliente.data.prestamos[0].saldo_pago_dia,id:this.infocobroseleccionado.cliente_id}
+            };
+
+            this.onReiniciarEstadoTotalApagar(dataTotalAPagarHoy)
+            this.onReiniciarEstadoClientePrestamo(data_estado_ruta)
+            this.onEliminarEstadoPrestamoAntesCobro(this.infocobroseleccionado.cliente_id)
+            this.onReduceNumeroDeCobrosEfectivos()
+            this.$store.commit('setAumentaContadorClientesListaPrestamos');
+            this.onReiniciarPrestamoLocal(this.infocobroseleccionado.cliente_id,prestamoestadoinicial)
+            console.log("pocision_lista_cliente",pocision_lista_cliente)
+            this.lista_cobros_hoy.splice(pocision_lista_cliente,1)
+
+              let saldo_actual=  localStorage.getItem("saldo_zona");
+       console.log(saldo_actual)
+      
+       let saldoactualizado;
+      //  let descuentosaldozona;
+       console.log(this.infocobroseleccionado.valor_pago)
+       console.log(Number(this.valorform.replace('.','')))
+       saldoactualizado=Number(saldo_actual)-Number(this.infocobroseleccionado.valor_pago)
+   
+       
+       
+      console.log("this.infocobroseleccionado",this.infocobroseleccionado);
+    
+
+      
+       console.log("datasetcobrostore",datasetcobrostore);
+       this.$store.commit('setBalanceZona',Number(saldoactualizado));
+       
+       this.$store.commit('setbalance_finalJornada',Number(saldoactualizado));
+       this.balance_zona= localStorage.getItem("saldo_zona");
+    //    his.$f7router.back();
+        // this.$f7.popup.close()
+        // this.onActualizarPrestamos(saldoactualizado)
+       
+            let datasetcobrostore={
+           id_cobro:this.infocobroseleccionado.cobro_id
+          }
+          this.$store.commit('setEliminarCobrosHoy',datasetcobrostore);
+            let descuentototalpagosruta=Number(this.$store.getters.getCobrosTotalCobrado)-Number(this.infocobroseleccionado.valor_pago);
+            this.$store.commit('setTotalCobros',descuentototalpagosruta);
+            this.$f7.dialog.close()
+             this.updateValor()
+
             
-            this.onDescuentaSaldoZona()
-              //     this.informacion_pago.valor_pago=0;  
-              //     this.valor_sin_puntos=0;  
-              //       this.$f7.sheet.close();
-              // this.$f7.dialog.close();
-              
-              // this.$store.commit('setDisminuyeContadorClientesListaPrestamos');
-              // // this.$f7router.back();
-              // this.clientesService.eliminarPrestamoPago(this.idad,idempresa,ui_cobrador,this.id,elemento).then( (response) =>  {
-              //   this.$store.commit('eliminarClientePrestamoDiario',this.id);
-              //       this.$f7router.back();
-              //     });
-      });
-     })
+            // this.onDescuentaSaldoZona()
+             
+         });
+       });
+
+      
+    
+    
+      // cliente.data.prestamos[0].saldo_pago_dia=0
+ 
+    // this.clientesservice.eliminarClienteCobro(idad,empresa,ui_cobrador,this.infocobroseleccionado.cobro_id).then( (response) =>  {
+    //   console.log(this.infocobroseleccionado)
+    //   this.$f7.dialog.close();
+    //   this.$f7.dialog.alert('Cobro eliminado','Atencion!')
+
+    //    let estados=JSON.parse(localStorage.getItem('ListaEstadosCobro'))
+    
+    //    let saldodia = this.$store.getters.getSaldosPagoDia
+    //    let posicion = estados.findIndex(x => x.id == this.infocobroseleccionado.cliente_id);
+    //    let posicionCobroDia = saldodia.findIndex(x => x.id == this.infocobroseleccionado.cliente_id);
+    //    console.log("posicionCobroDia",posicionCobroDia);
+    //    estados[posicion].estado= 0
+    //    localStorage.setItem('ListaEstadosCobro',JSON.stringify(estados))
+
+    //  })
             
     },
     onActualizarPrestamos(saldonuevo){
